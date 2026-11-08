@@ -223,14 +223,14 @@ describe("AppTile", () => {
 
 describe("Dock", () => {
   const items = [
-    { id: "orin", label: "ORIN", icon: "sparkle" as const },
+    { id: "ren", label: "REN", icon: "sparkle" as const },
     { id: "life", label: "NN Life", icon: "calendar" as const },
   ];
 
   it("marks the active item and reports selection", async () => {
     const onSelect = vi.fn();
-    render(<Dock items={items} activeId="orin" onSelect={onSelect} />);
-    expect(screen.getByRole("button", { name: "ORIN" })).toHaveAttribute("aria-current", "true");
+    render(<Dock items={items} activeId="ren" onSelect={onSelect} />);
+    expect(screen.getByRole("button", { name: "REN" })).toHaveAttribute("aria-current", "true");
     await userEvent.click(screen.getByRole("button", { name: "NN Life" }));
     expect(onSelect).toHaveBeenCalledWith("life");
   });

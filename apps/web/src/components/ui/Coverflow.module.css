@@ -1,0 +1,191 @@
+.root { width: 100%; }
+.relative { position: relative; }
+
+.frame {
+  /* Vertical padding keeps the cards' drop shadows clear of the overflow clip. */
+  padding: var(--space-10) 0;
+  overflow: hidden;
+  outline: none;
+  cursor: grab;
+  /* Horizontal drag is ours; the page keeps vertical scrolling. */
+  touch-action: pan-y;
+}
+.frame:active { cursor: grabbing; }
+.frame:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; border-radius: var(--radius-md); }
+
+.ring {
+  position: relative;
+  height: var(--cf-card);
+  transform-style: preserve-3d;
+  user-select: none;
+}
+
+/* A pane of glass, not a photo frame. The icon and label are the content. */
+.card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--cf-card);
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-7);
+  overflow: hidden;
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(158deg, rgb(100 156 227 / 10%), transparent 58%),
+    var(--glass-2-bg);
+  backdrop-filter: blur(var(--glass-2-blur));
+  -webkit-backdrop-filter: blur(var(--glass-2-blur));
+  box-shadow: var(--shadow-3), inset 0 1px 0 var(--glass-sheen);
+  will-change: transform, opacity;
+  /* Only the transform is written per frame; nothing here transitions, or the
+     drag would lag a frame behind the finger. */
+}
+
+/* The specular band. Its position tracks the card's own tilt, so turning a
+   card sweeps light across it the way a real pane would. */
+.sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    calc(100deg + var(--tilt, 0) * 1deg),
+    transparent 30%,
+    rgb(255 255 255 / 16%) 50%,
+    transparent 70%
+  );
+  opacity: calc(0.35 + var(--centred, 0) * 0.65);
+}
+
+.cardIcon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: auto;
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-lg);
+  background: var(--glass-1-bg);
+  color: var(--nn-icy);
+  box-shadow: inset 0 1px 0 var(--glass-sheen);
+}
+
+.cardTitle {
+  position: relative;
+  font-size: var(--text-t3-size);
+  line-height: var(--text-t3-lh);
+  letter-spacing: var(--text-t3-ls);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.cardHint {
+  position: relative;
+  font-size: var(--text-caption-size);
+  color: var(--text-secondary);
+}
+
+/* ---- navigation ---------------------------------------------------------- */
+.nav {
+  position: absolute;
+  top: 50%;
+  z-index: 200;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-full);
+  background: var(--glass-3-bg);
+  backdrop-filter: blur(var(--glass-3-blur));
+  -webkit-backdrop-filter: blur(var(--glass-3-blur));
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow-2), inset 0 1px 0 var(--glass-sheen);
+  transition: border-color var(--dur-fast) var(--ease-standard),
+              transform var(--dur-fast) var(--ease-standard);
+}
+.nav:hover { border-color: var(--border-strong); }
+.nav:active { transform: translateY(-50%) scale(0.94); }
+.navPrev { left: var(--space-5); }
+.navNext { right: var(--space-5); }
+
+/* ---- caption ------------------------------------------------------------- */
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--space-8);
+  margin-top: var(--space-5);
+  animation: nn-cf-fade var(--dur-slow) var(--ease-entrance);
+}
+@keyframes nn-cf-fade { from { opacity: 0; transform: translateY(4px); } }
+
+.captionTitle {
+  font-size: var(--text-lg-size);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.captionSub {
+  margin-top: var(--space-2);
+  font-size: var(--text-label-size);
+  color: var(--text-secondary);
+}
+
+.meta {
+  width: 100%;
+  max-width: 260px;
+  margin: var(--space-8) 0 0;
+  font-size: var(--text-caption-size);
+  font-variant-numeric: tabular-nums;
+}
+.meta > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.meta > div:first-child { border-top: 0; }
+.meta dt { color: var(--text-muted); }
+.meta dd { margin: 0; font-weight: var(--weight-medium); color: var(--text-primary); }
+
+/* ---- pagination ---------------------------------------------------------- */
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-7);
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--text-secondary);
+  opacity: 0.3;
+  cursor: pointer;
+  transition: opacity var(--dur-fast) var(--ease-standard),
+              transform var(--dur-fast) var(--ease-standard);
+}
+.dot:hover { opacity: 0.6; }
+.dotOn { opacity: 1; background: var(--nn-icy); transform: scale(1.25); }
+
+/* The dots are an 8px visual on a 24px target: pointer accuracy should not be
+   the price of a small indicator. */
+.dot::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+.dots { position: relative; }
+.dot { position: relative; }

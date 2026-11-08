@@ -6,7 +6,7 @@ Review it live at `/design`, or `/design#controls` for one section.
 ## Principle
 
 Tokens are the only source of truth. No component hardcodes a colour, a size,
-a radius or a duration that exists as a token. Retheming NN — which ORIN must
+a radius or a duration that exists as a token. Retheming NN — which REN must
 be able to do on request in a later phase — therefore means changing values in
 one file, not touching components.
 
@@ -84,8 +84,8 @@ motion.
 | `AppTile` | launcher tile, full and compact |
 | `Dock` | labelled navigation landmark, `aria-current` |
 | `FloatingWindow` | pointer-capture drag, minimise/maximise/close |
-| `OrinWave` | deterministic double-hump envelope across 29 nested curves |
-| `OrinCommand` | controlled; performs no speech and makes no network call |
+| `RenWave` | deterministic double-hump envelope across 29 nested curves |
+| `RenCommand` | controlled; performs no speech and makes no network call |
 
 ### Robustness decisions worth knowing
 
@@ -94,7 +94,7 @@ motion.
 coordinates so a window can never be stranded at `NaN`, and treats a pointer
 event with no `button` as the primary button rather than refusing to drag.
 
-`OrinWave` computes its geometry from a pure function with no randomness, so
+`RenWave` computes its geometry from a pure function with no randomness, so
 server and client markup match exactly and there is no hydration mismatch.
 
 ## Accessibility

@@ -113,7 +113,7 @@
 .log { font-family: var(--font-mono); font-size: 11px; color: var(--text-accent); min-height: 18px; }
 
 .hero { margin: var(--space-11) 0 var(--space-12); }
-.orinWrap { max-width: 720px; margin: 0 auto; }
+.renWrap { max-width: 720px; margin: 0 auto; }
 
 .tabs {
   display: flex; flex-wrap: wrap; gap: var(--space-2);

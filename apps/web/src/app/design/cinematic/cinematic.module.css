@@ -1,0 +1,78 @@
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--space-9) var(--space-8) var(--space-14);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-bottom: var(--space-7);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+.crumbs a { color: var(--text-secondary); text-decoration: none; }
+.crumbs a:hover { color: var(--nn-icy); text-decoration: underline; }
+
+.intro { max-width: 62ch; padding: var(--space-11) 0 var(--space-9); }
+.intro h1 {
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: var(--weight-semibold);
+}
+.intro p { margin-top: var(--space-6); font-size: var(--text-lg-size); line-height: 1.65; color: var(--text-secondary); }
+
+.block { padding: var(--space-10) 0; border-top: 1px solid var(--border-subtle); }
+.blockHead { max-width: 64ch; margin-bottom: var(--space-8); }
+.blockHead h2 {
+  font-size: var(--text-micro-size);
+  line-height: var(--text-micro-lh);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+.blockHead p { margin-top: var(--space-5); line-height: 1.65; color: var(--text-secondary); }
+.blockHead strong { color: var(--nn-icy); font-weight: var(--weight-medium); }
+
+/* A slice of the room, so it can be looked at directly rather than only
+   glimpsed behind content. */
+.roomStrip {
+  height: 300px;
+  overflow: hidden;
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-3);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-7);
+  padding: var(--space-8) 0;
+}
+
+.foot {
+  max-width: 68ch;
+  padding-top: var(--space-9);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-caption-size);
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+@media (max-width: 767px) {
+  .page { padding: var(--space-7) var(--space-5) var(--space-12); }
+  .roomStrip { height: 200px; }
+  .row { gap: var(--space-5); }
+}

@@ -28,7 +28,7 @@ Three principles govern everything:
 | **Environment** | the lit room: ambient light, atmosphere, ground plane |
 | **Workspace** | where application surfaces live, at depth |
 | **Chrome** | top bar and dock — floating, never a sidebar |
-| **ORIN** | ambient presence, expanding only as far as the task needs |
+| **REN** | ambient presence, expanding only as far as the task needs |
 | **Overlays** | launcher, command palette, notifications, dialogs |
 
 ## Components it requires

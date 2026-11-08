@@ -32,7 +32,7 @@ A stranger who typed the exact address would see a locked door.
 
 | | |
 |---|---|
-| Web app manifest | ✅ `standalone` display, correct colours, 3 icons, one ORIN shortcut |
+| Web app manifest | ✅ `standalone` display, correct colours, 3 icons, one REN shortcut |
 | Icon 512×512 | ✅ real PNG, generated from the locked mark |
 | Apple touch icon 180×180 | ✅ real PNG, margined for iOS's squircle mask |
 | Android maskable icon | ✅ real PNG, mark inside the 80% safe zone |

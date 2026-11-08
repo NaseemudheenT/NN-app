@@ -1,0 +1,130 @@
+/* The glass slab. Three stacked layers inside one control. */
+.liquid {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--dur-slow) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    filter var(--dur-base) var(--ease-standard);
+}
+
+.pill, .pill .edge, .pill .refraction { border-radius: var(--radius-full); }
+.rounded, .rounded .edge, .rounded .refraction { border-radius: var(--radius-md); }
+
+/* The global focus rule squares off pill controls; keep the control's shape. */
+.liquid:focus-visible { border-radius: inherit; outline-offset: 4px; }
+
+.liquid:hover:not(:disabled) { transform: scale(1.05); }
+.liquid:active:not(:disabled) { transform: scale(0.97); }
+.liquid:disabled { cursor: not-allowed; opacity: 0.45; }
+
+/* Layer 1 — the edge. Nine shadows, no background: pure material. */
+.edge {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  box-shadow: var(--liquid-edge-shadow);
+  transition: box-shadow var(--dur-base) var(--ease-standard);
+}
+
+/* Layer 2 — the refraction. Bends whatever is behind the control. */
+.refraction {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  backdrop-filter: var(--liquid-refraction);
+  -webkit-backdrop-filter: var(--liquid-refraction);
+}
+
+/* Layer 3 — the label, floating clear of both plates. */
+.label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  pointer-events: none;
+  transition: opacity var(--dur-base) var(--ease-standard);
+}
+
+/* ---- sizes --------------------------------------------------------------- */
+.sm  { height: 32px; padding: 0 var(--space-6);  font-size: var(--text-caption-size); gap: var(--space-3); }
+.md  { height: 36px; padding: 0 var(--space-6);  font-size: var(--text-label-size); }
+.lg  { height: 40px; padding: 0 var(--space-8);  font-size: var(--text-body-size); }
+.xl  { height: 48px; padding: 0 var(--space-9);  font-size: var(--text-lg-size); }
+.xxl { height: 56px; padding: 0 var(--space-10); font-size: var(--text-lg-size); }
+.icon { height: 36px; width: 36px; padding: 0; }
+
+/* ---- variants ------------------------------------------------------------
+   Clear is the material by itself. The tinted variants add a wash *under* the
+   edge stack so the rim light still reads as the brightest thing on screen. */
+.clear { color: var(--text-primary); }
+
+.accent { color: var(--nn-icy); }
+.accent .refraction {
+  background: linear-gradient(158deg, rgb(100 156 227 / 26%), rgb(100 156 227 / 9%));
+}
+.accent:hover:not(:disabled) { color: var(--nn-white); }
+
+.danger { color: var(--status-err); }
+.danger .refraction {
+  background: linear-gradient(158deg, rgb(232 133 133 / 24%), rgb(232 133 133 / 8%));
+}
+
+/* ---- loading -------------------------------------------------------------
+   No spinner: a light travels the length of the glass instead, which is what
+   a lit edge would actually do. The label stays readable throughout.        */
+.loading { pointer-events: none; }
+.loading .label { opacity: 0.6; }
+.loading .edge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    100deg,
+    transparent 36%,
+    rgb(255 255 255 / 22%) 50%,
+    transparent 64%
+  );
+  animation: nn-liquid-sweep 1150ms linear infinite;
+}
+
+@keyframes nn-liquid-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid:hover:not(:disabled),
+  .liquid:active:not(:disabled) { transform: none; }
+  .loading .edge::after { animation-duration: 3400ms; }
+}
+:global(html[data-motion="reduced"]) .liquid:hover:not(:disabled),
+:global(html[data-motion="reduced"]) .liquid:active:not(:disabled) { transform: none; }
+:global(html[data-motion="reduced"]) .loading .edge::after { animation-duration: 3400ms; }
+
+/* The shared filter definition occupies no space and is never painted. */
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}

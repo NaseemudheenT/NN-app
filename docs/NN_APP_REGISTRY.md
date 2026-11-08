@@ -34,7 +34,7 @@ automatically receives, and must correctly implement:
 | **Security rules** | default-deny; explicit owner-scoped allow; field validation |
 | **Global search** | expose an indexed, permission-aware search surface |
 | **Notifications** | declare its notification types and respect quiet hours |
-| **ORIN tools** | expose a typed, permission-gated tool contract — never conversational faking |
+| **REN tools** | expose a typed, permission-gated tool contract — never conversational faking |
 | **Memory** | may write to NN Memory only with a recorded source and timestamp |
 | **Audit** | every create, update and delete produces an audit record |
 | **Export** | full data export in a documented format |
@@ -55,7 +55,7 @@ Cloud Storage. Any departure must be justified in this document.
 
 ### Group A — Life and wellbeing
 
-| # | Application | Purpose | Core features | Primary data | ORIN integration | Highest permission |
+| # | Application | Purpose | Core features | Primary data | REN integration | Highest permission |
 |---|---|---|---|---|---|---|
 | 1 | **NN Life** | The daily operating system for the founder's life | **Calendar** (day/week/month/year/agenda, recurrence + exceptions, time zones, conflict detection) · **Tasks** (subtasks, dependencies, Kanban) · **Reminders** (durable, escalation, snooze) · **Notes** (rich text, Markdown, versions, links) · habits · goals · routines · focus sessions · daily/weekly/monthly reviews | `calendar_events`, `tasks`, `reminders`, `notes`, `habits`, `goals`, `routines`, `reviews` | plan the day, reschedule, create events and reminders from language, weekly review | modify |
 | 2 | **NN Soul** | Faith, purpose and reflection, on the founder's own terms | prayer/worship routines, scripture study, gratitude, reflection journal, values, purpose, meditation, quiet time | `soul_practices`, `reflections`, `gratitude` | reminders, reflection prompts — **never speaks for God, never invents scripture** | modify |
@@ -67,7 +67,7 @@ Cloud Storage. Any departure must be justified in this document.
 
 ### Group B — Education and intelligence
 
-| # | Application | Purpose | Core features | Primary data | ORIN integration | Highest permission |
+| # | Application | Purpose | Core features | Primary data | REN integration | Highest permission |
 |---|---|---|---|---|---|---|
 | 8 | **NN College** | SMVEC academic management | profile, semesters, subjects, syllabus, units, question banks, CAT-I/CAT-II/model/semester prep, notes, assignments, timetable, attendance, marks, revision plans, analytics, PDF/DOCX/image processing | `subjects`, `syllabus`, `question_banks`, `assignments`, `attendance`, `marks`, `exams` | builds revision plans from the real timetable; **uploaded material is the primary exam source, and gaps are stated** | modify |
 | 9 | **NN Academy** | Long-term technical education | C → Python → DSA → OOP → SQL → Web → Backend → APIs → Git → Cloud → AI, plus maths, finance, business, communication; lessons, exercises, quizzes, projects, mastery, revision scheduling | `courses`, `lessons`, `learning_progress`, `assessments` | teaches at the founder's level, resumes the saved position, scores practice | modify |
@@ -77,7 +77,7 @@ Cloud Storage. Any departure must be justified in this document.
 
 ### Group C — Money and work
 
-| # | Application | Purpose | Core features | Primary data | ORIN integration | Highest permission |
+| # | Application | Purpose | Core features | Primary data | REN integration | Highest permission |
 |---|---|---|---|---|---|---|
 | 13 | **NN Finance** | Personal money management *(absorbs Wealth)* | income, expenses, categories, budgets, savings, net worth, goals, accounts, assets, loans, bills, subscriptions, receipt OCR with review before save, reports, financial education | `transactions`, `budgets`, `accounts`, `financial_goals`, `bills` | answers from real records only; **never invents a balance; receipt extraction always confirmed** | modify |
 | 14 | **NN Invest** | Investment research and tracking | stocks, ETFs, mutual funds, financial statements, company research, watchlists, portfolio, market news, risk, history | `holdings`, `watchlists`, `research` | research and analysis; **labels real-time vs delayed vs historical; never trades without brokerage integration and explicit confirmation** | external-action |
@@ -89,7 +89,7 @@ Cloud Storage. Any departure must be justified in this document.
 
 ### Group D — Creation and communication
 
-| # | Application | Purpose | Core features | Primary data | ORIN integration | Highest permission |
+| # | Application | Purpose | Core features | Primary data | REN integration | Highest permission |
 |---|---|---|---|---|---|---|
 | 20 | **NN Creator Studio** | Photography and visual craft (TITAN VIEW, Zupiko) | photography, camera settings, lighting, composition, editing, video, design, storytelling, branding, content plans, social calendars, analytics | `creative_projects`, `content_plan`, `assets` | briefs, plans, generates imagery through a connected provider | modify |
 | 21 | **NN Studio** | Writing and publishing workspace | rich text and Markdown editors, message and email composers, social planner, captions, hashtags, templates, media library, brand assets, drafts, publishing history | `documents`, `drafts`, `publications` | drafts and schedules; **publishing requires the destination account shown and explicit confirmation** | external-action |
@@ -98,7 +98,7 @@ Cloud Storage. Any departure must be justified in this document.
 
 ### Group E — Knowledge, record and insight
 
-| # | Application | Purpose | Core features | Primary data | ORIN integration | Highest permission |
+| # | Application | Purpose | Core features | Primary data | REN integration | Highest permission |
 |---|---|---|---|---|---|---|
 | 24 | **NN Files** | Private file system *(absorbs Media Vault)* | folders, upload, previews, search, tags, metadata, versions, duplicate detection, archive, trash, OCR, document analysis, doc→note and doc→task; **Media view** for photos, video, audio, generated assets, albums | `files`, `folders` + Cloud Storage | searches, summarises, compares and extracts from authorised files | modify |
 | 25 | **NN Memory** | The founder's personal knowledge | approved facts, preferences, goals, projects, decisions, learning history, routines, important dates, saved instructions; source, timestamp, confidence, retention; review, edit, correct, export, delete, disable categories | `memories` | retrieves context; **distinguishes stated from inferred and never promotes a guess to a fact** | modify |
@@ -109,17 +109,17 @@ Cloud Storage. Any departure must be justified in this document.
 
 ### Group F — System surfaces
 
-| # | Application | Purpose | Core features | Primary data | ORIN integration | Highest permission |
+| # | Application | Purpose | Core features | Primary data | REN integration | Highest permission |
 |---|---|---|---|---|---|---|
 | 30 | **NN Command Centre** | One place to reach anything | global command input, cross-app search, quick actions, app opening, recent commands, keyboard shortcuts, voice, history, context-aware suggestions | `command_history` | the primary natural-language entry point to the whole system | modify |
-| 31 | **NN Search** | Permission-aware global index | searches apps, notes, files, calendar, tasks, projects, conversations, memory, contacts and authorised services; filters, source attribution, relevance | search index | ORIN's retrieval layer | read |
+| 31 | **NN Search** | Permission-aware global index | searches apps, notes, files, calendar, tasks, projects, conversations, memory, contacts and authorised services; filters, source attribution, relevance | search index | REN's retrieval layer | read |
 | 32 | **NN Automation Studio** | Personal workflows | triggers, conditions, actions, schedules, delays, dependencies, approvals, retries, logs, pause/resume/disable, workflow testing, show-before-enable | `automations`, `automation_runs` | proposes and runs approved automations; **high-impact steps still require confirmation** | external-action |
 | 33 | **NN Security Centre** | Protection and privacy | passkeys, trusted devices, sessions and revocation, login history, permissions, integration access, encryption status, backup status, API tokens, recovery, audit log, alerts | `devices`, `sessions`, `security_events`, `audit_logs` | may report status; **may never change a security setting itself** | security |
 | 34 | **NN Control Room** | Operational truth | installed apps, integrations, background jobs, automations, AI provider status, device connections, storage use, notification and sync status, errors, updates, versions, **cost monitoring** | `system_health`, `job_runs` | reports real metrics only; **no fabricated operational numbers** | read |
 
 ### System capability — NN App Factory
 
-Not an application in the launcher sense. ORIN specifies, generates, statically
+Not an application in the launcher sense. REN specifies, generates, statically
 analyses, tests, previews and — only after founder approval — installs new
 applications into a **sandboxed runtime** with a manifest, declared permissions,
 its own data scope, a version and a rollback path. Generated code never runs in
@@ -138,7 +138,7 @@ NN Life         →  calendar · tasks · reminders · notes   (everything sched
       ↓
 NN Files · NN Memory        (everything stores and recalls through these)
       ↓
-ORIN            →  tool registry over the apps that now exist
+REN            →  tool registry over the apps that now exist
       ↓
 NN College · Academy · Finance · Projects      (first full applications)
       ↓

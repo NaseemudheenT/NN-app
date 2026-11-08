@@ -1,0 +1,16 @@
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Painted before the GPU's first frame lands, and the whole picture where
+     WebGL is unavailable — so the room is never a black rectangle. */
+  background:
+    radial-gradient(1200px 700px at 18% -10%, var(--env-pane), transparent 60%),
+    radial-gradient(900px 520px at 88% 8%, var(--env-light), transparent 66%),
+    var(--env-ground);
+}
+
+.canvas[data-fallback="true"] {
+  /* Nothing further to do: the gradient above already stands in for the room. */
+  opacity: 0.9;
+}

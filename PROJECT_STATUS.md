@@ -6,7 +6,7 @@ the founder's direction. Planning documents prepared and awaiting approval.
 
 **Honest completion: ~3% of NN.** A tested foundation and a design language
 exist. None of the 34 applications, no authentication, no data model and no
-ORIN exist yet.
+REN exist yet.
 
 ## Planning documents awaiting approval
 
@@ -47,7 +47,7 @@ ORIN exist yet.
 | Monorepo scaffold | `VERIFIED` | pnpm workspace, strict TS, build succeeds |
 | NN logo locked — Concept A | `VERIFIED` | 7 SVG variants, geometry byte-identical, guarded by test |
 | Glass NN mark | `VERIFIED` | bloom, refraction, dispersion, specular — renders in browser |
-| ORIN identity (waveform) | `IMPLEMENTED` | 4 states drive real amplitude; full ORIN mark set pending |
+| REN identity (waveform) | `IMPLEMENTED` | 4 states drive real amplitude; full REN mark set pending |
 | Design tokens | `VERIFIED` | `tokens.css`; 15 token tests incl. WCAG ratios |
 | Glass material, 3 tiers | `VERIFIED` | graded opacity confirmed visually and in code |
 | Holographic surface | `VERIFIED` | `.nn-holo` prismatic chamfer on tiles, dock, dialogs |
@@ -62,7 +62,7 @@ ORIN exist yet.
 | Design review page | `VERIFIED` | `/design`, 11 deep-linkable sections |
 | Typecheck / lint / tests | `VERIFIED` | strict clean, 0 warnings, 52 tests passing |
 | PNG raster icon set | `NOT IMPLEMENTED` | deferred to the PWA step in Phase 3 |
-| ORIN logo mark + state icons | `NOT IMPLEMENTED` | begins after founder review of Phase 1 |
+| REN logo mark + state icons | `NOT IMPLEMENTED` | begins after founder review of Phase 1 |
 
 ## Phase 2 — Firebase infrastructure and security
 

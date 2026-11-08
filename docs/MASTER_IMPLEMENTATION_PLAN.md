@@ -14,7 +14,7 @@ Process per phase: **VALIDATE → PLAN → DESIGN → BUILD → TEST → REVIEW 
 |---|---|
 | Repository | `NaseemudheenT/NN-app`, private, `main`, clean |
 | Verified working | monorepo, strict TS, 53 tests, production build, brand assets, design tokens, 13 UI components, Firebase config, default-deny rules |
-| Verified absent | authentication, data model, storage, Functions, **all 34 applications**, ORIN, PWA, 13 required documents |
+| Verified absent | authentication, data model, storage, Functions, **all 34 applications**, REN, PWA, 13 required documents |
 | Firebase | `nn-os-dev` + `nn-os-prod`, Spark, **no billing** |
 | Honest completion | ~3% of NN |
 
@@ -87,16 +87,16 @@ modules, surfaced across NN OS.
 
 ---
 
-## Phase 6 — ORIN foundation
+## Phase 6 — REN foundation
 
 | | |
 |---|---|
-| **Deliverables** | provider-independent AI gateway · model registry · tool registry over Life, Files and Memory · context manager · permission manager · execution pipeline (LISTEN→UNDERSTAND→PLAN→CHECK→CONFIRM→EXECUTE→VERIFY→REPORT) · conversation history · audit · usage and cost tracking · all four ORIN presences |
+| **Deliverables** | provider-independent AI gateway · model registry · tool registry over Life, Files and Memory · context manager · permission manager · execution pipeline (LISTEN→UNDERSTAND→PLAN→CHECK→CONFIRM→EXECUTE→VERIFY→REPORT) · conversation history · audit · usage and cost tracking · all four REN presences |
 | **Firebase** | Functions only — **API keys never reach the browser** |
 | **Security** | least privilege per tool; high-impact actions gated; nothing sent to a provider without the configured privacy policy allowing it |
 | **Testing** | tool permission enforcement · provider failure handling · cancellation · **a refused action is actually refused** · verified-vs-claimed results |
 | **Cost** | Firebase ~$0; **AI provider billed separately — needs your key and a budget** |
-| **Gate** | ORIN completes a real multi-step task and reports honestly, including a failure |
+| **Gate** | REN completes a real multi-step task and reports honestly, including a failure |
 
 ---
 

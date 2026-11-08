@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import styles from "./OrinWave.module.css";
+import styles from "./RenWave.module.css";
 
-export type OrinState = "idle" | "listening" | "thinking" | "speaking";
+export type RenState = "idle" | "listening" | "thinking" | "speaking";
 
-export interface OrinWaveProps {
-  state?: OrinState;
+export interface RenWaveProps {
+  state?: RenState;
   /** Number of nested curves in the fan. */
   lines?: number;
   className?: string | undefined;
@@ -17,7 +17,7 @@ const H = 150;
 const CY = H / 2;
 
 /** Amplitude and tempo per assistant state. Idle is almost flat on purpose. */
-const PROFILE: Record<OrinState, { amp: number; period: number }> = {
+const PROFILE: Record<RenState, { amp: number; period: number }> = {
   idle:      { amp: 0.26, period: 5.0 },
   listening: { amp: 1.00, period: 2.2 },
   thinking:  { amp: 0.55, period: 3.1 },
@@ -31,11 +31,11 @@ function envelope(t: number): number {
 }
 
 /**
- * ORIN's voice signature. Deterministic geometry — identical on the server and
+ * REN's voice signature. Deterministic geometry — identical on the server and
  * the client, so it never causes a hydration mismatch, and no randomness means
  * it looks the same every time the founder sees it.
  */
-export function OrinWave({ state = "idle", lines = 29, className }: OrinWaveProps) {
+export function RenWave({ state = "idle", lines = 29, className }: RenWaveProps) {
   const profile = PROFILE[state];
 
   const paths = useMemo(() => {
@@ -66,10 +66,10 @@ export function OrinWave({ state = "idle", lines = 29, className }: OrinWaveProp
   }, [lines, profile.amp, profile.period]);
 
   const label = {
-    idle: "ORIN is idle",
-    listening: "ORIN is listening",
-    thinking: "ORIN is working",
-    speaking: "ORIN is speaking",
+    idle: "REN is idle",
+    listening: "REN is listening",
+    thinking: "REN is working",
+    speaking: "REN is speaking",
   }[state];
 
   return (

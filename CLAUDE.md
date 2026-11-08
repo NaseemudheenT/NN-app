@@ -12,7 +12,7 @@ Owner and sole user: **Naseemudheen T.** · Repository: `NaseemudheenT/NN-app`
 
 A private, lifelong **personal operating environment** — one coherent system
 holding the founder's life, education, work, business, finances, health,
-faith and creativity, with a personal intelligence named **ORIN** running
+faith and creativity, with a personal intelligence named **REN** running
 through all of it.
 
 The visual ambition is **NN**: a believable personal computing
@@ -27,7 +27,7 @@ disconnected pages. It is not finished because a page exists.
 1. **NN OS** — workspace, launcher, floating windows, dock, search, command
    interface, notifications, settings, profile.
 2. **NN Applications** — 34 approved applications (§5).
-3. **ORIN** — provider-independent AI intelligence layer with skills, memory,
+3. **REN** — provider-independent AI intelligence layer with skills, memory,
    tools, permissions and approval gates.
 4. **NN Infrastructure** — identity, Firestore, Storage, permissions,
    automation, notifications, audit, backup.
@@ -46,6 +46,8 @@ disconnected pages. It is not finished because a page exists.
 | **No install scripts.** All three are explicitly declined in `pnpm-workspace.yaml` | supply chain |
 | **Never weaken the security rules** | they are the only authorisation boundary |
 | **Never redesign the NN logo** | approved geometry, test-guarded |
+| **The assistant is REN.** Renamed from ORIN on 2026-11-08 | founder decision |
+| **REN has three capabilities and no more:** text, voice, appearance | founder decision |
 | **Never claim something works without running it** | the founder's hardest rule |
 | **No dead buttons, no fake data, no simulated integrations** | |
 | **Never reset git history or discard uncommitted work** | |
@@ -138,7 +140,7 @@ Palette (fixed): `#07111F` `#0B1930` `#10223B` `#172B45` `#F7F9FC` `#E7EDF6`
 `#A6B3C5` `#77869B` `#9CC8FF` `#649CE3`
 
 - Tokens live in `apps/web/src/styles/tokens.css`. **Components never hardcode
-  a value that exists as a token** — ORIN must be able to retheme NN at runtime.
+  a value that exists as a token** — REN must be able to retheme NN at runtime.
 - Light theme is **not** an inversion; it has its own measured text ramp,
   because the dark ramp fails WCAG AA on a light ground. Both are test-enforced.
 - Reduced motion **collapses durations to 1 ms** rather than removing
@@ -196,7 +198,25 @@ Details and the first-owner bootstrap: `docs/AUTHENTICATION.md`.
 
 ---
 
-## 9. ORIN architecture (designed, not yet built)
+## 8b. The rename: ORIN → REN
+
+The assistant was renamed **REN** on 2026-11-08. The rename was mechanical but
+checked: every occurrence in the tree was a UI label, a component name, a
+CSS class or a prose comment. **No Firestore collection, document field,
+permission action id or API contract ever carried the name**, so nothing in
+the data model or the security rules changed meaning — only comments did. The
+one real contract that moved is the PWA manifest shortcut, `/workspace?orin=1`
+→ `/workspace?ren=1`; nothing reads that parameter yet.
+
+The only substring hazard in the tree is the word "authoring"; all
+replacements were word-boundary anchored and it is intact.
+
+**REN's scope is fixed by founder decision to three capabilities:** text,
+voice, and appearance (retheming NN). Appearance is the only one wired today
+and lives on REN's own surface — not in the workspace chrome, because
+retheming NN is REN's job, not a system setting.
+
+## 9. REN architecture (designed, not yet built)
 
 Provider-independent by design — OpenAI, Anthropic, Google and open-weight
 models behind one gateway, with intelligent routing on quality, cost, latency
@@ -209,7 +229,7 @@ data-analyst, personal-assistant, security-analyst, automation-specialist,
 travel-planner), long-term memory with RAG, voice, vision, tool execution,
 background workflows, proactive assistance, evaluations.
 
-**ORIN's limits are code, not prompt:** `@nn/security` fails closed on unknown,
+**REN's limits are code, not prompt:** `@nn/security` fails closed on unknown,
 revoked and expired grants, and escalates 13 sensitive actions regardless of
 any grant. A broad `modify` permission can never become a licence to send
 email. An automation cannot chain around an approval gate.
@@ -234,7 +254,7 @@ clean on 5 packages. Lint clean. Build succeeds.
 Passkey sign-in is **verified end to end in Chrome 150** via a Playwright CDP
 virtual authenticator against real emulators — not mocked.
 
-**Not built** — the NN OS workspace, all 34 applications, ORIN, Cloud
+**Not built** — the NN OS workspace, all 34 applications, REN, Cloud
 Functions (Blaze), notifications, automation, backup/restore, PWA install.
 
 Honest completion: roughly **7%**. See `docs/NN_GAP_ANALYSIS.md` and

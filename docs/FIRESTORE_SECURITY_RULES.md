@@ -32,7 +32,7 @@ protected the moment its first document exists. A test asserts exactly that.
 
 Every client write is denied. The Admin SDK bypasses rules entirely, so denial
 here is what makes these collections server-authored. This is the mechanism
-that stops ORIN editing its own audit trail or granting itself a permission.
+that stops REN editing its own audit trail or granting itself a permission.
 
 ## Validity requirements
 
@@ -59,7 +59,7 @@ The supported pattern is a reference, not a value:
 ## Memory provenance
 
 A client may only ever write `source: "stated"`. `inferred` and `imported` must
-come from a trusted server. This is what keeps ORIN's guesses from quietly
+come from a trusted server. This is what keeps REN's guesses from quietly
 becoming facts about the founder.
 
 ## Append-only history

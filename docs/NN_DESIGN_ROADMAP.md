@@ -90,6 +90,6 @@ remains, and what I recommend next.
 ## Not in this phase
 
 Launcher · dock · floating-window architecture · workspaces · global search ·
-notification centre · any of the 34 applications · ORIN intelligence.
+notification centre · any of the 34 applications · REN intelligence.
 
 Their *design* is planned here. Their *implementation* is not.

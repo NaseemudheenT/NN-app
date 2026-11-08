@@ -48,7 +48,7 @@ focus-responsive atmosphere, surfaces that arrive when relevant.
 **Change:** build an **ambient environment system** as a first-class part of
 the design, not decoration.
 **Verified when:** the interface demonstrably differs at 07:00, 15:00 and
-23:00, and when ORIN is idle versus working.
+23:00, and when REN is idle versus working.
 
 ## 5 🔒 Spatial, three-dimensional, depth-driven
 
@@ -106,15 +106,15 @@ device is disorienting.
 **Change:** define three interaction models, not three widths.
 **Verified when:** each is checked in a real browser at 375 / 768 / 1440.
 
-## 10 🔒 ORIN is an intelligence layer, not a chatbot
+## 10 🔒 REN is an intelligence layer, not a chatbot
 
 **Why:** stated repeatedly and emphatically.
-**Exists:** `OrinWave` with four real states, `OrinCommand`, honest about
+**Exists:** `RenWave` with four real states, `RenCommand`, honest about
 being unconnected.
-**Missing:** how ORIN *inhabits* the environment — ambient presence, how it
+**Missing:** how REN *inhabits* the environment — ambient presence, how it
 surfaces contextual information, how it shows reasoning and asks approval.
-**Change:** design ORIN as a presence with states, not a panel.
-**Verified when:** ORIN is reachable and legible from every surface without
+**Change:** design REN as a presence with states, not a panel.
+**Verified when:** REN is reachable and legible from every surface without
 occupying one.
 
 ## 11 🔒 No fake data, no dead controls, no mockups called finished

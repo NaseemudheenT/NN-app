@@ -61,7 +61,7 @@ approved palette is a founder decision and overrides a dataset default.
 
 `NNLogo` · `NNGlassMark` · `Icon` · `GlassPanel` · `HoloPanel` · `HoloStage` ·
 `Button` · `TextField` · `Switch` · `Dialog` · `AppTile` · `Dock` ·
-`FloatingWindow` · `OrinWave` · `OrinCommand`
+`FloatingWindow` · `RenWave` · `RenCommand`
 
 ### What is genuinely good
 

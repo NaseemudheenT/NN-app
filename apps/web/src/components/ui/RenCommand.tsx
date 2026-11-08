@@ -2,12 +2,12 @@
 
 import { useId, type FormEvent } from "react";
 import { Icon } from "./Icon";
-import { OrinWave, type OrinState } from "./OrinWave";
-import styles from "./OrinCommand.module.css";
+import { RenWave, type RenState } from "./RenWave";
+import styles from "./RenCommand.module.css";
 
-export interface OrinCommandProps {
+export interface RenCommandProps {
   /** Assistant state. Drives the waveform and the orb. */
-  state?: OrinState;
+  state?: RenState;
   prompt?: string;
   value: string;
   onValueChange: (value: string) => void;
@@ -18,7 +18,7 @@ export interface OrinCommandProps {
   className?: string | undefined;
 }
 
-const STATE_TEXT: Record<OrinState, string> = {
+const STATE_TEXT: Record<RenState, string> = {
   idle: "Ready",
   listening: "Listening",
   thinking: "Working",
@@ -26,14 +26,14 @@ const STATE_TEXT: Record<OrinState, string> = {
 };
 
 /**
- * ORIN's command surface — the single place the founder talks to NN.
+ * REN's command surface — the single place the founder talks to NN.
  *
  * This component is presentational and fully controlled: it renders state and
  * reports intent. It performs no speech recognition and makes no network call,
  * so it can never imply a capability that is not yet connected. The owning
  * screen decides what actually happens.
  */
-export function OrinCommand({
+export function RenCommand({
   state = "idle",
   prompt = "Ask me anything…",
   value,
@@ -42,7 +42,7 @@ export function OrinCommand({
   onMicToggle,
   status,
   className,
-}: OrinCommandProps) {
+}: RenCommandProps) {
   const id = useId();
   const listening = state === "listening";
 
@@ -57,11 +57,11 @@ export function OrinCommand({
       <p className={styles.prompt}>{prompt}</p>
 
       <div className={styles.wave}>
-        <OrinWave state={state} />
+        <RenWave state={state} />
       </div>
 
       <form className={styles.row} onSubmit={submit}>
-        <label className="nn-sr-only" htmlFor={id}>Message ORIN</label>
+        <label className="nn-sr-only" htmlFor={id}>Message REN</label>
         <input
           id={id}
           className={styles.input}
@@ -83,7 +83,7 @@ export function OrinCommand({
         <button
           type="submit"
           className={styles.orb}
-          aria-label="Send to ORIN"
+          aria-label="Send to REN"
           disabled={value.trim().length === 0}
           style={value.trim().length === 0 ? { opacity: 0.4, cursor: "not-allowed" } : undefined}
         >

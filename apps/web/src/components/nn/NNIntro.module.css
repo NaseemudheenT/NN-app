@@ -1,0 +1,242 @@
+.stage {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  user-select: none;
+  perspective: var(--perspective, 1200px);
+  transform-style: preserve-3d;
+  color: var(--text-primary);
+}
+.stage:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -4px; border-radius: 0; }
+
+/* The floor. A dot lattice, masked to an ellipse so the corridor fades out at
+   the edges instead of ending at a hard rectangle. */
+.grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--nn-navy-600) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 60%, transparent 100%);
+  opacity: 0.65;
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgb(100 156 227 / 18%) 0%, transparent 72%);
+}
+
+/* Two depth guides. The viewer reads them as the corridor's walls. */
+.ringInner,
+.ringOuter {
+  position: absolute;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+}
+.ringInner {
+  width: 48vmin;
+  height: 48vmin;
+  border: 1px solid rgb(156 200 255 / 12%);
+}
+.ringOuter {
+  width: 76vmin;
+  height: 76vmin;
+  border: 1px dashed var(--border-normal);
+}
+
+/* ---- the anchor ---------------------------------------------------------- */
+.title {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 34rem;
+  padding: 0 var(--space-8);
+  text-align: center;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.eyebrow {
+  margin-bottom: var(--space-7);
+  font-size: var(--text-micro-size);
+  line-height: var(--text-micro-lh);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.mark {
+  margin-bottom: var(--space-8);
+  color: var(--text-primary);
+  filter: drop-shadow(0 0 28px rgb(156 200 255 / 35%));
+}
+
+.heading {
+  font-size: clamp(32px, 6.2vw, 68px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  font-weight: var(--weight-semibold);
+  /* Reads as lit glass: bright at the top, falling into the room below. */
+  background: linear-gradient(
+    to bottom,
+    var(--nn-white) 0%,
+    var(--nn-soft) 42%,
+    rgb(166 179 197 / 45%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lede {
+  max-width: 38ch;
+  margin-top: var(--space-7);
+  font-size: var(--text-lg-size);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ---- prompts and exits --------------------------------------------------- */
+.prompt {
+  position: absolute;
+  bottom: var(--space-11);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  pointer-events: none;
+  font-size: var(--text-micro-size);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.promptLine {
+  width: 1px;
+  height: 26px;
+  background: linear-gradient(to bottom, var(--nn-accent), transparent);
+}
+
+.enter {
+  position: absolute;
+  bottom: var(--space-11);
+  z-index: 30;
+  opacity: 0;
+}
+
+/* How far down the corridor we are. Not decoration — without it there is no
+   way to know whether the journey has an end. */
+.rail {
+  position: absolute;
+  top: 50%;
+  right: var(--space-8);
+  z-index: 20;
+  width: 2px;
+  height: 22svh;
+  transform: translateY(-50%);
+  border-radius: var(--radius-full);
+  background: var(--border-subtle);
+  overflow: hidden;
+  pointer-events: none;
+}
+.railFill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, var(--nn-icy), var(--nn-accent));
+  transform-origin: top;
+  transform: scaleY(var(--travelled, 0));
+  box-shadow: 0 0 12px rgb(156 200 255 / 60%);
+}
+
+/* ---- the corridor -------------------------------------------------------- */
+.corridor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  aspect-ratio: 4 / 5;
+  will-change: transform, opacity;
+}
+
+.cardInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-7);
+  overflow: hidden;
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(162deg, rgb(100 156 227 / 16%), transparent 55%),
+    var(--glass-3-bg);
+  backdrop-filter: blur(var(--glass-1-blur));
+  -webkit-backdrop-filter: blur(var(--glass-1-blur));
+  box-shadow: var(--shadow-4), inset 0 1px 0 var(--glass-sheen);
+}
+
+.cardSheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(7 17 31 / 72%), transparent 55%);
+}
+
+.cardIcon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: auto;
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-md);
+  background: var(--glass-1-bg);
+  color: var(--nn-icy);
+  box-shadow: inset 0 1px 0 var(--glass-sheen);
+}
+
+.cardTitle {
+  position: relative;
+  font-size: var(--text-lg-size);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--nn-white);
+}
+
+.cardHint {
+  position: relative;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--nn-silver);
+}
+
+@media (max-width: 767px) {
+  .rail { right: var(--space-5); height: 16svh; }
+  .lede { font-size: var(--text-body-size); }
+  .cardInner { padding: var(--space-5); border-radius: var(--radius-lg); }
+  .cardIcon { width: 36px; height: 36px; }
+  .cardTitle { font-size: var(--text-body-size); }
+  .cardHint { display: none; }
+}

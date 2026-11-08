@@ -1,7 +1,7 @@
 /**
  * NN's permission vocabulary.
  *
- * Five tiers, ordered by how much damage a mistake can do. ORIN is granted
+ * Five tiers, ordered by how much damage a mistake can do. REN is granted
  * scopes at a tier; the tier decides whether an action can proceed silently,
  * needs confirmation, or needs the founder to authenticate again.
  */
@@ -68,7 +68,7 @@ export interface PermissionDecision {
 }
 
 /**
- * The single place that decides whether ORIN may do something.
+ * The single place that decides whether REN may do something.
  *
  * Deliberately pessimistic: an unknown scope, a revoked grant and an expired
  * grant all fail closed. A sensitive action is escalated even when the grant

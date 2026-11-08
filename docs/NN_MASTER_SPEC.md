@@ -1,7 +1,7 @@
 # NN — Master Specification Index
 
 **NN** is a private, lifelong personal operating environment for its founder,
-with a personal intelligence named **ORIN** running through it.
+with a personal intelligence named **REN** running through it.
 
 > The product is called **NN**. *3008* is the design ambition — the sense of
 > an advanced personal computing environment — and is never part of the name.
@@ -24,7 +24,7 @@ This file is the map. Each document below is authoritative for its area.
 | 7 | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) | Tokens, glass, motion, components as built |
 | 8 | [`BRAND_GUIDE.md`](BRAND_GUIDE.md) | The locked mark, palette, typography |
 | 9 | [`NN_OS_ARCHITECTURE.md`](NN_OS_ARCHITECTURE.md) | The operating environment — designed, not built |
-| 10 | [`ORIN_ARCHITECTURE.md`](ORIN_ARCHITECTURE.md) | The intelligence layer |
+| 10 | [`REN_ARCHITECTURE.md`](REN_ARCHITECTURE.md) | The intelligence layer |
 | 11 | [`FIRESTORE_DATA_MODEL.md`](FIRESTORE_DATA_MODEL.md) | Data shape for all 34 applications |
 | 12 | [`SECURITY.md`](SECURITY.md) | The authorisation boundary and what is proven |
 | 13 | [`AUTHENTICATION.md`](AUTHENTICATION.md) | Passkeys, bootstrap, sessions, verification |
@@ -37,7 +37,7 @@ This file is the map. Each document below is authoritative for its area.
 
 1. **NN OS** — workspace, launcher, windows, dock, search, notifications, settings
 2. **NN Applications** — 34, each independently useful
-3. **ORIN** — provider-independent intelligence, present throughout
+3. **REN** — provider-independent intelligence, present throughout
 4. **NN Infrastructure** — identity, Firestore, Storage, permissions, automation, audit, backup
 5. **NN Evolution** — App Factory, versioning, evaluation, rollback
 

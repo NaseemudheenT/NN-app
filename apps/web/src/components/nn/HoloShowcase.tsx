@@ -1,6 +1,6 @@
 "use client";
 
-import { HoloPanel, HoloStage, Icon, NNGlassMark, OrinWave, type IconName } from "@/components/ui";
+import { HoloPanel, HoloStage, Icon, NNGlassMark, RenWave, type IconName } from "@/components/ui";
 import styles from "./HoloShowcase.module.css";
 
 /** Small glass tiles suspended between the panels, as in the reference. */
@@ -68,11 +68,11 @@ export function HoloShowcase() {
         </div>
       </HoloPanel>
 
-      {/* near right — ORIN */}
+      {/* near right — REN */}
       <HoloPanel x={636} y={140} width={306} height={204} z={-36} rotateY={-14} zIndex={2}>
-        <p className={styles.panelTitle}><span className={styles.dot} />ORIN</p>
+        <p className={styles.panelTitle}><span className={styles.dot} />REN</p>
         <div style={{ color: "var(--nn-icy)", opacity: 0.9 }}>
-          <OrinWave state="speaking" lines={21} />
+          <RenWave state="speaking" lines={21} />
         </div>
         <div className={styles.searchRow} style={{ marginTop: 10 }}>
           <Icon name="search" size={13} />Ask me anything…

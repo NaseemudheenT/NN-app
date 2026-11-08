@@ -56,13 +56,13 @@ Nothing else is global. There is no second user, and no collection is shared.
 |---|---|---|
 | `users/{uid}` | profile, display name, locale, time zone, onboarding state | the anchor document |
 | `users/{uid}/preferences/{key}` | appearance, density, motion, dashboard layout, quiet hours | one doc per preference group |
-| `users/{uid}/assistant/config` | **ORIN identity** — `assistantName`, avatar, voice, personality, language, activation, default model | the display name lives here so renaming ORIN never touches schema |
+| `users/{uid}/assistant/config` | **REN identity** — `assistantName`, avatar, voice, personality, language, activation, default model | the display name lives here so renaming REN never touches schema |
 | `users/{uid}/credentials/{credentialId}` | WebAuthn passkeys — public key, counter, transports, label | **client can read and delete; only the server may create or update** |
 | `users/{uid}/devices/{deviceId}` | registered devices, platform, push token, last seen | token rotation handled server-side |
 | `users/{uid}/sessions/{sessionId}` | active sessions, issued/expires, IP class, revocation | client may revoke, never forge |
 | `users/{uid}/security_events/{eventId}` | sign-in, revocation, permission change, failure | **append-only; immutable** |
 | `users/{uid}/audit_logs/{logId}` | every create/update/delete across NN, with actor | **server-written only, immutable** |
-| `users/{uid}/permissions/{scope}` | granted ORIN and integration scopes | **server-written only** — ORIN can never widen its own access |
+| `users/{uid}/permissions/{scope}` | granted REN and integration scopes | **server-written only** — REN can never widen its own access |
 | `users/{uid}/apps/{appId}` | install state, version, pinned, order, per-app permissions | drives the launcher |
 | `users/{uid}/integrations/{provider}` | connection status, account identity, scopes, last sync | **tokens are never stored here** — they live in Secret Manager, referenced by id |
 | `users/{uid}/summaries/{key}` | maintained aggregates for the dashboard | server-written only |
@@ -100,10 +100,10 @@ moves only `scheduled → queued → sent → delivered | failed | cancelled`, a
 | `memories/{id}` | `category`, `content`, `source` (`stated` \| `imported` \| `inferred`), `confidence`, `verified`, `retention`, `sourceRef` |
 | `conversations/{id}` + `/messages/{msgId}` | messages as a subcollection — a conversation document never grows |
 | `agent_jobs/{id}` + `/steps/{stepId}` | plan, status, approvals, result, verification |
-| `tool_executions/{id}` | tool, input hash, outcome, duration, error — the audit trail behind every ORIN action |
+| `tool_executions/{id}` | tool, input hash, outcome, duration, error — the audit trail behind every REN action |
 
 `memories.source` is enforced by rule: a document written by a Cloud Function on
-ORIN's behalf **cannot** claim `source: "stated"`. Only a client write
+REN's behalf **cannot** claim `source: "stated"`. Only a client write
 originating from the founder can.
 
 ---

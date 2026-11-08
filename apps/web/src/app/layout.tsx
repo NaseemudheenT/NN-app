@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ServiceWorker } from "@/components/ServiceWorker";
+import { Room } from "@/components/nn/Room";
+import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
 import "@/styles/global.css";
@@ -46,7 +48,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={inter.variable}>
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          {/* The room, behind everything, for the life of the session. */}
+          <Room />
+          {/* One displacement map, shared by every liquid surface in NN. */}
+          <LiquidGlassDefs />
+          <div className="nn-shell">
+            <AuthProvider>{children}</AuthProvider>
+          </div>
           <ServiceWorker />
         </ThemeProvider>
       </body>

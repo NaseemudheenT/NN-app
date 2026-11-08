@@ -33,7 +33,7 @@ which no rule mentions, is already readable only by its owner.
 | A collection with no rule written for it is still protected | ✅ |
 | Audit logs, security events and permissions reject every client write | ✅ |
 | An existing audit record cannot be altered or deleted | ✅ |
-| ORIN cannot widen its own permissions from the client | ✅ |
+| REN cannot widen its own permissions from the client | ✅ |
 | Passkeys can be deleted by the owner, never created or altered | ✅ |
 | Documents without provenance metadata are rejected | ✅ |
 | `createdAt` cannot be rewritten; `updatedAt` cannot move backwards | ✅ |
@@ -81,7 +81,7 @@ review and is only caught by execution.
 | **Security Rules** | decide what they may touch | ✅ built and tested |
 | **App Check** | attests the request came from the genuine NN client | **not authentication, not authorisation** — enforcement stays off until real traffic is observed |
 | **Server-only writes** | Admin SDK bypasses rules, so denying all client writes makes a collection server-authored | ✅ built |
-| **Permission tiers** | decide whether ORIN may act silently, must confirm, or must re-authenticate | ✅ built and tested |
+| **Permission tiers** | decide whether REN may act silently, must confirm, or must re-authenticate | ✅ built and tested |
 | **Audit** | immutable record of every action | schema built; writers arrive with the applications |
 
 ### App Check, stated plainly
@@ -93,7 +93,7 @@ instead of, the ownership check.
 
 ---
 
-## 4. ORIN's limits, enforced in code
+## 4. REN's limits, enforced in code
 
 `@nn/security` holds the decision logic, and it is pessimistic by construction:
 

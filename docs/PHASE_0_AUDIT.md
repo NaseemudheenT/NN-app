@@ -107,7 +107,7 @@ No paid service will be enabled without explicit approval.
 
 ## 5. Credentials
 
-No AI provider credentials have been supplied and none are assumed. ORIN will be built
+No AI provider credentials have been supplied and none are assumed. REN will be built
 provider-independent and will report `NEEDS CONFIGURATION` until a real key is present and a real
 call succeeds. **NN must remain fully usable with no AI provider connected** — calendar, notes,
 tasks, files, college and finance do not depend on a model.
@@ -127,8 +127,8 @@ Section 20:
 2  Firebase infrastructure + security rules
 3  NN OS shell (launch, auth, dashboard, launcher, windows, settings)
 4  Productivity core (calendar, tasks, reminders, notes, files)
-5  ORIN foundation
-6  ORIN personal intelligence
+5  REN foundation
+6  REN personal intelligence
 7  Connectors
 8  Automation + notifications
 9  Backup and restore

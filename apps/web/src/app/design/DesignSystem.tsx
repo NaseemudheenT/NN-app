@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AppTile, Button, Dialog, Dock, FloatingWindow, GlassPanel,
-  Icon, NNGlassMark, NNLockup, NNLogo, OrinCommand, Switch, TextField,
-  type DockItem, type IconName, type OrinState,
+  Icon, NNGlassMark, NNLockup, NNLogo, RenCommand, Switch, TextField,
+  type DockItem, type IconName, type RenState,
 } from "@/components/ui";
 import { HoloShowcase } from "@/components/nn/HoloShowcase";
 import { useTheme } from "@/lib/theme";
@@ -41,7 +41,7 @@ const APPS: ReadonlyArray<{ id: string; name: string; icon: IconName; descriptio
 ];
 
 const DOCK_ITEMS: readonly DockItem[] = [
-  { id: "orin", label: "ORIN", icon: "sparkle" },
+  { id: "ren", label: "REN", icon: "sparkle" },
   { id: "life", label: "NN Life", icon: "calendar" },
   { id: "college", label: "NN College", icon: "book" },
   { id: "files", label: "NN Files", icon: "folder" },
@@ -49,7 +49,7 @@ const DOCK_ITEMS: readonly DockItem[] = [
 ];
 
 const TABS = [
-  ["overview", "Overview"], ["orin", "ORIN"], ["identity", "Identity"],
+  ["overview", "Overview"], ["ren", "REN"], ["identity", "Identity"],
   ["themes", "Themes"], ["glass", "Glass"], ["type", "Type"],
   ["controls", "Controls"], ["windows", "Windows"], ["launcher", "Launcher"],
   ["motion", "Motion"], ["mobile", "Mobile"],
@@ -64,7 +64,7 @@ interface WinState {
 }
 
 const INITIAL_WINDOWS: readonly WinState[] = [
-  { id: "orin", title: "ORIN", x: 24, y: 24, w: 310, h: 220, minimized: false, maximized: false, open: true },
+  { id: "ren", title: "REN", x: 24, y: 24, w: 310, h: 220, minimized: false, maximized: false, open: true },
   { id: "life", title: "NN Life", x: 268, y: 118, w: 300, h: 210, minimized: false, maximized: false, open: true },
   { id: "proj", title: "NN Projects", x: 512, y: 46, w: 300, h: 200, minimized: false, maximized: false, open: true },
 ];
@@ -75,8 +75,8 @@ export function DesignSystem() {
   const { theme, resolvedTheme, setTheme, reducedMotion, setMotion } = useTheme();
 
   const [tab, setTabState] = useState<TabId>("overview");
-  const [orinState, setOrinState] = useState<OrinState>("idle");
-  const [orinValue, setOrinValue] = useState("");
+  const [renState, setRenState] = useState<RenState>("idle");
+  const [renValue, setRenValue] = useState("");
   const [log, setLog] = useState<string>("");
   const record = useCallback((msg: string) => setLog(msg), []);
 
@@ -112,10 +112,10 @@ export function DesignSystem() {
   const [quietHours, setQuietHours] = useState(false);
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
-  const [activeDock, setActiveDock] = useState<string | null>("orin");
+  const [activeDock, setActiveDock] = useState<string | null>("ren");
   const [animKey, setAnimKey] = useState(0);
   const [windows, setWindows] = useState<readonly WinState[]>(INITIAL_WINDOWS);
-  const [focusedWin, setFocusedWin] = useState<string>("orin");
+  const [focusedWin, setFocusedWin] = useState<string>("ren");
   const stageRef = useRef<HTMLDivElement>(null);
 
   const emailError = useMemo(() => {
@@ -181,27 +181,27 @@ export function DesignSystem() {
           <section className={s.hero}><HoloShowcase /></section>
         ) : null}
 
-        {tab === "orin" ? (
-        <section className={s.section} id="orin">
-          <div className={s.sectionHead}><span className={s.num}>00</span><h2 className={s.h2}>ORIN command surface</h2></div>
-          <div className={s.orinWrap}>
-            <OrinCommand
-              state={orinState}
-              value={orinValue}
-              onValueChange={setOrinValue}
+        {tab === "ren" ? (
+        <section className={s.section} id="ren">
+          <div className={s.sectionHead}><span className={s.num}>00</span><h2 className={s.h2}>REN command surface</h2></div>
+          <div className={s.renWrap}>
+            <RenCommand
+              state={renState}
+              value={renValue}
+              onValueChange={setRenValue}
               onSubmit={(v) => {
-                record(`sent to ORIN: "${v}"`);
-                setOrinValue("");
-                setOrinState("thinking");
-                window.setTimeout(() => setOrinState("idle"), 1800);
+                record(`sent to REN: "${v}"`);
+                setRenValue("");
+                setRenState("thinking");
+                window.setTimeout(() => setRenState("idle"), 1800);
               }}
               onMicToggle={() => {
-                const next = orinState === "listening" ? "idle" : "listening";
-                setOrinState(next);
-                record(`ORIN ${next === "listening" ? "listening state on" : "listening stopped"}`);
+                const next = renState === "listening" ? "idle" : "listening";
+                setRenState(next);
+                record(`REN ${next === "listening" ? "listening state on" : "listening stopped"}`);
               }}
               status={
-                orinState === "listening"
+                renState === "listening"
                   ? "Visual state only — speech recognition is not connected yet"
                   : "No AI provider configured — NEEDS CONFIGURATION"
               }
@@ -209,9 +209,9 @@ export function DesignSystem() {
           </div>
           <div className={s.row} style={{ marginTop: "var(--space-7)", justifyContent: "center" }}>
             {(["idle", "listening", "thinking", "speaking"] as const).map((st) => (
-              <Button key={st} size="sm" variant={orinState === st ? "primary" : "secondary"}
-                      aria-pressed={orinState === st}
-                      onClick={() => { setOrinState(st); record(`ORIN state → ${st}`); }}>
+              <Button key={st} size="sm" variant={renState === st ? "primary" : "secondary"}
+                      aria-pressed={renState === st}
+                      onClick={() => { setRenState(st); record(`REN state → ${st}`); }}>
                 {st[0]?.toUpperCase()}{st.slice(1)}
               </Button>
             ))}
@@ -219,7 +219,7 @@ export function DesignSystem() {
           <p className={s.note} style={{ textAlign: "center", margin: "var(--space-6) auto 0" }}>
             The waveform is real geometry — a double-hump envelope fanned across 29 nested
             curves, computed deterministically so the server and the browser agree. Amplitude
-            and tempo follow ORIN&rsquo;s actual state rather than looping as decoration.
+            and tempo follow REN&rsquo;s actual state rather than looping as decoration.
             It is honest about what is not wired: nothing here pretends to hear you.
           </p>
         </section>
@@ -569,7 +569,7 @@ export function DesignSystem() {
                 <GlassPanel tier={2} padding="sm" style={{ marginTop: "var(--space-7)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--space-5)" }}>
                     <Icon name="sparkle" size={17} />
-                    <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Ask ORIN anything…</span>
+                    <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Ask REN anything…</span>
                   </div>
                 </GlassPanel>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-5)", marginTop: "var(--space-7)" }}>

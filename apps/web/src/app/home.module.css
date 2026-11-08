@@ -1,43 +1,65 @@
 .page {
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: var(--space-10);
-  padding: var(--space-10) var(--space-8) var(--space-12);
 }
-.below { text-align: center; max-width: 520px; margin: 0 auto; }
+
+/* What the corridor opens onto. Deliberately plain type on a quiet pane: after
+   a minute of moving glass, the founder should land on something still. */
+.below {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-7);
+  padding: var(--space-13) var(--space-8) var(--space-14);
+  text-align: center;
+}
 
 .status {
   font-size: var(--text-micro-size);
+  line-height: var(--text-micro-lh);
   letter-spacing: var(--text-micro-ls);
   text-transform: uppercase;
   color: var(--text-accent);
+}
+
+.heading {
+  max-width: 24ch;
+  font-size: clamp(26px, 3.4vw, 40px);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
   font-weight: var(--weight-semibold);
 }
+
 .lede {
-  margin-top: var(--space-6);
-  color: var(--text-secondary);
+  max-width: 54ch;
   font-size: var(--text-lg-size);
   line-height: 1.65;
+  color: var(--text-secondary);
 }
-.cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-4);
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  justify-content: center;
+  margin-top: var(--space-5);
+}
+
+/* Dense, small, and the most important paragraph on the page: it goes on the
+   opaque tier so the words never have to fight the room. */
+.honest {
+  max-width: 62ch;
   margin-top: var(--space-9);
-  padding: var(--space-5) var(--space-8);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-normal);
-  background: var(--glass-2-bg);
-  backdrop-filter: blur(var(--glass-2-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-2-blur)) saturate(150%);
-  color: var(--text-primary);
-  font-weight: var(--weight-medium);
-  text-decoration: none;
-  transition: border-color var(--dur-base) var(--ease-standard),
-              transform var(--dur-base) var(--ease-standard);
+  padding: var(--space-7);
+  border: 1px solid var(--glass-3-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-3-bg);
+  backdrop-filter: blur(var(--glass-3-blur));
+  -webkit-backdrop-filter: blur(var(--glass-3-blur));
+  box-shadow: var(--shadow-2), inset 0 1px 0 var(--glass-sheen);
+  font-size: var(--text-caption-size);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  text-align: left;
 }
-.cta:hover { border-color: var(--nn-icy); transform: translateY(-1px); }
-@media (prefers-reduced-motion: reduce) { .cta:hover { transform: none; } }
-:global(html[data-motion="reduced"]) .cta:hover { transform: none; }
+.honest strong { color: var(--text-primary); font-weight: var(--weight-medium); }

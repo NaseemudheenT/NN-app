@@ -38,16 +38,16 @@ service cloud.firestore {
 
     // Collections only a trusted server may write. The Admin SDK bypasses
     // rules entirely, so denying every client write here is what makes them
-    // server-authored. This is how ORIN is prevented from widening its own
+    // server-authored. This is how REN is prevented from widening its own
     // permissions or editing its own audit trail.
     function serverWritten(c) {
       return c in [
         'audit_logs',       // the record of what happened — must be tamper-proof
         'security_events',  // sign-ins, revocations, failures
-        'permissions',      // what ORIN and integrations may do
+        'permissions',      // what REN and integrations may do
         'summaries',        // dashboard aggregates, computed server-side
         'backups',          // backup manifests and verification state
-        'tool_executions',  // every action ORIN has taken
+        'tool_executions',  // every action REN has taken
         'credentials',      // passkey public keys and signature counters
         'system_health',
         'job_runs'
@@ -110,7 +110,7 @@ service cloud.firestore {
 
     // Privilege-bearing fields are decided by the server, never asserted by
     // the client. Without this, a writable document such as an app's install
-    // record could be used to grant that app — or ORIN — new scopes.
+    // record could be used to grant that app — or REN — new scopes.
     function noPrivilegeFields(d) {
       return !d.keys().hasAny([
         'permissions', 'grantedScopes', 'scopes', 'role', 'roles',
@@ -131,7 +131,7 @@ service cloud.firestore {
       return noCredentialFields(d) && noPrivilegeFields(d) && noForgedOwner(uid, d);
     }
 
-    // A memory the founder stated himself is evidence. A memory ORIN inferred
+    // A memory the founder stated himself is evidence. A memory REN inferred
     // is a guess. The two must never be confused, so the client may only ever
     // write 'stated' — anything else has to come from a trusted server.
     function memorySourceHonest(c, d) {

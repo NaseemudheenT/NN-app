@@ -1,7 +1,7 @@
 # NN APP
 
 A private, single-owner personal operating environment for its founder, with a personal
-intelligence layer named **ORIN**.
+intelligence layer named **REN**.
 
 > **Private software.** Not open source, not a product, not for distribution.
 > No personal data, credentials, documents or backups may ever be committed to this repository.
@@ -9,7 +9,7 @@ intelligence layer named **ORIN**.
 | | |
 |---|---|
 | **Owner** | Naseemudheen (`NaseemudheenT`) |
-| **Assistant** | ORIN — display name is runtime configuration, never hardcoded |
+| **Assistant** | REN — display name is runtime configuration, never hardcoded |
 | **Backend** | Firebase (Firestore · Auth · Storage · Cloud Functions · FCM · App Check) |
 | **Frontend** | Next.js · React · TypeScript strict · pnpm workspace |
 | **Delivery** | Installable PWA — iPhone home screen, desktop, tablet |

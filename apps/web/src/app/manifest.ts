@@ -24,7 +24,7 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/apple-icon", sizes: "180x180", type: "image/png" },
     ],
     shortcuts: [
-      { name: "Ask ORIN", short_name: "ORIN", url: "/workspace?orin=1" },
+      { name: "Ask REN", short_name: "REN", url: "/workspace?ren=1" },
     ],
   };
 }

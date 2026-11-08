@@ -73,7 +73,7 @@ Gap is 45% of the mark height; the word is 78% of it, tracked at `0.14em`.
 | Soft | `#E7EDF6` | secondary light surfaces |
 | Silver | `#A6B3C5` | secondary text on dark |
 | Grey | `#77869B` | muted text on dark |
-| Icy | `#9CC8FF` | highlights, focus, ORIN |
+| Icy | `#9CC8FF` | highlights, focus, REN |
 | Accent | `#649CE3` | primary actions |
 
 Measured contrast is enforced by `src/styles/tokens.test.ts`, which fails the

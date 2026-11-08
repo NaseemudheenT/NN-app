@@ -22,9 +22,9 @@ Three consequences that shape every decision below:
    is nearest and brightest; what is waiting recedes and dims. This is why the
    glass is graded and why parallax is proportional to depth — it is a reading
    aid, not an effect.
-2. **ORIN is ambient, not a destination.** It lives as a quiet presence that
+2. **REN is ambient, not a destination.** It lives as a quiet presence that
    expands only as far as the task needs: a line, a floating pane, or the whole
-   room. The founder never "goes to" ORIN.
+   room. The founder never "goes to" REN.
 3. **The environment recedes.** On a quiet Tuesday NN should show almost
    nothing — a greeting, what matters today, and a place to speak. Density is
    earned by content, never designed in.
@@ -80,7 +80,7 @@ never sees or stores biometric data, and the screen says so in one quiet line.
 
 **Profile** *(per your instruction, everything personal moves here)* — a
 separate full surface, scrollable, reached from the top-bar avatar. Sections:
-identity · preferences (language, time zone, units) · appearance · ORIN
+identity · preferences (language, time zone, units) · appearance · REN
 (name, voice, model, memory) · notifications · privacy · **security** (passkeys,
 devices, sessions, audit) · connected services · storage · backup · data export
 and deletion · about.
@@ -101,7 +101,7 @@ founder's *day*, never his *account*.
 │                  Saturday 8 November · 11:42                 │
 │                                                              │
 │        ╭────────────────────────────────────────────╮        │
-│        │   Ask me anything…                          │  ← ORIN, the largest
+│        │   Ask me anything…                          │  ← REN, the largest
 │        │   ∿∿∿∿∿∿∿∿                      ◉  ➤      │     single element
 │        ╰────────────────────────────────────────────╯        │
 │                                                              │
@@ -125,7 +125,7 @@ recent activity and anything the founder has pinned.
 - Pointer movement produces real parallax across the app cards — depth-proportional, disabled under reduced motion
 - Hovering a card lifts it toward the viewer on Z and brightens its chamfer
 - Opening a card does not navigate: the card expands in place into a window
-- The greeting, the context cards, the card order and the dock are all configurable, and ORIN can change them on request
+- The greeting, the context cards, the card order and the dock are all configurable, and REN can change them on request
 - A context card with nothing to say is **not rendered** — never an empty shell
 
 **Responsive** — the layout above is ≥1280px. 1024–1280 drops to three app
@@ -133,7 +133,7 @@ columns. Below 1024 see §12.
 
 ---
 
-## 5. ORIN interaction
+## 5. REN interaction
 
 Four presences, one identity, one state machine (`idle · listening · thinking ·
 speaking`) expressed through the waveform's amplitude and tempo.
@@ -141,16 +141,16 @@ speaking`) expressed through the waveform's amplitude and tempo.
 | Presence | Where | What it is for |
 |---|---|---|
 | **Ambient line** | dashboard centre | the default. Type or press to speak. |
-| **Orb** | bottom-right, inside any app | a quiet dot; ORIN is reachable without leaving what you are doing |
+| **Orb** | bottom-right, inside any app | a quiet dot; REN is reachable without leaving what you are doing |
 | **Floating pane** | over the workspace | a conversation that does not take the room — drag, minimise, keep working |
 | **Full workspace** | its own surface | research with sources, document analysis, long tasks, task history, memory controls |
 
-**Agent transparency is part of the design.** When ORIN runs a multi-step task
+**Agent transparency is part of the design.** When REN runs a multi-step task
 the founder sees the plan, the tool being used, progress, and any approval
 request — as a compact timeline inside the pane. Approvals appear inline with
-the exact action stated. ORIN never reports success it has not verified.
+the exact action stated. REN never reports success it has not verified.
 
-**Honesty surface** — when no AI provider is configured, ORIN says exactly that
+**Honesty surface** — when no AI provider is configured, REN says exactly that
 and the input stays usable for non-AI commands (open, create, search). It never
 simulates a reply.
 
@@ -191,11 +191,11 @@ learns it once:
 app header   — name · primary action · app-level search · overflow
 workspace    — the application's own content, full width, never boxed in
 context rail — optional right-hand panel, collapsible, for detail
-ORIN orb     — always present, context-aware of this application
+REN orb     — always present, context-aware of this application
 ```
 
 Each application must ship all five states — **content · loading · empty ·
-error · permission-denied** — and must be genuinely useful with ORIN switched
+error · permission-denied** — and must be genuinely useful with REN switched
 off. Each is specified individually before it is built; the registry defines
 purpose, features, data and permissions.
 
@@ -212,7 +212,7 @@ hours, per-app preferences, snooze and complete inline. Never a badge for
 something that cannot be acted on.
 
 **System controls** sit in the top-bar status dot: connection, sync, background
-jobs, ORIN availability, backup health. Green is never claimed without a check.
+jobs, REN availability, backup health. Green is never claimed without a check.
 
 ---
 
@@ -222,7 +222,7 @@ One index, permission-aware, across apps, notes, files, calendar, tasks,
 projects, conversations, memory, contacts and authorised services.
 
 `⌘K` anywhere. Results grouped by source with the source named. Typing a
-natural sentence hands off to ORIN instead of searching. Recent commands and
+natural sentence hands off to REN instead of searching. Recent commands and
 context-aware suggestions. Everything reachable from the keyboard.
 
 ---
@@ -232,7 +232,7 @@ context-aware suggestions. Everything reachable from the keyboard.
 Dark is the identity; light is a full first-class theme with its own measured
 text ramp, not an inversion. Both are already built and WCAG AA is enforced by
 test. The theme choice persists, follows the OS when set to system, and applies
-before first paint so there is never a flash. ORIN can change it on request.
+before first paint so there is never a flash. REN can change it on request.
 
 ---
 
@@ -244,7 +244,7 @@ Three designs, not one layout stretched.
 |---|---|---|---|
 | Structure | vertical stack, full-screen surfaces | two-column adaptive | spatial workspace |
 | Navigation | floating bottom dock, 5 slots | dock + launcher sheet | dock + `⌘K` + windows |
-| ORIN | bottom sheet, thumb-reachable | floating pane | all four presences |
+| REN | bottom sheet, thumb-reachable | floating pane | all four presences |
 | Apps | 2-column grid, large targets | 3-column | floating cards in depth |
 | Windows | none — full-screen surfaces | simplified panes | full window management |
 | Depth | flattened; glass and light kept, parallax off | reduced | full |
@@ -266,7 +266,7 @@ machine stalls.
 Full keyboard operability. One focus treatment system-wide, `:focus-visible`
 only. Dialogs trap focus and restore it. Every control has an accessible name.
 WCAG AA on every text/ground pair, enforced by test in both themes. Screen
-reader labels on every ORIN state. No meaning carried by colour alone.
+reader labels on every REN state. No meaning carried by colour alone.
 
 ---
 
@@ -280,7 +280,7 @@ status, backup health and the audit log.
 Sensitive changes require re-authentication at the moment of change. Every
 high-impact action — send, publish, purchase, transfer, trade, permanent
 delete, security change, unlock — shows exactly what will happen, to what, on
-which account, and requires explicit confirmation. ORIN can prepare all of it
+which account, and requires explicit confirmation. REN can prepare all of it
 and may complete none of it.
 
 Settings live entirely in Profile (§3), organised, searchable, and **every

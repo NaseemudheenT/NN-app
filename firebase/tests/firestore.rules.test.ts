@@ -115,7 +115,7 @@ describe("server-authored collections", () => {
     await assertFails(deleteDoc(doc(asOwner(), `users/${OWNER}/audit_logs/a1`)));
   });
 
-  it("ORIN cannot widen its own permissions from the client", async () => {
+  it("REN cannot widen its own permissions from the client", async () => {
     await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/permissions/send_email`), validDoc({ granted: true })));
   });
 

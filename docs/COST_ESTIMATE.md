@@ -24,11 +24,11 @@ the controls in §6 matter more than the arithmetic.
 
 | Product | Spark | NN needs it for |
 |---|---|---|
-| **Cloud Functions** | ❌ unavailable | ORIN orchestration, protected AI calls, scheduled jobs, notifications, backups, webhooks |
+| **Cloud Functions** | ❌ unavailable | REN orchestration, protected AI calls, scheduled jobs, notifications, backups, webhooks |
 | **Cloud Storage** | ❌ unavailable | every PDF, photo, video, document and backup |
 | **App Hosting** | ❌ unavailable | serving the Next.js application |
 | Phone verification | ❌ unavailable | not required by NN |
-| Firebase AI Logic | ❌ unavailable | optional; ORIN is provider-independent |
+| Firebase AI Logic | ❌ unavailable | optional; REN is provider-independent |
 
 Available on Spark: Firestore, Authentication, Cloud Messaging, Firebase
 Hosting (static only), Emulator Suite.
@@ -91,7 +91,7 @@ Hosting (static only), Emulator Suite.
 
 Assumptions: NN opened ~15 times a day across phone and laptop; a dashboard
 load reads ~150 documents; ~1,500 writes a day across notes, tasks, events,
-logs and audit records; ORIN used ~40 times a day once connected; 2 GB of
+logs and audit records; REN used ~40 times a day once connected; 2 GB of
 college PDFs, photos and documents uploaded a month.
 
 | Resource | Estimated month | Free allowance | Billable |
@@ -117,10 +117,10 @@ that grows, and it grows slowly and predictably.
 ### Not Firebase — budget for this separately
 
 AI provider usage is the largest real cost and is billed by Anthropic, OpenAI
-or Google, not Firebase. As a rough order of magnitude, 40 ORIN conversations a
+or Google, not Firebase. As a rough order of magnitude, 40 REN conversations a
 day on a mid-tier model is commonly in the **$5–25/month** range depending on
 model and context length. This cannot be estimated properly until you choose a
-provider. ORIN will track and display its own usage and cost.
+provider. REN will track and display its own usage and cost.
 
 ---
 
@@ -158,7 +158,7 @@ takes NN offline when it fires. I recommend configuring it at a high threshold
 - summary/aggregate documents instead of collection scans for dashboards
 - **one** Cloud Scheduler dispatcher job that fans out internally — keeps NN inside the 3 free jobs permanently
 - Cloud Storage: per-file size cap, allow-list of MIME types, lifecycle rules on trash
-- ORIN: per-day token budget and a hard monthly ceiling, enforced server-side
+- REN: per-day token budget and a hard monthly ceiling, enforced server-side
 - all development on the Emulator Suite — **zero cloud cost during development**
 
 **Cost visibility** — NN Control Room shows real spend pulled from billing, not

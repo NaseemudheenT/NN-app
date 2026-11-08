@@ -1,12 +1,12 @@
-# ORIN — Architecture
+# REN — Architecture
 
 **Status:** `NOT IMPLEMENTED`. The visual identity and state machine exist
-(`OrinWave`, `OrinCommand`); the intelligence does not. Nothing in NN pretends
+(`RenWave`, `RenCommand`); the intelligence does not. Nothing in NN pretends
 otherwise.
 
 ---
 
-## What ORIN is
+## What REN is
 
 The intelligence layer **of** NN, not an application **in** NN. It understands
 the founder's authorised context, operates NN's applications through
@@ -14,7 +14,7 @@ permission-controlled tools, researches, teaches, plans and executes — and is
 honest when it cannot.
 
 The founder's stated benchmark is JARVIS, not a chatbot. The distinction that
-matters: a chatbot is a destination; ORIN is present.
+matters: a chatbot is a destination; REN is present.
 
 ## Presence, not a panel
 
@@ -31,7 +31,7 @@ amplitude and tempo:
 
 **Agent transparency is part of the design.** During a multi-step task the
 founder sees the plan, the tool in use, progress, and any approval request —
-as a compact timeline inside the pane. ORIN never reports success it has not
+as a compact timeline inside the pane. REN never reports success it has not
 verified.
 
 ## Intelligence architecture
@@ -64,7 +64,7 @@ Implemented in `@nn/security`, tested:
 - thirteen actions always stop and ask, and the list is a floor configuration
   cannot lower
 - an automation cannot chain around an approval gate
-- ORIN may never change a security setting itself
+- REN may never change a security setting itself
 
 Execution cycle: `LISTEN → UNDERSTAND → PLAN → CHECK PERMISSIONS →
 CONFIRM IF REQUIRED → EXECUTE → VERIFY → REPORT`.
@@ -78,9 +78,9 @@ estimate, hypothesis, opinion and prediction.
 
 ## Built today
 
-`OrinWave` — a deterministic double-hump envelope across 29 nested curves,
+`RenWave` — a deterministic double-hump envelope across 29 nested curves,
 amplitude and tempo driven by real state, identical on server and client.
-`OrinCommand` — controlled, performs no speech, makes no network call, and
+`RenCommand` — controlled, performs no speech, makes no network call, and
 says plainly that nothing is wired.
 
 ## Not built
