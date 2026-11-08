@@ -1,0 +1,45 @@
+# ---- secrets: never commit ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*-service-account*.json
+serviceAccountKey*.json
+.firebase/
+.runtimeconfig.json
+secrets/
+
+# ---- dependencies / build ----
+node_modules/
+.pnpm-store/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+functions/lib/
+
+# ---- test / tooling ----
+coverage/
+playwright-report/
+test-results/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+pubsub-debug.log
+
+# ---- personal data: never commit ----
+/private-data/
+/backups/
+*.sqlite
+*.db
+
+# ---- os / editor ----
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
