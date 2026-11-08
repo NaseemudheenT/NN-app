@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { NN_MARK_PATH } from "@/components/ui";
+import { NN_MARK_PATH } from "@/components/ui/NNLogo";
 
 /**
  * The PWA / browser icon, generated at build time from the locked mark.

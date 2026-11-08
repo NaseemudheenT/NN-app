@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { NN_MARK_PATH } from "@/components/ui";
+import { NN_MARK_PATH } from "@/components/ui/NNLogo";
 
 export const runtime = "nodejs";
 
