@@ -21,7 +21,7 @@ missing components**.
 
 ---
 
-## Stage B — Creative exploration
+## Stage B — Creative exploration · **BUILT, AWAITING YOUR CHOICE**
 
 Three genuinely different interpretations of "an intelligent environment",
 built as real, interactive pages rather than pictures, so they can be judged
@@ -34,8 +34,18 @@ honestly:
 3. **Field** — the environment is a continuous surface with regions of
    density; information condenses where you look. Depth through focus.
 
-Each shown on the same real content so the comparison is fair. **You choose
-one.** I will give a recommendation and the reasoning behind it.
+All three are built and live at **`/design/directions`**, rendering identical
+content so the comparison is fair. Each responds to the pointer differently on
+purpose.
+
+**My recommendation: C · Field, carrying A's lighting.** Field is the only one
+that solves the density problem from the audit — it makes the surface *more*
+opaque under attention, so NN College and NN Finance stay readable. It is the
+least cinematic at first glance, which is why Atmosphere's pointer-tracked
+lighting should be applied to its surface, and Strata's layering kept for the
+one place it genuinely belongs: floating application windows.
+
+**You choose.**
 
 ---
 

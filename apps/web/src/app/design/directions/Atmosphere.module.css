@@ -1,0 +1,113 @@
+/* ═══ DIRECTION A — ATMOSPHERE ═══════════════════════════════════════════
+   The environment is a lit room. Surfaces are nearly invisible until light
+   reaches them. Depth is created by LIGHT, not by layering.
+   A single light source follows the pointer; everything responds to it.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.room {
+  position: relative;
+  min-height: 720px;
+  padding: var(--space-12) var(--space-10);
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: #04080F;
+  --lx: 50%;
+  --ly: 30%;
+}
+
+/* The light itself. Large, soft, and the only reason anything is visible. */
+.room::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    radial-gradient(620px 620px at var(--lx) var(--ly), rgb(120 170 255 / 17%), transparent 62%),
+    radial-gradient(1100px 900px at var(--lx) var(--ly), rgb(80 120 200 / 7%), transparent 70%);
+  transition: background 420ms var(--ease-standard);
+}
+
+/* Floor haze, so the room has a ground rather than a void. */
+.room::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0; height: 42%;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(14 28 52 / 55%), transparent);
+}
+
+.inner { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; }
+
+.greeting {
+  font-size: 34px; font-weight: var(--weight-semibold); letter-spacing: -0.025em;
+  color: rgb(247 249 252 / 92%);
+}
+.when { margin-top: var(--space-4); font-size: var(--text-label-size); color: rgb(166 179 197 / 55%); }
+
+/* ORIN: the brightest thing in the room, because it is where you speak. */
+.orin {
+  margin: var(--space-10) 0 var(--space-11);
+  padding: var(--space-8) var(--space-9);
+  border-radius: 22px;
+  border: 1px solid rgb(255 255 255 / 7%);
+  background:
+    radial-gradient(130% 150% at 50% -30%, rgb(120 170 255 / 13%), transparent 70%),
+    rgb(255 255 255 / 2.5%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 0 60px -20px rgb(100 150 230 / 30%);
+}
+.orinRow { display: flex; align-items: center; gap: var(--space-6); }
+.orinPrompt { flex: 1; font-size: var(--text-lg-size); color: rgb(166 179 197 / 70%); }
+
+.sectionLabel {
+  font-size: var(--text-micro-size); letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase; color: rgb(166 179 197 / 38%); margin-bottom: var(--space-6);
+}
+
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* A surface is barely there. The light is what makes it exist. */
+.card {
+  position: relative;
+  padding: var(--space-7);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgb(255 255 255 / 4%);
+  background: rgb(255 255 255 / 1.5%);
+  color: rgb(247 249 252 / 55%);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: color 300ms var(--ease-standard), border-color 300ms var(--ease-standard);
+}
+
+/* Per-card illumination: brightness depends on the light's distance. */
+.card::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(260px 260px at var(--cx, 50%) var(--cy, 50%),
+              rgb(150 195 255 / 15%), transparent 70%);
+  opacity: var(--lit, 0);
+  transition: opacity 340ms var(--ease-standard);
+  pointer-events: none;
+}
+.card:hover, .card:focus-visible { color: rgb(247 249 252 / 96%); border-color: rgb(156 200 255 / 26%); }
+.card > * { position: relative; }
+
+.cardIcon { color: rgb(156 200 255 / 60%); }
+.cardName { margin-top: var(--space-5); font-size: var(--text-label-size); font-weight: var(--weight-medium); }
+.cardHint { margin-top: 3px; font-size: var(--text-caption-size); color: rgb(166 179 197 / 40%); }
+
+.context { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); margin-top: var(--space-11); }
+@media (max-width: 760px) { .context { grid-template-columns: 1fr; } }
+.ctx { padding: var(--space-6) var(--space-7); border-left: 1px solid rgb(156 200 255 / 18%); }
+.ctxLabel { font-size: var(--text-micro-size); letter-spacing: var(--text-micro-ls); text-transform: uppercase; color: rgb(156 200 255 / 55%); }
+.ctxValue { margin-top: var(--space-4); font-size: var(--text-t3-size); color: rgb(247 249 252 / 90%); }
+.ctxDetail { margin-top: 3px; font-size: var(--text-caption-size); color: rgb(166 179 197 / 45%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .room::before, .card::before, .card { transition: none; }
+}
+:global(html[data-motion="reduced"]) .room::before,
+:global(html[data-motion="reduced"]) .card::before { transition: none; }

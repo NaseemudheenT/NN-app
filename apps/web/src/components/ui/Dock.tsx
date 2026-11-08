@@ -13,7 +13,7 @@ export interface DockProps {
   items: readonly DockItem[];
   activeId: string | null;
   onSelect: (id: string) => void;
-  className?: string;
+  className?: string | undefined;
 }
 
 export function Dock({ items, activeId, onSelect, className }: DockProps) {

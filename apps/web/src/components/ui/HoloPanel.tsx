@@ -15,7 +15,7 @@ export interface HoloPanelProps {
   rotateX?: number;
   /** Panels further back should sit behind nearer ones. */
   zIndex?: number;
-  className?: string;
+  className?: string | undefined;
   children?: ReactNode;
 }
 

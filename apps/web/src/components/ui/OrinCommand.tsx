@@ -15,7 +15,7 @@ export interface OrinCommandProps {
   onMicToggle: () => void;
   /** Shown beneath the input. Use it to state what is and is not wired up. */
   status?: string;
-  className?: string;
+  className?: string | undefined;
 }
 
 const STATE_TEXT: Record<OrinState, string> = {

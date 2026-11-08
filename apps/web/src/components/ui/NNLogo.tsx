@@ -21,7 +21,7 @@ export interface NNLogoProps {
   size?: number;
   /** Decorative marks are hidden from assistive technology. */
   decorative?: boolean;
-  className?: string;
+  className?: string | undefined;
 }
 
 export function NNLogo({ size = 32, decorative = false, className }: NNLogoProps) {
@@ -43,7 +43,7 @@ export function NNLogo({ size = 32, decorative = false, className }: NNLogoProps
 
 export interface NNLockupProps {
   size?: number;
-  className?: string;
+  className?: string | undefined;
 }
 
 /**

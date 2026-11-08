@@ -11,7 +11,7 @@ export interface NNGlassMarkProps {
   bloom?: number;
   /** Prismatic edge split. 0 disables it. */
   dispersion?: number;
-  className?: string;
+  className?: string | undefined;
 }
 
 /**

@@ -16,7 +16,7 @@ export interface HoloStageProps {
   designWidth?: number;
   /** Authoring height, before scaling. */
   designHeight?: number;
-  className?: string;
+  className?: string | undefined;
   children?: ReactNode;
 }
 

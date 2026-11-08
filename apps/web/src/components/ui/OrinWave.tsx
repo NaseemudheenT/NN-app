@@ -9,7 +9,7 @@ export interface OrinWaveProps {
   state?: OrinState;
   /** Number of nested curves in the fan. */
   lines?: number;
-  className?: string;
+  className?: string | undefined;
 }
 
 const W = 600;

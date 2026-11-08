@@ -34,7 +34,7 @@ export interface IconProps {
   size?: number;
   /** Supply when the icon is the only content of a control. */
   title?: string;
-  className?: string;
+  className?: string | undefined;
 }
 
 export function Icon({ name, size = 20, title, className }: IconProps) {

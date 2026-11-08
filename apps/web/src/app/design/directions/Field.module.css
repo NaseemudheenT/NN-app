@@ -1,0 +1,86 @@
+/* ═══ DIRECTION C — FIELD ════════════════════════════════════════════════
+   One continuous surface. No cards, no separate panels. Information
+   CONDENSES where attention falls and thins where it does not.
+   Depth is created by DENSITY — the surface thickens under focus.
+   This is the direction that answers the dense-data problem directly.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.field {
+  position: relative;
+  min-height: 720px;
+  padding: var(--space-12) var(--space-11);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 700px at 50% 0%, #0E1E35, #070F1C 70%);
+}
+
+/* A fine structural mesh — the "field" itself, always present, never loud. */
+.field::before {
+  content: "";
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgb(156 200 255 / 3.2%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(156 200 255 / 3.2%) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(900px 600px at 50% 10%, #000, transparent 75%);
+  -webkit-mask-image: radial-gradient(900px 600px at 50% 10%, #000, transparent 75%);
+}
+
+.inner { position: relative; max-width: 1020px; margin: 0 auto; }
+
+.greeting { font-size: 34px; font-weight: var(--weight-semibold); letter-spacing: -0.025em; color: #F7F9FC; }
+.when { margin-top: var(--space-4); font-size: var(--text-label-size); color: var(--nn-grey); }
+
+/* ORIN is simply the densest point of the field, not a separate object. */
+.orin {
+  margin: var(--space-10) 0;
+  padding: var(--space-8) 0 var(--space-7);
+  border-bottom: 1px solid rgb(156 200 255 / 14%);
+}
+.orinRow { display: flex; align-items: center; gap: var(--space-6); }
+.orinPrompt { flex: 1; font-size: 19px; color: var(--nn-silver); }
+
+/* A region thickens as attention arrives: backing appears, text sharpens. */
+.region {
+  position: relative;
+  padding: var(--space-8) var(--space-8);
+  margin: 0 calc(var(--space-8) * -1);
+  border-radius: var(--radius-lg);
+  transition: background-color 300ms var(--ease-standard),
+              box-shadow 300ms var(--ease-standard);
+}
+.region:hover, .region:focus-within {
+  /* Opacity RISES under focus — the opposite of decorative glass. This is
+     what keeps dense content readable. */
+  background: rgb(14 30 54 / 72%);
+  box-shadow: inset 0 0 0 1px rgb(156 200 255 / 12%), 0 20px 50px -30px rgb(0 0 0 / 80%);
+}
+
+.label { font-size: var(--text-micro-size); letter-spacing: var(--text-micro-ls); text-transform: uppercase; color: var(--nn-grey); }
+
+/* Applications as a dense, borderless list — closer to how a real OS shows
+   many things at once. */
+.rows { margin-top: var(--space-6); display: grid; gap: 1px; background: rgb(156 200 255 / 7%); border-radius: var(--radius-sm); overflow: hidden; }
+.row {
+  display: grid; grid-template-columns: 30px 1fr auto;
+  align-items: center; gap: var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  background: rgb(10 22 40 / 92%);
+  color: #F7F9FC; text-align: left; cursor: pointer;
+  transition: background-color 160ms var(--ease-standard), padding-left 200ms var(--ease-standard);
+}
+.row:hover, .row:focus-visible { background: rgb(22 44 74 / 96%); padding-left: calc(var(--space-6) + 5px); }
+.rowIcon { color: var(--nn-icy); }
+.rowName { font-size: var(--text-body-size); font-weight: var(--weight-medium); }
+.rowHint { font-size: var(--text-caption-size); color: var(--nn-grey); font-variant-numeric: tabular-nums; }
+
+.ctxRow { margin-top: var(--space-6); display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-9); }
+@media (max-width: 760px) { .ctxRow { grid-template-columns: 1fr; gap: var(--space-7); } }
+.ctxLabel { font-size: var(--text-micro-size); letter-spacing: var(--text-micro-ls); text-transform: uppercase; color: var(--nn-icy); }
+.ctxValue { margin-top: var(--space-4); font-size: var(--text-t3-size); color: #F7F9FC; }
+.ctxDetail { margin-top: 3px; font-size: var(--text-caption-size); color: var(--nn-grey); }
+
+@media (prefers-reduced-motion: reduce) { .region, .row { transition: none; } }
+:global(html[data-motion="reduced"]) .region,
+:global(html[data-motion="reduced"]) .row { transition: none; }
