@@ -1,10 +1,11 @@
 "use client";
 
 import { useId } from "react";
-import { NN_MARK_PATH } from "./NNLogo";
+import { NN_MARK_H, NN_MARK_PATH, NN_MARK_RATIO, NN_MARK_W } from "./NNLogo";
 import styles from "./NNGlassMark.module.css";
 
 export interface NNGlassMarkProps {
+  /** Rendered HEIGHT in px. Width follows the mark's 94:76 ratio. */
   size?: number;
   /** Strength of the volumetric bloom, in px of blur. */
   bloom?: number;
@@ -44,9 +45,9 @@ export function NNGlassMark({
       style={{ ["--bloom" as string]: `${bloom}px` }}
     >
       <svg
-        width={size}
+        width={Math.round(size * NN_MARK_RATIO)}
         height={size}
-        viewBox="0 0 76 76"
+        viewBox={`0 0 ${NN_MARK_W} ${NN_MARK_H}`}
         className={styles.svg}
         role="img"
         aria-label="NN"
@@ -115,7 +116,7 @@ export function NNGlassMark({
         <g clipPath={`url(#${clip})`} aria-hidden="true">
           <rect
             className={styles.sheen}
-            x="-30" y="-10" width="30" height="96"
+            x="-38" y="-10" width="38" height="96"
             fill={`url(#${streak})`}
             transform="skewX(-18)"
           />

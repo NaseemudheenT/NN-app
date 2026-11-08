@@ -4,13 +4,18 @@
 
 ## The mark
 
-**Concept A — Interlock.** Two N forms sharing a single stem: three verticals,
-two perfectly parallel diagonals, every edge on a 76-unit grid.
+**Concept A.** Two N forms, each built from two verticals and one diagonal on
+a 76-unit grid, separated by a **6-unit gap** so the mark reads unambiguously
+as N N. The mark is **94 × 76 — it is not square.**
 
 ```
 M0 0 H12 L32 46 V0 H44 V76 H32 L12 30 V76 H0 Z
-M32 0 H44 L64 46 V0 H76 V76 H64 L44 30 V76 H32 Z
+M50 0 H62 L82 46 V0 H94 V76 H82 L62 30 V76 H50 Z
 ```
+
+> **Revision history.** Approved 2026-11-08 as an interlocked ligature sharing
+> one stem. Revised the same day at the founder's direction to open the gap.
+> No further change without founder approval.
 
 This path is the identity. It is declared once, in
 `apps/web/src/components/ui/NNLogo.tsx` as `NN_MARK_PATH`, and every other use
@@ -37,7 +42,8 @@ All live in `apps/web/public/brand/nn/`.
 ### Clear space and minimum size
 
 Clear space on all sides is **one quarter of the mark's height**. Minimum
-rendered size is **16px**; it was tested at 16, 24, 32, 48 and 96 and holds.
+rendered **height** is 16px. `size` always means height; width follows the
+94:76 ratio automatically.
 
 ### The glass mark
 

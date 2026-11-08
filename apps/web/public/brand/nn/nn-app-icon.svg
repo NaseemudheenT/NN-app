@@ -7,7 +7,7 @@
     </linearGradient>
   </defs>
   <rect width="1024" height="1024" rx="228" fill="url(#nn-tile)"/>
-  <g transform="translate(246 246) scale(6.9737)">
-    <path fill="#F7F9FC" fill-rule="nonzero" d="M0 0 H12 L32 46 V0 H44 V76 H32 L12 30 V76 H0 Z M32 0 H44 L64 46 V0 H76 V76 H64 L44 30 V76 H32 Z"/>
+  <g transform="translate(174 318) scale(7.2)">
+    <path fill="#F7F9FC" fill-rule="nonzero" d="M0 0 H12 L32 46 V0 H44 V76 H32 L12 30 V76 H0 Z M50 0 H62 L82 46 V0 H94 V76 H82 L62 30 V76 H50 Z"/>
   </g>
 </svg>

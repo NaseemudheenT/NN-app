@@ -13,7 +13,7 @@ describe("NN mark", () => {
   // changed — which requires founder approval, not a code review.
   const APPROVED =
     "M0 0 H12 L32 46 V0 H44 V76 H32 L12 30 V76 H0 Z " +
-    "M32 0 H44 L64 46 V0 H76 V76 H64 L44 30 V76 H32 Z";
+    "M50 0 H62 L82 46 V0 H94 V76 H82 L62 30 V76 H50 Z";
 
   it("geometry is unchanged from the approved Concept A", () => {
     expect(NN_MARK_PATH).toBe(APPROVED);
@@ -30,9 +30,16 @@ describe("NN mark", () => {
     expect(container.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("renders at the requested size", () => {
-    const { container } = render(<NNLogo size={64} decorative />);
-    expect(container.querySelector("svg")).toHaveAttribute("width", "64");
+  it("renders at the requested height and keeps the 94:76 ratio", () => {
+    const { container } = render(<NNLogo size={76} decorative />);
+    const svg = container.querySelector("svg");
+    expect(svg).toHaveAttribute("height", "76");
+    expect(svg).toHaveAttribute("width", "94");
+  });
+
+  it("is not square — the two forms are separated by a gap", () => {
+    const { container } = render(<NNLogo decorative />);
+    expect(container.querySelector("svg")).toHaveAttribute("viewBox", "0 0 94 76");
   });
 });
 
