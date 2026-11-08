@@ -1,0 +1,65 @@
+.launcher {
+  position: fixed;
+  right: var(--space-7);
+  bottom: var(--space-7);
+  z-index: var(--z-dialog);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5) var(--space-2) var(--space-2);
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-full);
+  background: var(--glass-3-bg);
+  backdrop-filter: blur(var(--glass-3-blur));
+  -webkit-backdrop-filter: blur(var(--glass-3-blur));
+  box-shadow: var(--shadow-3), inset 0 1px 0 var(--glass-sheen);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    opacity var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-spring),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+.launcher:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.launcher:active { transform: translateY(0) scale(0.97); }
+
+/* While REN is open the identity lives in the panel. Two of the same mark on
+   screen at once would read as two assistants. */
+.launcher[data-open="true"] {
+  opacity: 0;
+  transform: translateY(10px) scale(0.9);
+  pointer-events: none;
+}
+
+.hint { display: inline-flex; gap: 2px; }
+.hint kbd {
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--glass-hover);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+/* The shortcut hint is desktop-only; on a phone there is no keyboard to press
+   and the tap target is the whole mark anyway. */
+@media (max-width: 767px) {
+  .launcher {
+    right: var(--space-5);
+    bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    padding: var(--space-2);
+  }
+  .hint { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launcher:hover, .launcher:active { transform: none; }
+}
+:global(html[data-motion="reduced"]) .launcher:hover,
+:global(html[data-motion="reduced"]) .launcher:active { transform: none; }

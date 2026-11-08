@@ -76,3 +76,42 @@
   .roomStrip { height: 200px; }
   .row { gap: var(--space-5); }
 }
+
+/* The six REN states, side by side, so they can be compared rather than
+   described. "Listening" is given a fixed level so its reaction is visible
+   in a still frame. */
+.renStates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-8);
+  padding: var(--space-8) 0;
+}
+.renStates figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  margin: 0;
+  padding: var(--space-7) var(--space-6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--glass-1-bg);
+  text-align: center;
+}
+.renStates figcaption { display: flex; flex-direction: column; gap: var(--space-2); }
+.renStates figcaption span {
+  font-size: var(--text-micro-size);
+  letter-spacing: var(--text-micro-ls);
+  color: var(--text-accent);
+}
+.renStates figcaption strong {
+  font-size: var(--text-lg-size);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+.renStates figcaption em {
+  font-style: normal;
+  font-size: var(--text-caption-size);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}

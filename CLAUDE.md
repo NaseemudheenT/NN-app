@@ -216,6 +216,37 @@ voice, and appearance (retheming NN). Appearance is the only one wired today
 and lives on REN's own surface — not in the workspace chrome, because
 retheming NN is REN's job, not a system setting.
 
+## 8c. REN as built (phases 1–3 of 7)
+
+REN is mounted once in the root layout, inside `AuthProvider`, so it is a
+property of NN rather than a page. Three files carry it:
+
+- `lib/ren/state.ts` — the six-state machine: idle, awakening, listening,
+  thinking, speaking, complete. **Illegal transitions throw rather than being
+  ignored.** `respond` refuses an empty utterance, `settle` is unreachable
+  except from thinking or speaking, and `fail` returns to idle — REN cannot
+  show a success flourish for work that did not happen.
+- `lib/ren/intents.ts` — a deterministic matcher, not a model. Every entry
+  maps to a real function. Anything unmatched gets an honest refusal. When a
+  provider is connected it goes *in front* of this; the intent list stays the
+  authority on what is permitted.
+- `lib/ren/context.ts` — a pure function from route to what REN knows about
+  where the founder is. REN never has to be told which page you are on.
+
+**Panel visibility is deliberately NOT derived from the state machine.** REN
+sits idle with its surface open while you read a reply. Conflating the two
+made REN close itself a second after every answer.
+
+Navigation is verified: REN asks the router to move, waits for the route to
+actually change, and reports success only then — with a 4 s timeout that
+reports failure rather than hanging.
+
+Summon with ⌘K / Ctrl+K, or the floating mark in the corner. Escape closes.
+The launcher hides while the panel is open: one identity on screen, never two.
+
+**Not built:** voice (phase 4), model intelligence (5), module actions beyond
+navigation (6). The panel states this in one line rather than implying more.
+
 ## 9. REN architecture (designed, not yet built)
 
 Provider-independent by design — OpenAI, Anthropic, Google and open-weight

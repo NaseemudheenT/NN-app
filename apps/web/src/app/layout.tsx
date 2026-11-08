@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import { Room } from "@/components/nn/Room";
+import { RenProvider } from "@/components/ren/RenProvider";
+import { RenLauncher } from "@/components/ren/RenLauncher";
+import { RenPanel } from "@/components/ren/RenPanel";
 import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
@@ -52,9 +55,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Room />
           {/* One displacement map, shared by every liquid surface in NN. */}
           <LiquidGlassDefs />
-          <div className="nn-shell">
-            <AuthProvider>{children}</AuthProvider>
-          </div>
+          {/* REN is a property of NN, not a page you navigate to: one
+              instance, mounted once, present on every screen. */}
+          <AuthProvider>
+            <RenProvider>
+              <div className="nn-shell">{children}</div>
+              <RenLauncher />
+              <RenPanel />
+            </RenProvider>
+          </AuthProvider>
           <ServiceWorker />
         </ThemeProvider>
       </body>

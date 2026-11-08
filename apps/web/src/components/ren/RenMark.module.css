@@ -1,0 +1,259 @@
+.mark {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--size) * 1.9);
+  height: calc(var(--size) * 1.9);
+  color: var(--nn-icy);
+  /* The live microphone level, eased so a single loud syllable does not make
+     the whole identity jump. Only non-zero while listening. */
+  --reactive: calc(var(--level, 0) * 0.34);
+  isolation: isolate;
+}
+
+/* ---- the brand, always legible, never replaced ------------------------- */
+.glyph {
+  position: relative;
+  z-index: 3;
+  width: auto;
+  height: calc(var(--size) * 0.46);
+  color: var(--nn-white);
+  filter: drop-shadow(0 0 calc(var(--size) * 0.18) rgb(156 200 255 / 55%));
+  transition:
+    filter var(--dur-slow) var(--ease-standard),
+    transform var(--dur-base) var(--ease-spring),
+    opacity var(--dur-base) var(--ease-standard);
+}
+
+/* ---- aura -------------------------------------------------------------- */
+.aura {
+  position: absolute;
+  inset: 12%;
+  z-index: 0;
+  border-radius: var(--radius-full);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgb(156 200 255 / 34%) 0%,
+    rgb(100 156 227 / 16%) 42%,
+    transparent 70%
+  );
+  transform: scale(calc(1 + var(--reactive)));
+  transition: transform 90ms linear, opacity var(--dur-slow) var(--ease-standard);
+}
+
+/* ---- expanding rings --------------------------------------------------- */
+.rings,
+.orbit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.rings i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(156 200 255 / 45%);
+  border-radius: var(--radius-full);
+  opacity: 0;
+  transform: scale(0.34);
+}
+
+/* ---- orbiting particles ------------------------------------------------ */
+.orbit i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--size) * 0.07);
+  height: calc(var(--size) * 0.07);
+  margin: calc(var(--size) * -0.035) 0 0 calc(var(--size) * -0.035);
+  border-radius: var(--radius-full);
+  background: var(--nn-icy);
+  opacity: 0;
+  box-shadow: 0 0 calc(var(--size) * 0.12) rgb(156 200 255 / 80%);
+}
+
+/* ---- the confirmation tick ---------------------------------------------
+   A badge at the lower right rather than an overlay on the glyph. Drawn over
+   the mark it read as a damaged logo; beside it, the brand stays intact and
+   the confirmation is unambiguous. */
+.tick {
+  position: absolute;
+  right: 22%;
+  bottom: 22%;
+  z-index: 4;
+  width: calc(var(--size) * 0.36);
+  height: calc(var(--size) * 0.36);
+  padding: calc(var(--size) * 0.05);
+  border-radius: var(--radius-full);
+  background: var(--surface-base);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--status-ok) 55%, transparent),
+    0 0 calc(var(--size) * 0.2) rgb(95 211 166 / 45%);
+  color: var(--status-ok);
+  opacity: 0;
+  transform: scale(0.6);
+}
+.tick path {
+  stroke-dasharray: 26;
+  stroke-dashoffset: 26;
+}
+
+/* ========================================================================
+   STATE 01 · IDLE — present, not engaged. A slow breath and nothing else.
+   ===================================================================== */
+.mark[data-state="idle"] .aura {
+  animation: ren-breathe 5.2s var(--ease-standard) infinite;
+}
+.mark[data-state="idle"] .glyph {
+  opacity: 0.82;
+}
+
+/* ========================================================================
+   STATE 02 · AWAKENING — rings travel outward once, the mark lights up.
+   ===================================================================== */
+.mark[data-state="awakening"] .rings i {
+  animation: ren-ring 900ms var(--ease-entrance) forwards;
+}
+.mark[data-state="awakening"] .rings i:nth-child(2) { animation-delay: 130ms; }
+.mark[data-state="awakening"] .rings i:nth-child(3) { animation-delay: 260ms; }
+.mark[data-state="awakening"] .glyph {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 calc(var(--size) * 0.3) rgb(156 200 255 / 90%));
+}
+.mark[data-state="awakening"] .aura {
+  animation: ren-flare 900ms var(--ease-entrance);
+}
+
+/* ========================================================================
+   STATE 03 · LISTENING — the aura answers the real microphone level.
+   The reactive scale is applied above; this only adds the ready halo.
+   ===================================================================== */
+.mark[data-state="listening"] .aura {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgb(156 200 255 / 46%) 0%,
+    rgb(100 156 227 / 20%) 44%,
+    transparent 72%
+  );
+}
+.mark[data-state="listening"] .rings i:first-child {
+  opacity: calc(0.3 + var(--level, 0) * 0.5);
+  transform: scale(calc(0.82 + var(--reactive)));
+  transition: transform 90ms linear, opacity 90ms linear;
+}
+
+/* ========================================================================
+   STATE 04 · THINKING — particles circulate; the core pulses in intensity.
+   ===================================================================== */
+.mark[data-state="thinking"] .orbit {
+  animation: ren-spin 3.4s linear infinite;
+}
+.mark[data-state="thinking"] .orbit i {
+  opacity: 0.85;
+  animation: ren-particle 1.9s var(--ease-standard) infinite;
+}
+.mark[data-state="thinking"] .orbit i:nth-child(1) { transform: rotate(0deg)   translateX(calc(var(--size) * 0.72)); animation-delay: 0ms; }
+.mark[data-state="thinking"] .orbit i:nth-child(2) { transform: rotate(60deg)  translateX(calc(var(--size) * 0.72)); animation-delay: 150ms; }
+.mark[data-state="thinking"] .orbit i:nth-child(3) { transform: rotate(120deg) translateX(calc(var(--size) * 0.72)); animation-delay: 300ms; }
+.mark[data-state="thinking"] .orbit i:nth-child(4) { transform: rotate(180deg) translateX(calc(var(--size) * 0.72)); animation-delay: 450ms; }
+.mark[data-state="thinking"] .orbit i:nth-child(5) { transform: rotate(240deg) translateX(calc(var(--size) * 0.72)); animation-delay: 600ms; }
+.mark[data-state="thinking"] .orbit i:nth-child(6) { transform: rotate(300deg) translateX(calc(var(--size) * 0.72)); animation-delay: 750ms; }
+.mark[data-state="thinking"] .glyph {
+  animation: ren-core-pulse 1.9s var(--ease-standard) infinite;
+}
+
+/* ========================================================================
+   STATE 05 · SPEAKING — a steady outward cadence, slower than listening.
+   ===================================================================== */
+.mark[data-state="speaking"] .aura {
+  animation: ren-speak 1.5s var(--ease-standard) infinite;
+}
+.mark[data-state="speaking"] .rings i:first-child {
+  animation: ren-ring 1.5s var(--ease-standard) infinite;
+}
+.mark[data-state="speaking"] .rings i:nth-child(2) {
+  animation: ren-ring 1.5s var(--ease-standard) infinite;
+  animation-delay: 420ms;
+}
+
+/* ========================================================================
+   STATE 06 · COMPLETE — the tick draws itself once. Earned, not decorative.
+   ===================================================================== */
+.mark[data-state="complete"] .glyph {
+  /* The brand stays legible through the confirmation — it is still REN. */
+  opacity: 0.9;
+  filter: drop-shadow(0 0 calc(var(--size) * 0.16) rgb(95 211 166 / 55%));
+}
+.mark[data-state="complete"] .tick {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity var(--dur-fast) var(--ease-standard),
+              transform var(--dur-base) var(--ease-spring);
+}
+.mark[data-state="complete"] .tick path {
+  animation: ren-draw 420ms var(--ease-entrance) forwards;
+}
+.mark[data-state="complete"] .aura {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgb(95 211 166 / 32%) 0%,
+    transparent 68%
+  );
+}
+
+/* ---- keyframes --------------------------------------------------------- */
+@keyframes ren-breathe {
+  0%, 100% { transform: scale(0.94); opacity: 0.62; }
+  50%      { transform: scale(1.06); opacity: 1; }
+}
+@keyframes ren-flare {
+  0%   { transform: scale(0.5); opacity: 0; }
+  40%  { transform: scale(1.22); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes ren-ring {
+  0%   { opacity: 0.85; transform: scale(0.34); }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+@keyframes ren-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes ren-particle {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+@keyframes ren-core-pulse {
+  0%, 100% { filter: drop-shadow(0 0 calc(var(--size) * 0.14) rgb(156 200 255 / 40%)); }
+  50%      { filter: drop-shadow(0 0 calc(var(--size) * 0.34) rgb(156 200 255 / 95%)); }
+}
+@keyframes ren-speak {
+  0%, 100% { transform: scale(0.96); }
+  50%      { transform: scale(1.14); }
+}
+@keyframes ren-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Reduced motion keeps every state *distinguishable* — the founder must still
+   be able to tell listening from working — but stops the looping. Each state
+   holds a different static pose instead of animating. */
+@media (prefers-reduced-motion: reduce) {
+  .mark .aura,
+  .mark .glyph,
+  .mark .orbit,
+  .mark .orbit i,
+  .mark .rings i,
+  .mark .tick path { animation: none !important; }
+  .mark[data-state="idle"] .aura      { transform: scale(0.94); opacity: 0.6; }
+  .mark[data-state="awakening"] .aura { transform: scale(1.12); opacity: 1; }
+  .mark[data-state="listening"] .rings i:first-child { opacity: 0.6; transform: scale(0.95); }
+  .mark[data-state="thinking"] .orbit i { opacity: 0.85; }
+  .mark[data-state="speaking"] .aura  { transform: scale(1.1); }
+  .mark[data-state="complete"] .tick path { stroke-dashoffset: 0; }
+}
+:global(html[data-motion="reduced"]) .mark .aura,
+:global(html[data-motion="reduced"]) .mark .glyph,
+:global(html[data-motion="reduced"]) .mark .orbit,
+:global(html[data-motion="reduced"]) .mark .orbit i,
+:global(html[data-motion="reduced"]) .mark .rings i,
+:global(html[data-motion="reduced"]) .mark .tick path { animation: none !important; }
+:global(html[data-motion="reduced"]) .mark[data-state="complete"] .tick path { stroke-dashoffset: 0; }

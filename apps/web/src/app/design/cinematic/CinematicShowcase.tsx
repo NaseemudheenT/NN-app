@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { Coverflow, GlassFold, Icon, LiquidButton, NNLogo } from "@/components/ui";
 import { LAUNCHER } from "@/components/nn/workspaceContent";
+import { RenMark } from "@/components/ren/RenMark";
+import { REN_STATES, REN_STATUS } from "@/lib/ren/state";
 import styles from "./cinematic.module.css";
 
 /**
@@ -16,6 +18,15 @@ import styles from "./cinematic.module.css";
  */
 
 const SIZES = ["sm", "md", "lg", "xl", "xxl"] as const;
+
+const REN_STATE_NOTE: Record<string, string> = {
+  idle: "Present, not engaged. A slow breath and nothing else.",
+  awakening: "Summoned. Three rings travel outward once and the mark lights up.",
+  listening: "The aura answers the real microphone level — never a fake pulse.",
+  thinking: "Six particles circulate while something is genuinely in flight.",
+  speaking: "A steady outward cadence, slower than listening.",
+  complete: "The tick draws itself. Shown only for a confirmed result.",
+};
 
 export function CinematicShowcase() {
   const [centred, setCentred] = useState<string>(LAUNCHER[0]?.id ?? "");
@@ -137,10 +148,36 @@ export function CinematicShowcase() {
         />
       </section>
 
-      {/* ---- 4 · the corridor ---- */}
+      {/* ---- 4 · REN ---- */}
       <section className={styles.block}>
         <div className={styles.blockHead}>
-          <h2>04 · The corridor</h2>
+          <h2>04 · REN</h2>
+          <p>
+            REN&rsquo;s identity is the NN mark itself, not a generic AI sphere with a logo
+            bolted on. In all six states the mark is drawn at full strength in the centre
+            and the effects happen around it — rings expand, particles orbit, the aura
+            swells. Nothing covers it and nothing replaces it. Press{" "}
+            <strong>⌘K</strong> anywhere in NN to summon it.
+          </p>
+        </div>
+        <div className={styles.renStates}>
+          {REN_STATES.map((state, index) => (
+            <figure key={state}>
+              <RenMark state={state} size={72} level={state === "listening" ? 0.55 : 0} />
+              <figcaption>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{REN_STATUS[state]}</strong>
+                <em>{REN_STATE_NOTE[state]}</em>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      {/* ---- 5 · the corridor ---- */}
+      <section className={styles.block}>
+        <div className={styles.blockHead}>
+          <h2>05 · The corridor</h2>
           <p>
             NN&rsquo;s introduction: the applications start far away and travel toward you as
             the corridor is driven forward, staggered so something is always arriving.
