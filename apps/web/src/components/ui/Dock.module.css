@@ -1,0 +1,28 @@
+.dock {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-2-border);
+  background: var(--glass-2-bg);
+  backdrop-filter: blur(var(--glass-2-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-2-blur)) saturate(150%);
+  box-shadow: inset 0 1px 0 var(--glass-sheen), var(--shadow-3);
+}
+.item {
+  display: grid; place-items: center;
+  width: 44px; height: 44px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard),
+              color var(--dur-fast) var(--ease-standard),
+              transform var(--dur-base) var(--ease-spring);
+}
+.item:hover { background: var(--glass-hover); color: var(--text-primary); transform: translateY(-3px); }
+.item[aria-current="true"] { color: var(--nn-icy); background: var(--glass-active); border-color: var(--border-normal); }
+.sep { width: 1px; height: 26px; margin: 0 var(--space-2); background: var(--border-normal); }
+
+@media (prefers-reduced-motion: reduce) { .item:hover { transform: none; } }
+:global(html[data-motion="reduced"]) .item:hover { transform: none; }

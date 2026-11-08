@@ -2,3 +2,12 @@ packages:
   - "apps/*"
   - "packages/*"
   - "functions"
+
+allowBuilds:
+  esbuild: set this to true or false
+
+# esbuild is a transitive dependency of vitest/vite. Its install script links the
+# platform-native binary; vitest cannot run without it. Narrowly allowlisted —
+# no other package may run install scripts.
+onlyBuiltDependencies:
+  - esbuild

@@ -1,0 +1,68 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-standard);
+}
+.btn:active:not(:disabled) { transform: scale(0.975); }
+.btn:disabled { cursor: not-allowed; opacity: 0.45; }
+
+@media (prefers-reduced-motion: reduce) { .btn:active:not(:disabled) { transform: none; } }
+:global(html[data-motion="reduced"]) .btn:active:not(:disabled) { transform: none; }
+
+/* sizes */
+.sm { height: 32px; padding: 0 var(--space-5); font-size: var(--text-label-size); border-radius: var(--radius-xs); }
+.md { height: 40px; padding: 0 var(--space-7); font-size: var(--text-body-size); }
+.lg { height: 48px; padding: 0 var(--space-9); font-size: var(--text-lg-size); border-radius: var(--radius-md); }
+
+.iconOnly.sm { width: 32px; padding: 0; }
+.iconOnly.md { width: 40px; padding: 0; }
+.iconOnly.lg { width: 48px; padding: 0; }
+
+/* variants */
+.primary { background: var(--nn-accent); color: var(--text-on-accent); box-shadow: var(--shadow-2); }
+.primary:hover:not(:disabled) { background: var(--nn-icy); }
+
+.secondary {
+  background: var(--glass-2-bg);
+  border-color: var(--glass-2-border);
+  color: var(--text-primary);
+  backdrop-filter: blur(var(--glass-2-blur));
+  -webkit-backdrop-filter: blur(var(--glass-2-blur));
+  box-shadow: inset 0 1px 0 var(--glass-sheen);
+}
+.secondary:hover:not(:disabled) { border-color: var(--border-strong); background-color: var(--glass-hover); }
+
+.ghost { background: transparent; color: var(--text-secondary); }
+.ghost:hover:not(:disabled) { background: var(--glass-hover); color: var(--text-primary); }
+
+.danger { background: var(--status-err); color: #11070A; }
+.danger:hover:not(:disabled) { filter: brightness(1.08); }
+
+/* loading */
+.loading { color: transparent !important; pointer-events: none; }
+.spinner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--spinner-color, currentColor);
+}
+.spinner svg { animation: nn-spin 720ms linear infinite; }
+@keyframes nn-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner svg { animation-duration: 2400ms; } }
+:global(html[data-motion="reduced"]) .spinner svg { animation-duration: 2400ms; }

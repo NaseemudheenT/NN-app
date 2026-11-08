@@ -1,0 +1,30 @@
+.panel {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--tier-border);
+  background: var(--tier-bg);
+  backdrop-filter: blur(var(--tier-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--tier-blur)) saturate(140%);
+  box-shadow: inset 0 1px 0 var(--glass-sheen), var(--tier-shadow);
+  transition:
+    background-color var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-standard);
+}
+
+.t1 { --tier-bg: var(--glass-1-bg); --tier-border: var(--glass-1-border); --tier-blur: var(--glass-1-blur); --tier-shadow: var(--shadow-2); }
+.t2 { --tier-bg: var(--glass-2-bg); --tier-border: var(--glass-2-border); --tier-blur: var(--glass-2-blur); --tier-shadow: var(--shadow-3); }
+.t3 { --tier-bg: var(--glass-3-bg); --tier-border: var(--glass-3-border); --tier-blur: var(--glass-3-blur); --tier-shadow: var(--shadow-4); }
+
+.p0 { padding: 0; }
+.pSm { padding: var(--space-5); }
+.pMd { padding: var(--space-7); }
+.pLg { padding: var(--space-9); }
+
+.interactive { cursor: pointer; }
+.interactive:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.interactive:active { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) { .interactive:hover { transform: none; } }
+:global(html[data-motion="reduced"]) .interactive:hover { transform: none; }

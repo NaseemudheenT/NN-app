@@ -1,0 +1,18 @@
+{
+  "name": "nn-app",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @nn/web dev",
+    "build": "pnpm --filter @nn/web build",
+    "start": "pnpm --filter @nn/web start",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "check": "pnpm typecheck && pnpm lint && pnpm test"
+  }
+}
