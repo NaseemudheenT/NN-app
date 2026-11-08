@@ -15,7 +15,7 @@ holding the founder's life, education, work, business, finances, health,
 faith and creativity, with a personal intelligence named **ORIN** running
 through all of it.
 
-The visual ambition is **NN 3008**: a believable personal computing
+The visual ambition is **NN**: a believable personal computing
 environment from an advanced civilisation. Spatial, cinematic, glass, depth,
 restraint.
 
