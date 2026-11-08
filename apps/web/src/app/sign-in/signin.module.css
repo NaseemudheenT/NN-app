@@ -1,0 +1,15 @@
+.page { min-height: 100dvh; display: grid; place-items: center; padding: var(--space-8); }
+.card { width: min(440px, 100%); text-align: center; }
+.mark { display: flex; justify-content: center; margin-bottom: var(--space-8); }
+.title { font-size: var(--text-t1-size); line-height: var(--text-t1-lh); letter-spacing: var(--text-t1-ls); font-weight: var(--weight-semibold); }
+.lede { margin-top: var(--space-5); color: var(--text-secondary); line-height: 1.6; }
+.actions { margin-top: var(--space-9); display: grid; gap: var(--space-5); }
+.fingerprint { display: grid; place-items: center; margin: var(--space-8) 0 var(--space-7); color: var(--nn-icy); }
+.note { margin-top: var(--space-7); font-size: var(--text-caption-size); color: var(--text-muted); line-height: 1.55; }
+.error {
+  margin-top: var(--space-6); padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-sm); border: 1px solid var(--status-err);
+  background: rgb(232 133 133 / 10%); color: var(--text-primary);
+  font-size: var(--text-label-size); text-align: left;
+}
+.secret { margin-top: var(--space-7); text-align: left; }

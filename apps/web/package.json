@@ -18,7 +18,11 @@
     "react-dom": "^19.0.0",
     "@nn/firebase": "workspace:*",
     "@nn/security": "workspace:*",
-    "firebase": "^11.2.0"
+    "firebase": "^11.2.0",
+    "@nn/auth": "workspace:*",
+    "@simplewebauthn/browser": "^14.0.0",
+    "firebase-admin": "^14.5.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
