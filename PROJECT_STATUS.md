@@ -18,8 +18,12 @@ Last updated: 2026-11-08 · Phase 0 complete, Phase 1 in progress.
 | Toolchain inspected | `VERIFIED` | node 24.15.0, pnpm 11.17.0, firebase-tools 15.27.0 |
 | Firebase account identified | `VERIFIED` | `t.naseemudheen@gmail.com` |
 | GitHub account correct | `VERIFIED` | Active account switched to `NaseemudheenT` |
-| Firebase project for NN | `NEEDS CONFIGURATION` | Creation approved — `nn-dev` / `nn-prod`, no billing |
-| Java runtime for emulators | `BLOCKED` | Not installed; required by Firestore/Storage emulators |
+| Firebase project — dev | `VERIFIED` | `nn-os-dev` created, Spark plan, no billing |
+| Firebase project — prod | `VERIFIED` | `nn-os-prod` created, Spark plan, no billing |
+| Firebase aliases | `VERIFIED` | `.firebaserc` — default is `dev`, never prod |
+| Firestore / Storage rules | `IMPLEMENTED` | Default-deny placeholders; real rules in Phase 2 |
+| Blaze billing | `BLOCKED` | Not approved — `COST_ESTIMATE.md` required first |
+| Java runtime for emulators | `BLOCKED` | Not installed; `brew install openjdk` in Phase 2 |
 
 ## Phase 1 — Brand and design foundation
 

@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "nn-os-dev",
+    "dev": "nn-os-dev",
+    "prod": "nn-os-prod"
+  }
+}
