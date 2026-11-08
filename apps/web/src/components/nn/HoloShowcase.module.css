@@ -1,0 +1,68 @@
+.chip {
+  position: absolute;
+  display: grid; place-items: center;
+  border-radius: 13px;
+  background: linear-gradient(155deg, rgb(216 232 255 / 13%), rgb(90 130 190 / 5%));
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid rgb(255 255 255 / 14%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 22%), 0 14px 30px -16px rgb(0 0 0 / 70%);
+  color: rgb(214 231 255 / 78%);
+  transform-style: preserve-3d;
+  animation: chip-drift var(--drift, 7s) ease-in-out infinite alternate;
+}
+@keyframes chip-drift { from { translate: 0 -4px; } to { translate: 0 5px; } }
+@media (prefers-reduced-motion: reduce) { .chip { animation: none; } }
+:global(html[data-motion="reduced"]) .chip { animation: none; }
+
+.centre { display: grid; place-items: center; height: 100%; gap: 2px; text-align: center; }
+.word { font-size: 34px; font-weight: var(--weight-semibold); letter-spacing: 0.2em; margin-top: 2px; }
+.tag {
+  font-size: 10.5px; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.panelTitle {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgb(214 231 255 / 62%);
+  margin-bottom: 12px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--nn-icy); box-shadow: 0 0 8px var(--nn-icy); }
+
+.miniGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.mini {
+  aspect-ratio: 1;
+  display: grid; place-items: center;
+  border-radius: 11px;
+  border: 1px solid rgb(255 255 255 / 11%);
+  background: linear-gradient(155deg, rgb(255 255 255 / 9%), rgb(255 255 255 / 3%));
+  color: rgb(214 231 255 / 72%);
+}
+
+.bars { display: grid; gap: 7px; margin-top: 10px; }
+.bar { height: 6px; border-radius: 3px; background: linear-gradient(90deg, rgb(156 200 255 / 42%), rgb(156 200 255 / 6%)); }
+
+.searchRow {
+  display: flex; align-items: center; gap: 8px;
+  height: 30px; padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 5%);
+  color: rgb(214 231 255 / 52%);
+  font-size: 11px;
+}
+
+:global(html[data-theme="light"]) .chip {
+  background: linear-gradient(155deg, rgb(255 255 255 / 82%), rgb(238 245 255 / 62%));
+  border-color: rgb(7 17 31 / 10%);
+  color: #2F6FBD;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 92%), 0 14px 30px -18px rgb(7 17 31 / 28%);
+}
+:global(html[data-theme="light"]) .panelTitle,
+:global(html[data-theme="light"]) .mini,
+:global(html[data-theme="light"]) .searchRow { color: #4C5A6E; }
+:global(html[data-theme="light"]) .mini,
+:global(html[data-theme="light"]) .searchRow {
+  border-color: rgb(7 17 31 / 10%); background: rgb(255 255 255 / 66%);
+}

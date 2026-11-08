@@ -1,0 +1,30 @@
+.wrap { position: relative; display: inline-block; line-height: 0; }
+
+/* Volumetric bloom behind the mark — this is what sells it as lit glass
+   rather than a flat white shape. Sits behind, never over the geometry. */
+.wrap::before {
+  content: "";
+  position: absolute;
+  inset: -34%;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgb(156 200 255 / 30%), transparent 72%),
+    radial-gradient(closest-side, rgb(100 156 227 / 18%), transparent 80%);
+  filter: blur(var(--bloom, 16px));
+  pointer-events: none;
+  z-index: 0;
+}
+
+.svg { position: relative; z-index: 1; overflow: visible; }
+
+/* The specular streak travels across the mark on a long, calm loop. */
+.sheen { animation: nn-sheen 5.2s var(--ease-standard) infinite; }
+@keyframes nn-sheen {
+  0%, 62%  { transform: translateX(-120%); }
+  86%,100% { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: reduce) { .sheen { animation: none; opacity: 0.4; } }
+:global(html[data-motion="reduced"]) .sheen { animation: none; opacity: 0.4; }
+
+/* On a light ground the bloom would turn into grey haze. Tone it down. */
+:global(html[data-theme="light"]) .wrap::before { opacity: 0.45; }

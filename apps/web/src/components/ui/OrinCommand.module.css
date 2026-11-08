@@ -1,0 +1,109 @@
+.card {
+  position: relative;
+  border-radius: 26px;
+  padding: var(--space-9) var(--space-9) var(--space-8);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgb(120 160 235 / 16%), transparent 62%),
+    linear-gradient(162deg, rgb(216 232 255 / 10%), rgb(90 130 190 / 5%));
+  backdrop-filter: blur(22px) saturate(168%) brightness(1.05);
+  -webkit-backdrop-filter: blur(22px) saturate(168%) brightness(1.05);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 24%),
+    0 34px 80px -34px rgb(0 0 0 / 78%);
+  overflow: hidden;
+}
+
+/* Prismatic chamfer, as on HoloPanel, so every glass surface in NN shares one
+   physical language. */
+.card::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+  background: conic-gradient(from 212deg,
+    rgb(156 200 255 / 0%) 0deg, rgb(195 232 255 / 80%) 56deg,
+    rgb(200 170 255 / 50%) 130deg, rgb(156 200 255 / 8%) 196deg,
+    rgb(130 220 255 / 64%) 292deg, rgb(156 200 255 / 0%) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* The bright top arc from the reference — a hard specular line where the
+   panel's upper chamfer catches the key light. */
+.card::after {
+  content: ""; position: absolute; left: 14%; right: 14%; top: -1px; height: 2px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 85%), transparent);
+  filter: blur(0.6px);
+  pointer-events: none;
+}
+
+.prompt {
+  text-align: center;
+  font-size: clamp(20px, 2.6vw, 29px);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+
+.wave { margin: var(--space-6) 0 var(--space-5); color: var(--nn-icy); }
+
+.row { display: flex; align-items: center; gap: var(--space-5); }
+
+.input {
+  flex: 1; min-width: 0; height: 46px;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-full);
+  border: 1px solid rgb(255 255 255 / 13%);
+  background: rgb(255 255 255 / 5%);
+  color: var(--text-primary);
+  font-size: var(--text-body-size);
+}
+.input::placeholder { color: var(--text-muted); }
+.input:focus-visible {
+  outline: none;
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 3px rgb(100 156 227 / 24%);
+}
+
+.orb {
+  display: grid; place-items: center;
+  width: 46px; height: 46px; flex: none;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 16%);
+  background: radial-gradient(70% 70% at 35% 25%, rgb(255 255 255 / 20%), rgb(100 156 227 / 16%));
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-spring),
+              border-color var(--dur-fast) var(--ease-standard),
+              box-shadow var(--dur-fast) var(--ease-standard);
+}
+.orb:hover { border-color: rgb(156 200 255 / 55%); }
+.orb:active { transform: scale(0.94); }
+.orb[data-active="true"] {
+  border-color: var(--nn-icy);
+  box-shadow: 0 0 0 4px rgb(156 200 255 / 18%), 0 0 22px rgb(156 200 255 / 35%);
+  color: var(--nn-icy);
+}
+
+.status {
+  margin-top: var(--space-6);
+  text-align: center;
+  font-size: var(--text-micro-size);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+:global(html[data-theme="light"]) .card {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgb(47 111 189 / 10%), transparent 62%),
+    linear-gradient(162deg, rgb(255 255 255 / 86%), rgb(238 245 255 / 66%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 95%), 0 30px 70px -34px rgb(7 17 31 / 28%);
+}
+:global(html[data-theme="light"]) .card::after {
+  background: linear-gradient(90deg, transparent, rgb(47 111 189 / 55%), transparent);
+}
+:global(html[data-theme="light"]) .wave { color: #2F6FBD; }
+:global(html[data-theme="light"]) .input {
+  background: rgb(255 255 255 / 70%); border-color: rgb(7 17 31 / 12%);
+}

@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AppTile, Button, Dialog, Dock, FloatingWindow, GlassPanel,
-  Icon, NNLockup, NNLogo, Switch, TextField,
-  type DockItem, type IconName,
+  Icon, NNGlassMark, NNLockup, NNLogo, OrinCommand, Switch, TextField,
+  type DockItem, type IconName, type OrinState,
 } from "@/components/ui";
+import { HoloShowcase } from "@/components/nn/HoloShowcase";
 import { useTheme } from "@/lib/theme";
 import s from "./design.module.css";
 
@@ -47,6 +48,15 @@ const DOCK_ITEMS: readonly DockItem[] = [
   { id: "search", label: "Search", icon: "search" },
 ];
 
+const TABS = [
+  ["overview", "Overview"], ["orin", "ORIN"], ["identity", "Identity"],
+  ["themes", "Themes"], ["glass", "Glass"], ["type", "Type"],
+  ["controls", "Controls"], ["windows", "Windows"], ["launcher", "Launcher"],
+  ["motion", "Motion"], ["mobile", "Mobile"],
+] as const;
+
+type TabId = (typeof TABS)[number][0];
+
 interface WinState {
   id: string; title: string;
   x: number; y: number; w: number; h: number;
@@ -64,8 +74,38 @@ const INITIAL_WINDOWS: readonly WinState[] = [
 export function DesignSystem() {
   const { theme, resolvedTheme, setTheme, reducedMotion, setMotion } = useTheme();
 
+  const [tab, setTabState] = useState<TabId>("overview");
+  const [orinState, setOrinState] = useState<OrinState>("idle");
+  const [orinValue, setOrinValue] = useState("");
   const [log, setLog] = useState<string>("");
   const record = useCallback((msg: string) => setLog(msg), []);
+
+  const isTabId = useCallback(
+    (v: string): v is TabId => TABS.some(([id]) => id === v),
+    [],
+  );
+
+  // Sections are deep-linkable: /design#controls opens that section directly,
+  // the back button works, and a link can point at one part of the system.
+  useEffect(() => {
+    const apply = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (!isTabId(hash)) return;
+      setTabState(hash);
+      // The section id matches the hash, so the browser would also perform its
+      // own anchor scroll and leave the header stranded. Each section already
+      // starts at the top of the gallery, so pin the view there.
+      window.scrollTo({ top: 0 });
+    };
+    apply();
+    window.addEventListener("hashchange", apply);
+    return () => window.removeEventListener("hashchange", apply);
+  }, [isTabId]);
+
+  const setTab = useCallback((id: TabId) => {
+    setTabState(id);
+    window.history.replaceState(null, "", `#${id}`);
+  }, []);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [notifications, setNotifications] = useState(true);
@@ -127,14 +167,74 @@ export function DesignSystem() {
           something — the line in the bar above reports what you just triggered.
         </p>
 
+        <nav className={s.tabs} aria-label="Design system sections">
+          {TABS.map(([id, label]) => (
+            <button key={id} type="button" className={s.tab} aria-current={tab === id}
+                    onClick={() => { setTab(id); record(`section → ${label.toLowerCase()}`); }}>
+              {label}
+            </button>
+          ))}
+        </nav>
+
+
+        {tab === "overview" ? (
+          <section className={s.hero}><HoloShowcase /></section>
+        ) : null}
+
+        {tab === "orin" ? (
+        <section className={s.section} id="orin">
+          <div className={s.sectionHead}><span className={s.num}>00</span><h2 className={s.h2}>ORIN command surface</h2></div>
+          <div className={s.orinWrap}>
+            <OrinCommand
+              state={orinState}
+              value={orinValue}
+              onValueChange={setOrinValue}
+              onSubmit={(v) => {
+                record(`sent to ORIN: "${v}"`);
+                setOrinValue("");
+                setOrinState("thinking");
+                window.setTimeout(() => setOrinState("idle"), 1800);
+              }}
+              onMicToggle={() => {
+                const next = orinState === "listening" ? "idle" : "listening";
+                setOrinState(next);
+                record(`ORIN ${next === "listening" ? "listening state on" : "listening stopped"}`);
+              }}
+              status={
+                orinState === "listening"
+                  ? "Visual state only — speech recognition is not connected yet"
+                  : "No AI provider configured — NEEDS CONFIGURATION"
+              }
+            />
+          </div>
+          <div className={s.row} style={{ marginTop: "var(--space-7)", justifyContent: "center" }}>
+            {(["idle", "listening", "thinking", "speaking"] as const).map((st) => (
+              <Button key={st} size="sm" variant={orinState === st ? "primary" : "secondary"}
+                      aria-pressed={orinState === st}
+                      onClick={() => { setOrinState(st); record(`ORIN state → ${st}`); }}>
+                {st[0]?.toUpperCase()}{st.slice(1)}
+              </Button>
+            ))}
+          </div>
+          <p className={s.note} style={{ textAlign: "center", margin: "var(--space-6) auto 0" }}>
+            The waveform is real geometry — a double-hump envelope fanned across 29 nested
+            curves, computed deterministically so the server and the browser agree. Amplitude
+            and tempo follow ORIN&rsquo;s actual state rather than looping as decoration.
+            It is honest about what is not wired: nothing here pretends to hear you.
+          </p>
+        </section>
+        ) : null}
+
+
         {/* ----------------------------------------------------- 01 identity */}
+        {tab === "identity" ? (
         <section className={s.section} id="identity">
           <div className={s.sectionHead}><span className={s.num}>01</span><h2 className={s.h2}>Brand identity</h2></div>
 
           <div className={s.grid4}>
             <div>
-              <div className={`${s.markStage} ${s.onDark}`}><NNLogo size={96} /></div>
-              <p className={s.caption}>Mark on dark</p>
+              <div className={`${s.markStage} ${s.onDark}`}><NNGlassMark size={104} bloom={20} /></div>
+              <p className={s.caption}>Glass mark on dark</p>
             </div>
             <div>
               <div className={`${s.markStage} ${s.onLight}`}><NNLogo size={96} /></div>
@@ -185,8 +285,10 @@ export function DesignSystem() {
             ))}
           </div>
         </section>
+        ) : null}
 
         {/* ------------------------------------------------------- 02 themes */}
+        {tab === "themes" ? (
         <section className={s.section} id="themes">
           <div className={s.sectionHead}><span className={s.num}>02</span><h2 className={s.h2}>Themes and motion</h2></div>
           <div className={s.grid2}>
@@ -228,8 +330,10 @@ export function DesignSystem() {
             </GlassPanel>
           </div>
         </section>
+        ) : null}
 
         {/* -------------------------------------------------------- 03 glass */}
+        {tab === "glass" ? (
         <section className={s.section} id="glass">
           <div className={s.sectionHead}><span className={s.num}>03</span><h2 className={s.h2}>Glass material</h2></div>
           <div className={s.grid3}>
@@ -253,8 +357,10 @@ export function DesignSystem() {
             unreadable.
           </p>
         </section>
+        ) : null}
 
         {/* ---------------------------------------------------- 04 typography */}
+        {tab === "type" ? (
         <section className={s.section} id="type">
           <div className={s.sectionHead}><span className={s.num}>04</span><h2 className={s.h2}>Typography</h2></div>
           <GlassPanel tier={2} padding="lg">
@@ -272,8 +378,10 @@ export function DesignSystem() {
             </div>
           </GlassPanel>
         </section>
+        ) : null}
 
         {/* ------------------------------------------------------ 05 controls */}
+        {tab === "controls" ? (
         <section className={s.section} id="controls">
           <div className={s.sectionHead}><span className={s.num}>05</span><h2 className={s.h2}>Controls</h2></div>
 
@@ -338,8 +446,10 @@ export function DesignSystem() {
             </div>
           </GlassPanel>
         </section>
+        ) : null}
 
         {/* ------------------------------------------------------- 06 windows */}
+        {tab === "windows" ? (
         <section className={s.section} id="windows">
           <div className={s.sectionHead}><span className={s.num}>06</span><h2 className={s.h2}>Floating windows</h2></div>
           <div className={s.stage} ref={stageRef}>
@@ -381,8 +491,10 @@ export function DesignSystem() {
             <span className={s.kv}>{openWindows.length} open · focused: {focusedWin}</span>
           </div>
         </section>
+        ) : null}
 
         {/* ------------------------------------------------------ 07 launcher */}
+        {tab === "launcher" ? (
         <section className={s.section} id="launcher">
           <div className={s.sectionHead}><span className={s.num}>07</span><h2 className={s.h2}>Launcher and dock</h2></div>
           <div className={s.grid4}>
@@ -400,8 +512,10 @@ export function DesignSystem() {
             registry instead of this fixed list — the component does not change.
           </p>
         </section>
+        ) : null}
 
         {/* ----------------------------------------------------- 08 animation */}
+        {tab === "motion" ? (
         <section className={s.section} id="motion">
           <div className={s.sectionHead}><span className={s.num}>08</span><h2 className={s.h2}>Motion</h2></div>
           <div className={s.grid4} key={animKey}>
@@ -429,8 +543,10 @@ export function DesignSystem() {
             Phase 3.
           </p>
         </section>
+        ) : null}
 
         {/* -------------------------------------------------------- 09 mobile */}
+        {tab === "mobile" ? (
         <section className={s.section} id="mobile">
           <div className={s.sectionHead}><span className={s.num}>09</span><h2 className={s.h2}>Mobile</h2></div>
           <div className={`${s.row} ${s.rowTop}`} style={{ gap: "var(--space-11)" }}>
@@ -482,6 +598,7 @@ export function DesignSystem() {
             </div>
           </div>
         </section>
+        ) : null}
 
         <Dialog
           open={dialogOpen}

@@ -1,0 +1,17 @@
+.svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+.line {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: wave-breathe var(--period, 3.4s) var(--ease-standard) infinite alternate;
+}
+
+@keyframes wave-breathe {
+  from { transform: scaleY(0.72); }
+  to   { transform: scaleY(1.18); }
+}
+
+/* Reduced motion freezes the fan at its resting amplitude. It still reads as
+   a waveform; it simply stops moving. */
+@media (prefers-reduced-motion: reduce) { .line { animation: none; } }
+:global(html[data-motion="reduced"]) .line { animation: none; }

@@ -16,6 +16,8 @@ export interface GlassPanelProps extends HTMLAttributes<HTMLDivElement> {
   padding?: GlassPadding;
   /** Adds hover and press affordances. Pair with a real click handler. */
   interactive?: boolean;
+  /** Prismatic chamfer. On by default for tier 3; opt in elsewhere. */
+  holo?: boolean;
   children?: ReactNode;
 }
 
@@ -26,11 +28,13 @@ export function GlassPanel({
   tier = 1,
   padding = "md",
   interactive = false,
+  holo,
   className,
   children,
   ...rest
 }: GlassPanelProps) {
   const cls = [
+    (holo ?? tier === 3) ? "nn-holo" : "",
     styles.panel,
     TIER[tier],
     PAD[padding],

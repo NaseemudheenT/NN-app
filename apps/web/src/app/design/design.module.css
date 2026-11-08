@@ -111,3 +111,38 @@
 .statusGood { color: var(--status-ok); }
 .kv { display: flex; gap: var(--space-5); font-size: var(--text-caption-size); color: var(--text-muted); }
 .log { font-family: var(--font-mono); font-size: 11px; color: var(--text-accent); min-height: 18px; }
+
+.hero { margin: var(--space-11) 0 var(--space-12); }
+.orinWrap { max-width: 720px; margin: 0 auto; }
+
+.tabs {
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+  margin-top: var(--space-8);
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-1-border);
+  background: var(--glass-1-bg);
+  backdrop-filter: blur(var(--glass-1-blur));
+  -webkit-backdrop-filter: blur(var(--glass-1-blur));
+  width: fit-content;
+  max-width: 100%;
+}
+.tab {
+  padding: var(--space-3) var(--space-6);
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard),
+              background-color var(--dur-fast) var(--ease-standard),
+              border-color var(--dur-fast) var(--ease-standard);
+}
+.tab:hover { color: var(--text-primary); background: var(--glass-hover); }
+.tab[aria-current="true"] {
+  color: var(--text-primary);
+  background: var(--glass-active);
+  border-color: var(--border-normal);
+}

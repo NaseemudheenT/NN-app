@@ -91,7 +91,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
     >
       <div
         ref={panelRef}
-        className={styles.panel}
+        className={`nn-holo ${styles.panel}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

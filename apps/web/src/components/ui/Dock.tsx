@@ -19,7 +19,7 @@ export interface DockProps {
 export function Dock({ items, activeId, onSelect, className }: DockProps) {
   return (
     <nav
-      className={[styles.dock, className ?? ""].filter(Boolean).join(" ")}
+      className={["nn-holo", styles.dock, className ?? ""].filter(Boolean).join(" ")}
       aria-label="Application dock"
     >
       {items.map((item) => (

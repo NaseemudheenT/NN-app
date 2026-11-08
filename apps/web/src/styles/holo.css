@@ -1,0 +1,68 @@
+/* ============================================================================
+   NN HOLOGRAPHIC SURFACE
+   One physical language for every pane of glass in NN. Apply `nn-holo` to any
+   element that should read as a lit, chamfered sheet of glass; the rim and the
+   specular are drawn in pseudo-elements so they never disturb layout.
+
+   The rim is painted ONLY in a 1px border band via a mask, so the edge
+   refracts like a real chamfer instead of the whole surface glowing.
+   ========================================================================= */
+
+.nn-holo { position: relative; isolation: isolate; }
+
+.nn-holo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 212deg,
+    rgb(156 200 255 / 0%)   0deg,
+    rgb(195 232 255 / 72%)  56deg,
+    rgb(200 170 255 / 46%) 130deg,
+    rgb(156 200 255 / 6%)  196deg,
+    rgb(130 220 255 / 58%) 292deg,
+    rgb(156 200 255 / 0%)  360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.62;
+  transition: opacity var(--dur-base) var(--ease-standard);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nn-holo:hover::before { opacity: 1; }
+
+/* A single hard specular line along the upper chamfer, as on real glass. */
+.nn-holo::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 62%), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+html[data-theme="light"] .nn-holo::before {
+  background: conic-gradient(
+    from 212deg,
+    rgb(47 111 189 / 0%)   0deg,
+    rgb(47 111 189 / 42%)  56deg,
+    rgb(140 110 220 / 28%) 130deg,
+    rgb(47 111 189 / 5%)  196deg,
+    rgb(60 170 220 / 36%) 292deg,
+    rgb(47 111 189 / 0%)  360deg
+  );
+}
+html[data-theme="light"] .nn-holo::after {
+  background: linear-gradient(90deg, transparent, rgb(47 111 189 / 40%), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) { .nn-holo::before { transition: none; } }

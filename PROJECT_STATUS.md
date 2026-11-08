@@ -1,6 +1,6 @@
 # NN APP — Project Status
 
-Last updated: 2026-11-08 · Phase 0 complete, Phase 1 in progress.
+Last updated: 2026-11-08 · Phase 0 complete. Phase 1 complete, awaiting founder review.
 
 **Status labels:** `VERIFIED` (built and tested) · `IMPLEMENTED` (built, not fully verified) ·
 `NEEDS CONFIGURATION` (needs credentials or external setup) · `NOT IMPLEMENTED` · `BLOCKED`.
@@ -27,15 +27,27 @@ Last updated: 2026-11-08 · Phase 0 complete, Phase 1 in progress.
 
 ## Phase 1 — Brand and design foundation
 
-| Item | Status | Notes |
+| Item | Status | Evidence |
 |---|---|---|
-| Monorepo scaffold | `IMPLEMENTED` | Directories, workspace, `.gitignore` |
-| Three NN logo directions | `VERIFIED` | Rendered and reviewed at 16/24/32/120px, dark + light |
-| Locked NN logo | `VERIFIED` | **Concept A — Interlock** approved by founder 2026-11-08 |
-| ORIN identity | `NOT IMPLEMENTED` | Begins once the NN mark is locked |
-| Design tokens | `NOT IMPLEMENTED` | Palette confirmed; not yet codified |
-| Glass component system | `NOT IMPLEMENTED` | |
-| Light / dark themes | `NOT IMPLEMENTED` | |
+| Monorepo scaffold | `VERIFIED` | pnpm workspace, strict TS, build succeeds |
+| NN logo locked — Concept A | `VERIFIED` | 7 SVG variants, geometry byte-identical, guarded by test |
+| Glass NN mark | `VERIFIED` | bloom, refraction, dispersion, specular — renders in browser |
+| ORIN identity (waveform) | `IMPLEMENTED` | 4 states drive real amplitude; full ORIN mark set pending |
+| Design tokens | `VERIFIED` | `tokens.css`; 15 token tests incl. WCAG ratios |
+| Glass material, 3 tiers | `VERIFIED` | graded opacity confirmed visually and in code |
+| Holographic surface | `VERIFIED` | `.nn-holo` prismatic chamfer on tiles, dock, dialogs |
+| 3D depth system | `VERIFIED` | `HoloStage`/`HoloPanel`, true depth parallax, scales to fit |
+| Dark and light themes | `VERIFIED` | separate measured ramps; no-flash bootstrap |
+| Motion + reduced motion | `VERIFIED` | durations collapse to 1ms from OS or in-app override |
+| Buttons, inputs, switch | `VERIFIED` | 4×3 variants, validation, native semantics |
+| Dialog | `VERIFIED` | focus trap, Escape, backdrop, scroll lock, focus restore |
+| App tiles, dock | `VERIFIED` | labelled landmark, `aria-current`, holo rim |
+| Floating windows | `VERIFIED` | drag, minimise, maximise, close; hardened pointer handling |
+| Responsive layouts | `VERIFIED` | 4→2→1 column folds; 44px touch targets |
+| Design review page | `VERIFIED` | `/design`, 11 deep-linkable sections |
+| Typecheck / lint / tests | `VERIFIED` | strict clean, 0 warnings, 52 tests passing |
+| PNG raster icon set | `NOT IMPLEMENTED` | deferred to the PWA step in Phase 3 |
+| ORIN logo mark + state icons | `NOT IMPLEMENTED` | begins after founder review of Phase 1 |
 
 ## Phases 2–13
 
