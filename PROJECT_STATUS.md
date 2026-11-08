@@ -90,6 +90,22 @@ by review. See `docs/SECURITY.md` §2.
 
 **Test totals: 179 passing** — 88 security rules · 53 web · 27 security · 11 firebase.
 
-## Phases 2–13
+## Phase 3 — Authentication and identity
+
+| Item | Status | Evidence |
+|---|---|---|
+| WebAuthn passkey registration | `VERIFIED` | real Chrome 150 e2e |
+| WebAuthn passkey sign-in | `VERIFIED` | real Chrome 150 e2e |
+| First-owner bootstrap | `VERIFIED` | 30 unit tests + e2e; path closes permanently once claimed |
+| Challenge replay prevention | `VERIFIED` | transactional consumption, proven e2e |
+| Firebase custom-token exchange | `VERIFIED` | session established in a real browser |
+| Session expiry / idle / revocation | `IMPLEMENTED` | unit tested; **idle-timeout defect found and fixed** |
+| Sign-out everywhere | `IMPLEMENTED` | `revokeRefreshTokens` wired; not yet e2e tested |
+| Route guard | `VERIFIED` | unauthenticated visitor redirected, e2e |
+| Rate limiting | `VERIFIED` | all six routes; 429 + `Retry-After` proven e2e |
+| Recovery | `NEEDS CONFIGURATION` | second passkey is the supported path; no recovery codes |
+| Non-Chrome browsers | `NOT IMPLEMENTED` | engines cannot be installed on this host |
+
+## Phases 4–13
 
 `NOT IMPLEMENTED`. See `docs/PHASE_0_AUDIT.md` for sequencing.

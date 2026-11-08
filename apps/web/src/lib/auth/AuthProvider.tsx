@@ -68,13 +68,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearSession();
         return;
       }
-      const now = Date.now();
+      // onIdTokenChanged also fires on Firebase's silent hourly refresh. An
+      // existing session must be left untouched here: bumping lastActiveAt on
+      // a refresh would mean a tab left open never goes idle, quietly
+      // disabling the idle timeout entirely. Only real user activity, tracked
+      // by the listeners below, advances it.
       const existing = readSession();
-      writeSession(
-        existing === null
-          ? { startedAt: now, lastActiveAt: now, lastAuthenticatedAt: now, revoked: false }
-          : { ...existing, lastActiveAt: now },
-      );
+      if (existing === null) {
+        const now = Date.now();
+        writeSession({ startedAt: now, lastActiveAt: now, lastAuthenticatedAt: now, revoked: false });
+      }
       setPhase("signed-in");
     });
   }, []);

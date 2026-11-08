@@ -138,10 +138,10 @@ export function SignIn() {
 
         {endedReason !== null ? <p className={s.note}>{endedReason}</p> : null}
 
-        {error !== null ? <p className={s.error} role="alert">{error}</p> : null}
+        {error !== null ? <p className={s.error} role="alert" data-testid="signin-error">{error}</p> : null}
 
         {!supported ? (
-          <p className={s.error} role="alert">
+          <p className={s.error} role="alert" data-testid="signin-unsupported">
             This browser does not support passkeys. Use a recent Safari, Chrome or Edge.
           </p>
         ) : null}

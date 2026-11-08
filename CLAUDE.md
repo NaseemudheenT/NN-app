@@ -93,8 +93,13 @@ pnpm --filter @nn/web dev    # http://localhost:3000
 pnpm -r typecheck            # all 5 packages
 pnpm -r test                 # 209 tests
 pnpm test:rules              # 88 security-rules tests, needs Java + emulators
+pnpm --filter @nn/web test:e2e   # 10 real-browser passkey tests (system Chrome)
 cd apps/web && ./node_modules/.bin/next build
 ```
+
+**Playwright.** Drives the **system Chrome** (`channel: "chrome"`), because
+Playwright no longer ships a Chromium build for Intel macOS 12. WebKit and
+Firefox engines cannot be installed on this host at all.
 
 **Java.** The Firestore/Storage emulators need a JDK. Temurin 21.0.13 x86_64 is
 installed system-wide (Homebrew cask). `firebase/scripts/with-java.sh` locates
@@ -223,12 +228,16 @@ emulator suite, `@nn/firebase`, `@nn/security`, `@nn/auth`, WebAuthn passkey
 registration and sign-in, first-owner bootstrap, session policy with idle and
 absolute limits, sign-out everywhere, route guard.
 
-**209 tests passing.** Typecheck clean on 5 packages. Lint clean. Build succeeds.
+**216 unit/integration tests + 10 real-browser e2e tests passing.** Typecheck
+clean on 5 packages. Lint clean. Build succeeds.
+
+Passkey sign-in is **verified end to end in Chrome 150** via a Playwright CDP
+virtual authenticator against real emulators — not mocked.
 
 **Not built** — the NN OS workspace, all 34 applications, ORIN, Cloud
 Functions (Blaze), notifications, automation, backup/restore, PWA install.
 
-Honest completion: roughly **6%**. See `docs/NN_GAP_ANALYSIS.md` and
+Honest completion: roughly **7%**. See `docs/NN_GAP_ANALYSIS.md` and
 `PROJECT_STATUS.md`.
 
 ---

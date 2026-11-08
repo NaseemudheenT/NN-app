@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { enforceRateLimit } from "@/server/auth/ratelimit";
 import { getAdmin } from "@/server/admin";
 import { callerUid } from "@/server/auth/session";
 import { recordSecurityEvent } from "@/server/auth/store";
@@ -14,6 +15,9 @@ export const dynamic = "force-dynamic";
  * waiting up to an hour for the ID token to lapse.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const limited = await enforceRateLimit(request, "signout");
+  if (limited !== null) return limited;
+
   const uid = await callerUid(request);
   if (uid === null) return NextResponse.json({ ok: true }); // already signed out
 

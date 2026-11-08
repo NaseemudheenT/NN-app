@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { enforceRateLimit } from "@/server/auth/ratelimit";
 import { confirmAuthentication, isUsable, readRelyingParty, type AuthenticationResponseJSON } from "@nn/auth";
 import { getAdmin } from "@/server/admin";
 import {
@@ -17,6 +18,9 @@ export const dynamic = "force-dynamic";
  * authorisation layer meet here and nowhere else.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const limited = await enforceRateLimit(request, "signin-verify");
+  if (limited !== null) return limited;
+
   let body: { ticket?: unknown; response?: unknown };
   try {
     body = (await request.json()) as typeof body;

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { enforceRateLimit } from "@/server/auth/ratelimit";
 import { buildAuthenticationOptions, makeRecord, readRelyingParty } from "@nn/auth";
 import { FirestoreChallengeStore, readOwner } from "@/server/auth/store";
 
@@ -13,7 +14,10 @@ export const dynamic = "force-dynamic";
  * caller cannot probe this endpoint to learn whether the environment is
  * claimed. The real check happens at verification.
  */
-export async function POST(): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const limited = await enforceRateLimit(request, "signin-options");
+  if (limited !== null) return limited;
+
   const options = await buildAuthenticationOptions(readRelyingParty(process.env));
 
   const ticket = randomUUID();

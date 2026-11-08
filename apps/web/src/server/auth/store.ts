@@ -13,6 +13,8 @@ import { getAdmin } from "../admin";
 
 const SYSTEM = "system";
 const OWNER_DOC = "owner";
+/** Root-level map of credential id to owner uid. No client can reach it. */
+const CREDENTIAL_INDEX = "credential_index";
 
 /**
  * Decodes a stored key into a Uint8Array backed by a real ArrayBuffer.
@@ -94,28 +96,42 @@ export async function listCredentials(uid: string): Promise<StoredCredential[]> 
   });
 }
 
+/**
+ * Resolves a discoverable passkey to its owner.
+ *
+ * A discoverable credential tells us the credential id but not the user, so
+ * NN keeps a root-level index mapping id to uid. The previous implementation
+ * scanned every credential document and filtered in memory — O(n) Firestore
+ * reads on every single sign-in attempt, including failed ones. This is two
+ * reads, regardless of how many passkeys exist.
+ *
+ * The index is written inside the same transaction as the credential, so the
+ * two can never disagree. It lives at the root, where the security rules'
+ * catch-all denies all client access.
+ */
 export async function findCredential(id: string): Promise<{ uid: string; credential: StoredCredential } | null> {
-  // A discoverable passkey tells us the credential id but not the user, so
-  // the lookup is by id across owners. NN has one owner, so this is cheap.
-  const snap = await getAdmin().db.collectionGroup("credentials").get();
-  for (const doc of snap.docs) {
-    if (doc.id !== id) continue;
-    const uid = doc.ref.parent.parent?.id;
-    if (uid === undefined) continue;
-    const data = doc.data() as {
-      publicKey: string; counter: number; transports?: StoredCredential["transports"];
-    };
-    return {
-      uid,
-      credential: {
-        id: doc.id,
-        publicKey: decodeKey(data.publicKey),
-        counter: data.counter,
-        ...(data.transports !== undefined ? { transports: data.transports } : {}),
-      },
-    };
-  }
-  return null;
+  const { db } = getAdmin();
+  const indexSnap = await db.collection(CREDENTIAL_INDEX).doc(id).get();
+  if (!indexSnap.exists) return null;
+
+  const uid = (indexSnap.data() as { uid?: string }).uid;
+  if (typeof uid !== "string") return null;
+
+  const doc = await credentialsRef(uid).doc(id).get();
+  if (!doc.exists) return null;
+
+  const data = doc.data() as {
+    publicKey: string; counter: number; transports?: StoredCredential["transports"];
+  };
+  return {
+    uid,
+    credential: {
+      id: doc.id,
+      publicKey: decodeKey(data.publicKey),
+      counter: data.counter,
+      ...(data.transports !== undefined ? { transports: data.transports } : {}),
+    },
+  };
 }
 
 export async function saveCredential(
@@ -126,6 +142,10 @@ export async function saveCredential(
   await db.runTransaction(async (tx) => {
     const ownerRef = db.collection(SYSTEM).doc(OWNER_DOC);
     const ownerSnap = await tx.get(ownerRef);
+
+    // The index and the credential are written together, so a lookup can
+    // never resolve to a credential that does not exist.
+    tx.set(db.collection(CREDENTIAL_INDEX).doc(credential.id), { uid, createdAt: now });
 
     tx.set(credentialsRef(uid).doc(credential.id), {
       publicKey: Buffer.from(credential.publicKey).toString("base64url"),

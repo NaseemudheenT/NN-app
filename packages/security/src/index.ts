@@ -6,3 +6,6 @@ export type {
 } from "./permissions";
 
 export { redact, REDACTED } from "./redaction";
+
+export { AUTH_LIMITS, decideRateLimit, windowStart, clientKey } from "./ratelimit";
+export type { RateLimitRule, RateLimitVerdict, AuthLimitKey } from "./ratelimit";

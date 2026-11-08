@@ -1,8 +1,7 @@
 # NN — Authentication
 
-**Status:** passkey registration, sign-in, session policy and sign-out are
-implemented and unit-tested. **Not yet exercised against a real browser
-authenticator** — that is the remaining verification step.
+**Status:** `VERIFIED` — the full passkey ceremony has been executed in a real
+browser against real emulators. 10 end-to-end tests pass.
 
 ---
 
@@ -113,17 +112,50 @@ analysis rather than described as if it existed.
 
 ---
 
-## 6. What has and has not been verified
+## 6. Real-browser verification
 
-| | |
+**Environment:** Google Chrome **150.0.7871.125**, macOS 12.7.6, Intel x86_64,
+driven by Playwright against a CDP **virtual authenticator**
+(`ctap2`, `internal` transport, resident key, user verification). Backed by
+real Firestore and Auth emulators. These are not mocks — Chrome's own WebAuthn
+implementation performs the ceremony against NN's real route handlers.
+
+| Test | Result |
 |---|---|
-| Owner bootstrap logic | ✅ 30 unit tests, every branch |
-| Session expiry, idle, revocation, clock skew | ✅ unit tested |
-| Relying-party configuration validation | ✅ unit tested |
-| Challenge single-use and expiry | ✅ unit tested |
-| Routes compile and build | ✅ |
-| **End-to-end with a real authenticator** | ❌ **not yet done** |
-| Emulator integration test of the full ceremony | ❌ not yet done |
+| An unclaimed NN offers to be claimed, not signed into | ✅ |
+| A wrong bootstrap secret is refused and NN stays unclaimed | ✅ |
+| An unauthenticated visitor is redirected away from `/workspace` | ✅ |
+| **Claims NN with a real passkey and signs in** | ✅ |
+| Once claimed, the sign-in screen changes and hides the secret field | ✅ |
+| **The bootstrap secret stops working after claiming** (401) | ✅ |
+| **A challenge cannot be replayed** — the second attempt reports expired | ✅ |
+| An unknown credential is refused with a generic message | ✅ |
+| Malformed input is rejected with 4xx, never 5xx | ✅ |
+| **Rate limiting engages** and returns `Retry-After` | ✅ |
 
-**No claim is made that passkey sign-in works end to end until it has been
-performed in a real browser.** That is the next verification step.
+Run them: `pnpm --filter @nn/web test:e2e`
+
+### Browser compatibility
+
+| Browser | Status |
+|---|---|
+| Chrome 150 / macOS 12 | ✅ verified end to end |
+| Safari, Firefox, Edge, iOS, Android | ⚠️ **not yet tested.** The implementation uses only standard WebAuthn with no Chrome-specific behaviour, but that is reasoning, not evidence |
+
+Playwright no longer ships a Chromium build for Intel macOS 12, so the suite
+drives the installed system Chrome via `channel: "chrome"`. WebKit and Firefox
+engines cannot be downloaded on this host at all, which is why they are
+untested rather than merely unverified.
+
+## 7. Defects found and fixed during verification
+
+| Defect | Impact | Fix |
+|---|---|---|
+| **The idle timeout was dead.** `onIdTokenChanged` fires on Firebase's silent hourly refresh, and the handler bumped `lastActiveAt` each time — so a tab left open could never go idle | the 14-day idle limit never fired | only real user activity advances `lastActiveAt`; a refresh leaves the session untouched |
+| **Sign-in scanned every credential document.** A `collectionGroup` read filtered in memory | O(n) Firestore reads per sign-in attempt, including failed ones; a cost line that grows | a root-level `credential_index` written in the same transaction as the credential — two reads, always |
+| **No rate limiting** | auth endpoints could be hammered | Firestore fixed-window limiter on all six routes; tightest on `register-options` (5/min), where a bootstrap secret could be guessed |
+| **13.4-second first request.** The Admin SDK probed the GCP metadata server for credentials and waited for it to time out | every cold route unusable in development | the metadata probe is pointed at a closed local port under emulators — 13.4s → 0.07s, verified by measuring the response body as well as the latency |
+
+A fabricated credential object was tried first and **rejected** — the Firestore
+client only accepts a recognised certificate or compute credential. Recorded
+here so the same dead end is not tried again.

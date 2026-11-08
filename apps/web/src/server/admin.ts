@@ -53,7 +53,16 @@ export function getAdmin(): AdminServices {
   if (getApps().length > 0) {
     app = getApp();
   } else if (usingEmulators()) {
-    // The emulators accept any project id and no credential.
+    // Against the emulators the SDK still resolves Application Default
+    // Credentials, which on a laptop means probing the GCP metadata server
+    // and waiting ~13 seconds for it to time out before falling through.
+    // Pointing the probe at a closed local port makes it fail in
+    // milliseconds instead. A fabricated credential object does NOT work
+    // here: the Firestore client rejects anything that is not a recognised
+    // certificate or compute credential.
+    if (process.env.GCE_METADATA_HOST === undefined) {
+      process.env.GCE_METADATA_HOST = "127.0.0.1:1";
+    }
     app = initializeApp({ projectId });
   } else {
     const raw = process.env.FIREBASE_SERVICE_ACCOUNT;

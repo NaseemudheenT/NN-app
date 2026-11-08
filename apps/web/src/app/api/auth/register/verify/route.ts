@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { enforceRateLimit } from "@/server/auth/ratelimit";
 import { confirmRegistration, isUsable, readRelyingParty, type RegistrationResponseJSON } from "@nn/auth";
 import {
   FirestoreChallengeStore, claimOwner, readOwner, recordSecurityEvent, saveCredential,
@@ -9,6 +10,9 @@ export const dynamic = "force-dynamic";
 
 /** Step 2: verify the attestation and store the passkey. */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const limited = await enforceRateLimit(request, "register-verify");
+  if (limited !== null) return limited;
+
   let body: { ticket?: unknown; response?: unknown; label?: unknown };
   try {
     body = (await request.json()) as typeof body;
