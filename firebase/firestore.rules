@@ -97,6 +97,40 @@ service cloud.firestore {
         && updatedAtAdvances();
     }
 
+    // Credentials must never reach Firestore. OAuth tokens and API keys live
+    // in Secret Manager and are referenced by id; a document the client can
+    // read is the wrong place for anything that grants access. Enforcing it
+    // here means a bug in any of the 34 applications cannot leak one.
+    function noCredentialFields(d) {
+      return !d.keys().hasAny([
+        'accessToken', 'refreshToken', 'idToken', 'apiKey', 'apiSecret',
+        'clientSecret', 'privateKey', 'password', 'secret', 'sessionToken'
+      ]);
+    }
+
+    // Privilege-bearing fields are decided by the server, never asserted by
+    // the client. Without this, a writable document such as an app's install
+    // record could be used to grant that app — or ORIN — new scopes.
+    function noPrivilegeFields(d) {
+      return !d.keys().hasAny([
+        'permissions', 'grantedScopes', 'scopes', 'role', 'roles',
+        'isAdmin', 'admin', 'tier', 'approvedBy'
+      ]);
+    }
+
+    // Ownership is structural — it comes from the document's path. A document
+    // that also carries an owner field could be used to claim someone else's.
+    function noForgedOwner(uid, d) {
+      return !d.keys().hasAny(['ownerUid', 'uid', 'userId'])
+        || (d.get('ownerUid', uid) == uid
+            && d.get('uid', uid) == uid
+            && d.get('userId', uid) == uid);
+    }
+
+    function safeClientWrite(uid, d) {
+      return noCredentialFields(d) && noPrivilegeFields(d) && noForgedOwner(uid, d);
+    }
+
     // A memory the founder stated himself is evidence. A memory ORIN inferred
     // is a guess. The two must never be confused, so the client may only ever
     // write 'stated' — anything else has to come from a trusted server.
@@ -108,8 +142,8 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow get, list: if owner(uid);
-      allow create: if owner(uid) && validCreate();
-      allow update: if owner(uid) && validUpdate();
+      allow create: if owner(uid) && validCreate() && safeClientWrite(uid, request.resource.data);
+      allow update: if owner(uid) && validUpdate() && safeClientWrite(uid, request.resource.data);
       // Deleting the owner record would orphan every subcollection in NN.
       // Account deletion is a deliberate server-side workflow, never a write.
       allow delete: if false;
@@ -123,11 +157,13 @@ service cloud.firestore {
       allow create: if owner(uid)
         && !serverWritten(collection)
         && validCreate()
+        && safeClientWrite(uid, request.resource.data)
         && memorySourceHonest(collection, request.resource.data);
 
       allow update: if owner(uid)
         && !serverWritten(collection)
         && validUpdate()
+        && safeClientWrite(uid, request.resource.data)
         && memorySourceHonest(collection, request.resource.data);
 
       allow delete: if owner(uid) && !serverWritten(collection);
@@ -146,7 +182,8 @@ service cloud.firestore {
 
       allow create: if owner(uid)
         && !serverWritten(collection)
-        && validCreate();
+        && validCreate()
+        && safeClientWrite(uid, request.resource.data);
 
       // Version history and dated log entries are append-only by design: the
       // founder's original note must survive every later edit.

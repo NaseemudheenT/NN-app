@@ -21,7 +21,7 @@ therefore protects all 34 applications — **including applications that have no
 been written yet**. A test proves this: a collection named `some_future_app`,
 which no rule mentions, is already readable only by its owner.
 
-### Proven by test — 60 cases against the real emulator
+### Proven by test — 88 cases against the real emulator
 
 | Property | Status |
 |---|---|
@@ -40,6 +40,11 @@ which no rule mentions, is already readable only by its owner.
 | A client cannot label a memory "inferred" or "imported" | ✅ |
 | Note version history is append-only | ✅ |
 | The owner record can never be deleted | ✅ |
+| A credential-shaped field is refused in **any** collection | ✅ |
+| A privilege field (`permissions`, `role`, `isAdmin`…) is refused | ✅ |
+| An app install record cannot grant itself scopes | ✅ |
+| A document cannot claim to belong to another user | ✅ |
+| A server-only collection cannot be reached through a subcollection | ✅ |
 | No publicly readable path exists in Storage | ✅ |
 | Executables, HTML and scripts are refused at upload | ✅ |
 | Derived output and backups are unreachable by any client | ✅ |
@@ -106,7 +111,23 @@ instead of, the ownership check.
 
 ---
 
-## 5. Secrets
+## 5. Supply chain
+
+**No dependency executes code at install time.** Three packages ship install
+scripts; each was read in full and explicitly declined in
+`pnpm-workspace.yaml`, then the whole repository was reinstalled with none of
+them running and all 179 tests plus the production build verified to pass.
+
+| Package | Script does | Verdict |
+|---|---|---|
+| `esbuild` | swaps a JS shim for the native binary as an optimisation; falls back to downloading over the network | **declined** — the x86_64 binary already arrives via `optionalDependencies` and the shim spawns it correctly |
+| `@firebase/util` | writes a config file from `FIREBASE_WEBAPP_CONFIG`, injected by App Hosting at build time | **declined** — the variable is unset, so it is a no-op here |
+| `protobufjs` | prints a version-scheme warning to stderr | **declined** — purely advisory |
+
+GitHub secret scanning and `.gitignore` cover committed credentials; this
+covers executed ones.
+
+## 6. Secrets
 
 | Secret | Where it lives |
 |---|---|
@@ -121,7 +142,7 @@ instead of, the ownership check.
 
 ---
 
-## 6. Not yet built — stated plainly
+## 7. Not yet built — stated plainly
 
 | | |
 |---|---|

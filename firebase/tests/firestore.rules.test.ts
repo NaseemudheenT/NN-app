@@ -267,3 +267,89 @@ describe("rules file", () => {
     expect(rules).toMatch(/allow read, write: if false/);
   });
 });
+
+/* ───────────────── sensitive fields and privilege escalation ──────────── */
+
+describe("sensitive fields", () => {
+  const CREDENTIAL_FIELDS = [
+    "accessToken", "refreshToken", "idToken", "apiKey", "apiSecret",
+    "clientSecret", "privateKey", "password", "secret", "sessionToken",
+  ];
+
+  it.each(CREDENTIAL_FIELDS)("refuses a client write containing %s", async (field) => {
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/integrations/google`),
+      validDoc({ [field]: "value-that-must-never-be-stored" })));
+  });
+
+  it("refuses a credential smuggled into any application collection", async () => {
+    // Not just integrations — a token must not reach Firestore anywhere.
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/notes/leak`),
+      validDoc({ body: "reminder", apiKey: "sk-live-123" })));
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/projects/p/attachments/a`),
+      validDoc({ accessToken: "x" })));
+  });
+
+  it("refuses to let a credential be added by a later update", async () => {
+    const db = asOwner();
+    await assertSucceeds(setDoc(doc(db, `users/${OWNER}/integrations/github`), validDoc({ status: "connected" })));
+    await assertFails(updateDoc(doc(db, `users/${OWNER}/integrations/github`), {
+      refreshToken: "ghr_secret", updatedAt: Timestamp.now(),
+    }));
+  });
+
+  it("still allows a harmless reference to a secret stored elsewhere", async () => {
+    // The pattern NN actually uses: the token lives in Secret Manager and
+    // Firestore holds only its identifier.
+    await assertSucceeds(setDoc(doc(asOwner(), `users/${OWNER}/integrations/gmail`),
+      validDoc({ status: "connected", secretRef: "projects/nn-os-dev/secrets/gmail-oauth" })));
+  });
+});
+
+describe("privilege escalation", () => {
+  const PRIVILEGE_FIELDS = [
+    "permissions", "grantedScopes", "scopes", "role", "roles",
+    "isAdmin", "admin", "tier", "approvedBy",
+  ];
+
+  it.each(PRIVILEGE_FIELDS)("refuses a client asserting %s", async (field) => {
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/apps/nn-mail`),
+      validDoc({ [field]: "anything" })));
+  });
+
+  it("refuses an app install record granting itself scopes", async () => {
+    // Without this an installable app could widen its own access simply by
+    // writing its own registry entry.
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/apps/generated-app`),
+      validDoc({ name: "Habit Tracker", permissions: ["mail.send", "finance.write"] })));
+    await assertSucceeds(setDoc(doc(asOwner(), `users/${OWNER}/apps/generated-app`),
+      validDoc({ name: "Habit Tracker", installed: true, pinned: false })));
+  });
+
+  it("refuses a document claiming to belong to someone else", async () => {
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/notes/forged`),
+      validDoc({ ownerUid: INTRUDER })));
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/notes/forged2`),
+      validDoc({ userId: INTRUDER })));
+  });
+
+  it("allows an owner field that honestly matches the path", async () => {
+    await assertSucceeds(setDoc(doc(asOwner(), `users/${OWNER}/notes/honest`),
+      validDoc({ ownerUid: OWNER })));
+  });
+
+  it("cannot reach a server-only collection through a subcollection", async () => {
+    // The escalation path worth checking: nesting under a protected parent.
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/permissions/mail/sub/x`), validDoc()));
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/audit_logs/a1/sub/x`), validDoc()));
+    await assertFails(setDoc(doc(asOwner(), `users/${OWNER}/credentials/c1/sub/x`), validDoc()));
+  });
+
+  it("cannot escalate into another user through a subcollection", async () => {
+    await assertFails(setDoc(doc(asIntruder(), `users/${OWNER}/notes/n1/versions/v1`), validDoc()));
+  });
+
+  it("cannot write the owner record of another user", async () => {
+    await assertFails(setDoc(doc(asOwner(), `users/${INTRUDER}`), validDoc()));
+    await assertFails(setDoc(doc(asOwner(), `users/${INTRUDER}/notes/x`), validDoc()));
+  });
+});

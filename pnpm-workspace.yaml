@@ -4,18 +4,29 @@ packages:
   - "functions"
   - "firebase"
 
-# Install scripts are denied by default. Only these three are permitted, each
-# a first-party build dependency that cannot function without its script:
-#   esbuild        — links the platform-native binary; vitest needs it
-#   @firebase/util — official Firebase SDK package
-#   protobufjs     — generates its runtime; Firestore's gRPC layer needs it
-# Nothing else in the tree may execute code at install time.
+# ── Install-script policy ───────────────────────────────────────────────────
+# No dependency is permitted to execute code at install time. Each script
+# below was read in full and explicitly DECLINED; the whole repository was
+# then reinstalled with none of them running and the complete test suite
+# (151 tests) plus the production build were verified to pass.
+#
+#   esbuild        install.js — replaces a JS shim with the native binary as an
+#                  OPTIMISATION. The real x86_64 binary already arrives through
+#                  optionalDependencies (@esbuild/darwin-x64), and the shim
+#                  spawns it correctly. The script's other branch downloads
+#                  over the network, which we never want. Declined.
+#
+#   @firebase/util postinstall.js — writes a config file from the
+#                  FIREBASE_WEBAPP_CONFIG environment variable, which Firebase
+#                  App Hosting injects at build time. That variable is unset
+#                  here, so the script is a no-op. Revisit only if App Hosting
+#                  build-time config is ever needed. Declined.
+#
+#   protobufjs     scripts/postinstall.js — prints a version-scheme warning to
+#                  stderr and nothing else. Purely advisory. Declined.
+#
+# Re-review before changing any entry to true.
 allowBuilds:
-  esbuild: true
-  "@firebase/util": true
-  protobufjs: true
-
-onlyBuiltDependencies:
-  - esbuild
-  - "@firebase/util"
-  - protobufjs
+  esbuild: false
+  "@firebase/util": false
+  protobufjs: false

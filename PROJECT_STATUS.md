@@ -69,9 +69,9 @@ ORIN exist yet.
 | Item | Status | Evidence |
 |---|---|---|
 | Firestore data model | `VERIFIED` | `docs/FIRESTORE_DATA_MODEL.md`; all 34 apps mapped |
-| Firestore security rules | `VERIFIED` | owner-scoped, default-deny; **46 emulator tests** |
+| Firestore security rules | `VERIFIED` | owner-scoped, default-deny, credential/privilege/owner-forgery guards; **74 emulator tests** |
 | Storage security rules | `VERIFIED` | no public path; allow-list uploads; **14 emulator tests** |
-| Emulator Suite | `VERIFIED` | Firestore + Storage running; Temurin JDK 21 installed, checksum verified |
+| Emulator Suite | `VERIFIED` | Firestore + Storage running on Temurin 21.0.13 x86_64 (cask) |
 | `@nn/firebase` | `VERIFIED` | typed path builders, metadata contract, validated config — 11 tests |
 | `@nn/security` | `VERIFIED` | permission tiers, sensitive-action floor, log redaction — 27 tests |
 | Firebase web client | `IMPLEMENTED` | lazy init, offline cache, emulator wiring, App Check hook |
@@ -86,7 +86,9 @@ owner's general write rule — a client could have forged server-generated
 files. Derived output and backups now sit outside `users/`. Found by test, not
 by review. See `docs/SECURITY.md` §2.
 
-**Test totals: 151 passing** — 53 web · 60 security rules · 27 security · 11 firebase.
+| Install-script policy | `VERIFIED` | all 3 scripts read and **declined**; full suite passes with none running |
+
+**Test totals: 179 passing** — 88 security rules · 53 web · 27 security · 11 firebase.
 
 ## Phases 2–13
 

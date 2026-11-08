@@ -42,6 +42,20 @@ Every document must carry `createdAt`, `updatedAt` (timestamps) and
 rejected before they can approach Firestore's 1 MiB limit, where writes begin
 failing silently.
 
+## Sensitive fields — rejected at the boundary
+
+A client write is refused outright if it contains any of these, **in any
+collection in NN**:
+
+| Group | Fields | Why |
+|---|---|---|
+| Credentials | `accessToken` `refreshToken` `idToken` `apiKey` `apiSecret` `clientSecret` `privateKey` `password` `secret` `sessionToken` | tokens belong in Secret Manager, referenced by id. Enforcing it in the rules means a bug in any of the 34 applications cannot leak one |
+| Privilege | `permissions` `grantedScopes` `scopes` `role` `roles` `isAdmin` `admin` `tier` `approvedBy` | privilege is decided by the server, never asserted by the client. Without this an app's own install record could be used to grant itself scopes |
+| Ownership | `ownerUid` `uid` `userId` | allowed only when the value matches the path. Ownership is structural; a document that also carries an owner field could otherwise claim someone else's |
+
+The supported pattern is a reference, not a value:
+`{ status: "connected", secretRef: "projects/nn-os-dev/secrets/gmail-oauth" }`.
+
 ## Memory provenance
 
 A client may only ever write `source: "stated"`. `inferred` and `imported` must
