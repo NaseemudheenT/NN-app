@@ -80,6 +80,14 @@ export function getFirebase(): Services {
       emulatorsConnected = true;
     }
   } else if (config.appCheckSiteKey !== null) {
+    // A debug token lets a developer machine pass App Check once enforcement
+    // is switched on. Without this the variable was read and silently
+    // ignored, which would have been a confusing dead setting.
+    const debugToken = env["NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN"];
+    if (debugToken !== undefined && debugToken.trim().length > 0) {
+      (globalThis as { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN =
+        debugToken.trim();
+    }
     // App Check attests that a request came from the genuine NN client. It is
     // not authentication and not authorisation; enforcement stays off in the
     // console until real traffic has been observed.
