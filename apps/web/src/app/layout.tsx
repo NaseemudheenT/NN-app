@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { ServiceWorker } from "@/components/ServiceWorker";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
 import "@/styles/global.css";
@@ -15,7 +16,15 @@ export const metadata: Metadata = {
   description: "A private personal operating environment.",
   applicationName: "NN",
   robots: { index: false, follow: false, nocache: true },
-  icons: { icon: "/brand/nn/nn-favicon.svg", apple: "/brand/nn/nn-app-icon.svg" },
+  // Tells iOS to open NN full-screen from the home screen rather than in Safari.
+  appleWebApp: { capable: true, title: "NN", statusBarStyle: "black-translucent" },
+  manifest: "/manifest.webmanifest",
+  other: {
+    // Next emits the modern `mobile-web-app-capable`, which iOS 16.4+ honours.
+    // The legacy Apple name is added explicitly so full-screen launch also
+    // works on older iOS versions.
+    "apple-mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
@@ -38,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.variable}>
         <ThemeProvider>
           <AuthProvider>{children}</AuthProvider>
+          <ServiceWorker />
         </ThemeProvider>
       </body>
     </html>

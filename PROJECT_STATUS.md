@@ -106,6 +106,16 @@ by review. See `docs/SECURITY.md` §2.
 | Recovery | `NEEDS CONFIGURATION` | second passkey is the supported path; no recovery codes |
 | Non-Chrome browsers | `NOT IMPLEMENTED` | engines cannot be installed on this host |
 
+## Home-screen installation (PWA)
+
+| Item | Status | Evidence |
+|---|---|---|
+| Web app manifest | `VERIFIED` | served, valid, `standalone` |
+| Home-screen icons | `VERIFIED` | 3 real PNGs generated from the locked mark |
+| iOS full-screen meta tags | `VERIFIED` | both legacy and modern names present |
+| Service worker + offline page | `IMPLEMENTED` | registers in production only; never caches `/api` |
+| **Installable from your phone** | `BLOCKED` | needs an HTTPS deployment → App Hosting → Blaze |
+
 ## Phases 4–13
 
 `NOT IMPLEMENTED`. See `docs/PHASE_0_AUDIT.md` for sequencing.
