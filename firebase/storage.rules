@@ -1,9 +1,74 @@
 rules_version = '2';
 
+// =============================================================================
 // NN APP — Cloud Storage Security Rules
-// PHASE 2 PLACEHOLDER: default-deny. Real owner-scoped rules are written in Phase 2.
+//
+// Every file the founder owns lives under users/{uid}/. Nothing is public.
+// There are no publicly readable paths in NN, by design.
+// =============================================================================
+
 service firebase.storage {
   match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // 200 MB. Large enough for lecture video and scanned question banks,
+    // small enough that a single bad upload cannot run up a storage bill.
+    function withinSizeLimit() {
+      return request.resource.size < 200 * 1024 * 1024;
+    }
+
+    // An allow-list, not a block-list: anything unrecognised is refused.
+    // This is what stops an executable or an HTML payload being stored and
+    // later served from the founder's own origin.
+    function allowedType() {
+      return request.resource.contentType.matches('image/(jpeg|png|webp|gif|heic|heif|svg\\+xml)')
+          || request.resource.contentType.matches('video/(mp4|quicktime|webm)')
+          || request.resource.contentType.matches('audio/(mpeg|mp4|wav|webm|aac)')
+          || request.resource.contentType == 'application/pdf'
+          || request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.*')
+          || request.resource.contentType.matches('application/vnd.ms-(excel|powerpoint)')
+          || request.resource.contentType == 'application/msword'
+          || request.resource.contentType.matches('text/(plain|csv|markdown)')
+          || request.resource.contentType == 'application/json';
+    }
+
+    // ------------------------------------------------ the founder's own files
+
+    match /users/{uid}/{allPaths=**} {
+      allow read: if isOwner(uid);
+      allow write: if isOwner(uid) && withinSizeLimit() && allowedType();
+      allow delete: if isOwner(uid);
+    }
+
+    // ------------------------------------------------------- server-only area
+
+    // Generated previews, OCR output and thumbnails.
+    //
+    // These live OUTSIDE users/ deliberately. Storage rules are a permissive
+    // union: if any matching rule allows a request, it is allowed. A nested
+    // users/{uid}/_derived path would still be matched by the general rule
+    // above, so a deny here would have no effect and the owner could forge
+    // server-generated files. Structural separation is the only reliable fix.
+    // (Caught by firebase/tests/storage.rules.test.ts.)
+    match /derived/{uid}/{allPaths=**} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+    }
+
+    // Encrypted backup archives. Neither readable nor writable by any client.
+    match /backups/{uid}/{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // ------------------------------------------------------------ catch-all
+
     match /{allPaths=**} {
       allow read, write: if false;
     }

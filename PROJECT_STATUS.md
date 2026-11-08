@@ -64,6 +64,30 @@ ORIN exist yet.
 | PNG raster icon set | `NOT IMPLEMENTED` | deferred to the PWA step in Phase 3 |
 | ORIN logo mark + state icons | `NOT IMPLEMENTED` | begins after founder review of Phase 1 |
 
+## Phase 2 — Firebase infrastructure and security
+
+| Item | Status | Evidence |
+|---|---|---|
+| Firestore data model | `VERIFIED` | `docs/FIRESTORE_DATA_MODEL.md`; all 34 apps mapped |
+| Firestore security rules | `VERIFIED` | owner-scoped, default-deny; **46 emulator tests** |
+| Storage security rules | `VERIFIED` | no public path; allow-list uploads; **14 emulator tests** |
+| Emulator Suite | `VERIFIED` | Firestore + Storage running; Temurin JDK 21 installed, checksum verified |
+| `@nn/firebase` | `VERIFIED` | typed path builders, metadata contract, validated config — 11 tests |
+| `@nn/security` | `VERIFIED` | permission tiers, sensitive-action floor, log redaction — 27 tests |
+| Firebase web client | `IMPLEMENTED` | lazy init, offline cache, emulator wiring, App Check hook |
+| App Check | `NEEDS CONFIGURATION` | code path ready; **enforcement deliberately off** until real traffic observed |
+| Seed / fixture data | `NOT IMPLEMENTED` | arrives with Phase 3 |
+| Cloud Functions | `BLOCKED` | requires Blaze — **not approved** |
+| Authentication | `NOT IMPLEMENTED` | Phase 3 |
+
+**Security hole found and fixed during Phase 2:** Storage rules are a
+permissive union, so a `users/{uid}/_derived/` deny was overridden by the
+owner's general write rule — a client could have forged server-generated
+files. Derived output and backups now sit outside `users/`. Found by test, not
+by review. See `docs/SECURITY.md` §2.
+
+**Test totals: 151 passing** — 53 web · 60 security rules · 27 security · 11 firebase.
+
 ## Phases 2–13
 
 `NOT IMPLEMENTED`. See `docs/PHASE_0_AUDIT.md` for sequencing.

@@ -5,6 +5,9 @@ const config: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   typedRoutes: true,
+  // The workspace packages ship TypeScript source rather than a build output,
+  // so Next must compile them alongside the app.
+  transpilePackages: ["@nn/firebase", "@nn/security"],
   // An unrelated package-lock.json in the home directory makes Next infer the
   // wrong workspace root. Pin it to this repository.
   outputFileTracingRoot: fileURLToPath(new URL("../../", import.meta.url)),

@@ -2,12 +2,20 @@ packages:
   - "apps/*"
   - "packages/*"
   - "functions"
+  - "firebase"
 
+# Install scripts are denied by default. Only these three are permitted, each
+# a first-party build dependency that cannot function without its script:
+#   esbuild        — links the platform-native binary; vitest needs it
+#   @firebase/util — official Firebase SDK package
+#   protobufjs     — generates its runtime; Firestore's gRPC layer needs it
+# Nothing else in the tree may execute code at install time.
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true
+  "@firebase/util": true
+  protobufjs: true
 
-# esbuild is a transitive dependency of vitest/vite. Its install script links the
-# platform-native binary; vitest cannot run without it. Narrowly allowlisted —
-# no other package may run install scripts.
 onlyBuiltDependencies:
   - esbuild
+  - "@firebase/util"
+  - protobufjs

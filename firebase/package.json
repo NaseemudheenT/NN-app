@@ -1,0 +1,18 @@
+{
+  "name": "@nn/firebase-rules",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "./scripts/with-java.sh firebase emulators:exec --only firestore,storage --project nn-rules-test \"vitest run\"",
+    "test:watch": "./scripts/with-java.sh firebase emulators:exec --only firestore,storage --project nn-rules-test \"vitest\"",
+    "typecheck": "tsc --noEmit",
+    "emulators": "./scripts/with-java.sh firebase emulators:start --only auth,firestore,storage --project nn-os-dev"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase": "^11.2.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.2"
+  }
+}

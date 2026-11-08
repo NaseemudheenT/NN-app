@@ -1,10 +1,173 @@
 rules_version = '2';
 
-// NN APP — Firestore Security Rules
-// PHASE 2 PLACEHOLDER: default-deny. Real owner-scoped rules are written in Phase 2
-// together with their emulator tests. Until then nothing can read or write anything.
+// =============================================================================
+// NN APP — Cloud Firestore Security Rules
+//
+// Posture: DEFAULT DENY. Nothing is reachable unless a rule below explicitly
+// allows it. Because every record the founder owns lives under
+// users/{uid}/..., a single ownership check protects every application in NN
+// — including applications that have not been written yet.
+//
+// These rules are the real authorisation boundary. The interface never is.
+// =============================================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------- helpers
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // App Check attests that a request came from the genuine NN client. It is
+    // NOT authentication and NOT authorisation — it only filters out unknown
+    // clients. Enforcement stays off until real traffic has been observed, per
+    // the specification. To enforce: return request.app != null;
+    function appCheckOk() {
+      return true;
+    }
+
+    function owner(uid) {
+      return isOwner(uid) && appCheckOk();
+    }
+
+    // Collections only a trusted server may write. The Admin SDK bypasses
+    // rules entirely, so denying every client write here is what makes them
+    // server-authored. This is how ORIN is prevented from widening its own
+    // permissions or editing its own audit trail.
+    function serverWritten(c) {
+      return c in [
+        'audit_logs',       // the record of what happened — must be tamper-proof
+        'security_events',  // sign-ins, revocations, failures
+        'permissions',      // what ORIN and integrations may do
+        'summaries',        // dashboard aggregates, computed server-side
+        'backups',          // backup manifests and verification state
+        'tool_executions',  // every action ORIN has taken
+        'credentials',      // passkey public keys and signature counters
+        'system_health',
+        'job_runs'
+      ];
+    }
+
+    // --------------------------------------------------------------- validity
+
+    function isTimestamp(v) {
+      return v is timestamp;
+    }
+
+    // Every document must carry its own provenance. Without this a record
+    // cannot be audited, migrated or restored with confidence.
+    function hasMeta(d) {
+      return d.keys().hasAll(['createdAt', 'updatedAt', 'schemaVersion'])
+        && isTimestamp(d.createdAt)
+        && isTimestamp(d.updatedAt)
+        && d.schemaVersion is int
+        && d.schemaVersion >= 1;
+    }
+
+    // Guards against a single oversized document, which fails writes silently
+    // once it passes 1 MiB. Large content belongs in Cloud Storage.
+    function reasonableSize(d) {
+      return d.size() <= 120;
+    }
+
+    function createdAtPreserved() {
+      return request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    // updatedAt must actually move forward, so "last changed" can be trusted.
+    function updatedAtAdvances() {
+      return request.resource.data.updatedAt >= resource.data.updatedAt;
+    }
+
+    function validCreate() {
+      return hasMeta(request.resource.data)
+        && reasonableSize(request.resource.data);
+    }
+
+    function validUpdate() {
+      return hasMeta(request.resource.data)
+        && reasonableSize(request.resource.data)
+        && createdAtPreserved()
+        && updatedAtAdvances();
+    }
+
+    // A memory the founder stated himself is evidence. A memory ORIN inferred
+    // is a guess. The two must never be confused, so the client may only ever
+    // write 'stated' — anything else has to come from a trusted server.
+    function memorySourceHonest(c, d) {
+      return c != 'memories' || !('source' in d.keys()) || d.source == 'stated';
+    }
+
+    // ------------------------------------------------------- the owner record
+
+    match /users/{uid} {
+      allow get, list: if owner(uid);
+      allow create: if owner(uid) && validCreate();
+      allow update: if owner(uid) && validUpdate();
+      // Deleting the owner record would orphan every subcollection in NN.
+      // Account deletion is a deliberate server-side workflow, never a write.
+      allow delete: if false;
+    }
+
+    // ------------------------------------------- every application collection
+
+    match /users/{uid}/{collection}/{docId} {
+      allow get, list: if owner(uid);
+
+      allow create: if owner(uid)
+        && !serverWritten(collection)
+        && validCreate()
+        && memorySourceHonest(collection, request.resource.data);
+
+      allow update: if owner(uid)
+        && !serverWritten(collection)
+        && validUpdate()
+        && memorySourceHonest(collection, request.resource.data);
+
+      allow delete: if owner(uid) && !serverWritten(collection);
+    }
+
+    // The founder must always be able to remove a passkey from a lost device,
+    // even though he can never create or alter one.
+    match /users/{uid}/credentials/{credentialId} {
+      allow delete: if owner(uid);
+    }
+
+    // ------------------------------------------------------- subcollections
+
+    match /users/{uid}/{collection}/{docId}/{sub}/{subId} {
+      allow get, list: if owner(uid);
+
+      allow create: if owner(uid)
+        && !serverWritten(collection)
+        && validCreate();
+
+      // Version history and dated log entries are append-only by design: the
+      // founder's original note must survive every later edit.
+      allow update, delete: if owner(uid)
+        && !serverWritten(collection)
+        && !(sub in ['versions', 'occurrences', 'entries', 'messages', 'steps']);
+    }
+
+    // ------------------------------------------------- shared reference data
+
+    // Verified libraries — formulas, curricula. Readable by the signed-in
+    // owner, writable only by a trusted server after review.
+    match /reference/{document=**} {
+      allow read: if signedIn() && appCheckOk();
+      allow write: if false;
+    }
+
+    // ------------------------------------------------------------ catch-all
+
+    // Anything not matched above is denied. New collections are protected the
+    // moment they exist, before anyone remembers to write a rule for them.
     match /{document=**} {
       allow read, write: if false;
     }
