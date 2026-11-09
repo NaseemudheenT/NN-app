@@ -1072,3 +1072,9 @@
 @media (prefers-reduced-motion:reduce) {
   .panel:hover,.focus:hover,.nextUp:hover,.goals:hover,.stats:hover,.kindList:hover,.chartWrap:hover { transform:none; }
 }
+
+
+/* Keep the environment visibly refracted through every workspace pane. */
+.glass,.main,.panel,.focus,.nextUp,.goals,.stats,.kindList,.chartWrap,.material,.notifications,.toast,.ren,.rail,.dock,.launcher {
+  background:linear-gradient(148deg,rgb(255 255 255 / 11%),rgb(184 216 255 / 3%) 28%,transparent 62%),linear-gradient(320deg,rgb(7 16 37 / 46%),rgb(22 41 72 / 54%) 54%,rgb(16 32 59 / 48%));
+}
