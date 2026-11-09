@@ -343,7 +343,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
             }}
             className={styles.card}
           >
-            <div className={styles.cardInner}>
+            <div className={`${styles.cardInner} nn-glass-card`}>
               <span className={styles.cardSheen} />
               <span className={styles.cardIcon}>
                 <Icon name={placement.card.icon} size={26} />
