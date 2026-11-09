@@ -13,3 +13,31 @@
   font-size: var(--text-label-size); text-align: left;
 }
 .secret { margin-top: var(--space-7); text-align: left; }
+
+
+.card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(28px, 5vw, 46px);
+  border: 1px solid var(--nn-spectrum-border);
+  border-radius: var(--radius-2xl);
+  background:
+    linear-gradient(145deg, rgb(238 248 255 / 16%), rgb(var(--nn-spectrum-cyan) / 7%) 34%, rgb(var(--nn-spectrum-violet) / 9%) 74%),
+    var(--glass-3-bg);
+  box-shadow: var(--shadow-4), inset 0 1px 0 rgb(255 255 255 / 26%), inset 0 0 0 1px rgb(205 229 255 / 8%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
+  backdrop-filter: blur(32px) saturate(160%);
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgb(var(--nn-spectrum-cyan) / 15%), transparent 60%);
+}
+@media (max-width: 520px) {
+  .page { padding: 16px; }
+  .card { padding: 28px 20px; border-radius: var(--radius-xl); }
+}
