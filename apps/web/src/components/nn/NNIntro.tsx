@@ -290,11 +290,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     >
       <div className={styles.atmosphere} aria-hidden="true" />
       <div ref={welcomeRef} className={styles.welcome} aria-hidden="true">
-        <div className={styles.welcomeGlass}>
-          <NNLogo size={48} className={styles.welcomeMark} />
-          <span className={styles.welcomeEyebrow}>WELCOME</span>
-          <span className={styles.welcomeTitle}>Welcome to NN</span>
-        </div>
+        <div className={styles.welcomeGlass} />
       </div>
       <div ref={titleRef} className={styles.title} aria-hidden="true">
         <NNLogo size={82} className={styles.mark} />
