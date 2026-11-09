@@ -132,7 +132,8 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
     <div className={styles.dockWrap}>
       <Dock items={[{id:"home",label:"NN Home",icon:"grid"},{id:"life",label:"NN Life",icon:"calendar"},{id:"workspace",label:"Workspace",icon:"clock"},{id:"design",label:"Design system",icon:"sparkle"}]} activeId={activeDock} onSelect={(id)=>{
         if(id==="home")openRoute("/home",id);
-        if(id==="life")openRoute("/life",id);\n        if(id==="workspace")openRoute("/workspace",id);
+        if(id==="life")openRoute("/life",id);
+        if(id==="workspace")openRoute("/workspace",id);
         if(id==="design")openRoute("/design",id);
       }}/>
       <button className={styles.dockLauncher} onClick={()=>setLauncherOpen(true)} aria-label="Open application launcher" title="Applications"><Icon name="plus" size={21}/></button>
