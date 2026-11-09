@@ -251,17 +251,24 @@ export function GlassFold({
     };
     resolvePalette();
 
+    // Resize only when the canvas or device-pixel ratio actually changes.
+    // Reading layout dimensions and resetting the viewport on every animation
+    // frame adds avoidable main-thread work to a surface that runs all session.
+    let bufferWidth = 0;
+    let bufferHeight = 0;
     const resize = () => {
       // Capped at 2x: a 3x retina canvas costs 2.25x the fill rate for a
       // difference nobody can see in a soft, noisy gradient.
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const width = Math.max(1, Math.round(canvas.clientWidth * dpr));
       const height = Math.max(1, Math.round(canvas.clientHeight * dpr));
-      if (canvas.width !== width || canvas.height !== height) {
-        canvas.width = width;
-        canvas.height = height;
-      }
+      if (width === bufferWidth && height === bufferHeight) return false;
+      bufferWidth = width;
+      bufferHeight = height;
+      canvas.width = width;
+      canvas.height = height;
       gl.viewport(0, 0, width, height);
+      return true;
     };
 
     let elapsed = 0;
@@ -271,7 +278,6 @@ export function GlassFold({
       // Accumulate speed over time, so changing it never makes the room jump.
       elapsed += dt * p.speed;
 
-      resize();
       gl.uniform1f(u.time, elapsed);
       gl.uniform3fv(u.color1, palette.pane);
       gl.uniform3fv(u.color2, palette.ground);
@@ -307,17 +313,25 @@ export function GlassFold({
       attributeFilter: ["data-theme"],
     });
 
-    // With motion off there is no loop, so repaint the still frame on resize.
+    // Size the first frame before starting the loop. The observer handles
+    // element changes; window resize also catches display-scale changes where
+    // CSS dimensions remain identical but devicePixelRatio changes.
+    resize();
     const observer = new ResizeObserver(() => {
-      if (still) draw(0);
+      if (resize() && still) draw(0);
     });
     observer.observe(canvas);
+    const onWindowResize = () => {
+      if (resize() && still) draw(0);
+    };
+    window.addEventListener("resize", onWindowResize, { passive: true });
 
     return () => {
       stopLoop?.();
       stopMotionWatcher();
       themeWatcher.disconnect();
       observer.disconnect();
+      window.removeEventListener("resize", onWindowResize);
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
       gl.deleteShader(vertex);
