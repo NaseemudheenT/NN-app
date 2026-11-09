@@ -384,3 +384,76 @@
   .atmosphere { filter: none; }
   .cardInner { transform: none; }
 }
+
+
+/* A brief Apple-like welcome: visible on arrival, never blocks the journey. */
+.welcome {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  pointer-events: none;
+  animation: welcome-arrive 1.15s cubic-bezier(.2,.75,.25,1) both,
+             welcome-depart 0.7s ease 2.25s forwards;
+}
+.welcomeGlass {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  width: min(390px, calc(100vw - 52px));
+  padding: 34px 28px 36px;
+  border: 1px solid rgb(226 243 255 / 35%);
+  border-radius: 32px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(211 237 255 / 25%), transparent 62%),
+    linear-gradient(145deg, rgb(187 219 255 / 19%), rgb(91 128 218 / 12%) 54%, rgb(173 137 255 / 13%));
+  backdrop-filter: blur(42px) saturate(185%);
+  -webkit-backdrop-filter: blur(42px) saturate(185%);
+  box-shadow:
+    0 32px 90px rgb(0 5 30 / 48%),
+    inset 0 1.5px 0 rgb(255 255 255 / 62%),
+    inset 0 -1px 0 rgb(255 255 255 / 15%),
+    0 0 60px rgb(99 165 255 / 12%);
+  transform: perspective(1100px) rotateX(7deg);
+}
+.welcomeMark {
+  margin-bottom: 5px;
+  filter: drop-shadow(0 0 22px rgb(107 192 255 / 42%));
+}
+.welcomeEyebrow {
+  color: rgb(205 226 255 / 75%);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .24em;
+}
+.welcomeTitle {
+  color: #f5f9ff;
+  font-size: clamp(19px, 3vw, 25px);
+  font-weight: 520;
+  letter-spacing: -.045em;
+  text-align: center;
+  text-shadow: 0 4px 24px rgb(1 8 32 / 40%);
+}
+.welcomeGone {
+  animation: welcome-dismiss .34s cubic-bezier(.2,.7,.2,1) forwards !important;
+}
+@keyframes welcome-arrive {
+  from { opacity: 0; transform: translateY(18px) scale(.94); filter: blur(12px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes welcome-depart {
+  to { opacity: 0; transform: translateY(-12px) scale(1.025); filter: blur(8px); visibility: hidden; }
+}
+@keyframes welcome-dismiss {
+  to { opacity: 0; transform: translateY(-14px) scale(1.035); filter: blur(9px); visibility: hidden; }
+}
+@media (max-width: 767px) {
+  .welcomeGlass { width: min(320px, calc(100vw - 44px)); padding: 29px 22px 31px; border-radius: 27px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome { animation: none; }
+  .welcomeGone { animation: none !important; opacity: 0; visibility: hidden; }
+}
