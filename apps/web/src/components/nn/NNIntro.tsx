@@ -83,7 +83,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     // Wait for the connected script font before revealing it. The reveal mask
     // moves once from left to right, so the first visible stroke is always W.
     let welcomeMounted = true;
-    void document.fonts.load('400 126px "Sacramento"').finally(() => {
+    void document.fonts.load('400 126px "Sacramento"').catch(() => undefined).finally(() => {
       if (welcomeMounted) welcomeRef.current?.classList.add(styles.welcomeActive!);
     });
 
