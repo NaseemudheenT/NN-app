@@ -256,7 +256,7 @@ function LifeSurface() {
         <div className={styles.mainColumn}>
           <GlassPanel tier={2} padding="lg" className={styles.panel}>
             <div className={styles.panelHead}><div><p className={styles.label}>YOUR SCHEDULE</p><h2>Today, in focus.</h2></div><button className={styles.inlineAction} onClick={() => setTab("calendar")}>Open calendar ↗</button></div>
-            {todayEvents.length ? todayEvents.map((item) => <article className={styles.event} key={item.id}><time>{formatTime(item.start)}</time><span/><div><strong>{titleOf(item)}</strong><small>{formatTime(item.start)} — {formatTime(item.end)}</small></div></article>) : <div className={styles.emptyInline}><span className={styles.emptyIcon+" "+styles.iconSurface}><Icon name="calendar" size={19}/></span><div><strong>Your day is open.</strong><small>No events scheduled for today.</small></div><button onClick={() => setTab("calendar")}>Add event</button></div>}
+            {todayEvents.length ? todayEvents.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("calendar_events", item.id, "Calendar event deleted.")}><article className={styles.event}><time>{formatTime(item.start)}</time><span/><div><strong>{titleOf(item)}</strong><small>{formatTime(item.start)} — {formatTime(item.end)}</small></div></article></SwipeToDelete>) : <div className={styles.emptyInline}><span className={styles.emptyIcon+" "+styles.iconSurface}><Icon name="calendar" size={19}/></span><div><strong>Your day is open.</strong><small>No events scheduled for today.</small></div><button onClick={() => setTab("calendar")}>Add event</button></div>}
           </GlassPanel>
           <GlassPanel tier={2} padding="lg" className={styles.panel}>
             <div className={styles.panelHead}><div><p className={styles.label}>NEXT ACTIONS</p><h2>Things to move forward.</h2></div><button className={styles.inlineAction} onClick={() => setTab("tasks")}>All tasks ↗</button></div>
@@ -313,7 +313,7 @@ function SwipeToDelete({ children, onDelete }: { children: ReactNode; onDelete: 
     setOpen(dx < 0);
   };
   return <div className={`${styles.swipeShell} ${open ? styles.swipeOpen : ""}`} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { start.current = null; }} onClick={(event) => event.stopPropagation()}>
-    <button type="button" className={styles.swipeDelete} onClick={onDelete} aria-label="Delete this item"><Icon name="close" size={16}/><span>Delete</span></button>
+    <button type="button" className={styles.swipeDelete} onClick={onDelete} aria-label="Delete this item" aria-hidden={!open} tabIndex={open ? 0 : -1}><Icon name="close" size={16}/><span>Delete</span></button>
     <div className={styles.swipeContent}>{children}</div>
   </div>;
 }
