@@ -19,3 +19,31 @@
 @media(max-width:700px){.root{padding-bottom:calc(100px + env(safe-area-inset-bottom))}.topbar{height:58px;padding:0 14px}.identity{gap:8px}.identity>span{font-size:10px}.identity strong{font-size:7px}.topActions{gap:9px}.searchButton{width:38px;justify-content:center;padding:0}.searchButton span,.searchButton kbd,.privateState{display:none}.page{padding:25px 14px 22px}.welcomeRow{align-items:flex-start;flex-direction:column;gap:15px;margin-bottom:17px}.welcomeCopy h1{font-size:34px}.timeCard{min-width:0;width:100%;padding:10px 13px}.timeCard strong{font-size:22px}.timeOrb{width:34px;height:34px}.hero{min-height:355px;padding:31px 21px 53px;border-radius:21px}.heroText{max-width:100%}.hero h2{font-size:48px}.heroDescription{max-width:340px;font-size:10px}.spatialMark{width:190px;right:-48px;top:auto;bottom:-65px;transform:none;opacity:.35}.heroFoot{left:21px;right:21px;font-size:6px}.section{margin-top:29px}.sectionHeading{align-items:flex-end}.sectionHeading h2{font-size:18px}.sectionHeading>button{font-size:8px}.appGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.appTile{min-height:112px;padding:12px 5px;border-radius:15px;gap:7px}.appIcon{width:42px;height:42px;border-radius:13px}.appTile strong{font-size:10px}.appTile small{font-size:7px}.dashboardGrid{grid-template-columns:1fr;gap:9px;margin-top:10px}.focusPanel,.quickPanel,.goalsPanel,.renPanel{grid-column:auto;min-height:0;padding:17px}.focusEmpty{margin-top:18px}.quickAction{padding:8px 0}.categoryGrid{grid-template-columns:1fr;gap:8px}.category{min-height:78px;padding:12px}.categoryIcon{width:39px;height:39px;flex-basis:39px}.categoryIndex{bottom:8px}.footer{flex-direction:column;gap:7px;margin-bottom:8px}.dockWrap{bottom:max(10px,env(safe-area-inset-bottom));gap:4px;padding:5px;border-radius:18px}.dockLauncher{width:42px;height:42px}.applicationIndex{grid-template-columns:1fr;gap:15px}.indexState{font-size:6px}.launchFoot{font-size:7px}}
 @media(prefers-reduced-motion:reduce){.core{animation:none}.appTile,.category{transition:none}.appTile:hover,.category:hover{transform:none}}
 :global(html[data-motion="reduced"]) .core{animation:none}
+
+
+/* Phone usability refinements: preserve the dashboard composition, improve
+   touch target size and prevent content from becoming cramped on narrow phones. */
+@media (max-width: 700px) {
+  .root { min-width: 320px; overflow-x: clip; padding-bottom: calc(108px + env(safe-area-inset-bottom)); }
+  .topbar { min-height: 56px; height: auto; padding: 7px 12px; }
+  .profile { width: 42px; height: 42px; flex: 0 0 42px; }
+  .searchButton { width: 42px; height: 42px; min-height: 42px; }
+  .page { width: 100%; min-width: 0; padding-left: 12px; padding-right: 12px; }
+  .welcomeCopy h1 { font-size: clamp(29px, 8vw, 36px); }
+  .hero { min-height: 330px; }
+  .heroActions > * { min-height: 46px; }
+  .appTile { min-height: 116px; }
+  .appTile, .category { -webkit-tap-highlight-color: transparent; }
+  .appTile:active, .category:active { transform: scale(.985); }
+  .quickAction { min-height: 48px; }
+  .sectionHeading > button, .panelLink { min-height: 42px; padding: 8px 4px; }
+  .dockWrap { max-width: calc(100vw - 16px); }
+  .dockLauncher { width: 44px; height: 44px; flex: 0 0 44px; }
+}
+@media (max-width: 360px) {
+  .page { padding-left: 10px; padding-right: 10px; }
+  .appGrid { gap: 6px; }
+  .appTile { min-height: 108px; }
+  .appIcon { width: 39px; height: 39px; }
+  .hero h2 { font-size: 43px; }
+}
