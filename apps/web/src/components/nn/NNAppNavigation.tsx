@@ -17,15 +17,15 @@ const APP_PATHS = new Set(ITEMS.map((item) => item.href));
 
 /**
  * A compact, route-aware navigation dock shared by NN application surfaces.
- * The Home page retains its richer launcher dock; this dock keeps the other
- * application surfaces connected without introducing a side rail or menu.
+ * Home and Life retain their purpose-built navigation. This dock connects the
+ * Workspace and Design surfaces without introducing a side rail or menu.
  */
 export function NNAppNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const { summon } = useRen();
 
-  if (!pathname || !APP_PATHS.has(pathname as (typeof ITEMS)[number]["href"]) || pathname === "/home") {
+  if (!pathname || !APP_PATHS.has(pathname as (typeof ITEMS)[number]["href"]) || (pathname === "/home" || pathname === "/life")) {
     return null;
   }
 
