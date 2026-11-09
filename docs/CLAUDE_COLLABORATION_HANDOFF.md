@@ -98,3 +98,14 @@ rather than pasting them into chat.
 - Preview deployment: attempted against the exact implementation commit; Vercel rejected it with `api-deployments-free-per-day` and `retryAfter=86400`. The current READY deployment remains an older commit and must not be represented as the updated design.
 - Release readiness: Vercel reports zero production environment variables, and SSO protection remains enabled for all except custom domains. Do not weaken SSO or invent production Firebase/passkey settings. Production is not ready to release.
 - Remaining work: run the documented pnpm typecheck/tests/build locally, review all routes at desktop and 360px/iPhone widths, correct regressions, provision production configuration securely, then deploy the exact verified commit when Vercel quota permits.
+
+## Frontend execution programme — 2026-11-09
+
+- Founder explicitly approved the complete NN frontend/UI execution programme. The scope is recorded in `docs/NN_FRONTEND_EXECUTION_PROGRAMME.md`; work remains on `design/nn-frontend-system`. No production deployment or merge is authorised by this approval.
+- Added `apps/web/src/lib/apps/registry.ts` as the typed canonical 34-application frontend registry, aligned to `docs/NN_APP_REGISTRY.md`. REN remains an ambient assistant capability and App Factory remains a system capability, not launcher applications.
+- Home now reads its application index and category counts from the shared registry instead of maintaining a duplicate 35-item list. Only NN Life is marked available because it is the only canonical application with an implemented route in the current route inventory; other app surfaces remain visibly in development.
+- Fixed the Home REN feature tile so it summons the persistent REN panel rather than filtering the app launcher for a non-existent REN app entry.
+- Added `apps/web/src/lib/apps/registry.test.ts` to check the 34-app count, unique IDs, route availability, derived category totals and capability separation.
+- Implementation commits: `928b015b9a85f18e05f203bc4e7d1427c7cfa0bd` (programme), `480bb00d41383e3346cb581d534615f556f158a3` (registry), `1e59a4ffbfc677528566f151ecab4e20edca6d23` (Home integration), `f27aff729ec240a663436176be74ea8fe10f9a5a` (registry tests).
+- Verification: tests have been authored but not executed in a local checkout. Typecheck, lint, unit tests, production build and browser/device QA remain outstanding. Do not mark this milestone VERIFIED.
+- Next frontend milestone: inspect and implement the persistent responsive NN OS shell and route-aware app navigation using the central registry, then proceed through application modules in the approved sequence.
