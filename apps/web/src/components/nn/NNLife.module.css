@@ -387,3 +387,9 @@
  .swipeOpen .swipeContent{transform:translateX(-74px)}
 }
 @media(prefers-reduced-motion:reduce){.swipeContent{transition:none}}
+
+
+/* Icon surfaces inherit each glyph's semantic NN spectrum tone. */
+.iconSurface{position:relative;isolation:isolate;overflow:hidden}
+.iconSurface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 28% 18%,rgb(255 255 255 / 22%),transparent 52%),linear-gradient(145deg,rgb(105 197 255 / 15%),rgb(129 150 255 / 7%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 25%)}
+.iconSurface>*{position:relative;z-index:1}
