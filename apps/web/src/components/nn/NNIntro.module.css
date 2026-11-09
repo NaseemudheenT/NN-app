@@ -386,7 +386,7 @@
 }
 
 
-/* A brief Apple-like welcome: visible on arrival, never blocks the journey. */
+/* Minimal product welcome: one floating glass surface, then a clean handoff to the tunnel. */
 .welcome {
   position: absolute;
   inset: 0;
@@ -395,60 +395,61 @@
   place-items: center;
   padding: 24px;
   pointer-events: none;
-  animation: welcome-arrive 1.15s cubic-bezier(.2,.75,.25,1) both,
-             welcome-depart 0.7s ease 2.25s forwards;
+  animation:
+    welcome-arrive 900ms cubic-bezier(.2,.8,.2,1) both,
+    welcome-depart 560ms cubic-bezier(.4,0,.2,1) 2.6s forwards;
 }
 .welcomeGlass {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 13px;
-  width: min(390px, calc(100vw - 52px));
-  padding: 34px 28px 36px;
-  border: 1px solid rgb(226 243 255 / 35%);
-  border-radius: 32px;
+  gap: 14px;
+  width: min(350px, calc(100vw - 48px));
+  padding: 32px 28px 34px;
+  border: 1px solid rgb(226 243 255 / 38%);
+  border-radius: 30px;
   background:
-    radial-gradient(ellipse at 50% 0%, rgb(211 237 255 / 25%), transparent 62%),
-    linear-gradient(145deg, rgb(187 219 255 / 19%), rgb(91 128 218 / 12%) 54%, rgb(173 137 255 / 13%));
-  backdrop-filter: blur(42px) saturate(185%);
-  -webkit-backdrop-filter: blur(42px) saturate(185%);
+    radial-gradient(ellipse at 50% 0%, rgb(211 237 255 / 30%), transparent 65%),
+    linear-gradient(145deg, rgb(187 219 255 / 21%), rgb(91 128 218 / 13%) 55%, rgb(173 137 255 / 15%));
+  backdrop-filter: blur(38px) saturate(180%);
+  -webkit-backdrop-filter: blur(38px) saturate(180%);
   box-shadow:
-    0 32px 90px rgb(0 5 30 / 48%),
-    inset 0 1.5px 0 rgb(255 255 255 / 62%),
-    inset 0 -1px 0 rgb(255 255 255 / 15%),
-    0 0 60px rgb(99 165 255 / 12%);
-  transform: perspective(1100px) rotateX(7deg);
+    0 28px 82px rgb(0 5 30 / 42%),
+    inset 0 1.5px 0 rgb(255 255 255 / 66%),
+    inset 0 -1px 0 rgb(255 255 255 / 16%),
+    0 0 54px rgb(99 165 255 / 14%);
+  transform: perspective(1100px) rotateX(5deg);
 }
 .welcomeMark {
-  margin-bottom: 5px;
+  margin-bottom: 3px;
   filter: drop-shadow(0 0 22px rgb(107 192 255 / 42%));
 }
 .welcomeEyebrow {
-  color: rgb(205 226 255 / 75%);
-  font-size: 10px;
+  color: rgb(205 226 255 / 76%);
+  font-size: 9px;
   font-weight: 650;
-  letter-spacing: .24em;
+  letter-spacing: .25em;
 }
 .welcomeTitle {
   color: #f5f9ff;
-  font-size: clamp(19px, 3vw, 25px);
-  font-weight: 520;
-  letter-spacing: -.045em;
+  font-size: clamp(21px, 3vw, 27px);
+  font-weight: 540;
+  letter-spacing: -.05em;
   text-align: center;
   text-shadow: 0 4px 24px rgb(1 8 32 / 40%);
 }
 .welcomeGone {
-  animation: welcome-dismiss .34s cubic-bezier(.2,.7,.2,1) forwards !important;
+  animation: welcome-dismiss 360ms cubic-bezier(.2,.7,.2,1) forwards !important;
 }
 @keyframes welcome-arrive {
-  from { opacity: 0; transform: translateY(18px) scale(.94); filter: blur(12px); }
+  from { opacity: 0; transform: translateY(22px) scale(.94); filter: blur(14px); }
   to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 @keyframes welcome-depart {
-  to { opacity: 0; transform: translateY(-12px) scale(1.025); filter: blur(8px); visibility: hidden; }
+  to { opacity: 0; transform: translateY(-10px) scale(1.025); filter: blur(7px); visibility: hidden; }
 }
 @keyframes welcome-dismiss {
-  to { opacity: 0; transform: translateY(-14px) scale(1.035); filter: blur(9px); visibility: hidden; }
+  to { opacity: 0; transform: translateY(-12px) scale(1.03); filter: blur(8px); visibility: hidden; }
 }
 @media (max-width: 767px) {
   .welcomeGlass { width: min(320px, calc(100vw - 44px)); padding: 29px 22px 31px; border-radius: 27px; }
