@@ -286,7 +286,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       <div ref={enterRef} className={styles.enter} aria-hidden="true" inert>
         <LiquidButton href={enterHref} size="xl" variant="accent">
           {enterLabel}
-          <Icon name="check" size={18} />
         </LiquidButton>
       </div>
 
