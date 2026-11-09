@@ -8,7 +8,6 @@ import {
 } from "firebase/firestore";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Icon, type IconName } from "@/components/ui/Icon";
-import { LiquidButton } from "@/components/ui/LiquidButton";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { useAuth } from "@/lib/auth";
 import { firebaseAvailable, getFirebase } from "@/lib/firebase";
