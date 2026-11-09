@@ -146,3 +146,12 @@ rather than pasting them into chat.
 - Commit: `88650bfefde05ab53b39c3f67c49c65311d88818`.
 - Verification remains source-level only; no executable test/build/browser/device run was available in this session.
 
+## NN Life destructive-action safety pass — 2026-11-09
+
+- Swipe-to-reveal remains the primary touch interaction for deleting Life records, but tapping Delete now opens the shared accessible Dialog and requires a second explicit confirmation before Firestore `deleteDoc` runs.
+- The confirmation states that deletion is permanent and cannot currently be undone. The action is disabled while another save is in progress; the existing verified-save/error path remains responsible for reporting the Firestore result.
+- Added a keyboard alternative: focus a record action group and press Delete/Backspace to reveal the delete action; Escape closes the revealed action.
+- Added phone-friendly dialog actions and visible focus treatment. No data model, Firestore rules or authentication code was changed.
+- Source commits: `0c48fe71a25eb50bcd9a45e273fd709cf49509a2` (confirmation flow), `ba37d960d937e4b01e1916daed8c682714991a10` (dialog styling), `f0e89c75045eda4561cdb1f669ca9441586be522` (keyboard alternative).
+- Verification status: changes were committed and source re-fetch is pending. No local test/build/browser or device QA has been run. This is not yet a verified milestone.
+
