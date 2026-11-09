@@ -106,10 +106,11 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       if (welcomeDismissed) return;
       welcomeDismissed = true;
       welcomeRef.current?.classList.add(styles.welcomeGone!);
-      const content = welcomeContentRef.current;
-      if (content) {
-        content.style.opacity = "0";
-        content.style.transform = "translate3d(0, -44px, 0) scale(1.025)";
+      const layer = welcomeRef.current;
+      if (layer) {
+        layer.style.opacity = "0";
+        layer.style.transform = "translate3d(0, -160px, 0) scale(1.035)";
+        layer.style.visibility = "hidden";
       }
     };
 
@@ -209,15 +210,17 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       // The welcome travels with the camera for the opening section: it lifts,
       // subtly enlarges, and fades as the corridor advances. Once it has left,
       // it stays dismissed for this mounted visit, even if the viewer reverses.
-      const welcomeContent = welcomeContentRef.current;
-      if (!welcomeDismissed && welcomeContent) {
+      const welcomeLayer = welcomeRef.current;
+      if (!welcomeDismissed && welcomeLayer) {
         if (p >= 0.28) {
           dismissWelcome();
         } else {
           const travel = rampAcross(p, [0, 0.28], [0, 1]);
-          welcomeContent.style.opacity = (1 - travel * 0.96).toFixed(3);
-          welcomeContent.style.transform =
-            `translate3d(0, ${(-travel * 118).toFixed(1)}px, 0) scale(${(1 + travel * 0.075).toFixed(3)})`;
+          // Animate the complete full-screen welcome layer, including its
+          // radial backdrop. Animating only the text left the overlay behind.
+          welcomeLayer.style.opacity = (1 - travel).toFixed(3);
+          welcomeLayer.style.transform =
+            `translate3d(0, ${(-travel * 160).toFixed(1)}px, 0) scale(${(1 + travel * 0.035).toFixed(3)})`;
         }
       }
       const farZ = stage.isMobile ? -1200 : -1700;
