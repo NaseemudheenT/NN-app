@@ -39,24 +39,11 @@ interface IntroCard {
 }
 
 const CARDS: readonly IntroCard[] = [
-  { icon: "calendar", title: "NN Life", hint: "Your day, in one place" },
-  { icon: "check", title: "NN Tasks", hint: "Plans into progress" },
-  { icon: "clock", title: "NN Reminders", hint: "The right moment" },
-  { icon: "file", title: "NN Notes", hint: "Thoughts, captured" },
-  { icon: "graph", title: "NN Habits", hint: "Consistency, measured" },
-  { icon: "sparkle", title: "NN Goals", hint: "A direction that moves" },
-  { icon: "calendar", title: "NN Routines", hint: "Structure for every day" },
-  { icon: "book", title: "NN College", hint: "Classes, exams, mastery" },
-  { icon: "graph", title: "NN Academy", hint: "Skills built step by step" },
-  { icon: "grid", title: "NN Projects", hint: "Ideas into real work" },
-  { icon: "wallet", title: "NN Business", hint: "Operations and decisions" },
-  { icon: "graph", title: "NN Analytics", hint: "Evidence behind progress" },
-  { icon: "folder", title: "NN Files", hint: "Your private library" },
-  { icon: "sparkle", title: "NN Memory", hint: "Context with provenance" },
-  { icon: "wallet", title: "NN Finance", hint: "A clearer view of money" },
-  { icon: "mic", title: "REN", hint: "Your operating intelligence" },
-  { icon: "shield", title: "NN Security", hint: "Your private perimeter" },
-  { icon: "settings", title: "NN Control", hint: "One system, your rules" },
+  { icon: "calendar", title: "Life", hint: "" },
+  { icon: "book", title: "Learn", hint: "" },
+  { icon: "grid", title: "Create", hint: "" },
+  { icon: "wallet", title: "Build", hint: "" },
+  { icon: "sparkle", title: "Remember", hint: "" },
 ];
 
 /** Placement is fixed per card, so it is computed once at module load. */
@@ -85,8 +72,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const titleRef = useRef<HTMLDivElement>(null);
-  const promptRef = useRef<HTMLDivElement>(null);
-  const railRef = useRef<HTMLDivElement>(null);
   const enterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -232,12 +217,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
         titleRef.current.style.transform = `scale(${rampAcross(p, [0, 0.5, 1], [0.7, 1, 1.35]).toFixed(3)})`;
         titleRef.current.style.opacity = rampAcross(p, [0, 0.12, 0.85, 1], [0.25, 1, 1, 0]).toFixed(3);
       }
-      if (promptRef.current) {
-        promptRef.current.style.opacity = rampAcross(p, [0, 0.12], [1, 0]).toFixed(3);
-      }
-      if (railRef.current) {
-        railRef.current.style.setProperty("--travelled", p.toFixed(4));
-      }
       if (enterRef.current) {
         // The way out appears only once the corridor has actually been crossed.
         const shown = rampAcross(p, [0.72, 0.92], [0, 1]);
@@ -260,24 +239,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       paint();
     });
 
-    /* The corridor arrives rather than sitting empty. At rest every card is
-       still beyond the fade-in, so a founder opening NN would see a bare
-       title and no sign that there is anything to travel through. A short
-       drift forward puts the first cards on screen; any input takes over. */
-    const ARRIVAL = 0.1;
-    let arrivalTimer: number | null = null;
-    if (still) {
-      progress.reset(ARRIVAL);
-      dirty = true;
-    } else {
-      arrivalTimer = window.setTimeout(() => {
-        if (progress.target === 0) {
-          progress.set(ARRIVAL);
-          dirty = true;
-        }
-      }, 400);
-    }
-
     const stopMotionWatcher = onMotionPreferenceChange(() => {
       still = prefersReducedMotion();
       if (still) {
@@ -289,7 +250,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     });
 
     return () => {
-      if (arrivalTimer !== null) window.clearTimeout(arrivalTimer);
       stopLoop();
       stopMotionWatcher();
       resizeObserver.disconnect();
@@ -309,31 +269,11 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       className={styles.stage}
       tabIndex={0}
       role="group"
-      aria-label="NN introduction. Scroll, swipe or use the arrow keys to travel through NN's applications."
+      aria-label="NN. Scroll, swipe or use the arrow keys to reveal the experience."
     >
-      {/* The depth grid and the two rings that give the corridor a floor. */}
-      <div className={styles.grid} aria-hidden="true" />
-      <div className={styles.glow} aria-hidden="true" />
-      <div className={styles.ringInner} aria-hidden="true" />
-      <div className={styles.ringOuter} aria-hidden="true" />
-
-      <div ref={titleRef} className={styles.title}>
-        <p className={styles.eyebrow}>A private operating environment</p>
-        <NNLogo size={72} className={styles.mark} />
-        <h1 className={styles.heading}>
-          Everything you are,
-          <br />
-          in one place.
-        </h1>
-        <p className={styles.lede}>
-          One environment for your days, your studies, your work, your money and your
-          memory — owned by you alone, for as long as you want it.
-        </p>
-      </div>
-
-      <div ref={promptRef} className={styles.prompt}>
-        <span>Scroll to travel</span>
-        <span className={styles.promptLine} aria-hidden="true" />
+      <div className={styles.atmosphere} aria-hidden="true" />
+      <div ref={titleRef} className={styles.title} aria-hidden="true">
+        <NNLogo size={82} className={styles.mark} />
       </div>
 
       <div ref={enterRef} className={styles.enter} aria-hidden="true">
@@ -343,9 +283,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
         </LiquidButton>
       </div>
 
-      <div ref={railRef} className={styles.rail} aria-hidden="true">
-        <span className={styles.railFill} />
-      </div>
 
       {/* The corridor itself. */}
       <div className={styles.corridor} aria-hidden="true">
@@ -363,7 +300,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
                 <Icon name={placement.card.icon} size={26} />
               </span>
               <span className={styles.cardTitle}>{placement.card.title}</span>
-              <span className={styles.cardHint}>{placement.card.hint}</span>
             </div>
           </div>
         ))}
