@@ -21,7 +21,7 @@ jobs:
   verify:
     name: Typecheck, lint, test, build
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
@@ -40,7 +40,16 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install locked dependencies
+      - name: Set up Java for Firebase emulators
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install pinned Firebase CLI
+        run: npm install --global --no-audit --no-fund firebase-tools@15.27.0
+
+      - name: Install locked workspace dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck, lint and unit tests
