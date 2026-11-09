@@ -446,3 +446,7 @@
   .deleteCancel, .deleteConfirm { width: 100%; }
 }
 
+.swipeShell:focus-visible {
+  outline: 2px solid var(--nn-icy);
+  outline-offset: 3px;
+}
