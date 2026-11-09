@@ -4,6 +4,8 @@
 
 **Authority:** Founder-approved direction. The founder makes final product decisions. This prompt authorises normal reversible design and frontend implementation on the working feature branch; it does not authorise production deployment, billing, secret changes, weakening security, merging to main or irreversible data operations.
 
+> **Current visual authority:** `docs/NN_FOUNDER_VISUAL_RESET.md` is the latest founder-approved material and atmosphere direction. It supersedes earlier navy/icy-blue-only descriptions in this document. Keep the locked V3 base palette; cyan, aqua, electric-blue, indigo and violet are derived optical reflections used in atmosphere and glass materials, not replacement brand base colours. If documents conflict, preserve the approved NN mark, base tokens, accessibility and product behaviour, and follow the newer visual reset for material treatment.
+
 ## 1. Product identity
 
 Design NN as a private, lifelong personal operating environment — a coherent personal computing system, not a collection of unrelated SaaS dashboards. The environment should feel like a believable advanced personal computer: spatial, cinematic, calm, precise, tactile and deeply usable.
