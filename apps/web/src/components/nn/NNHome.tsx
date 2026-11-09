@@ -1,70 +1,161 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 import { RequireOwner } from "@/components/auth/RequireOwner";
+import { Coverflow, type CoverflowCard } from "@/components/ui/Coverflow";
+import { Dialog } from "@/components/ui/Dialog";
+import { Dock } from "@/components/ui/Dock";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { LiquidButton } from "@/components/ui/LiquidButton";
 import { NNLogo } from "@/components/ui/NNLogo";
+import { useAuth } from "@/lib/auth";
 import styles from "./NNHome.module.css";
 
-type AppItem={name:string;group:string;icon:IconName;description:string;href?:string;ready:boolean};
-const APPS:readonly AppItem[]=[
-{name:"NN Home",group:"Personal",icon:"grid",description:"Your daily command surface",href:"/home",ready:true},
-{name:"Workspace",group:"Personal",icon:"calendar",description:"Explore the interactive workspace",href:"/workspace",ready:true},
-{name:"Design system",group:"System",icon:"sparkle",description:"Materials, motion and components",href:"/design",ready:true},
-{name:"Calendar",group:"Life",icon:"calendar",description:"Time, events and commitments",ready:false},
-{name:"Tasks",group:"Life",icon:"check",description:"Turn plans into progress",ready:false},
-{name:"Reminders",group:"Life",icon:"clock",description:"Timely prompts and follow-through",ready:false},
-{name:"Notes",group:"Life",icon:"file",description:"A private space for your thoughts",ready:false},
-{name:"Goals",group:"Life",icon:"graph",description:"Milestones and long-term direction",ready:false},
-{name:"College",group:"Learning",icon:"book",description:"Subjects, exams and revision",ready:false},
-{name:"Academy",group:"Learning",icon:"sparkle",description:"Structured skill development",ready:false},
-{name:"Projects",group:"Work",icon:"grid",description:"Build and ship meaningful work",ready:false},
-{name:"Business",group:"Work",icon:"wallet",description:"Operations and decisions",ready:false},
-{name:"Files",group:"Personal",icon:"folder",description:"Your private library",ready:false},
-{name:"Finance",group:"Personal",icon:"wallet",description:"A clear view of your money",ready:false},
-{name:"Security",group:"System",icon:"shield",description:"Identity, sessions and privacy",ready:false}
+type AppRoute = "/home" | "/workspace" | "/design";
+type AppItem = { name: string; group: string; icon: IconName; description: string };
+const APPLICATIONS: readonly AppItem[] = [
+  { name:"Life",group:"Life & wellbeing",icon:"calendar",description:"Calendar, tasks, reminders, notes, habits, goals and routines" },
+  { name:"Soul",group:"Life & wellbeing",icon:"sparkle",description:"Faith, purpose, gratitude and reflection" },
+  { name:"Mind",group:"Life & wellbeing",icon:"graph",description:"Focus, resilience, reflection and personal growth" },
+  { name:"Body",group:"Life & wellbeing",icon:"check",description:"Fitness, nutrition, sleep and recovery" },
+  { name:"Contacts",group:"Life & wellbeing",icon:"grid",description:"People, important dates and follow-ups" },
+  { name:"Nature & Universe",group:"Life & wellbeing",icon:"sparkle",description:"Science, astronomy and discovery" },
+  { name:"Peace Mode",group:"Life & wellbeing",icon:"clock",description:"A quieter environment for focus and reflection" },
+  { name:"College",group:"Education",icon:"book",description:"SMVEC subjects, exams, notes and academic progress" },
+  { name:"Academy",group:"Education",icon:"book",description:"Structured technical and professional learning" },
+  { name:"Formula Engine",group:"Education",icon:"graph",description:"Verified formulas, calculations and visualisation" },
+  { name:"Logic Lab",group:"Education",icon:"grid",description:"Reasoning, aptitude and programming challenges" },
+  { name:"Learning Vault",group:"Education",icon:"folder",description:"Books, research, flashcards and knowledge paths" },
+  { name:"Finance",group:"Money & work",icon:"wallet",description:"Personal money, budgets, assets and financial goals" },
+  { name:"Invest",group:"Money & work",icon:"graph",description:"Investment research, watchlists and portfolio tracking" },
+  { name:"Business",group:"Money & work",icon:"grid",description:"Ventures, validation, operations and decisions" },
+  { name:"Freelance",group:"Money & work",icon:"file",description:"Clients, proposals, deliverables and invoices" },
+  { name:"Career",group:"Money & work",icon:"book",description:"Skills, portfolio, interviews and career progress" },
+  { name:"Projects",group:"Money & work",icon:"grid",description:"Milestones, dependencies and execution" },
+  { name:"Achievements",group:"Money & work",icon:"sparkle",description:"Verified milestones, certificates and evidence" },
+  { name:"Creator Studio",group:"Creation & communication",icon:"sparkle",description:"Photography, video, design and content planning" },
+  { name:"Studio",group:"Creation & communication",icon:"file",description:"Writing, documents and publishing drafts" },
+  { name:"Mail",group:"Creation & communication",icon:"file",description:"Connected inboxes, drafts and follow-ups" },
+  { name:"English",group:"Creation & communication",icon:"mic",description:"Speaking, listening, grammar and writing practice" },
+  { name:"Files",group:"Knowledge & insight",icon:"folder",description:"Private documents, media and file organisation" },
+  { name:"Memory",group:"Knowledge & insight",icon:"sparkle",description:"Owner-controlled knowledge with source and provenance" },
+  { name:"Life Archive",group:"Knowledge & insight",icon:"clock",description:"A chronological record of milestones and memories" },
+  { name:"Analytics",group:"Knowledge & insight",icon:"graph",description:"Measured progress from real stored data" },
+  { name:"Travel",group:"Knowledge & insight",icon:"calendar",description:"Trips, itineraries, maps and travel planning" },
+  { name:"Simulator",group:"Knowledge & insight",icon:"grid",description:"Safe financial, business, science and coding scenarios" },
+  { name:"Command Centre",group:"System",icon:"sparkle",description:"Natural-language entry point and quick actions" },
+  { name:"Search",group:"System",icon:"search",description:"Permission-aware search across NN" },
+  { name:"Automation Studio",group:"System",icon:"settings",description:"Triggers, workflows, approvals and run history" },
+  { name:"Security Centre",group:"System",icon:"shield",description:"Passkeys, devices, sessions and audit history" },
+  { name:"Control Room",group:"System",icon:"settings",description:"System health, integrations, jobs and cost visibility" },
 ];
-function HomeSurface(){
- const {user,signOutHere}=useAuth();
- const [query,setQuery]=useState("");
- const [launcherOpen,setLauncherOpen]=useState(false);
- const [capture,setCapture]=useState("");
- const [drafts,setDrafts]=useState<string[]>([]);
- const [captureOpen,setCaptureOpen]=useState(false);
- const filtered=useMemo(()=>APPS.filter(a=>(a.name+" "+a.group+" "+a.description).toLowerCase().includes(query.toLowerCase())),[query]);
- useEffect(()=>{const onKey=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();setLauncherOpen(true);}if(event.key==="Escape"){setLauncherOpen(false);setQuery("");}};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey);},[]);
- const firstName=user?.displayName?.trim().split(/\s+/)[0]||"Founder";
- function addDraft(){const value=capture.trim();if(!value)return;setDrafts(items=>[value,...items].slice(0,4));setCapture("");setCaptureOpen(false);}
- return <main className={styles.root}>
-  <aside className={styles.sidebar} aria-label="Primary navigation">
-   <Link href="/home" className={styles.brand}><NNLogo size={34} decorative/><span>NN<small>PERSONAL OS</small></span></Link>
-   <div className={styles.navLabel}>WORKSPACE</div>
-   <Link href="/home" className={styles.navItem} aria-current="page"><Icon name="grid"/>Overview</Link>
-   <Link href="/workspace" className={styles.navItem}><Icon name="calendar"/>Workspace</Link>
-   <button className={styles.navItem} onClick={()=>setLauncherOpen(true)}><Icon name="search"/>All applications</button>
-   <div className={styles.navLabel}>YOUR SYSTEM</div>
-   {["Personal","Life","Learning","Work","System"].map(group=><button key={group} className={styles.groupButton} onClick={()=>{setQuery(group);setLauncherOpen(true);}}>{group}<span>{String(APPS.filter(a=>a.group===group).length).padStart(2,"0")}</span></button>)}
-   <div className={styles.sidebarBottom}><Link href="/design" className={styles.navItem}><Icon name="sparkle"/>Design system</Link>
-    <div className={styles.profile}><b>{firstName.slice(0,1).toUpperCase()}</b><span><strong>{firstName}</strong><small>Owner account</small></span><button onClick={()=>void signOutHere()} aria-label="Sign out"><Icon name="close" size={16}/></button></div>
-   </div>
-  </aside>
-  <section className={styles.content}>
-   <header className={styles.topbar}><div>NN <i>/</i> <strong>Overview</strong></div><div className={styles.topActions}><button className={styles.searchButton} onClick={()=>setLauncherOpen(true)}><Icon name="search" size={17}/><span>Search applications</span><kbd>⌘ K</kbd></button><span className={styles.connection}><i/>Private workspace</span><b className={styles.avatar}>{firstName.slice(0,1).toUpperCase()}</b></div></header>
-   <div className={styles.page}>
-    <div className={styles.eyebrow}> <i/> YOUR PERSONAL ENVIRONMENT</div>
-    <div className={styles.headingRow}><div><h1>Good to see you, {firstName}.</h1><p>A quieter place to think, organise and move forward.</p></div><button className={styles.launchButton} onClick={()=>setLauncherOpen(true)}><Icon name="grid" size={17}/>Open app launcher</button></div>
-    <section className={styles.hero}><div className={styles.heroCopy}><span className={styles.heroTag}><i/> NN / PRIVATE SYSTEM</span><h2>Your life.<br/><em>In one system.</em></h2><p>One considered environment for your time, learning, work and personal world. Built around your priorities—not somebody else&apos;s workflow.</p><button onClick={()=>setLauncherOpen(true)}>Explore your applications <b>↗</b></button></div><div className={styles.orbit} aria-hidden="true"><div/><div/><span><NNLogo size={52} decorative/></span><i><Icon name="calendar"/></i><i><Icon name="book"/></i><i><Icon name="grid"/></i></div><small className={styles.heroIndex}>01 / 05</small></section>
-    <div className={styles.sectionHead}><div><small>THE ENVIRONMENT</small><h2>Applications</h2></div><button onClick={()=>setLauncherOpen(true)}>View all ↗</button></div>
-    <div className={styles.appGrid}>{APPS.filter(a=>["NN Home","Calendar","Tasks","College","Academy","Projects"].includes(a.name)).map((app,index)=><article className={styles.appCard} key={app.name} style={{animationDelay:(index*55)+"ms"}}><div className={styles.appTop}><span><Icon name={app.icon} size={19}/></span><small data-ready={app.ready}>{app.ready?"AVAILABLE":"IN DEVELOPMENT"}</small></div><h3>{app.name}</h3><p>{app.description}</p>{app.href?<Link href={app.href}>Open application ↗</Link>:<label>Being built</label>}</article>)}</div>
-    <div className={styles.lowerGrid}>
-     <section className={styles.panel}><div className={styles.panelHead}><div><small>QUICK CAPTURE</small><h2>Get it out of your head.</h2></div><Icon name="file"/></div><p>Capture a thought while it is fresh. Drafts stay in this page session; persistent notes are not connected yet.</p>{captureOpen?<form onSubmit={e=>{e.preventDefault();addDraft();}}><input autoFocus value={capture} onChange={e=>setCapture(e.target.value)} placeholder="Write a thought…" maxLength={240}/><button disabled={!capture.trim()}>Add draft</button></form>:<button className={styles.captureTrigger} onClick={()=>setCaptureOpen(true)}><Icon name="plus" size={17}/>Capture a thought ↗</button>}{drafts.length>0&&<div className={styles.drafts}><small>SESSION DRAFTS</small>{drafts.map((d,i)=><div key={d+"-"+i}>{d}</div>)}</div>}</section>
-     <section className={styles.panel}><div className={styles.panelHead}><div><small>YOUR INTELLIGENCE</small><h2>REN is being prepared.</h2></div><span className={styles.renOrb}/></div><p>REN&apos;s interface is present across NN. Reasoning, memory and tool execution remain disabled until their services are implemented and verified.</p><div className={styles.renStatus}><span>● DESIGNED</span><b>NOT CONNECTED</b></div></section>
+const ROUTES: readonly { name:string; description:string; icon:IconName; href:AppRoute }[] = [
+  {name:"NN Home",description:"Your personal operating environment",icon:"grid",href:"/home"},
+  {name:"Workspace",description:"Interactive glass workspace prototype",icon:"calendar",href:"/workspace"},
+  {name:"Design System",description:"NN materials, motion and component laboratory",icon:"sparkle",href:"/design"},
+];
+const CAROUSEL_CARDS: readonly CoverflowCard[] = ROUTES.map((app) => ({
+  id:app.href,title:app.name,subtitle:app.description,icon:app.icon,meta:[{label:"SURFACE",value:"AVAILABLE"}],
+}));
+function HomeSurface() {
+  const router=useRouter();
+  const {user,signOutHere}=useAuth();
+  const [launcherOpen,setLauncherOpen]=useState(false);
+  const [query,setQuery]=useState("");
+  const [activeDock,setActiveDock]=useState("home");
+  const firstName=user?.displayName?.trim().split(/\s+/)[0]||"Founder";
+  const filtered=useMemo(()=>APPLICATIONS.filter(app=>(app.name+" "+app.group+" "+app.description).toLowerCase().includes(query.trim().toLowerCase())),[query]);
+  useEffect(()=>{
+    const onKey=(event:KeyboardEvent)=>{
+      if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();setLauncherOpen(true);}
+    };
+    window.addEventListener("keydown",onKey);
+    return ()=>window.removeEventListener("keydown",onKey);
+  },[]);
+  const openRoute=(href:AppRoute,id:string)=>{setActiveDock(id);router.push(href);};
+  return <main className={styles.root}>
+    <header className={styles.topbar}>
+      <div className={styles.identity}><NNLogo size={31} decorative/><span>NN <i>/</i> <strong>HOME</strong></span></div>
+      <div className={styles.topActions}>
+        <button className={styles.searchButton} onClick={()=>setLauncherOpen(true)}><Icon name="search" size={17}/><span>Search NN</span><kbd>⌘ K</kbd></button>
+        <span className={styles.privateState}><i/> PRIVATE ENVIRONMENT</span>
+        <button className={styles.profile} onClick={()=>void signOutHere()} aria-label={`Sign out ${firstName}`} title="Sign out">{firstName.slice(0,1).toUpperCase()}</button>
+      </div>
+    </header>
+    <div className={styles.page}>
+      <div className={styles.eyebrow}><span/> YOUR PERSONAL OPERATING ENVIRONMENT <span className={styles.dateLine}>NN / 001</span></div>
+      <section className={styles.hero}>
+        <div className={styles.heroText}>
+          <p className={styles.heroKicker}>A SYSTEM THAT MOVES WITH YOU</p>
+          <h1>Good to see you,<br/><em>{firstName}.</em></h1>
+          <p className={styles.heroDescription}>Your life, learning and work—connected through one calm, considered environment. Start anywhere. Everything has its place.</p>
+          <div className={styles.heroActions}>
+            <LiquidButton variant="accent" size="lg" onClick={()=>setLauncherOpen(true)}>Explore NN <span aria-hidden="true">↗</span></LiquidButton>
+            <LiquidButton size="lg" href="/workspace">Open workspace</LiquidButton>
+          </div>
+        </div>
+        <div className={styles.spatialMark} aria-hidden="true">
+          <div className={styles.ringOne}/><div className={styles.ringTwo}/><div className={styles.ringThree}/>
+          <div className={styles.core}><NNLogo size={65} decorative/></div>
+          <span className={styles.nodeOne}><Icon name="calendar" size={17}/></span><span className={styles.nodeTwo}><Icon name="book" size={17}/></span><span className={styles.nodeThree}><Icon name="grid" size={17}/></span><span className={styles.nodeFour}><Icon name="sparkle" size={17}/></span>
+        </div>
+        <div className={styles.heroFoot}><span>PRIVATE BY DESIGN</span><span>01 <i>/</i> ENVIRONMENT</span></div>
+      </section>
+      <section className={styles.section}>
+        <div className={styles.sectionHeading}><div><p>THE NN ENVIRONMENT</p><h2>One system. Many dimensions.</h2></div><button onClick={()=>setLauncherOpen(true)}>Application index <span>↗</span></button></div>
+        <div className={styles.categoryGrid}>
+          {[
+            {name:"Life & wellbeing",count:"07",detail:"Your daily life, wellbeing and reflection",icon:"calendar" as const},
+            {name:"Education",count:"05",detail:"Learn, practise and master new skills",icon:"book" as const},
+            {name:"Money & work",count:"07",detail:"Build, manage and measure your work",icon:"wallet" as const},
+            {name:"Creation & communication",count:"04",detail:"Create, write and communicate",icon:"sparkle" as const},
+            {name:"Knowledge & insight",count:"06",detail:"Store, recall and understand information",icon:"folder" as const},
+            {name:"System",count:"05",detail:"Control, search, automate and protect NN",icon:"settings" as const},
+          ].map((group,index)=><button className={styles.category} key={group.name} onClick={()=>{setQuery(group.name);setLauncherOpen(true);}}>
+            <span className={styles.categoryIcon}><Icon name={group.icon} size={19}/></span><span className={styles.categoryCopy}><strong>{group.name}</strong><small>{group.detail}</small></span><span className={styles.categoryCount}>{group.count}</span><span className={styles.categoryArrow}>↗</span><span className={styles.categoryIndex}>0{index+1}</span>
+          </button>)}
+        </div>
+      </section>
+      <section className={styles.bottomGrid}>
+        <article className={styles.statusPanel}>
+          <div className={styles.panelHeading}><div><p>INTELLIGENCE LAYER</p><h2>REN</h2></div><span className={styles.renOrb}><NNLogo size={26} decorative/></span></div>
+          <p className={styles.panelBody}>REN is designed as the intelligence layer across NN. Its visual identity is present; reasoning, memory and tool execution are not connected yet.</p>
+          <div className={styles.panelStatus}><span>INTERFACE DESIGNED</span><strong>NOT CONNECTED</strong></div>
+        </article>
+        <article className={styles.statusPanel}>
+          <div className={styles.panelHeading}><div><p>DESIGN LANGUAGE</p><h2>Spatial by nature.</h2></div><Icon name="sparkle" size={22}/></div>
+          <p className={styles.panelBody}>Liquid glass, depth, cinematic motion and precise information surfaces—unified across every NN application.</p>
+          <button className={styles.textAction} onClick={()=>router.push("/design")}>Explore the design system <span>↗</span></button>
+        </article>
+      </section>
+      <footer className={styles.footer}><span>NN / PERSONAL OPERATING ENVIRONMENT</span><span>BUILT WITH INTENT · PRIVATE BY DESIGN</span></footer>
     </div>
-    <footer className={styles.footer}>NN / PERSONAL OPERATING ENVIRONMENT <span>Designed for clarity. Built with intent.</span></footer>
-   </div>
-  </section>
-  {launcherOpen&&<div className={styles.overlay} onMouseDown={e=>{if(e.target===e.currentTarget){setLauncherOpen(false);setQuery("");}}}><section className={styles.launcher} role="dialog" aria-modal="true" aria-labelledby="launcher-title"><header><div><small>NN APPLICATION INDEX</small><h2 id="launcher-title">Where to?</h2></div><button onClick={()=>{setLauncherOpen(false);setQuery("");}} aria-label="Close"><Icon name="close"/></button></header><label className={styles.launchSearch}><Icon name="search"/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Find an application…"/></label><div className={styles.launchList}>{filtered.map(app=><div key={app.name}>{app.href?<Link href={app.href} onClick={()=>setLauncherOpen(false)}><span><Icon name={app.icon}/></span><strong>{app.name}<small>{app.description}</small></strong><em>OPEN ↗</em></Link>:<article><span><Icon name={app.icon}/></span><strong>{app.name}<small>{app.description}</small></strong><em>IN DEVELOPMENT</em></article>}</div>)}</div><p>Only verified routes are openable. Applications in development are shown for orientation, not as working features.</p></section></div>}
- </main>;
+    <div className={styles.dockWrap}>
+      <Dock items={[{id:"home",label:"NN Home",icon:"grid"},{id:"workspace",label:"Workspace",icon:"calendar"},{id:"design",label:"Design system",icon:"sparkle"}]} activeId={activeDock} onSelect={(id)=>{
+        if(id==="home")openRoute("/home",id);
+        if(id==="workspace")openRoute("/workspace",id);
+        if(id==="design")openRoute("/design",id);
+      }}/>
+      <button className={styles.dockLauncher} onClick={()=>setLauncherOpen(true)} aria-label="Open application launcher" title="Applications"><Icon name="plus" size={21}/></button>
+    </div>
+    <Dialog open={launcherOpen} onClose={()=>{setLauncherOpen(false);setQuery("");}} title="Explore NN" description="The complete application map. Only routes already implemented are openable.">
+      <label className={styles.launchSearch}><Icon name="search" size={18}/><input autoFocus value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search the 34 applications…"/>{query?<button type="button" onClick={()=>setQuery("")} aria-label="Clear search"><Icon name="close" size={15}/></button>:null}</label>
+      {!query?<div className={styles.coverflowWrap}><p className={styles.launchSectionLabel}>AVAILABLE SURFACES · SPATIAL VIEW</p><Coverflow cards={CAROUSEL_CARDS} cardWidth="clamp(160px, 24vw, 230px)" rotate={38} depth={0.48} showCaption showPagination showNavigation label="Available NN surfaces" onSelect={(id)=>{
+        const app=ROUTES.find(item=>item.href===id);
+        if(app){setLauncherOpen(false);openRoute(app.href,id==="/home"?"home":id==="/workspace"?"workspace":"design");}
+      }}/></div>:null}
+      <div className={styles.applicationIndex}>
+        {["Life & wellbeing","Education","Money & work","Creation & communication","Knowledge & insight","System"].map(group=>{
+          const apps=filtered.filter(app=>app.group===group);
+          if(apps.length===0)return null;
+          return <section className={styles.indexGroup} key={group}><h3>{group}<span>{String(apps.length).padStart(2,"0")}</span></h3>
+            {apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span><span className={styles.indexState}>IN DEVELOPMENT</span></article>)}
+          </section>;
+        })}
+        {filtered.length===0?<p className={styles.noResults}>No application matches that search.</p>:null}
+      </div>
+      <p className={styles.launchFoot}>NN APP FACTORY IS A SYSTEM CAPABILITY, NOT A 35TH APPLICATION.</p>
+    </Dialog>
+  </main>;
 }
 export default function NNHome(){return <RequireOwner><HomeSurface/></RequireOwner>;}
