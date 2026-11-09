@@ -72,9 +72,9 @@
 .indexState,.openApp{font-size:9px}
 .launchFoot,.footer{font-size:9px}
 .tileArrow{display:none!important}
-.nn-icon-surface{position:relative;isolation:isolate;overflow:hidden}
-.nn-icon-surface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 28% 18%,rgb(255 255 255 / 22%),transparent 52%),linear-gradient(145deg,rgb(var(--nn-icon-rgb,120 190 255) / 18%),rgb(var(--nn-icon-rgb,120 190 255) / 6%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 25%)}
-.nn-icon-surface>*{position:relative;z-index:1}
+.iconSurface{position:relative;isolation:isolate;overflow:hidden}
+.iconSurface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 28% 18%,rgb(255 255 255 / 22%),transparent 52%),linear-gradient(145deg,rgb(var(--nn-icon-rgb,120 190 255) / 18%),rgb(var(--nn-icon-rgb,120 190 255) / 6%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 25%)}
+.iconSurface>*{position:relative;z-index:1}
 .appIcon,.panelGlyph,.quickAction>span,.categoryIcon,.indexIcon,.focusRing,.goalOrb{--nn-icon-rgb:92 194 255}
 .appIcon.violet,.goalOrb{--nn-icon-rgb:163 137 255}
 .appIcon.cyan,.focusRing{--nn-icon-rgb:74 220 230}
