@@ -57,9 +57,8 @@ const ROUTES: readonly { name:string; description:string; icon:IconName; href:Ap
 const CAROUSEL_CARDS: readonly CoverflowCard[] = ROUTES.map((app) => ({
   id:app.href,title:app.name,subtitle:app.description,icon:app.icon,meta:[{label:"SURFACE",value:"AVAILABLE"}],
 }));
-function HomeSurface() {
+function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut?: () => void }) {
   const router=useRouter();
-  const {user,signOutHere}=useAuth();
   const [launcherOpen,setLauncherOpen]=useState(false);
   const [query,setQuery]=useState("");
   const [activeDock,setActiveDock]=useState("home");
@@ -79,7 +78,7 @@ function HomeSurface() {
       <div className={styles.topActions}>
         <button className={styles.searchButton} onClick={()=>setLauncherOpen(true)}><Icon name="search" size={17}/><span>Search NN</span><kbd>⌘ K</kbd></button>
         <span className={styles.privateState}><i/> PRIVATE ENVIRONMENT</span>
-        <button className={styles.profile} onClick={()=>void signOutHere()} aria-label={`Sign out ${firstName}`} title="Sign out">{firstName.slice(0,1).toUpperCase()}</button>
+        {onSignOut ? <button className={styles.profile} onClick={onSignOut} aria-label={`Sign out ${firstName}`} title="Sign out">{firstName.slice(0,1).toUpperCase()}</button> : <span className={styles.profile} aria-label="Preview identity">{firstName.slice(0,1).toUpperCase()}</span>}
       </div>
     </header>
     <div className={styles.page}>
