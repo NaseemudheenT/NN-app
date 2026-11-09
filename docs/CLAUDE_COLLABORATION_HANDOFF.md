@@ -127,3 +127,15 @@ rather than pasting them into chat.
 - Build integrations for the founder's personal accounts/devices. Any outward sharing, publishing or consequential external action requires explicit founder authorisation.
 - Product prioritisation is based on the founder's real workflows and devices, not generic-market needs. Never represent a planned feature as operational before its data path, permissions, failure states and behaviour are verified.
 - This is a product-scope clarification and documentation change; it does not alter authentication or security rules.
+
+## Home launch-surface integrity pass — 2026-11-09
+
+- Updated the Home featured application tiles to read their identity, icon and availability from the canonical 34-app registry. Life is presented as available; College, Projects and Finance are explicitly labelled in development and route into the filtered application index rather than pretending to open.
+- Kept REN separate from the application registry. The Home REN tile and quick action summon the existing persistent REN surface; the Home capability copy now states that appearance controls are available while text intelligence and voice are not connected.
+- Corrected the Home search affordance to say “Find an NN application”; it opens the application index and is not represented as a global content search.
+- Removed duplicate quick actions that all landed on the same Life route. The remaining actions have distinct outcomes: open Life, browse the application index, open Workspace, and summon REN.
+- Added visible availability pills, improved tile spacing for their additional state labels, and added explicit keyboard-focus outlines to Home launch and action controls.
+- Source commits: `3e0aaef0d3138ce982e0e1174e8418aeb5eb2ea8` (Home behavior/content) and `df91fb67f8a4b2ee50a53586422bcb7311b430ad` (Home styling).
+- Verification status: source was re-fetched from GitHub after each commit and the intended changes were confirmed in the committed files. No local checkout is available in this execution environment, so TypeScript, lint, unit tests, production build, browser interaction, responsive screenshots, accessibility audit and real iPhone QA have **not** been run. This milestone is implemented in source but not verified.
+- Release status: no merge, deployment or production change was made. Continue on `design/nn-frontend-system`.
+
