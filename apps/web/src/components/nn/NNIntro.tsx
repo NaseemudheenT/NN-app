@@ -361,16 +361,16 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <linearGradient id="nn-welcome-silk" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#F4FCFF" />
-              <stop offset="34%" stopColor="#A9E9FF" />
-              <stop offset="68%" stopColor="#91A9FF" />
-              <stop offset="100%" stopColor="#E4D9FF" />
+            <linearGradient id="nn-welcome-silk" x1="0" y1="0" x2="0.9" y2="1">
+              <stop offset="0%" stopColor="#FBF9F5" />
+              <stop offset="38%" stopColor="#EAE2D6" />
+              <stop offset="72%" stopColor="#C9BDAA" />
+              <stop offset="100%" stopColor="#A99A85" />
             </linearGradient>
             <linearGradient id="nn-welcome-edge" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity=".96" />
-              <stop offset="48%" stopColor="#D9F4FF" stopOpacity=".72" />
-              <stop offset="100%" stopColor="#7B91E8" stopOpacity=".72" />
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+              <stop offset="42%" stopColor="#FBF9F5" stopOpacity=".9" />
+              <stop offset="100%" stopColor="#C8BBA8" stopOpacity=".55" />
             </linearGradient>
           </defs>
           {WELCOME_GLYPHS.map((d, index) => (
