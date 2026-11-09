@@ -62,6 +62,21 @@ const PLACEMENTS = CARDS.map((card, i) => {
 
 const STAGGER_SPAN = 0.55;
 
+/**
+ * Original NN lettering drawn as connected vector strokes.
+ * The seven glyph paths meet at their joins to read as one handwritten word.
+ * This is an NN-original script treatment, not Apple's proprietary setup font.
+ */
+const WELCOME_GLYPHS = [
+  "M 22 48 C 35 66 49 119 63 126 C 78 134 91 67 105 51 C 113 42 119 84 128 109 C 136 132 149 128 162 105 C 170 91 176 77 187 78",
+  "M 187 78 C 201 70 220 79 218 94 C 216 108 192 115 181 105 C 170 95 183 80 198 81 C 214 82 222 100 237 105",
+  "M 237 105 C 249 76 251 34 264 27 C 279 21 270 75 260 103 C 254 120 263 121 279 105",
+  "M 279 105 C 291 83 316 77 326 91 C 337 107 310 120 292 113 C 277 107 282 91 295 86 C 307 82 317 98 330 105",
+  "M 330 105 C 341 84 365 78 376 91 C 389 106 369 119 351 114 C 333 109 334 91 349 85 C 363 79 375 96 389 105",
+  "M 389 105 C 401 92 409 80 421 83 C 432 86 421 108 415 117 C 409 126 421 121 432 107 C 444 91 451 81 462 84 C 473 87 459 109 454 117 C 448 126 462 119 473 105 C 485 90 495 82 505 87 C 516 93 498 111 494 119 C 489 128 503 121 515 106",
+  "M 515 106 C 527 84 550 78 560 92 C 571 107 544 120 527 113 C 512 107 517 91 530 86 C 544 81 555 98 569 105 C 589 116 610 105 626 88"
+];
+
 export interface NNIntroProps {
   /** Where the "enter" control leads once the corridor has been travelled. */
   enterHref?: ComponentProps<typeof Link>["href"];
@@ -108,7 +123,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     };
     const scheduleWelcomeDismiss = () => {
       if (welcomeTimer !== null) window.clearTimeout(welcomeTimer);
-      welcomeTimer = window.setTimeout(dismissWelcome, 3400);
+      welcomeTimer = window.setTimeout(dismissWelcome, 4550);
     };
     const replayWelcome = () => {
       const node = welcomeRef.current;
@@ -321,11 +336,34 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     >
       <div className={styles.atmosphere} aria-hidden="true" />
       <div ref={welcomeRef} className={`${styles.welcome} ${styles.welcomeActive}`} aria-hidden="true">
-        <span className={styles.welcomeWord} aria-label="Welcome">
-          {Array.from("Welcome").map((letter, index) => (
-            <span key={index} className={styles.welcomeLetter} data-letter={index}>{letter}</span>
+        <svg
+          className={styles.welcomeSvg}
+          viewBox="0 0 650 160"
+          role="img"
+          aria-label="Welcome"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="nn-welcome-silk" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#F4FCFF" />
+              <stop offset="34%" stopColor="#A9E9FF" />
+              <stop offset="68%" stopColor="#91A9FF" />
+              <stop offset="100%" stopColor="#E4D9FF" />
+            </linearGradient>
+            <linearGradient id="nn-welcome-edge" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity=".96" />
+              <stop offset="48%" stopColor="#D9F4FF" stopOpacity=".72" />
+              <stop offset="100%" stopColor="#7B91E8" stopOpacity=".72" />
+            </linearGradient>
+          </defs>
+          {WELCOME_GLYPHS.map((d, index) => (
+            <g key={index} className={styles.welcomeGlyph}>
+              <path className={styles.welcomeShadow} d={d} />
+              <path className={styles.welcomeBody} d={d} />
+              <path className={styles.welcomeHighlight} d={d} />
+            </g>
           ))}
-        </span>
+        </svg>
       </div>
       <div ref={titleRef} className={styles.title} aria-hidden="true">
         <NNLogo size={82} className={styles.mark} />
