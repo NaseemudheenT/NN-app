@@ -151,3 +151,12 @@ A screen is not complete because it looks finished. It is complete only when its
 ## 9. Founder direction
 
 This is the standing visual direction for NN: **the supplied cinematic 3D, glass-fold, liquid-glass, coverflow and adjustable-glass visual language is the product's design reference across the whole NN environment.** Adapt all wording, icons, data, states and interactions to NN. Preserve the existing brand system. Build carefully, page by page, and never trade reliability or legibility for visual spectacle.
+
+
+## 10. Permanent source and implementation prompt
+
+The full application-by-application design and reusable implementation prompt is maintained in:
+- `docs/NN_PRODUCT_UI_ANIMATION_MASTER_PROMPT.md`
+- `docs/NN_ANIMATION_COMPONENT_SOURCE_INDEX.md`
+
+Every new founder-supplied reference must be preserved in the repository (including its original prompt/source code where available), indexed, mapped to actual NN screens, and adapted to the existing architecture. Do not treat this visual specification as evidence that every mapped screen is already implemented.
