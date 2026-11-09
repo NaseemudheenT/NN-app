@@ -98,7 +98,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     const dismissWelcome = () => {
       if (welcomeDismissed) return;
       welcomeDismissed = true;
-      welcomeRef.current?.classList.add(styles.welcomeGone);
+      welcomeRef.current?.classList.add(styles.welcomeGone!);
     };
 
     const drive = (next: number) => {
@@ -293,7 +293,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
         <div className={styles.welcomeGlass}>
           <NNLogo size={48} className={styles.welcomeMark} />
           <span className={styles.welcomeEyebrow}>WELCOME</span>
-          <span className={styles.welcomeTitle}>Your world. In one place.</span>
+          <span className={styles.welcomeTitle}>Welcome to NN</span>
         </div>
       </div>
       <div ref={titleRef} className={styles.title} aria-hidden="true">
