@@ -96,10 +96,19 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     let dirty = true;
     let welcomeDismissed = false;
     let hasLeftWelcomePosition = false;
+    let welcomeTimer: number | null = null;
     const dismissWelcome = () => {
       if (welcomeDismissed) return;
       welcomeDismissed = true;
+      if (welcomeTimer !== null) {
+        window.clearTimeout(welcomeTimer);
+        welcomeTimer = null;
+      }
       welcomeRef.current?.classList.add(styles.welcomeGone!);
+    };
+    const scheduleWelcomeDismiss = () => {
+      if (welcomeTimer !== null) window.clearTimeout(welcomeTimer);
+      welcomeTimer = window.setTimeout(dismissWelcome, 3400);
     };
     const replayWelcome = () => {
       const node = welcomeRef.current;
@@ -109,18 +118,15 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       // Force a style boundary so the staggered letter sequence restarts.
       void node.offsetWidth;
       node.classList.add(styles.welcomeActive!);
+      scheduleWelcomeDismiss();
     };
+
+    // The greeting is a brief opening moment, not a permanent overlay.
+    scheduleWelcomeDismiss();
 
     const drive = (next: number) => {
       const clamped = clamp(next, 0, 1);
       if (clamped === progress.target) return false;
-      if (clamped > 0.015) {
-        hasLeftWelcomePosition = true;
-        dismissWelcome();
-      } else if (hasLeftWelcomePosition) {
-        hasLeftWelcomePosition = false;
-        replayWelcome();
-      }
       if (still) progress.reset(clamped);
       else progress.set(clamped);
       dirty = true;
@@ -211,6 +217,16 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     /* ---- paint ------------------------------------------------------------ */
     const paint = () => {
       const p = progress.value;
+      // Detect the actual camera crossing the intro boundary. Using the
+      // spring's rendered value (rather than its target) makes replay happen
+      // when the viewer really returns to the opening position.
+      if (p > 0.015) {
+        hasLeftWelcomePosition = true;
+        dismissWelcome();
+      } else if (hasLeftWelcomePosition) {
+        hasLeftWelcomePosition = false;
+        replayWelcome();
+      }
       const farZ = stage.isMobile ? -1200 : -1700;
       const nearZ = stage.isMobile ? 350 : 500;
       const panStrength = stage.isMobile ? 20 : 45;
@@ -283,6 +299,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       document.body.style.overflow = previousBodyOverflow;
       stopLoop();
       stopMotionWatcher();
+      if (welcomeTimer !== null) window.clearTimeout(welcomeTimer);
       resizeObserver.disconnect();
       container.removeEventListener("wheel", onWheel);
       container.removeEventListener("touchstart", onTouchStart);
