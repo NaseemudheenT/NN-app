@@ -194,7 +194,7 @@ function LifeSurface() {
   const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
   const heading = greeting.toLowerCase().includes("am") ? "A clear start." : greeting.toLowerCase().includes("pm") ? "Make today count." : "Welcome back.";
   const renderTask = (item: RecordData) => (
-    <article className={styles.record} key={item.id}>
+    <article className={`${styles.record} nn-glass-card`} key={item.id}>
       <button className={styles.checkButton} onClick={() => toggleTask(item)} aria-label={item.status === "done" ? "Reopen task" : "Complete task"}>
         <span className={item.status === "done" || item.status === "completed" ? styles.checked : ""}>{item.status === "done" || item.status === "completed" ? "✓" : ""}</span>
       </button>
@@ -209,7 +209,7 @@ function LifeSurface() {
     </header>
     <div className={styles.layout}>
       <div className={styles.breadcrumb}><button onClick={() => router.push("/home")}>NN HOME</button><span>/</span><span>LIFE</span><span className={styles.date}>{dateLabel()}</span></div>
-      <section className={styles.hero}>
+      <section className={`${styles.hero} nn-glass-card`}>
         <div className={styles.heroCopy}><p className={styles.kicker}>YOUR PERSONAL DAYSPACE</p><h1>{heading}<br/><em>{firstName}.</em></h1><p className={styles.sub}>A thoughtful place for what matters today—and the things you&apos;re building over time.</p></div>
         <div className={styles.orbit} aria-hidden="true"><div className={styles.orbitRing}/><div className={styles.orbitCore}><Icon name="calendar" size={32}/></div><span className={styles.orbitDot}/></div>
         <div className={styles.heroMeta}><span>01 <i>/</i> DAILY OVERVIEW</span><span>{offline ? "OFFLINE / CACHED" : "PERSONAL DATA SPACE"}</span></div>
