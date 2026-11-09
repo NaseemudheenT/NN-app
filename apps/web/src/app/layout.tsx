@@ -3,8 +3,7 @@ import { Inter } from "next/font/google";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import { Room } from "@/components/nn/Room";
 import { RenProvider } from "@/components/ren/RenProvider";
-import { RenLauncher } from "@/components/ren/RenLauncher";
-import { RenPanel } from "@/components/ren/RenPanel";
+import { RenChrome } from "@/components/ren/RenChrome";
 import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
@@ -60,8 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <RenProvider>
               <div className="nn-shell nn-page-arrive">{children}</div>
-              <RenLauncher />
-              <RenPanel />
+              <RenChrome />
             </RenProvider>
           </AuthProvider>
           <ServiceWorker />
