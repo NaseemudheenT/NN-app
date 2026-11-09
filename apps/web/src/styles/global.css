@@ -214,3 +214,21 @@ button, input, textarea, select { font: inherit; color: inherit; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nn-glass, .nn-glass-primary { background: var(--surface-raised); }
 }
+
+
+/* NN global glass material: consistent physical edge, face reflection and
+   contact shadow for every component that opts into the shared glass classes. */
+.nn-glass,.nn-glass-primary,.nn-glass-reading {
+  position: relative; isolation: isolate; transform-style: preserve-3d;
+  border: 1px solid rgb(210 231 255 / 34%);
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 38%), inset 1px 0 0 rgb(255 255 255 / 9%), inset 0 -2px 0 rgb(0 0 0 / 24%), 0 1px 0 rgb(177 211 255 / 20%), 0 3px 0 rgb(3 10 27 / 68%), 0 9px 18px rgb(0 0 0 / 22%), 0 22px 42px rgb(0 0 0 / 24%);
+}
+.nn-glass::before,.nn-glass-primary::before,.nn-glass-reading::before {
+  content:"";position:absolute;inset:1px;z-index:-1;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(120deg,rgb(255 255 255 / 12%),transparent 32%,transparent 70%,rgb(var(--nn-spectrum-blue) / 7%));
+}
+.nn-glass-icon { box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 46%),inset 0 -2px 2px rgb(0 0 0 / 22%),0 2px 0 rgb(3 10 27 / 62%),0 7px 14px rgb(0 0 0 / 20%); }
+:root[data-theme="light"] .nn-glass,:root[data-theme="light"] .nn-glass-primary,:root[data-theme="light"] .nn-glass-reading {
+  border-color:rgb(91 137 192 / 24%);
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 96%),inset 0 -2px 0 rgb(91 137 192 / 8%),0 1px 0 rgb(91 137 192 / 18%),0 3px 0 rgb(80 112 155 / 12%),0 14px 28px rgb(35 62 102 / 12%);
+}
