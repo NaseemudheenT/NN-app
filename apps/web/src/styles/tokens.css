@@ -90,7 +90,7 @@
   --glass-2-border: rgb(208 226 255 / 30%);
   --glass-2-blur:   26px;
 
-  --glass-3-bg:     linear-gradient(145deg, rgb(34 48 91 / 94%), rgb(15 22 55 / 96%));
+  --glass-3-bg:     linear-gradient(145deg, rgb(34 48 91 / 68%), rgb(15 22 55 / 76%));
   --glass-3-border: rgb(213 224 255 / 34%);
   --glass-3-blur:   30px;
 
@@ -211,7 +211,7 @@
   --glass-1-border: rgb(7 17 31 / 8%);
   --glass-2-bg:     linear-gradient(145deg, rgb(255 255 255 / 90%), rgb(225 240 255 / 70%) 58%, rgb(239 235 255 / 60%));
   --glass-2-border: rgb(7 17 31 / 11%);
-  --glass-3-bg:     linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(239 245 253 / 98%) 58%, rgb(246 243 255 / 96%));
+  --glass-3-bg:     linear-gradient(145deg, rgb(255 255 255 / 86%), rgb(239 245 253 / 82%) 58%, rgb(246 243 255 / 78%));
   --glass-3-border: rgb(7 17 31 / 13%);
 
   --glass-sheen:  rgb(255 255 255 / 85%);
@@ -269,7 +269,7 @@
     --glass-1-border: rgb(7 17 31 / 8%);
     --glass-2-bg: linear-gradient(158deg, rgb(255 255 255 / 88%), rgb(255 255 255 / 68%));
     --glass-2-border: rgb(7 17 31 / 11%);
-    --glass-3-bg: linear-gradient(158deg, rgb(255 255 255 / 97%), rgb(246 249 253 / 97%));
+    --glass-3-bg: linear-gradient(158deg, rgb(255 255 255 / 86%), rgb(246 249 253 / 82%));
     --glass-3-border: rgb(7 17 31 / 13%);
     --glass-sheen: rgb(255 255 255 / 85%);
     --glass-hover: rgb(7 17 31 / 4%);     --glass-active: rgb(7 17 31 / 7%);
