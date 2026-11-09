@@ -155,3 +155,13 @@ rather than pasting them into chat.
 - Source commits: `0c48fe71a25eb50bcd9a45e273fd709cf49509a2` (confirmation flow), `ba37d960d937e4b01e1916daed8c682714991a10` (dialog styling), `f0e89c75045eda4561cdb1f669ca9441586be522` (keyboard alternative), `6ead944f561d728422a66a091306592473bf5885` (expanded state), and `92ee43f6466370ff5fbd10c869cdc75dede5b4a3` (focus visibility).
 - Verification status: all changed source files were re-fetched from the feature branch and the intended changes were confirmed. No local test/build/browser or device QA has been run. This is implemented in source but is not yet a verified milestone.
 
+## Persistent room rendering efficiency pass — 2026-11-10
+
+- The shared WebGL room previously read `canvas.clientWidth` / `clientHeight` and reset the viewport on every animation frame, even when its dimensions were unchanged.
+- The drawing buffer now resizes only when the measured pixel dimensions change. A `ResizeObserver` handles element-size changes, and a passive window resize listener catches device-pixel-ratio changes such as display-scale or orientation transitions.
+- The correct drawing buffer is established before the first frame, including reduced-motion mode. Cleanup removes both observers/listeners.
+- The shader, palette, visual composition, DPR quality cap, motion preference behaviour and visibility-aware frame loop remain unchanged.
+- Source commits: `2289804eef276074c3f6bf1c98a3915527fc34d1` and `188b15ec40a689e42e6f2e707c29211f7f45168e`.
+- Expected benefit: fewer repeated layout reads and viewport resets in the persistent animation loop. This is a code-level optimisation hypothesis; no profiling or device battery/frame-time measurements have been run.
+- Verification: source re-fetched from GitHub and the resize, first-frame, observer and cleanup paths inspected. TypeScript/build/runtime/WebGL context-loss/mobile-device QA remain outstanding.
+
