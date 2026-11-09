@@ -30,7 +30,6 @@
   --nn-spectrum-blue:   35 102 255;
   --nn-spectrum-indigo: 106 112 255;
   --nn-spectrum-violet: 183 112 255;
-  --nn-spectrum-rose:   255 145 211;
   --nn-spectrum-border: rgb(194 222 255 / 30%);
   --nn-spectrum-rim: conic-gradient(
     from 212deg,
@@ -60,7 +59,7 @@
   );
   --nn-wave-hero-bg:
     radial-gradient(ellipse at 76% 42%, rgb(var(--nn-spectrum-violet) / 30%), transparent 38%),
-    radial-gradient(ellipse at 62% 82%, rgb(var(--nn-spectrum-rose) / 13%), transparent 42%),
+    radial-gradient(ellipse at 62% 82%, rgb(var(--nn-spectrum-blue) / 13%), transparent 42%),
     radial-gradient(ellipse at 23% 76%, rgb(var(--nn-spectrum-cyan) / 32%), transparent 42%),
     linear-gradient(118deg, var(--nn-navy-800) 0%, var(--nn-navy-700) 58%, var(--nn-navy-800) 100%);
 
