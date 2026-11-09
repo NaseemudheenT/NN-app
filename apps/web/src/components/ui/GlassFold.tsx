@@ -288,6 +288,10 @@ export function GlassFold({
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     };
 
+    // Establish the correct drawing buffer before either the animated or
+    // reduced-motion first frame is painted.
+    resize();
+
     let still = prefersReducedMotion();
     let stopLoop: (() => void) | null = null;
 
@@ -313,10 +317,9 @@ export function GlassFold({
       attributeFilter: ["data-theme"],
     });
 
-    // Size the first frame before starting the loop. The observer handles
-    // element changes; window resize also catches display-scale changes where
-    // CSS dimensions remain identical but devicePixelRatio changes.
-    resize();
+    // The observer handles element changes; window resize also catches
+    // display-scale changes where CSS dimensions remain identical but
+    // devicePixelRatio changes.
     const observer = new ResizeObserver(() => {
       if (resize() && still) draw(0);
     });
