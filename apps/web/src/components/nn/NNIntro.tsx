@@ -95,15 +95,32 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     let stage = { width: 1440, height: 900, isMobile: false };
     let dirty = true;
     let welcomeDismissed = false;
+    let hasLeftWelcomePosition = false;
     const dismissWelcome = () => {
       if (welcomeDismissed) return;
       welcomeDismissed = true;
       welcomeRef.current?.classList.add(styles.welcomeGone!);
     };
+    const replayWelcome = () => {
+      const node = welcomeRef.current;
+      if (!node) return;
+      welcomeDismissed = false;
+      node.classList.remove(styles.welcomeActive!, styles.welcomeGone!);
+      // Force a style boundary so the staggered letter sequence restarts.
+      void node.offsetWidth;
+      node.classList.add(styles.welcomeActive!);
+    };
 
     const drive = (next: number) => {
       const clamped = clamp(next, 0, 1);
       if (clamped === progress.target) return false;
+      if (clamped > 0.015) {
+        hasLeftWelcomePosition = true;
+        dismissWelcome();
+      } else if (hasLeftWelcomePosition) {
+        hasLeftWelcomePosition = false;
+        replayWelcome();
+      }
       if (still) progress.reset(clamped);
       else progress.set(clamped);
       dirty = true;
@@ -117,14 +134,12 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
        corridor never becomes a scroll trap. */
 
     const onWheel = (event: WheelEvent) => {
-      dismissWelcome();
       if (drive(progress.target + event.deltaY * 0.0008)) event.preventDefault();
     };
     container.addEventListener("wheel", onWheel, { passive: false });
 
     let touchY: number | null = null;
     const onTouchStart = (event: TouchEvent) => {
-      dismissWelcome();
       touchY = event.touches[0]?.clientY ?? null;
     };
     const onTouchMove = (event: TouchEvent) => {
@@ -145,7 +160,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     container.addEventListener("touchcancel", onTouchEnd, { passive: true });
 
     const onKeyDown = (event: KeyboardEvent) => {
-      dismissWelcome();
       const step =
         event.key === "ArrowDown" || event.key === "ArrowRight"
           ? 0.08
@@ -289,8 +303,12 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       aria-label="NN. Scroll, swipe or use the arrow keys to reveal the experience."
     >
       <div className={styles.atmosphere} aria-hidden="true" />
-      <div ref={welcomeRef} className={styles.welcome} aria-hidden="true">
-        <span className={styles.welcomeWord}>Welcome</span>
+      <div ref={welcomeRef} className={`${styles.welcome} ${styles.welcomeActive}`} aria-hidden="true">
+        <span className={styles.welcomeWord} aria-label="Welcome">
+          {Array.from("Welcome").map((letter, index) => (
+            <span key={index} className={styles.welcomeLetter} data-letter={index}>{letter}</span>
+          ))}
+        </span>
       </div>
       <div ref={titleRef} className={styles.title} aria-hidden="true">
         <NNLogo size={82} className={styles.mark} />
