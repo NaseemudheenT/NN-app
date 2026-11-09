@@ -248,7 +248,7 @@
 .stage {
   background: transparent;
   overscroll-behavior: none;
-  touch-action: pan-y;
+  touch-action: none;
 }
 .atmosphere {
   position: absolute;
