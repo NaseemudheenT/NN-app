@@ -75,17 +75,16 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
   const titleRef = useRef<HTMLDivElement>(null);
   const enterRef = useRef<HTMLDivElement>(null);
   const welcomeRef = useRef<HTMLDivElement>(null);
+  const welcomeContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Wait for the connected script font before revealing it. The reveal mask
-    // moves once from left to right, so the first visible stroke is always W.
-    let welcomeMounted = true;
-    void document.fonts.load('600 94px "Space Grotesk"').catch(() => undefined).finally(() => {
-      if (welcomeMounted) welcomeRef.current?.classList.add(styles.welcomeActive!);
-    });
+    // The welcome reveal is independent of font loading. Scroll progress drives
+    // its exit transform, so it physically moves with the corridor rather than
+    // behaving like a static overlay.
+    welcomeRef.current?.classList.add(styles.welcomeActive!);
 
     let still = prefersReducedMotion();
     const previousHtmlOverflow = document.documentElement.style.overflow;
@@ -103,22 +102,16 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     let stage = { width: 1440, height: 900, isMobile: false };
     let dirty = true;
     let welcomeDismissed = false;
-    let welcomeTimer: number | null = null;
     const dismissWelcome = () => {
       if (welcomeDismissed) return;
       welcomeDismissed = true;
-      if (welcomeTimer !== null) {
-        window.clearTimeout(welcomeTimer);
-        welcomeTimer = null;
-      }
       welcomeRef.current?.classList.add(styles.welcomeGone!);
+      const content = welcomeContentRef.current;
+      if (content) {
+        content.style.opacity = "0";
+        content.style.transform = "translate3d(0, -44px, 0) scale(1.025)";
+      }
     };
-    const scheduleWelcomeDismiss = () => {
-      if (welcomeTimer !== null) window.clearTimeout(welcomeTimer);
-      welcomeTimer = window.setTimeout(dismissWelcome, 9000);
-    };
-    // The greeting is a brief opening moment, not a permanent overlay.
-    scheduleWelcomeDismiss();
 
     const drive = (next: number) => {
       const clamped = clamp(next, 0, 1);
@@ -213,10 +206,20 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     /* ---- paint ------------------------------------------------------------ */
     const paint = () => {
       const p = progress.value;
-      // The greeting is a one-time entry moment. Once the viewer starts
-      // moving, it is dismissed permanently for this mounted visit; returning
-      // to the opening position must never replay or cover the experience.
-      if (p > 0.015) dismissWelcome();
+      // The welcome travels with the camera for the opening section: it lifts,
+      // subtly enlarges, and fades as the corridor advances. Once it has left,
+      // it stays dismissed for this mounted visit, even if the viewer reverses.
+      const welcomeContent = welcomeContentRef.current;
+      if (!welcomeDismissed && welcomeContent) {
+        if (p >= 0.28) {
+          dismissWelcome();
+        } else {
+          const travel = rampAcross(p, [0, 0.28], [0, 1]);
+          welcomeContent.style.opacity = (1 - travel * 0.96).toFixed(3);
+          welcomeContent.style.transform =
+            `translate3d(0, ${(-travel * 118).toFixed(1)}px, 0) scale(${(1 + travel * 0.075).toFixed(3)})`;
+        }
+      }
       const farZ = stage.isMobile ? -1200 : -1700;
       const nearZ = stage.isMobile ? 350 : 500;
       const panStrength = stage.isMobile ? 20 : 45;
@@ -289,8 +292,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       document.body.style.overflow = previousBodyOverflow;
       stopLoop();
       stopMotionWatcher();
-      welcomeMounted = false;
-      if (welcomeTimer !== null) window.clearTimeout(welcomeTimer);
       resizeObserver.disconnect();
       container.removeEventListener("wheel", onWheel);
       container.removeEventListener("touchstart", onTouchStart);
@@ -312,7 +313,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     >
       <div className={styles.atmosphere} aria-hidden="true" />
       <div ref={welcomeRef} className={styles.welcome} aria-hidden="true">
-        <div className={styles.welcomeContent}>
+        <div ref={welcomeContentRef} className={styles.welcomeContent}>
           <span className={styles.welcomeEyebrow}>NN · PERSONAL SPACE</span>
           <h1 className={styles.welcomeHeading}>Welcome.</h1>
           <p className={styles.welcomeSubtitle}>A clearer space for everything ahead.</p>
