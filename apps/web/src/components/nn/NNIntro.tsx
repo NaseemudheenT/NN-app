@@ -215,11 +215,11 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
 
       if (titleRef.current) {
         titleRef.current.style.transform = `scale(${rampAcross(p, [0, 0.5, 1], [0.7, 1, 1.35]).toFixed(3)})`;
-        titleRef.current.style.opacity = rampAcross(p, [0, 0.12, 0.85, 1], [0.25, 1, 1, 0]).toFixed(3);
+        titleRef.current.style.opacity = rampAcross(p, [0, 0.12, 0.85, 1], [0, 1, 1, 0]).toFixed(3);
       }
       if (enterRef.current) {
         // The way out appears only once the corridor has actually been crossed.
-        const shown = rampAcross(p, [0.72, 0.92], [0, 1]);
+        const shown = rampAcross(p, [0.94, 1], [0, 1]);
         enterRef.current.style.opacity = shown.toFixed(3);
         enterRef.current.style.transform = `translateY(${((1 - shown) * 14).toFixed(1)}px)`;
         enterRef.current.style.pointerEvents = shown > 0.6 ? "auto" : "none";
