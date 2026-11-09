@@ -120,3 +120,52 @@ button, input, textarea, select { font: inherit; color: inherit; }
 :root[data-motion="reduced"] .nn-page-arrive {
   animation: none;
 }
+
+
+/* Founder visual reset — one calm iridescent environment shared by every app.
+   The WebGL room remains the source of motion; these CSS light fields are the
+   low-cost fallback and colour atmosphere, not a second animation engine. */
+.nn-shell::before,
+.nn-shell::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  inset: auto;
+  width: 118vw;
+  height: 34vh;
+  left: -9vw;
+  top: 19vh;
+  border-radius: 48% 52% 61% 39% / 52% 40% 60% 48%;
+  filter: blur(34px);
+  opacity: .42;
+  transform: rotate(-8deg);
+  background: linear-gradient(105deg,
+    transparent 0%,
+    rgb(35 157 255 / 44%) 20%,
+    rgb(82 206 255 / 60%) 38%,
+    rgb(112 122 255 / 55%) 62%,
+    rgb(183 112 255 / 40%) 78%,
+    transparent 100%);
+}
+.nn-shell::after {
+  top: 42vh;
+  left: -12vw;
+  height: 25vh;
+  opacity: .26;
+  transform: rotate(7deg) scaleX(1.08);
+  filter: blur(48px);
+  background: linear-gradient(100deg,
+    transparent 4%,
+    rgb(49 117 255 / 38%) 28%,
+    rgb(106 112 255 / 42%) 52%,
+    rgb(190 124 255 / 35%) 74%,
+    transparent 96%);
+}
+@media (max-width: 700px) {
+  .nn-shell::before { top: 22vh; height: 26vh; opacity: .32; filter: blur(28px); }
+  .nn-shell::after { top: 45vh; height: 19vh; opacity: .2; filter: blur(36px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nn-shell::before, .nn-shell::after { transform: none; }
+}
