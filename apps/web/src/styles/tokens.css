@@ -12,16 +12,16 @@
 
 :root {
   /* ---- brand palette (Version 3.0, fixed) ------------------------------- */
-  --nn-navy-900: #07111F;
-  --nn-navy-800: #0B1930;
-  --nn-navy-700: #10223B;
-  --nn-navy-600: #172B45;
+  --nn-navy-900: #080D24;
+  --nn-navy-800: #101A3A;
+  --nn-navy-700: #19264D;
+  --nn-navy-600: #253565;
   --nn-white:    #F7F9FC;
   --nn-soft:     #E7EDF6;
-  --nn-silver:   #A6B3C5;
-  --nn-grey:     #77869B;
-  --nn-icy:      #9CC8FF;
-  --nn-accent:   #649CE3;
+  --nn-silver:   #C3CBE2;
+  --nn-grey:     #929FC0;
+  --nn-icy:      #A9D9FF;
+  --nn-accent:   #7A9CFF;
 
   /* ---- semantic: surfaces ----------------------------------------------- */
   --surface-base:     var(--nn-navy-900);
@@ -42,21 +42,21 @@
   /* ---- glass material ----------------------------------------------------
      Three tiers. Denser information sits on a more opaque tier so text never
      has to fight the background — transparency is graded, never uniform.    */
-  --glass-1-bg:     linear-gradient(158deg, rgb(255 255 255 / 5.5%), rgb(255 255 255 / 1.8%));
-  --glass-1-border: rgb(255 255 255 / 8.5%);
+  --glass-1-bg:     linear-gradient(145deg, rgb(211 231 255 / 13%), rgb(151 174 255 / 5%) 52%, rgb(255 255 255 / 3%));
+  --glass-1-border: rgb(203 224 255 / 20%);
   --glass-1-blur:   20px;
 
-  --glass-2-bg:     linear-gradient(158deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 3%));
-  --glass-2-border: rgb(255 255 255 / 11%);
+  --glass-2-bg:     linear-gradient(145deg, rgb(223 238 255 / 19%), rgb(162 181 255 / 9%) 55%, rgb(255 255 255 / 5%));
+  --glass-2-border: rgb(208 226 255 / 27%);
   --glass-2-blur:   26px;
 
-  --glass-3-bg:     linear-gradient(158deg, rgb(28 48 78 / 88%), rgb(11 25 48 / 92%));
-  --glass-3-border: rgb(255 255 255 / 14%);
+  --glass-3-bg:     linear-gradient(145deg, rgb(34 48 91 / 88%), rgb(15 22 55 / 94%));
+  --glass-3-border: rgb(213 224 255 / 30%);
   --glass-3-blur:   30px;
 
-  --glass-sheen:    rgb(255 255 255 / 7%);   /* 1px inset top highlight */
-  --glass-hover:    rgb(255 255 255 / 6%);
-  --glass-active:   rgb(255 255 255 / 10%);
+  --glass-sheen:    rgb(232 242 255 / 16%);   /* 1px inset top highlight */
+  --glass-hover:    rgb(187 212 255 / 12%);
+  --glass-active:   rgb(187 212 255 / 17%);
 
   /* ---- borders & focus --------------------------------------------------- */
   --border-subtle: rgb(255 255 255 / 7%);
@@ -79,8 +79,9 @@
 
   /* ---- ambient light ----------------------------------------------------- */
   --ambient:
-    radial-gradient(980px 560px at 14% -8%, rgb(100 156 227 / 13%), transparent 62%),
-    radial-gradient(760px 460px at 92% 4%, rgb(156 200 255 / 7%), transparent 64%);
+    radial-gradient(980px 560px at 12% -8%, rgb(65 178 255 / 22%), transparent 64%),
+    radial-gradient(880px 620px at 88% 4%, rgb(142 105 255 / 18%), transparent 66%),
+    radial-gradient(780px 520px at 52% 92%, rgb(62 112 255 / 13%), transparent 68%);
 
   /* ---- spacing (4px base) ------------------------------------------------ */
   --space-0: 0;     --space-1: 2px;   --space-2: 4px;   --space-3: 6px;
@@ -140,9 +141,9 @@
   /* ---- environment --------------------------------------------------------
      The WebGL room behind NN. Three colours only: the pane body, the ground
      it sits in, and the light that catches its folded edges.                */
-  --env-pane:   #1F4C96;
-  --env-ground: #07111F;
-  --env-light:  #9CC8FF;
+  --env-pane:   #4E9FFF;
+  --env-ground: #080D24;
+  --env-light:  #C4D7FF;
 
   /* ---- layers -------------------------------------------------------------- */
   --z-base: 0;    --z-raised: 10;  --z-dock: 100;  --z-window: 200;
