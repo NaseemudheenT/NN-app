@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query, Timestamp, updateDoc, serverTimestamp,
@@ -291,7 +291,7 @@ function LifeSurface() {
   </main>;
 }
 
-function SwipeToDelete({ children, onDelete }: { children: React.ReactNode; onDelete: () => void }) {
+function SwipeToDelete({ children, onDelete }: { children: ReactNode; onDelete: () => void }) {
   const [open, setOpen] = useState(false);
   const start = useRef<{ id: number; x: number; y: number } | null>(null);
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
