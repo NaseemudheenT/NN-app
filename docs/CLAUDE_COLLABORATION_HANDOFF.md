@@ -172,3 +172,15 @@ rather than pasting them into chat.
 - Commit: `8f81562e515b77e7a96bf8f0160ab1cb5dc37961`.
 - The workflow file is committed and re-fetched. At the time of inspection, no associated workflow run was returned and no passing CI result was available. Do not treat the pipeline as executed until a run is visible.
 
+
+
+## Application discovery surfaces — 2026-11-10
+
+- Added a dedicated route at `/apps/[appId]` for all 34 registered applications. The registry now distinguishes an operational `href` from an `overviewHref`; this prevents a discovery page from being misrepresented as a working application.
+- The 33 planned applications open an explicit development-status overview. Each page states that the application is not operational and that the overview does not create records, connect accounts, run automations or claim unfinished functionality.
+- Overview pages show only registry-backed identity, group and description, plus shared release gates: complete interface, real functionality, owner security and verification. Related applications are derived from the same registry group.
+- NN Life redirects to its actual `/life` route. Unknown application IDs return the normal not-found response.
+- Home launcher now routes planned entries to their status overview rather than leaving them in a search loop; the index offers “VIEW STATUS” for planned apps and “OPEN” only for available apps.
+- Registry tests now assert that all 34 entries have a deterministic overview route while only genuinely operational routes are marked available.
+- Commits: `7dafb743b4761006f2b8f19c8bfed283b9570516` (registry), `677a74a86c2077dca9d6ca86912ab8e06c52b52e` (Home), `aabb39cba5c4f648bfcba5b8a053c68301dab781` (tests), `264fd49af9f49760e183fee9dc793aa622b09736` and `003f79b9916fd7bdc8b339875ee30ef0db8a0b2e` (overview route and styling).
+- Verification: all 34 overview route declarations, Home routing and status copy were re-fetched from GitHub. CI for these new commits has not yet been confirmed; no production build or browser/device QA is claimed.
