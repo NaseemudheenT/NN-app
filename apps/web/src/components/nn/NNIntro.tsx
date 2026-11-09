@@ -108,6 +108,8 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
         path.style.strokeDashoffset = String(length);
       });
     });
+    // Start the first draw only after every path has its measured dash length.
+    welcomeRef.current?.classList.add(styles.welcomeActive!);
 
     let still = prefersReducedMotion();
     const previousHtmlOverflow = document.documentElement.style.overflow;
@@ -350,7 +352,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       aria-label="NN. Scroll, swipe or use the arrow keys to reveal the experience."
     >
       <div className={styles.atmosphere} aria-hidden="true" />
-      <div ref={welcomeRef} className={`${styles.welcome} ${styles.welcomeActive}`} aria-hidden="true">
+      <div ref={welcomeRef} className={styles.welcome} aria-hidden="true">
         <svg
           className={styles.welcomeSvg}
           viewBox="0 0 650 160"
