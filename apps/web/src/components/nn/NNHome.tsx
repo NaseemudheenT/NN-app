@@ -104,7 +104,7 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
             {name:"Finance",icon:"wallet" as const,detail:"Save · Invest · Grow",tone:"cyan"},
             {name:"REN",icon:"sparkle" as const,detail:"Intelligence · Assistance",tone:"violet"},
             {name:"More",icon:"grid" as const,detail:"Explore · Discover",tone:"blue"}
-          ].map(app=><button className={styles.appTile} key={app.name} onClick={()=>app.name==="More"?setLauncherOpen(true):openApp(app.name)} aria-label={"Open "+app.name}><span className={styles.appIcon+" "+styles[app.tone]}><Icon name={app.icon} size={25}/></span><strong>{app.name}</strong><small>{app.detail}</small><span className={styles.tileArrow}>↗</span></button>)}
+          ].map(app=><button className={styles.appTile} key={app.name} onClick={()=>app.name==="More"?setLauncherOpen(true):openApp(app.name)} aria-label={"Open "+app.name}><span className={styles.appIcon+" "+styles[app.tone]}><Icon name={app.icon} size={25}/></span><strong>{app.name}</strong><small>{app.detail}</small></button>)}
         </div>
       </section>
       <section className={styles.dashboardGrid}>
