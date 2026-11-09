@@ -62,20 +62,6 @@ const PLACEMENTS = CARDS.map((card, i) => {
 
 const STAGGER_SPAN = 0.55;
 
-/**
- * Original NN lettering drawn as connected vector strokes.
- * The seven glyph paths meet at their joins to read as one handwritten word.
- * This is an NN-original script treatment, not Apple's proprietary setup font.
- */
-const WELCOME_GLYPHS = [
-  "M 22 48 C 35 66 49 119 63 126 C 78 134 91 67 105 51 C 113 42 119 84 128 109 C 136 132 149 128 162 105 C 170 91 176 77 187 78",
-  "M 187 78 C 201 70 220 79 218 94 C 216 108 192 115 181 105 C 170 95 183 80 198 81 C 214 82 222 100 237 105",
-  "M 237 105 C 249 76 251 34 264 27 C 279 21 270 75 260 103 C 254 120 263 121 279 105",
-  "M 279 105 C 291 83 316 77 326 91 C 337 107 310 120 292 113 C 277 107 282 91 295 86 C 307 82 317 98 330 105",
-  "M 330 105 C 341 84 365 78 376 91 C 389 106 369 119 351 114 C 333 109 334 91 349 85 C 363 79 375 96 389 105",
-  "M 389 105 C 401 92 409 80 421 83 C 432 86 421 108 415 117 C 409 126 421 121 432 107 C 444 91 451 81 462 84 C 473 87 459 109 454 117 C 448 126 462 119 473 105 C 485 90 495 82 505 87 C 516 93 498 111 494 119 C 489 128 503 121 515 106",
-  "M 515 106 C 527 84 550 78 560 92 C 571 107 544 120 527 113 C 512 107 517 91 530 86 C 544 81 555 98 569 105 C 589 116 610 105 626 88"
-];
 
 export interface NNIntroProps {
   /** Where the "enter" control leads once the corridor has been travelled. */
@@ -94,22 +80,12 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     const container = containerRef.current;
     if (!container) return;
 
-    // Measure the original vector strokes once. The measured length drives the
-    // SVG dash reveal; no canvas, font download or frame-by-frame React work.
-    const welcomeGroups = welcomeRef.current?.querySelectorAll("g") ?? [];
-    welcomeGroups.forEach((group) => {
-      const paths = group.querySelectorAll<SVGPathElement>("path");
-      const measurePath = paths[1];
-      if (!measurePath) return;
-      const length = measurePath.getTotalLength();
-      paths.forEach((path) => {
-        path.style.setProperty("--path-length", String(length));
-        path.style.strokeDasharray = String(length);
-        path.style.strokeDashoffset = String(length);
-      });
+    // Wait for the connected script font before revealing it. The reveal mask
+    // moves once from left to right, so the first visible stroke is always W.
+    let welcomeMounted = true;
+    void document.fonts.load('400 126px "Sacramento"').finally(() => {
+      if (welcomeMounted) welcomeRef.current?.classList.add(styles.welcomeActive!);
     });
-    // Start the first draw only after every path has its measured dash length.
-    welcomeRef.current?.classList.add(styles.welcomeActive!);
 
     let still = prefersReducedMotion();
     const previousHtmlOverflow = document.documentElement.style.overflow;
@@ -147,7 +123,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       if (!node) return;
       welcomeDismissed = false;
       node.classList.remove(styles.welcomeActive!, styles.welcomeGone!);
-      // Force a style boundary so the staggered letter sequence restarts.
+      // Force a style boundary so the left-to-right reveal restarts at W.
       void node.offsetWidth;
       node.classList.add(styles.welcomeActive!);
       scheduleWelcomeDismiss();
@@ -331,6 +307,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       document.body.style.overflow = previousBodyOverflow;
       stopLoop();
       stopMotionWatcher();
+      welcomeMounted = false;
       if (welcomeTimer !== null) window.clearTimeout(welcomeTimer);
       resizeObserver.disconnect();
       container.removeEventListener("wheel", onWheel);
@@ -361,25 +338,17 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <linearGradient id="nn-welcome-silk" x1="0" y1="0" x2="0.9" y2="1">
+            <linearGradient id="nn-welcome-silk" x1="0" y1="0" x2="0.15" y2="1">
               <stop offset="0%" stopColor="#FBF9F5" />
-              <stop offset="38%" stopColor="#EAE2D6" />
-              <stop offset="72%" stopColor="#C9BDAA" />
-              <stop offset="100%" stopColor="#A99A85" />
-            </linearGradient>
-            <linearGradient id="nn-welcome-edge" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
-              <stop offset="42%" stopColor="#FBF9F5" stopOpacity=".9" />
-              <stop offset="100%" stopColor="#C8BBA8" stopOpacity=".55" />
+              <stop offset="48%" stopColor="#F1EAE0" />
+              <stop offset="100%" stopColor="#D2C5B3" />
             </linearGradient>
           </defs>
-          {WELCOME_GLYPHS.map((d, index) => (
-            <g key={index} className={styles.welcomeGlyph}>
-              <path className={styles.welcomeShadow} d={d} />
-              <path className={styles.welcomeBody} d={d} />
-              <path className={styles.welcomeHighlight} d={d} />
-            </g>
-          ))}
+          <g textAnchor="middle" fontFamily="Sacramento, cursive" fontSize="126" fontWeight="400">
+            <text className={styles.welcomeShadow} x="325" y="119">Welcome</text>
+            <text className={styles.welcomeBody} x="325" y="116">Welcome</text>
+            <text className={styles.welcomeHighlight} x="325" y="116">Welcome</text>
+          </g>
         </svg>
       </div>
       <div ref={titleRef} className={styles.title} aria-hidden="true">
