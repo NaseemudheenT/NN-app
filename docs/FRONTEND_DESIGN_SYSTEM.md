@@ -6,6 +6,8 @@
 **Scope:** The complete NN personal operating environment across desktop, tablet and iPhone.
 
 > This document defines the product experience. It does not mark any screen, integration or feature as implemented. A screen is complete only when its interface, real data contract, interactions, loading/empty/error/offline states, permissions, responsive behaviour and tests are complete.
+>
+> **Visual override:** `docs/NN_FOUNDER_VISUAL_RESET.md` is the latest approved direction for material and atmosphere. Use its iridescent spatial-glass language across every NN surface while preserving the existing V3 base palette, typography, accessibility and performance rules. The older navy/icy-blue-only wording below must not be used to suppress the approved cyan/aqua/blue/indigo/violet optical reflections.
 
 ---
 
