@@ -73,6 +73,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const titleRef = useRef<HTMLDivElement>(null);
   const enterRef = useRef<HTMLDivElement>(null);
+  const welcomeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -93,6 +94,12 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
 
     let stage = { width: 1440, height: 900, isMobile: false };
     let dirty = true;
+    let welcomeDismissed = false;
+    const dismissWelcome = () => {
+      if (welcomeDismissed) return;
+      welcomeDismissed = true;
+      welcomeRef.current?.classList.add(styles.welcomeGone);
+    };
 
     const drive = (next: number) => {
       const clamped = clamp(next, 0, 1);
@@ -110,12 +117,14 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
        corridor never becomes a scroll trap. */
 
     const onWheel = (event: WheelEvent) => {
+      dismissWelcome();
       if (drive(progress.target + event.deltaY * 0.0008)) event.preventDefault();
     };
     container.addEventListener("wheel", onWheel, { passive: false });
 
     let touchY: number | null = null;
     const onTouchStart = (event: TouchEvent) => {
+      dismissWelcome();
       touchY = event.touches[0]?.clientY ?? null;
     };
     const onTouchMove = (event: TouchEvent) => {
@@ -136,6 +145,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     container.addEventListener("touchcancel", onTouchEnd, { passive: true });
 
     const onKeyDown = (event: KeyboardEvent) => {
+      dismissWelcome();
       const step =
         event.key === "ArrowDown" || event.key === "ArrowRight"
           ? 0.08
@@ -279,6 +289,13 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       aria-label="NN. Scroll, swipe or use the arrow keys to reveal the experience."
     >
       <div className={styles.atmosphere} aria-hidden="true" />
+      <div ref={welcomeRef} className={styles.welcome} aria-hidden="true">
+        <div className={styles.welcomeGlass}>
+          <NNLogo size={48} className={styles.welcomeMark} />
+          <span className={styles.welcomeEyebrow}>WELCOME</span>
+          <span className={styles.welcomeTitle}>Your world. In one place.</span>
+        </div>
+      </div>
       <div ref={titleRef} className={styles.title} aria-hidden="true">
         <NNLogo size={82} className={styles.mark} />
       </div>
