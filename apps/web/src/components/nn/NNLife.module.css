@@ -399,3 +399,50 @@
 .iconSurface:has(> svg[data-nn-icon="check"]){--nn-icon-rgb:83 220 188}
 .iconSurface:has(> svg[data-nn-icon="file"]){--nn-icon-rgb:145 166 255}
 .iconSurface:has(> svg[data-nn-icon="graph"]){--nn-icon-rgb:171 137 255}
+
+/* Destructive actions require an explicit second step. */
+.deleteDialogText {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.deleteDialogActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.deleteCancel,
+.deleteConfirm {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border-normal);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.deleteCancel {
+  background: var(--nn-glass-float);
+  color: var(--text-primary);
+}
+.deleteConfirm {
+  border-color: rgb(255 135 151 / 42%);
+  background: linear-gradient(145deg, rgb(255 112 132 / 24%), rgb(151 35 62 / 42%));
+  color: #ffe7eb;
+}
+.deleteConfirm:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.deleteCancel:focus-visible,
+.deleteConfirm:focus-visible {
+  outline: 2px solid var(--nn-icy);
+  outline-offset: 3px;
+}
+@media (max-width: 520px) {
+  .deleteDialogActions { display: grid; grid-template-columns: 1fr; }
+  .deleteCancel, .deleteConfirm { width: 100%; }
+}
+
