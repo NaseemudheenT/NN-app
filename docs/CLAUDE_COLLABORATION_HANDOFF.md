@@ -1,0 +1,69 @@
+# Claude Collaboration Handoff — NN
+
+**Purpose:** Coordinate parallel implementation without competing edits or conflicting product decisions.
+
+## Founder-approved work split
+
+### ChatGPT lane — product design and frontend
+ChatGPT owns:
+- NN visual system, responsive UI and CSS Modules.
+- Shared application shell, navigation, launcher and command surfaces.
+- All application screen layouts and frontend interaction states.
+- Integration of the five supplied visual references: Liquid Glass Button, Glass Fold, Coverflow Carousel, Perspective Tunnel Hero and Adjustable Glass Dashboard.
+- Frontend accessibility, reduced-motion behaviour, device adaptation and visual QA.
+- Frontend commits on `design/nn-frontend-system`.
+
+Do not overwrite ChatGPT-owned frontend files while implementing backend services. If a frontend contract change is required, propose it in a focused PR comment or this handoff document first.
+
+### Claude lane — backend and remaining product engineering
+Claude owns:
+- Firebase-backed data services and persistence, using the approved `nn-os-dev` project only.
+- Firestore repository/service layer, typed domain contracts and validation.
+- Server-side API routes and secure access boundaries.
+- REN reasoning/tool orchestration backend, provider abstraction, permissions, approval flow and audit events.
+- Integration adapters, background job contracts, notification and automation services where permitted.
+- Backend unit, emulator, security and integration tests.
+- Technical documentation for backend contracts and operational setup.
+
+Claude must not change production, enable Blaze/billing, change domains, weaken rules, add secrets to source, or alter authentication/security without the founder's explicit approval.
+
+## Shared engineering constraints
+
+1. Read `CLAUDE.md`, `docs/NN_CINEMATIC_VISUAL_SYSTEM.md`, `docs/NN_PRODUCT_UI_ANIMATION_MASTER_PROMPT.md`, `docs/NN_ANIMATION_COMPONENT_SOURCE_INDEX.md`, `docs/NN_APP_REGISTRY.md`, `docs/NN_OS_ARCHITECTURE.md` and `docs/FIRESTORE_DATA_MODEL.md` before substantial work.
+2. Preserve the existing Next.js 15 / React 19 / strict TypeScript / CSS Modules architecture and V3 tokens.
+3. Firebase only. Development project: `nn-os-dev`. Production project: `nn-os-prod`, untouched.
+4. Never add sample balances, fake attendance, fabricated analytics, fake REN activity, or simulated integrations to real-looking UI.
+5. Every feature must define loading, empty, error, offline/stale and permission states.
+6. All user data remains owner-scoped. Firestore/Storage rules are the security boundary; React visibility is not authorisation.
+7. Keep changes on the feature branch and use focused commits. Never merge PR #2 or deploy production without founder approval.
+8. No duplicate UI frameworks or animation libraries. Existing NN primitives are the source of truth.
+9. Keep the founder's Intel MacBook Air (8 GB) and iPhone performance constraints in mind.
+10. A route or component is not complete until its tests and actual behaviour are verified.
+
+## Contract-first integration
+
+Before connecting a frontend screen to a backend service:
+- Define typed request/response contracts and ownership assumptions.
+- Document collection paths, validation, permission level and audit behaviour.
+- Keep credentials and provider keys server-side.
+- Expose stable loading/success/error states to the frontend.
+- Do not invent a Firestore collection or change a schema silently; reconcile with the canonical data model first.
+
+## Current coordination snapshot
+
+- Frontend: NN Home exists on the feature branch; shared global visual primitives already exist; full application rollout is in progress.
+- Frontend preview: latest TSX revision has a successful Vercel build; latest CSS revision still needs its own build and browser review.
+- Backend: Claude should inspect actual repository state before claiming implementation or duplicating existing authentication, Firebase or security work.
+- REN: visual shell exists, but reasoning, memory and tool execution must remain explicitly disconnected until implemented and verified.
+
+## Handoff update protocol
+
+After each meaningful backend milestone, update this file with:
+- files and services changed;
+- exact commit SHA;
+- tests actually run and results;
+- Firebase emulator/project used;
+- integration contract exposed to the frontend;
+- remaining blockers.
+
+After each frontend milestone, ChatGPT updates the same coordination snapshot. If both agents need the same file, stop and agree the smallest interface change before editing it.
