@@ -46,7 +46,8 @@ const APPLICATIONS: readonly AppItem[] = [
   {name:"Search",group:"System",icon:"search",description:"Permission-aware search across NN"},
   {name:"Automation Studio",group:"System",icon:"settings",description:"Triggers, workflows, approvals and run history"},
   {name:"Security Centre",group:"System",icon:"shield",description:"Passkeys, devices, sessions and audit history"},
-  {name:"Control Room",group:"System",icon:"settings",description:"System health, integrations, jobs and cost visibility"}
+  {name:"Control Room",group:"System",icon:"settings",description:"System health, integrations, jobs and cost visibility"},
+  {name:"REN",group:"System",icon:"sparkle",description:"The NN intelligence layer for context, assistance and connected actions"}
 ];
 const GROUPS = [
   {name:"Life & wellbeing",detail:"Plan, organise and live well",icon:"calendar" as const,count:"07"},
@@ -54,7 +55,7 @@ const GROUPS = [
   {name:"Money & work",detail:"Build, manage and measure",icon:"wallet" as const,count:"07"},
   {name:"Creation & communication",detail:"Create, write and communicate",icon:"sparkle" as const,count:"04"},
   {name:"Knowledge & insight",detail:"Store, recall and understand",icon:"folder" as const,count:"06"},
-  {name:"System",detail:"Control, search and protect NN",icon:"settings" as const,count:"05"}
+  {name:"System",detail:"Control, search and protect NN",icon:"settings" as const,count:"06"}
 ];
 
 function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>void}) {
