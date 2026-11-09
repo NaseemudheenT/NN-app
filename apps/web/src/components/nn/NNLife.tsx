@@ -334,7 +334,7 @@ function SwipeToDelete({ children, onDelete }: { children: ReactNode; onDelete: 
     if (Math.abs(dx) < 58 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
     setOpen(dx < 0);
   };
-  return <div className={`${styles.swipeShell} ${open ? styles.swipeOpen : ""}`} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { start.current = null; }} onClick={(event) => event.stopPropagation()}>
+  return <div className={`${styles.swipeShell} ${open ? styles.swipeOpen : ""}`} role="group" tabIndex={0} aria-label="Item actions. Swipe left or press Delete to reveal the delete action." onKeyDown={(event) => { if (event.key === "Delete" || event.key === "Backspace") { event.preventDefault(); setOpen(true); } if (event.key === "Escape") setOpen(false); }} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { start.current = null; }} onClick={(event) => event.stopPropagation()}>
     <button type="button" className={styles.swipeDelete} onClick={onDelete} aria-label="Delete this item" aria-hidden={!open} tabIndex={open ? 0 : -1}><Icon name="close" size={16}/><span>Delete</span></button>
     <div className={styles.swipeContent}>{children}</div>
   </div>;
