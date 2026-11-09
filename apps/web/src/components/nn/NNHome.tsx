@@ -10,56 +10,12 @@ import { LiquidButton } from "@/components/ui/LiquidButton";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAuth } from "@/lib/auth";
 import styles from "./NNHome.module.css";
-
-type AppItem = { name: string; group: string; icon: IconName; description: string };
-const APPLICATIONS: readonly AppItem[] = [
-  {name:"Life",group:"Life & wellbeing",icon:"calendar",description:"Calendar, tasks, reminders, notes, habits, goals and routines"},
-  {name:"Soul",group:"Life & wellbeing",icon:"sparkle",description:"Faith, purpose, gratitude and reflection"},
-  {name:"Mind",group:"Life & wellbeing",icon:"graph",description:"Focus, resilience, reflection and personal growth"},
-  {name:"Body",group:"Life & wellbeing",icon:"check",description:"Fitness, nutrition, sleep and recovery"},
-  {name:"Contacts",group:"Life & wellbeing",icon:"grid",description:"People, important dates and follow-ups"},
-  {name:"Nature & Universe",group:"Life & wellbeing",icon:"sparkle",description:"Science, astronomy and discovery"},
-  {name:"Peace Mode",group:"Life & wellbeing",icon:"clock",description:"A quieter environment for focus and reflection"},
-  {name:"College",group:"Education",icon:"book",description:"SMVEC subjects, exams, notes and academic progress"},
-  {name:"Academy",group:"Education",icon:"book",description:"Structured technical and professional learning"},
-  {name:"Formula Engine",group:"Education",icon:"graph",description:"Verified formulas, calculations and visualisation"},
-  {name:"Logic Lab",group:"Education",icon:"grid",description:"Reasoning, aptitude and programming challenges"},
-  {name:"Learning Vault",group:"Education",icon:"folder",description:"Books, research, flashcards and knowledge paths"},
-  {name:"Finance",group:"Money & work",icon:"wallet",description:"Personal money, budgets, assets and financial goals"},
-  {name:"Invest",group:"Money & work",icon:"graph",description:"Investment research, watchlists and portfolio tracking"},
-  {name:"Business",group:"Money & work",icon:"grid",description:"Ventures, validation, operations and decisions"},
-  {name:"Freelance",group:"Money & work",icon:"file",description:"Clients, proposals, deliverables and invoices"},
-  {name:"Career",group:"Money & work",icon:"book",description:"Skills, portfolio, interviews and career progress"},
-  {name:"Projects",group:"Money & work",icon:"grid",description:"Milestones, dependencies and execution"},
-  {name:"Achievements",group:"Money & work",icon:"sparkle",description:"Verified milestones, certificates and evidence"},
-  {name:"Creator Studio",group:"Creation & communication",icon:"sparkle",description:"Photography, video, design and content planning"},
-  {name:"Studio",group:"Creation & communication",icon:"file",description:"Writing, documents and publishing drafts"},
-  {name:"Mail",group:"Creation & communication",icon:"file",description:"Connected inboxes, drafts and follow-ups"},
-  {name:"English",group:"Creation & communication",icon:"mic",description:"Speaking, listening, grammar and writing practice"},
-  {name:"Files",group:"Knowledge & insight",icon:"folder",description:"Private documents, media and file organisation"},
-  {name:"Memory",group:"Knowledge & insight",icon:"sparkle",description:"Owner-controlled knowledge with source and provenance"},
-  {name:"Life Archive",group:"Knowledge & insight",icon:"clock",description:"A chronological record of milestones and memories"},
-  {name:"Analytics",group:"Knowledge & insight",icon:"graph",description:"Measured progress from real stored data"},
-  {name:"Travel",group:"Knowledge & insight",icon:"calendar",description:"Trips, itineraries, maps and travel planning"},
-  {name:"Simulator",group:"Knowledge & insight",icon:"grid",description:"Safe financial, business, science and coding scenarios"},
-  {name:"Command Centre",group:"System",icon:"sparkle",description:"Natural-language entry point and quick actions"},
-  {name:"Search",group:"System",icon:"search",description:"Permission-aware search across NN"},
-  {name:"Automation Studio",group:"System",icon:"settings",description:"Triggers, workflows, approvals and run history"},
-  {name:"Security Centre",group:"System",icon:"shield",description:"Passkeys, devices, sessions and audit history"},
-  {name:"Control Room",group:"System",icon:"settings",description:"System health, integrations, jobs and cost visibility"},
-  {name:"REN",group:"System",icon:"sparkle",description:"The NN intelligence layer for context, assistance and connected actions"}
-];
-const GROUPS = [
-  {name:"Life & wellbeing",detail:"Plan, organise and live well",icon:"calendar" as const,count:"07"},
-  {name:"Education",detail:"Learn, practise and master",icon:"book" as const,count:"05"},
-  {name:"Money & work",detail:"Build, manage and measure",icon:"wallet" as const,count:"07"},
-  {name:"Creation & communication",detail:"Create, write and communicate",icon:"sparkle" as const,count:"04"},
-  {name:"Knowledge & insight",detail:"Store, recall and understand",icon:"folder" as const,count:"06"},
-  {name:"System",detail:"Control, search and protect NN",icon:"settings" as const,count:"06"}
-];
+import { APPLICATIONS, GROUPS, getApplication } from "@/lib/apps/registry";
+import { useRen } from "@/components/ren/RenProvider";
 
 function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>void}) {
   const router=useRouter();
+  const { summon } = useRen();
   const [launcherOpen,setLauncherOpen]=useState(false);
   const [query,setQuery]=useState("");
   const [activeDock,setActiveDock]=useState("home");
@@ -74,7 +30,7 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
     window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey);
   },[]);
   const openRoute=(href:"/home"|"/life"|"/workspace"|"/design",id:string)=>{setActiveDock(id);router.push(href);};
-  const openApp=(name:string)=>{if(name==="Life"){setLauncherOpen(false);openRoute("/life","life");}else{setQuery(name);setLauncherOpen(true);}};
+  const openApp=(name:string)=>{if(name==="REN"){setLauncherOpen(false);summon("touch");return;}const app=getApplication(name);if(app?.href){setLauncherOpen(false);router.push(app.href);setActiveDock(app.id);}else{setQuery(name);setLauncherOpen(true);}};
   return <main className={styles.root}>
     <header className={styles.topbar}>
       <div className={styles.identity}><NNLogo size={32} decorative/><span>NN <i>/</i> <strong>PERSONAL OS</strong></span></div>
@@ -124,7 +80,7 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
     <div className={styles.dockWrap+" nn-glass-primary nn-glass-card"}><Dock items={[{id:"home",label:"NN Home",icon:"grid"},{id:"life",label:"NN Life",icon:"calendar"},{id:"workspace",label:"Workspace",icon:"clock"},{id:"design",label:"Design system",icon:"sparkle"}]} activeId={activeDock} onSelect={id=>{if(id==="home")openRoute("/home",id);if(id==="life")openRoute("/life",id);if(id==="workspace")openRoute("/workspace",id);if(id==="design")openRoute("/design",id);}}/><button className={styles.dockLauncher} onClick={()=>setLauncherOpen(true)} aria-label="Open application launcher" title="Applications"><Icon name="plus" size={21}/></button></div>
     <Dialog open={launcherOpen} onClose={()=>{setLauncherOpen(false);setQuery("");}} title="Explore NN" description="The complete application map. Open only the surfaces currently available.">
       <label className={styles.launchSearch}><Icon name="search" size={18}/><input autoFocus value={query} onChange={event=>setQuery(event.target.value)} placeholder="Search NN applications…"/>{query?<button type="button" onClick={()=>setQuery("")} aria-label="Clear search"><Icon name="close" size={15}/></button>:null}</label>
-      <div className={styles.applicationIndex}>{["Life & wellbeing","Education","Money & work","Creation & communication","Knowledge & insight","System"].map(group=>{const apps=filtered.filter(app=>app.group===group);if(apps.length===0)return null;return <section className={styles.indexGroup} key={group}><h3>{group}<span>{String(apps.length).padStart(2,"0")}</span></h3>{apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon+" nn-icon-surface"}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span>{app.name==="Life"?<button className={styles.openApp} onClick={()=>openApp("Life")}>OPEN ↗</button>:<span className={styles.indexState}>PLANNED SURFACE</span>}</article>)}</section>;})}{filtered.length===0?<p className={styles.noResults}>No application matches that search.</p>:null}</div>
+      <div className={styles.applicationIndex}>{["Life & wellbeing","Education","Money & work","Creation & communication","Knowledge & insight","System"].map(group=>{const apps=filtered.filter(app=>app.group===group);if(apps.length===0)return null;return <section className={styles.indexGroup} key={group}><h3>{group}<span>{String(apps.length).padStart(2,"0")}</span></h3>{apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon+" nn-icon-surface"}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span>{app.availability==="available"&&app.href?<button className={styles.openApp} onClick={()=>openApp(app.name)}>OPEN ↗</button>:<span className={styles.indexState}>IN DEVELOPMENT</span>}</article>)}</section>;})}{filtered.length===0?<p className={styles.noResults}>No application matches that search.</p>:null}</div>
       <p className={styles.launchFoot}>NN APP FACTORY IS A SYSTEM CAPABILITY, NOT AN APPLICATION.</p>
     </Dialog>
   </main>;
