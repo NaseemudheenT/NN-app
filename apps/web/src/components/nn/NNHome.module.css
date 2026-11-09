@@ -90,3 +90,13 @@
  .categoryCopy small,.indexText small{font-size:10px}
  .appGrid::before{inset:5% 1%;opacity:.5}
 }
+
+.iconSurface:has(> svg[data-nn-icon="calendar"]){--nn-icon-rgb:75 205 255}
+.iconSurface:has(> svg[data-nn-icon="book"]){--nn-icon-rgb:112 165 255}
+.iconSurface:has(> svg[data-nn-icon="grid"]){--nn-icon-rgb:112 178 255}
+.iconSurface:has(> svg[data-nn-icon="wallet"]){--nn-icon-rgb:76 211 180}
+.iconSurface:has(> svg[data-nn-icon="sparkle"]){--nn-icon-rgb:171 137 255}
+.iconSurface:has(> svg[data-nn-icon="check"]){--nn-icon-rgb:83 220 188}
+.iconSurface:has(> svg[data-nn-icon="search"]){--nn-icon-rgb:83 215 230}
+.iconSurface:has(> svg[data-nn-icon="file"]){--nn-icon-rgb:145 166 255}
+.iconSurface:has(> svg[data-nn-icon="clock"]){--nn-icon-rgb:112 165 255}
