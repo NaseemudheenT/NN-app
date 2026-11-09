@@ -132,3 +132,24 @@
   .hero::before,.hero::after { filter: blur(20px); }
 }
 
+
+
+/* Icon-led feature tiles: retain the name, remove redundant explanatory copy. */
+.category {
+  min-height: 138px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 18px 12px;
+}
+.categoryIcon { width: 54px; height: 54px; flex-basis: 54px; border-radius: 18px; }
+.categoryCopy { justify-items: center; }
+.categoryCopy strong { font-size: 12px; letter-spacing: .01em; }
+.categoryCopy small,.categoryCount,.categoryIndex { display: none; }
+.categoryArrow { display: none; }
+@media (max-width:700px) {
+  .category { min-height: 112px; flex-direction: row; justify-content: flex-start; text-align: left; padding: 14px 18px; }
+  .categoryCopy { justify-items: start; }
+  .categoryIcon { width: 48px; height: 48px; flex-basis: 48px; }
+}
