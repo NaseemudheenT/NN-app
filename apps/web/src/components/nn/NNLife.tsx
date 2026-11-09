@@ -126,10 +126,14 @@ function LifeSurface() {
 
   const save = async (action: () => Promise<unknown>, success: string) => {
     if (!uid) return;
+    if (!navigator.onLine) {
+      setError("You are offline. NN can show cached records, but reconnect before creating or changing data so the save can be confirmed.");
+      return;
+    }
     setBusy(true); setError(null); setNotice(null);
     try {
       await action();
-      setNotice(navigator.onLine ? success : "Saved locally. NN will sync when this device reconnects.");
+      setNotice(success);
       await load();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "NN could not save this item. Nothing was reported as saved.");
