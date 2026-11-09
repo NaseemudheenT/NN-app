@@ -330,3 +330,38 @@
 .quickPanel>button:hover{background:var(--nn-glass-primary);border-color:rgb(205 232 255 / 55%)}
 @media(prefers-reduced-motion:reduce){.orbitCore{animation:none}}
 :global(html[data-motion="reduced"]) .orbitCore{animation:none}
+
+
+/* One NN card material across every Life panel, capture surface and saved item. */
+.panel,.focusPanel,.quickPanel,.noteCard,.notesList{
+  position:relative;
+  isolation:isolate;
+  border:1px solid var(--nn-glass-rim);
+  border-radius:19px;
+  background:
+    linear-gradient(142deg,rgb(255 255 255 / 16%),transparent 38%,rgb(var(--nn-spectrum-violet) / 5%)),
+    var(--nn-glass-float);
+  box-shadow:var(--nn-glass-laminate),var(--nn-glass-contact),0 0 0 1px rgb(190 224 255 / 7%);
+  -webkit-backdrop-filter:blur(28px) saturate(165%);
+  backdrop-filter:blur(28px) saturate(165%);
+}
+.focusPanel{background:linear-gradient(145deg,rgb(25 49 86 / 94%),rgb(10 24 50 / 94%))}
+.noteCard{padding:17px;border-radius:15px}
+.record{border:1px solid rgb(210 231 255 / 25%);border-radius:14px;padding:12px 14px;margin:8px 0;background:linear-gradient(145deg,rgb(255 255 255 / 12%),rgb(var(--nn-spectrum-cyan) / 4%) 52%,rgb(8 19 42 / 28%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 27%),0 2px 0 rgb(3 10 27 / 48%),0 8px 18px rgb(0 0 0 / 15%)}
+.goal{border:1px solid rgb(210 231 255 / 22%);border-radius:14px;padding:14px;background:linear-gradient(145deg,rgb(255 255 255 / 10%),rgb(var(--nn-spectrum-blue) / 5%) 55%,rgb(8 19 42 / 24%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 24%),0 2px 0 rgb(3 10 27 / 42%),0 8px 18px rgb(0 0 0 / 13%)}
+.emptyInline{border-top-color:rgb(197 221 255 / 14%)}
+.captureForm input,.noteForm input,.noteForm textarea{
+  border:1px solid rgb(210 231 255 / 28%);
+  border-radius:11px;
+  background:linear-gradient(145deg,rgb(255 255 255 / 11%),rgb(8 20 43 / 48%));
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 13%);
+}
+.captureForm button,.noteForm button,.quickPanel>button{
+  border:1px solid rgb(210 231 255 / 34%);
+  border-radius:11px;
+  background:linear-gradient(145deg,rgb(255 255 255 / 21%),rgb(var(--nn-spectrum-cyan) / 10%) 48%,rgb(9 24 47 / 65%));
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 38%),0 2px 0 rgb(3 10 27 / 52%),0 7px 14px rgb(0 0 0 / 17%);
+}
+@media(hover:hover) and (pointer:fine){.panel:hover,.focusPanel:hover,.quickPanel:hover,.noteCard:hover,.record:hover,.goal:hover{border-color:rgb(225 241 255 / 48%);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),0 3px 0 rgb(3 10 27 / 62%),0 13px 26px rgb(0 0 0 / 21%)}}
+:global(html[data-theme="light"]) .panel,:global(html[data-theme="light"]) .focusPanel,:global(html[data-theme="light"]) .quickPanel,:global(html[data-theme="light"]) .noteCard,:global(html[data-theme="light"]) .record,:global(html[data-theme="light"]) .goal{border-color:rgb(91 137 192 / 25%);background:linear-gradient(145deg,rgb(255 255 255 / 88%),rgb(226 243 255 / 73%) 55%,rgb(242 235 255 / 72%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 95%),0 3px 0 rgb(91 137 192 / 10%),0 14px 28px rgb(35 62 102 / 10%)}
+@media(prefers-reduced-motion:reduce){.panel:hover,.focusPanel:hover,.quickPanel:hover,.noteCard:hover,.record:hover,.goal:hover{transform:none}}
