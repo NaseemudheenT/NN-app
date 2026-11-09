@@ -361,3 +361,10 @@ Verified by source inspection, not by a live browser session:
 - The current REN surface is described in source as designed but not wired to actual reasoning/tools.
 
 **Implication:** do not discard the existing visual foundation or rewrite blindly. The work is to turn the existing prototype surface into a complete, coherent, real-data operating experience and to build the missing app surfaces around it.
+
+
+## Cinematic visual direction
+
+The founder supplied concrete visual references for a full-product cinematic system: a perspective-tunnel introduction, a low-power WebGL glass-fold environment, liquid-glass controls, 3D coverflow cards and an adjustable-glass dashboard. These are now translated into NN-specific implementation rules in [NN_CINEMATIC_VISUAL_SYSTEM.md](./NN_CINEMATIC_VISUAL_SYSTEM.md).
+
+The existing NN implementations are the preferred components; do not duplicate them with shadcn/Tailwind demo code or add animation libraries without a concrete gap. The visual language applies across Home, Life, Learning, Work, Personal and System applications while preserving NN's V3 tokens, accessibility, device performance and truthful live states.
