@@ -8,7 +8,7 @@ Owner and sole user: **Naseemudheen T.** · Repository: `NaseemudheenT/NN-app`
 
 ---
 
-## 1. What NN is
+## 0. Parallel implementation ownership\n\nRead `docs/CLAUDE_COLLABORATION_HANDOFF.md` before substantial work. ChatGPT owns the complete product design and frontend implementation. Claude owns backend services, persistence, REN execution, integrations and backend verification. Avoid overlapping edits to frontend-owned files; agree on typed contracts first. The handoff document defines constraints, approval gates and status reporting.\n\n## 1. What NN is
 
 A private, lifelong **personal operating environment** — one coherent system
 holding the founder's life, education, work, business, finances, health,
