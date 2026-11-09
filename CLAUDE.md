@@ -317,3 +317,12 @@ The founder's standing visual direction is a premium, futuristic personal operat
 Preserve the existing NN V3 navy/icy-blue tokens, custom TypeScript + Next.js + CSS Modules architecture, NN icon family, accessibility and performance constraints. Reuse the existing `NNIntro`, `Room`/`GlassFold`, `LiquidButton`, `Coverflow`, `NNWorkspace` and REN components before creating alternatives. The supplied shadcn/Tailwind/Framer Motion/GSAP snippets are references to adapt, not instructions to add duplicate frameworks or dependencies.
 
 All visible controls must work. All live-looking animations must reflect actual state. Keep placeholder data clearly labelled. Respect reduced motion, touch and keyboard interaction, and low-power devices. Do not claim a feature or screen is complete until its real data path, states, responsive behaviour and tests are verified.
+
+
+##  Design and animation implementation authority
+
+Before any product-wide UI or animation work, also read:
+- `docs/NN_PRODUCT_UI_ANIMATION_MASTER_PROMPT.md` — complete product design and reusable implementation prompt for all approved NN applications.
+- `docs/NN_ANIMATION_COMPONENT_SOURCE_INDEX.md` — mapping from the founder's five supplied animation references to the existing NN source components.
+
+These documents are the persistent implementation authority for the complete NN visual system. Store future founder-supplied UI prompts and source snippets in `docs/` (or a clearly named `docs/reference/` archive) and index them. Do not merely mention that references were seen in chat. Adapt every reference to NN's actual architecture, palette, data, accessibility, device and security constraints. The 34-app visual map is a design target, not a claim those apps are implemented.
