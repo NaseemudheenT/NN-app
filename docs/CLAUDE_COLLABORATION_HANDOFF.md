@@ -165,3 +165,10 @@ rather than pasting them into chat.
 - Expected benefit: fewer repeated layout reads and viewport resets in the persistent animation loop. This is a code-level optimisation hypothesis; no profiling or device battery/frame-time measurements have been run.
 - Verification: source re-fetched from GitHub and the resize, first-frame, observer and cleanup paths inspected. TypeScript/build/runtime/WebGL context-loss/mobile-device QA remain outstanding.
 
+### Design-branch verification coverage — 2026-11-10
+
+- Expanded `.github/workflows/ci.yml` push triggers to include `design/**` branches. The existing pipeline remains unchanged: frozen pnpm install, TypeScript checks, ESLint, unit tests and Next.js production build.
+- This closes a coverage gap where the active `design/nn-frontend-system` branch was excluded from the workflow's push filters.
+- Commit: `8f81562e515b77e7a96bf8f0160ab1cb5dc37961`.
+- The workflow file is committed and re-fetched. At the time of inspection, no associated workflow run was returned and no passing CI result was available. Do not treat the pipeline as executed until a run is visible.
+
