@@ -330,26 +330,11 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     >
       <div className={styles.atmosphere} aria-hidden="true" />
       <div ref={welcomeRef} className={styles.welcome} aria-hidden="true">
-        <svg
-          className={styles.welcomeSvg}
-          viewBox="0 0 780 160"
-          role="img"
-          aria-label="Welcome"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <linearGradient id="nn-welcome-silk" x1="0" y1="0" x2="0.15" y2="1">
-              <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="42%" stopColor="#DDF2FF" />
-              <stop offset="100%" stopColor="#83BDEB" />
-            </linearGradient>
-          </defs>
-          <g textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontSize="94" fontWeight="600" letterSpacing="1.5">
-            <text className={styles.welcomeShadow} x="390" y="112">Welcome</text>
-            <text className={styles.welcomeBody} x="390" y="108">Welcome</text>
-            <text className={styles.welcomeHighlight} x="390" y="108">Welcome</text>
-          </g>
-        </svg>
+        <div className={styles.welcomeContent}>
+          <span className={styles.welcomeEyebrow}>NN · PERSONAL SPACE</span>
+          <h1 className={styles.welcomeHeading}>Welcome.</h1>
+          <p className={styles.welcomeSubtitle}>A clearer space for everything ahead.</p>
+        </div>
       </div>
       <div ref={titleRef} className={styles.title} aria-hidden="true">
         <NNLogo size={82} className={styles.mark} />
