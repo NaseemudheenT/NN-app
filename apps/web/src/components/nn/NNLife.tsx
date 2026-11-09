@@ -211,7 +211,7 @@ function LifeSurface() {
     <div className={styles.layout}>
       <div className={styles.breadcrumb}><button onClick={() => router.push("/home")}>NN HOME</button><span>/</span><span>LIFE</span><span className={styles.date}>{dateLabel()}</span></div>
       <section className={styles.hero}>
-        <div className={styles.heroCopy}><p className={styles.kicker}>YOUR PERSONAL DAYSPACE</p><h1>{heading}<br/><em>{firstName}.</em></h1><p className={styles.sub}>A thoughtful place for what matters today—and the things you're building over time.</p></div>
+        <div className={styles.heroCopy}><p className={styles.kicker}>YOUR PERSONAL DAYSPACE</p><h1>{heading}<br/><em>{firstName}.</em></h1><p className={styles.sub}>A thoughtful place for what matters today—and the things you&apos;re building over time.</p></div>
         <div className={styles.orbit} aria-hidden="true"><div className={styles.orbitRing}/><div className={styles.orbitCore}><Icon name="calendar" size={32}/></div><span className={styles.orbitDot}/></div>
         <div className={styles.heroMeta}><span>01 <i>/</i> DAILY OVERVIEW</span><span>{offline ? "OFFLINE / CACHED" : "PERSONAL DATA SPACE"}</span></div>
       </section>
