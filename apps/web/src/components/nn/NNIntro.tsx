@@ -39,15 +39,24 @@ interface IntroCard {
 }
 
 const CARDS: readonly IntroCard[] = [
-  { icon: "calendar", title: "NN Life", hint: "Days, plans, routine" },
-  { icon: "book", title: "NN College", hint: "Timetable, marks, revision" },
-  { icon: "graph", title: "NN Academy", hint: "What you are learning" },
-  { icon: "grid", title: "NN Projects", hint: "What you are building" },
-  { icon: "wallet", title: "NN Finance", hint: "Where it goes" },
-  { icon: "folder", title: "NN Files", hint: "Everything kept" },
-  { icon: "sparkle", title: "NN Memory", hint: "What NN remembers" },
-  { icon: "shield", title: "NN Security", hint: "Who gets in" },
-  { icon: "settings", title: "NN Control", hint: "How NN behaves" },
+  { icon: "calendar", title: "NN Life", hint: "Your day, in one place" },
+  { icon: "check", title: "NN Tasks", hint: "Plans into progress" },
+  { icon: "clock", title: "NN Reminders", hint: "The right moment" },
+  { icon: "file", title: "NN Notes", hint: "Thoughts, captured" },
+  { icon: "graph", title: "NN Habits", hint: "Consistency, measured" },
+  { icon: "sparkle", title: "NN Goals", hint: "A direction that moves" },
+  { icon: "calendar", title: "NN Routines", hint: "Structure for every day" },
+  { icon: "book", title: "NN College", hint: "Classes, exams, mastery" },
+  { icon: "graph", title: "NN Academy", hint: "Skills built step by step" },
+  { icon: "grid", title: "NN Projects", hint: "Ideas into real work" },
+  { icon: "wallet", title: "NN Business", hint: "Operations and decisions" },
+  { icon: "graph", title: "NN Analytics", hint: "Evidence behind progress" },
+  { icon: "folder", title: "NN Files", hint: "Your private library" },
+  { icon: "sparkle", title: "NN Memory", hint: "Context with provenance" },
+  { icon: "wallet", title: "NN Finance", hint: "A clearer view of money" },
+  { icon: "mic", title: "REN", hint: "Your operating intelligence" },
+  { icon: "shield", title: "NN Security", hint: "Your private perimeter" },
+  { icon: "settings", title: "NN Control", hint: "One system, your rules" },
 ];
 
 /** Placement is fixed per card, so it is computed once at module load. */
