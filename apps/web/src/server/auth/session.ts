@@ -18,7 +18,7 @@ export async function callerUid(request: NextRequest): Promise<string | null> {
   if (token.length === 0) return null;
   try {
     const decoded = await getAdmin().auth.verifyIdToken(token, true);
-    return decoded.uid;
+    return decoded.nnOwner === true ? decoded.uid : null;
   } catch {
     // Expired, malformed, revoked or forged — all are simply "not signed in".
     return null;
