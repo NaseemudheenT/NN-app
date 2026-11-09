@@ -94,6 +94,21 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     const container = containerRef.current;
     if (!container) return;
 
+    // Measure the original vector strokes once. The measured length drives the
+    // SVG dash reveal; no canvas, font download or frame-by-frame React work.
+    const welcomeGroups = welcomeRef.current?.querySelectorAll("g") ?? [];
+    welcomeGroups.forEach((group) => {
+      const paths = group.querySelectorAll("path");
+      const measurePath = paths[1];
+      if (!measurePath) return;
+      const length = measurePath.getTotalLength();
+      paths.forEach((path) => {
+        path.style.setProperty("--path-length", String(length));
+        path.style.strokeDasharray = String(length);
+        path.style.strokeDashoffset = String(length);
+      });
+    });
+
     let still = prefersReducedMotion();
     const previousHtmlOverflow = document.documentElement.style.overflow;
     const previousBodyOverflow = document.body.style.overflow;
