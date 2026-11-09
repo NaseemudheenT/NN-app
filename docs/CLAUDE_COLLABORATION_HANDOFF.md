@@ -51,8 +51,10 @@ Before connecting a frontend screen to a backend service:
 
 ## Current coordination snapshot
 
-- Frontend: NN Home exists on the feature branch; shared global visual primitives already exist; full application rollout is in progress.
-- Frontend preview: latest TSX revision has a successful Vercel build; latest CSS revision still needs its own build and browser review.
+- Frontend: the founder-approved iridescent spatial-glass direction is being unified through shared derived reflection tokens. The base V3 palette and NN mark geometry remain unchanged.
+- Frontend implementation commit: `f938a0df30ec0ac4f96fdd1be3369922df5bcc1a` (branch `design/nn-frontend-system`). Updated shared tokens, global wave fallback, holographic rim, HoloPanel, NN Home materials and token tests. The latest visual override is documented in `docs/NN_FOUNDER_VISUAL_RESET.md`.
+- Verification: this milestone has **not yet been built or tested locally**. Typecheck, unit tests, reduced-motion checks and desktop/iPhone browser review remain required before calling it verified.
+- Preview: the last READY Vercel preview is still an older commit (`4a54f3e`), not this implementation. Vercel reported the free daily deployment API limit; do not present the older preview as current.
 - Backend: Claude should inspect actual repository state before claiming implementation or duplicating existing authentication, Firebase or security work.
 - REN: visual shell exists, but reasoning, memory and tool execution must remain explicitly disconnected until implemented and verified.
 
