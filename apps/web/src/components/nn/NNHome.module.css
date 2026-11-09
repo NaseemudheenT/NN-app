@@ -29,11 +29,8 @@
 .hero {
   min-height: 460px;
   border-radius: 30px;
-  border: 1px solid rgb(194 222 255 / 30%);
-  background:
-    radial-gradient(ellipse at 76% 42%, rgb(151 126 255 / 30%), transparent 38%),
-    radial-gradient(ellipse at 23% 76%, rgb(41 176 255 / 32%), transparent 42%),
-    linear-gradient(118deg, #0b1740 0%, #102b62 44%, #24245f 76%, #171b49 100%);
+  border: 1px solid var(--nn-spectrum-border);
+  background: var(--nn-wave-hero-bg);
   box-shadow: 0 30px 90px rgb(3 8 30 / 42%), inset 0 1px 0 rgb(255 255 255 / 35%);
 }
 .hero::before,
@@ -50,7 +47,7 @@
 }
 .hero::before {
   top: 25%;
-  background: linear-gradient(100deg, transparent 0%, rgb(26 164 255 / 62%) 22%, rgb(102 212 255 / 76%) 42%, rgb(135 142 255 / 68%) 67%, rgb(195 135 255 / 48%) 84%, transparent 100%);
+  background: var(--nn-wave-ribbon-primary);
   clip-path: ellipse(50% 35% at 50% 50%);
   opacity: .8;
 }
@@ -58,7 +55,7 @@
   top: 43%;
   height: 34%;
   transform: rotate(6deg);
-  background: linear-gradient(100deg, transparent 0%, rgb(35 102 255 / 35%) 24%, rgb(93 135 255 / 50%) 48%, rgb(178 123 255 / 52%) 70%, transparent 100%);
+  background: var(--nn-wave-ribbon-secondary);
   clip-path: ellipse(50% 30% at 50% 50%);
   opacity: .75;
 }
@@ -81,8 +78,8 @@
 .category {
   min-height: 122px;
   border-radius: 20px;
-  border-color: rgb(190 218 255 / 24%);
-  background: linear-gradient(145deg, rgb(218 235 255 / 13%), rgb(137 157 255 / 8%) 52%, rgb(255 255 255 / 3%));
+  border-color: var(--glass-2-border);
+  background: var(--glass-1-bg);
   box-shadow: 0 15px 35px rgb(2 8 28 / 20%), inset 0 1px 0 rgb(255 255 255 / 28%), inset 0 -1px 0 rgb(255 255 255 / 5%);
   backdrop-filter: blur(24px) saturate(145%);
   -webkit-backdrop-filter: blur(24px) saturate(145%);
@@ -97,23 +94,23 @@
 .categoryIcon {
   width: 46px; height: 46px; flex-basis: 46px;
   border-radius: 15px;
-  border-color: rgb(211 230 255 / 32%);
-  background: linear-gradient(145deg, rgb(222 241 255 / 23%), rgb(129 154 255 / 15%));
+  border-color: var(--glass-2-border);
+  background: var(--glass-2-bg);
   color: #d4eaff;
   box-shadow: 0 8px 20px rgb(4 12 45 / 24%), inset 0 1px 0 rgb(255 255 255 / 42%);
 }
 .statusPanel {
   border-radius: 21px;
-  border-color: rgb(195 220 255 / 23%);
-  background: linear-gradient(145deg, rgb(212 232 255 / 12%), rgb(122 143 255 / 7%) 58%, rgb(255 255 255 / 3%));
+  border-color: var(--glass-2-border);
+  background: var(--glass-2-bg);
   box-shadow: 0 18px 42px rgb(2 8 28 / 24%), inset 0 1px 0 rgb(255 255 255 / 26%);
   backdrop-filter: blur(25px) saturate(145%);
   -webkit-backdrop-filter: blur(25px) saturate(145%);
 }
 .dockWrap {
-  border-color: rgb(208 228 255 / 34%);
+  border-color: var(--glass-2-border);
   border-radius: 25px;
-  background: linear-gradient(145deg, rgb(226 240 255 / 20%), rgb(130 150 255 / 13%) 58%, rgb(255 255 255 / 7%));
+  background: var(--glass-2-bg);
   box-shadow: 0 18px 55px rgb(3 8 30 / 42%), inset 0 1px 0 rgb(255 255 255 / 48%), inset 0 -1px 0 rgb(255 255 255 / 10%);
   backdrop-filter: blur(32px) saturate(160%);
   -webkit-backdrop-filter: blur(32px) saturate(160%);
