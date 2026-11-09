@@ -83,7 +83,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     // Wait for the connected script font before revealing it. The reveal mask
     // moves once from left to right, so the first visible stroke is always W.
     let welcomeMounted = true;
-    void document.fonts.load('400 126px "Sacramento"').catch(() => undefined).finally(() => {
+    void document.fonts.load('600 94px "Space Grotesk"').catch(() => undefined).finally(() => {
       if (welcomeMounted) welcomeRef.current?.classList.add(styles.welcomeActive!);
     });
 
@@ -332,22 +332,22 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       <div ref={welcomeRef} className={styles.welcome} aria-hidden="true">
         <svg
           className={styles.welcomeSvg}
-          viewBox="0 0 650 160"
+          viewBox="0 0 780 160"
           role="img"
           aria-label="Welcome"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
             <linearGradient id="nn-welcome-silk" x1="0" y1="0" x2="0.15" y2="1">
-              <stop offset="0%" stopColor="#FBF9F5" />
-              <stop offset="48%" stopColor="#F1EAE0" />
-              <stop offset="100%" stopColor="#D2C5B3" />
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="42%" stopColor="#DDF2FF" />
+              <stop offset="100%" stopColor="#83BDEB" />
             </linearGradient>
           </defs>
-          <g textAnchor="middle" fontFamily="Sacramento, cursive" fontSize="126" fontWeight="400">
-            <text className={styles.welcomeShadow} x="325" y="119">Welcome</text>
-            <text className={styles.welcomeBody} x="325" y="116">Welcome</text>
-            <text className={styles.welcomeHighlight} x="325" y="116">Welcome</text>
+          <g textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontSize="94" fontWeight="600" letterSpacing="1.5">
+            <text className={styles.welcomeShadow} x="390" y="112">Welcome</text>
+            <text className={styles.welcomeBody} x="390" y="108">Welcome</text>
+            <text className={styles.welcomeHighlight} x="390" y="108">Welcome</text>
           </g>
         </svg>
       </div>
