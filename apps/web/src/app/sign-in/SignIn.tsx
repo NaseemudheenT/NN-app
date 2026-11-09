@@ -26,8 +26,16 @@ export function SignIn() {
   const [secret, setSecret] = useState("");
   const supported = passkeysSupported();
 
+  const enterTemporaryGuestMode = () => {
+    window.sessionStorage.setItem("nn.temporary-guest", "1");
+    router.replace("/workspace");
+  };
+
   useEffect(() => {
-    if (phase === "signed-in") router.replace("/workspace");
+    if (phase === "signed-in") {
+      window.sessionStorage.removeItem("nn.temporary-guest");
+      router.replace("/workspace");
+    }
   }, [phase, router]);
 
   useEffect(() => {
@@ -62,6 +70,10 @@ export function SignIn() {
             Firebase credentials are missing. Copy <code>.env.example</code> to{" "}
             <code>.env.local</code> and fill it in, then reload.
           </p>
+          <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
+            Continue without login
+          </button>
+          <p className={s.guestNote}>Temporary development access. Passkey sign-in is not active.</p>
         </GlassPanel>
       </main>
     );
@@ -150,6 +162,10 @@ export function SignIn() {
           The fingerprint above is a symbol. Your device performs the biometric check
           itself — NN never receives or stores biometric data, only a public key.
         </p>
+        <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
+          Continue without login
+        </button>
+        <p className={s.guestNote}>Temporary development access · your private account is not signed in.</p>
       </GlassPanel>
     </main>
   );
