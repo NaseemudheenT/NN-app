@@ -228,6 +228,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
         enterRef.current.style.transform = `translate(-50%, ${((1 - shown) * 14).toFixed(1)}px)`;
         enterRef.current.style.pointerEvents = shown > 0.6 ? "auto" : "none";
         enterRef.current.setAttribute("aria-hidden", shown > 0.6 ? "false" : "true");
+        enterRef.current.toggleAttribute("inert", shown <= 0.6);
       }
     };
 
@@ -282,7 +283,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
         <NNLogo size={82} className={styles.mark} />
       </div>
 
-      <div ref={enterRef} className={styles.enter} aria-hidden="true">
+      <div ref={enterRef} className={styles.enter} aria-hidden="true" inert>
         <LiquidButton href={enterHref} size="xl" variant="accent">
           {enterLabel}
           <Icon name="check" size={18} />
