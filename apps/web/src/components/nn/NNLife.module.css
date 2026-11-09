@@ -72,3 +72,83 @@
 }
 @media (max-width:700px) { .hero { border-radius: 21px; } }
 
+
+
+/* Founder visual reset — Life is a calm glass workspace, not a flat dashboard. */
+.topbar {
+  background: var(--nn-glass-float);
+  border-bottom-color: rgb(194 222 255 / 16%);
+  -webkit-backdrop-filter: blur(26px) saturate(155%);
+  backdrop-filter: blur(26px) saturate(155%);
+}
+.hero {
+  border: 1px solid var(--nn-spectrum-border);
+  background:
+    linear-gradient(142deg, rgb(235 248 255 / 15%), rgb(var(--nn-spectrum-cyan) / 5%) 40%, rgb(var(--nn-spectrum-violet) / 12%)),
+    var(--nn-wave-hero-bg);
+  box-shadow: var(--shadow-4), inset 0 1px 0 rgb(255 255 255 / 24%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
+  backdrop-filter: blur(28px) saturate(155%);
+}
+.panel, .quickPanel, .focusPanel, .notesList, .noteCard, .emptyState {
+  border: 1px solid var(--nn-spectrum-border);
+  border-radius: var(--radius-lg);
+  background: var(--nn-glass-float);
+  box-shadow: var(--nn-glass-shadow);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+}
+.panel, .quickPanel, .focusPanel, .notesList { padding: clamp(16px, 2vw, 24px); }
+.noteCard { padding: 17px; }
+.focusPanel {
+  background:
+    radial-gradient(ellipse at 86% 0%, rgb(var(--nn-spectrum-violet) / 17%), transparent 48%),
+    var(--nn-glass-primary);
+}
+.focusPanel .label { color: #d2eaff; }
+.metric { border-bottom-color: rgb(205 229 255 / 17%); }
+.metric strong { color: var(--nn-white); }
+.quickPanel > button, .captureForm input, .captureForm textarea, .noteForm input, .noteForm textarea {
+  border-color: rgb(205 229 255 / 26%);
+  background: var(--nn-glass-primary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%);
+}
+.tabs {
+  padding: 5px;
+  border: 1px solid var(--nn-spectrum-border);
+  border-radius: var(--radius-full);
+  background: var(--nn-glass-float);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.tab { border-radius: var(--radius-full); }
+.tabActive {
+  background: var(--nn-glass-primary);
+  box-shadow: inset 0 0 0 1px rgb(205 229 255 / 24%), 0 5px 16px rgb(0 0 0 / 18%);
+}
+.record, .event {
+  border-top-color: rgb(205 229 255 / 16%);
+}
+.recordGlyph {
+  border: 1px solid rgb(205 229 255 / 28%);
+  background: var(--nn-glass-primary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%);
+}
+.goal {
+  border-top-color: rgb(205 229 255 / 16%);
+}
+.progress { background: rgb(195 220 255 / 12%); }
+.progress span { background: var(--nn-wave-ribbon-primary); }
+.dock {
+  border: 1px solid rgb(205 229 255 / 32%);
+  background: var(--nn-glass-primary);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 36%), inset 0 1px 0 rgb(255 255 255 / 25%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  backdrop-filter: blur(26px) saturate(160%);
+}
+@media (max-width: 620px) {
+  .hero { border-radius: 20px; }
+  .panel, .quickPanel, .focusPanel, .notesList { padding: 16px; }
+  .dock { bottom: max(12px, env(safe-area-inset-bottom)); }
+}
