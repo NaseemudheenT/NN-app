@@ -613,8 +613,6 @@ export function NNWorkspace({
         </header>
 
         <div className={styles.stage}>
-          {nav(true)}
-
           <main className={[styles.main, styles.glass, "nn-glass-card"].join(" ")}>
             <div className={styles.viewHeading}>
               <div>
