@@ -586,7 +586,7 @@ export function NNWorkspace({
       }}
     >
       <div className={styles.workspace}>
-        <header className={[styles.topbar, styles.glass, "nn-glass-card"].join(" ")}>
+        <header className={[styles.topbar, styles.glass].join(" ")}>
           <div className={styles.brand}>
             <NNLogo size={20} />
             <span className={styles.brandDivider} />
@@ -613,7 +613,7 @@ export function NNWorkspace({
         </header>
 
         <div className={styles.stage}>
-          <main className={[styles.main, styles.glass, "nn-glass-card"].join(" ")}>
+          <main className={[styles.main, styles.glass].join(" ")}>
             <div className={styles.viewHeading}>
               <div>
                 <p className={styles.greeting}>
