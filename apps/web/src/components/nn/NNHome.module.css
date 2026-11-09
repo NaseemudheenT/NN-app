@@ -100,3 +100,55 @@
 .iconSurface:has(> svg[data-nn-icon="search"]){--nn-icon-rgb:83 215 230}
 .iconSurface:has(> svg[data-nn-icon="file"]){--nn-icon-rgb:145 166 255}
 .iconSurface:has(> svg[data-nn-icon="clock"]){--nn-icon-rgb:112 165 255}
+
+/* Availability is part of the launch tile, not hidden in the app index. */
+.appTile {
+  min-height: 154px;
+  gap: 8px;
+  padding-block: 15px 13px;
+}
+.appStatusAvailable,
+.appStatusPlanned {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  max-width: 100%;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: 8px var(--font-mono);
+  letter-spacing: .075em;
+  line-height: 1.2;
+  text-align: center;
+}
+.appStatusAvailable {
+  border-color: rgb(111 224 205 / 32%);
+  background: rgb(64 190 166 / 10%);
+  color: #9de8dc;
+}
+.appStatusPlanned {
+  border-color: rgb(174 199 235 / 24%);
+  background: rgb(135 165 211 / 8%);
+  color: var(--text-muted);
+}
+.appTile:focus-visible,
+.quickAction:focus-visible,
+.category:focus-visible,
+.searchButton:focus-visible,
+.dockLauncher:focus-visible,
+.panelLink:focus-visible {
+  outline: 2px solid var(--nn-icy);
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .appTile { min-height: 136px; gap: 7px; padding: 11px 5px; }
+  .appStatusAvailable,
+  .appStatusPlanned { min-height: 20px; padding: 3px 6px; font-size: 7px; letter-spacing: .035em; }
+}
+@media (max-width: 360px) {
+  .appTile { min-height: 132px; }
+  .appStatusAvailable,
+  .appStatusPlanned { font-size: 6px; }
+}
+
