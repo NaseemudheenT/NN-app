@@ -5,13 +5,20 @@ import { useRouter } from "next/navigation";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Dialog } from "@/components/ui/Dialog";
 import { Dock } from "@/components/ui/Dock";
-import { Icon, type IconName } from "@/components/ui/Icon";
+import { Icon } from "@/components/ui/Icon";
 import { LiquidButton } from "@/components/ui/LiquidButton";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAuth } from "@/lib/auth";
 import styles from "./NNHome.module.css";
 import { APPLICATIONS, GROUPS, getApplication } from "@/lib/apps/registry";
 import { useRen } from "@/components/ren/RenProvider";
+
+const FEATURED_APPLICATIONS = [
+  { id: "life", tone: "cyan", detail: "Plan · Organise · Live" },
+  { id: "college", tone: "blue", detail: "SMVEC · Study · Progress" },
+  { id: "projects", tone: "violet", detail: "Plan · Build · Deliver" },
+  { id: "finance", tone: "cyan", detail: "Save · Budget · Invest" },
+] as const;
 
 function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>void}) {
   const router=useRouter();
@@ -35,7 +42,7 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
     <header className={styles.topbar}>
       <div className={styles.identity}><NNLogo size={32} decorative/><span>NN <i>/</i> <strong>PERSONAL OS</strong></span></div>
       <div className={styles.topActions}>
-        <button className={styles.searchButton} onClick={()=>setLauncherOpen(true)} aria-label="Search NN"><Icon name="search" size={17}/><span>Search anything in NN</span><kbd>⌘ K</kbd></button>
+        <button className={styles.searchButton} onClick={()=>setLauncherOpen(true)} aria-label="Find an NN application"><Icon name="search" size={17}/><span>Find an NN application</span><kbd>⌘ K</kbd></button>
         <span className={styles.privateState}><i/> PRIVATE ENVIRONMENT</span>
         {onSignOut?<button className={styles.profile} onClick={onSignOut} aria-label={"Sign out "+firstName} title="Sign out">{firstName.slice(0,1).toUpperCase()}</button>:<span className={styles.profile} aria-label="Preview identity">{firstName.slice(0,1).toUpperCase()}</span>}
       </div>
@@ -53,26 +60,37 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
       <section className={styles.section}>
         <div className={styles.sectionHeading}><div><p>YOUR APPLICATIONS</p><h2>Everything in one place.</h2></div><button onClick={()=>setLauncherOpen(true)}>View all applications <span>↗</span></button></div>
         <div className={styles.appGrid}>
-          {[
-            {name:"Life",icon:"calendar" as const,detail:"Plan · Organise · Live",tone:"cyan"},
-            {name:"Academy",icon:"book" as const,detail:"Learn · Grow · Excel",tone:"blue"},
-            {name:"Projects",icon:"grid" as const,detail:"Build · Innovate · Ship",tone:"violet"},
-            {name:"Finance",icon:"wallet" as const,detail:"Save · Invest · Grow",tone:"cyan"},
-            {name:"REN",icon:"sparkle" as const,detail:"Intelligence · Assistance",tone:"violet"},
-            {name:"More",icon:"grid" as const,detail:"Explore · Discover",tone:"blue"}
-          ].map(app=><button className={styles.appTile} key={app.name} onClick={()=>app.name==="More"?setLauncherOpen(true):openApp(app.name)} aria-label={"Open "+app.name}><span className={styles.appIcon+" "+styles.iconSurface+" "+styles[app.tone]}><Icon name={app.icon} size={25}/></span><strong>{app.name}</strong><small>{app.detail}</small></button>)}
+          {FEATURED_APPLICATIONS.map(({ id, tone, detail }) => {
+            const app = getApplication(id);
+            if (!app) return null;
+            const available = app.availability === "available" && Boolean(app.href);
+            return <button className={styles.appTile} key={app.id} onClick={() => openApp(app.name)} aria-label={available ? `Open ${app.name}` : `View ${app.name} development status`}>
+              <span className={`${styles.appIcon} ${styles.iconSurface} ${styles[tone]}`}><Icon name={app.icon} size={25}/></span>
+              <strong>{app.name}</strong>
+              <small>{detail}</small>
+              <span className={available ? styles.appStatusAvailable : styles.appStatusPlanned}>{available ? "AVAILABLE" : "IN DEVELOPMENT"}</span>
+            </button>;
+          })}
+          <button className={styles.appTile} onClick={() => { summon("touch"); }} aria-label="Open REN assistant">
+            <span className={`${styles.appIcon} ${styles.iconSurface} ${styles.violet}`}><Icon name="sparkle" size={25}/></span>
+            <strong>REN</strong><small>Personal assistant</small><span className={styles.appStatusAvailable}>APPEARANCE</span>
+          </button>
+          <button className={styles.appTile} onClick={() => setLauncherOpen(true)} aria-label="Browse all NN applications">
+            <span className={`${styles.appIcon} ${styles.iconSurface} ${styles.blue}`}><Icon name="grid" size={25}/></span>
+            <strong>All applications</strong><small>Explore the complete index</small><span className={styles.appStatusPlanned}>34 IN THE REGISTRY</span>
+          </button>
         </div>
       </section>
       <section className={styles.dashboardGrid}>
         <article className={styles.panel+" "+styles.focusPanel+" nn-glass-card"}><div className={styles.panelHeading}><div><p>YOUR DAY</p><h2>Today’s focus</h2></div><span className={styles.panelGlyph+" nn-icon-surface"}><Icon name="check" size={19}/></span></div><div className={styles.focusEmpty}><span className={styles.focusRing+" nn-icon-surface"}><Icon name="calendar" size={24}/></span><div><strong>Your day, organised.</strong><p>Open NN Life to view your live tasks, calendar, reminders and goals.</p></div></div><button className={styles.panelLink} onClick={()=>openRoute("/life","life")}>Open Life <span>↗</span></button></article>
         <article className={styles.panel+" "+styles.quickPanel+" nn-glass-card"}><div className={styles.panelHeading}><div><p>MOVE FASTER</p><h2>Quick actions</h2></div><span className={styles.panelGlyph}><Icon name="sparkle" size={19}/></span></div>
-          <button className={styles.quickAction} onClick={()=>openRoute("/life","life")}><span className={styles.iconSurface}><Icon name="calendar" size={17}/></span><strong>Open calendar & tasks</strong><i>↗</i></button>
-          <button className={styles.quickAction} onClick={()=>openRoute("/life","life")}><span className={styles.iconSurface}><Icon name="file" size={17}/></span><strong>Open notes & reminders</strong><i>↗</i></button>
-          <button className={styles.quickAction} onClick={()=>setLauncherOpen(true)}><span className={styles.iconSurface}><Icon name="search" size={17}/></span><strong>Find an NN application</strong><i>↗</i></button>
+          <button className={styles.quickAction} onClick={()=>openRoute("/life","life")}><span className={styles.iconSurface}><Icon name="calendar" size={17}/></span><strong>Open NN Life</strong><i>↗</i></button>
+          <button className={styles.quickAction} onClick={()=>setLauncherOpen(true)}><span className={styles.iconSurface}><Icon name="search" size={17}/></span><strong>Browse the application index</strong><i>↗</i></button>
           <button className={styles.quickAction} onClick={()=>openRoute("/workspace","workspace")}><span className={styles.iconSurface}><Icon name="clock" size={17}/></span><strong>Open workspace</strong><i>↗</i></button>
+          <button className={styles.quickAction} onClick={()=>summon("touch")}><span className={styles.iconSurface}><Icon name="sparkle" size={17}/></span><strong>Open REN</strong><i>↗</i></button>
         </article>
         <article className={styles.panel+" "+styles.goalsPanel+" nn-glass-card"}><div className={styles.panelHeading}><div><p>LONG-TERM DIRECTION</p><h2>Your goals</h2></div><span className={styles.panelGlyph}><Icon name="graph" size={19}/></span></div><div className={styles.goalVisual}><div className={styles.goalOrb}><NNLogo size={42} decorative/></div><div><strong>Make progress measurable.</strong><p>Connect goals and milestones through NN Life as those features become available.</p></div></div><button className={styles.panelLink} onClick={()=>openRoute("/life","life")}>Manage in Life <span>↗</span></button></article>
-        <article className={styles.panel+" "+styles.renPanel+" nn-glass-card"}><div className={styles.panelHeading}><div><p>INTELLIGENCE LAYER</p><h2>REN</h2></div><span className={styles.renOrb}><NNLogo size={25} decorative/></span></div><p className={styles.panelBody}>A unified assistant experience for finding information, understanding context and helping you move work forward.</p><div className={styles.renStatus}><span><i/> INTERFACE PRESENT</span><strong>CAPABILITIES EXPANDING</strong></div></article>
+        <article className={styles.panel+" "+styles.renPanel+" nn-glass-card"}><div className={styles.panelHeading}><div><p>INTELLIGENCE LAYER</p><h2>REN</h2></div><span className={styles.renOrb}><NNLogo size={25} decorative/></span></div><p className={styles.panelBody}>REN’s appearance controls are available. Text intelligence and voice are not connected yet.</p><div className={styles.renStatus}><span><i/> APPEARANCE AVAILABLE</span><strong>TEXT · VOICE PLANNED</strong></div></article>
       </section>
       <section className={styles.section}><div className={styles.sectionHeading}><div><p>THE NN ECOSYSTEM</p><h2>One system. Many dimensions.</h2></div><button onClick={()=>setLauncherOpen(true)}>Application index <span>↗</span></button></div><div className={styles.categoryGrid}>{GROUPS.map((group,index)=><button className={styles.category} key={group.name} onClick={()=>{setQuery(group.name);setLauncherOpen(true);}}><span className={styles.categoryIcon+" nn-icon-surface"}><Icon name={group.icon} size={21}/></span><span className={styles.categoryCopy}><strong>{group.name}</strong><small>{group.detail}</small></span><span className={styles.categoryCount}>{group.count}</span><span className={styles.categoryIndex}>0{index+1}</span></button>)}</div></section>
       <footer className={styles.footer}><span>NN / PERSONAL OPERATING ENVIRONMENT</span><span>THE FUTURE IS NOW · WITH NN</span></footer>
