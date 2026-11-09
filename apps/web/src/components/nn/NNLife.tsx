@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   addDoc, collection, doc, getDocs, limit, orderBy, query, Timestamp, updateDoc, serverTimestamp,
@@ -69,6 +69,29 @@ function LifeSurface() {
   const { user } = useAuth();
   const uid = user?.uid;
   const [tab, setTab] = useState<LifeTab>("today");
+  const swipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
+  const tabIndex = TABS.findIndex((item) => item.id === tab);
+  const moveTab = (direction: -1 | 1) => {
+    const next = TABS[Math.max(0, Math.min(TABS.length - 1, tabIndex + direction))];
+    if (next) setTab(next.id);
+  };
+  const beginTabSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "touch") return;
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    if (target.closest("button, a, input, textarea, select, [contenteditable=\"true\"]")) return;
+    swipeStart.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const endTabSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < 52 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    moveTab(dx < 0 ? 1 : -1);
+  };
   const [data, setData] = useState<LifeData>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -207,14 +230,18 @@ function LifeSurface() {
       <button className={styles.brand} onClick={() => router.push("/home")}><Icon name="grid" size={18}/><span>NN <i>/</i> LIFE</span></button>
       <div className={styles.topRight}><span className={styles.private}><i/> PRIVATE SPACE</span><button className={styles.refresh} onClick={() => void load()} aria-label="Refresh Life data" title="Refresh"><Icon name="clock" size={16}/></button><span className={styles.avatar}>{firstName.slice(0,1).toUpperCase()}</span></div>
     </header>
-    <div className={styles.layout}>
+    <div className={styles.layout} onPointerDown={beginTabSwipe} onPointerUp={endTabSwipe} onPointerCancel={() => { swipeStart.current = null; }}>
       <div className={styles.breadcrumb}><button onClick={() => router.push("/home")}>NN HOME</button><span>/</span><span>LIFE</span><span className={styles.date}>{dateLabel()}</span></div>
       <section className={`${styles.hero} nn-glass-card`}>
         <div className={styles.heroCopy}><p className={styles.kicker}>YOUR PERSONAL DAYSPACE</p><h1>{heading}<br/><em>{firstName}.</em></h1><p className={styles.sub}>A thoughtful place for what matters today—and the things you&apos;re building over time.</p></div>
         <div className={styles.orbit} aria-hidden="true"><div className={styles.orbitRing}/><div className={styles.orbitCore}><Icon name="calendar" size={32}/></div><span className={styles.orbitDot}/></div>
         <div className={styles.heroMeta}><span>01 <i>/</i> DAILY OVERVIEW</span><span>{offline ? "OFFLINE / CACHED" : "PERSONAL DATA SPACE"}</span></div>
       </section>
-      <nav className={styles.tabs} aria-label="Life sections">{TABS.map((item) => <button key={item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}><Icon name={item.icon} size={16}/><span>{item.label}</span>{item.id === "tasks" && todayTasks.length > 0 ? <small>{todayTasks.length}</small> : null}</button>)}</nav>
+      <nav className={styles.tabs} aria-label="Life sections">
+        <button type="button" className={styles.tabArrow} onClick={() => moveTab(-1)} disabled={tabIndex <= 0} aria-label="Previous Life section">←</button>
+        {TABS.map((item) => <button key={item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}><Icon name={item.icon} size={16}/><span>{item.label}</span>{item.id === "tasks" && todayTasks.length > 0 ? <small>{todayTasks.length}</small> : null}</button>)}
+        <button type="button" className={styles.tabArrow} onClick={() => moveTab(1)} disabled={tabIndex >= TABS.length - 1} aria-label="Next Life section">→</button>
+      </nav>
       {error ? <div className={styles.error} role="alert"><Icon name="shield" size={17}/><span>{error}</span><button onClick={() => void load()}>Retry</button></div> : null}
       {notice ? <div className={styles.notice} role="status"><Icon name="check" size={16}/>{notice}<button onClick={() => setNotice(null)} aria-label="Dismiss"><Icon name="close" size={14}/></button></div> : null}
       {loading ? <div className={styles.loading}><span/><p>Opening your personal data…</p></div> : null}
