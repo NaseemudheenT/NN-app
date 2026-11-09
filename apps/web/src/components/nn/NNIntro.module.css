@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Sacramento&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap");
 
 .stage {
   position: relative;
@@ -388,7 +388,7 @@
 }
 
 
-/* NN welcome: Sacramento's connected monoline script, revealed from the W. */
+/* NN welcome: precision Space Grotesk display lettering, revealed from W. */
 .welcome {
   position: absolute;
   inset: 0;
@@ -400,39 +400,39 @@
 }
 .welcomeSvg {
   display: block;
-  width: min( min(82vw, 690px), calc(100vw - 42px) );
+  width: min( min(88vw, 780px), calc(100vw - 42px) );
   height: auto;
   overflow: visible;
   opacity: 1;
   transform: translateY(0) scale(1);
   clip-path: inset(0 100% 0 0);
   filter:
-    drop-shadow(0 2px 2px rgb(255 255 255 / 28%))
-    drop-shadow(0 8px 13px rgb(91 78 61 / 18%));
+    drop-shadow(0 0 10px rgb(117 190 255 / 22%))
+    drop-shadow(0 10px 28px rgb(2 9 28 / 32%));
   transition:
     opacity 520ms cubic-bezier(.2, .7, .2, 1),
     transform 700ms cubic-bezier(.16, 1, .3, 1),
     filter 520ms ease;
 }
 .welcomeActive .welcomeSvg {
-  animation: nn-welcome-write 6800ms cubic-bezier(.48, .04, .18, 1) both;
+  animation: nn-welcome-write 5600ms cubic-bezier(.48, .04, .18, 1) both;
 }
 .welcomeShadow {
-  fill: #8E806D;
-  opacity: .2;
-  transform: translateY(3px);
+  fill: #061326;
+  opacity: .72;
+  transform: translateY(4px);
 }
 .welcomeBody {
   fill: url(#nn-welcome-silk);
-  filter: drop-shadow(0 1px 1px rgb(255 255 255 / 38%));
+  stroke: rgb(225 244 255 / 24%);
+  stroke-width: .7px;
+  paint-order: stroke fill;
 }
 .welcomeHighlight {
   fill: none;
   stroke: #FFFFFF;
-  stroke-width: 1.15px;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: .42;
+  stroke-width: .8px;
+  opacity: .2;
 }
 .welcomeGone .welcomeSvg {
   opacity: 0;
@@ -452,7 +452,7 @@
 }
 @media (max-width: 767px) {
   .welcome { padding: 18px; }
-  .welcomeSvg { width: min(88vw, 560px); }
+  .welcomeSvg { width: min(91vw, 650px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .welcomeSvg {
