@@ -64,6 +64,5 @@
 :global(html[data-motion="reduced"]) .launcher:hover,
 :global(html[data-motion="reduced"]) .launcher:active { transform: none; }
 
-
-/* Floating REN launcher: a small, tactile glass object. */
-.launcher { border-color:rgb(215 235 255 / 44%);background:linear-gradient(145deg,rgb(255 255 255 / 18%),rgb(13 28 51 / 82%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),inset 0 -2px 0 rgb(0 0 0 / 24%),0 2px 0 rgb(3 10 27 / 70%),0 8px 16px rgb(0 0 0 / 26%),0 18px 34px rgb(0 0 0 / 22%); }
+/* REN launcher: tactile floating glass with a real lower bevel. */
+.launcher{border-color:rgb(215 235 255 / 48%);background:linear-gradient(145deg,rgb(255 255 255 / 22%),rgb(13 28 51 / 78%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 54%),inset 0 -2px 0 rgb(0 0 0 / 26%),0 2px 0 rgb(3 10 27 / 72%),0 9px 18px rgb(0 0 0 / 28%),0 20px 38px rgb(0 0 0 / 24%);-webkit-backdrop-filter:blur(30px) saturate(160%);backdrop-filter:blur(30px) saturate(160%);transform-style:preserve-3d}
