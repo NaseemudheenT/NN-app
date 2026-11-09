@@ -98,7 +98,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     // SVG dash reveal; no canvas, font download or frame-by-frame React work.
     const welcomeGroups = welcomeRef.current?.querySelectorAll("g") ?? [];
     welcomeGroups.forEach((group) => {
-      const paths = group.querySelectorAll("path");
+      const paths = group.querySelectorAll<SVGPathElement>("path");
       const measurePath = paths[1];
       if (!measurePath) return;
       const length = measurePath.getTotalLength();
