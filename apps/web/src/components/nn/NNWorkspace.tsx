@@ -589,7 +589,7 @@ export function NNWorkspace({
         <div className={styles.stage}>
           {nav(true)}
 
-          <main className={[styles.main, styles.glass].join(" ")}>
+          <main className={[styles.main, styles.glass, "nn-glass-card"].join(" ")}>
             <div className={styles.viewHeading}>
               <div>
                 <p className={styles.greeting}>
@@ -886,7 +886,7 @@ export function NNWorkspace({
         </div>
 
         {alertsOpen ? (
-          <aside className={[styles.notifications, styles.glass].join(" ")} aria-label="Notifications">
+          <aside className={[styles.notifications, styles.glass, "nn-glass-card"].join(" ")} aria-label="Notifications">
             <div>
               <h2>Nothing needs you.</h2>
               <button type="button" aria-label="Close notifications" onClick={() => setAlertsOpen(false)}>
@@ -916,7 +916,7 @@ export function NNWorkspace({
 
         {settingsOpen ? (
           <aside
-            className={[styles.material, styles.glass].join(" ")}
+            className={[styles.material, styles.glass, "nn-glass-card"].join(" ")}
             id={`${id}-material`}
             aria-label="Glass appearance"
           >
