@@ -139,3 +139,10 @@ rather than pasting them into chat.
 - Verification status: source was re-fetched from GitHub after each commit and the intended changes were confirmed in the committed files. No local checkout is available in this execution environment, so TypeScript, lint, unit tests, production build, browser interaction, responsive screenshots, accessibility audit and real iPhone QA have **not** been run. This milestone is implemented in source but not verified.
 - Release status: no merge, deployment or production change was made. Continue on `design/nn-frontend-system`.
 
+### Home interaction polish — 2026-11-09
+
+- The Home greeting now follows the device's local time (morning, afternoon or evening) rather than always saying “Good evening”.
+- Pressing Escape closes the application index and clears its query, so a later open starts cleanly.
+- Commit: `88650bfefde05ab53b39c3f67c49c65311d88818`.
+- Verification remains source-level only; no executable test/build/browser/device run was available in this session.
+
