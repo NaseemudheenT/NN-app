@@ -83,7 +83,7 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
     </header>
     <div className={styles.page}>
       <div className={styles.eyebrow}><span/> YOUR PERSONAL OPERATING ENVIRONMENT <span className={styles.dateLine}>NN / 001</span></div>
-      <section className={styles.hero}>
+      <section className={`${styles.hero} nn-holo`}>
         <div className={styles.heroText}>
           <p className={styles.heroKicker}>A SYSTEM THAT MOVES WITH YOU</p>
           <h1>Good to see you,<br/><em>{firstName}.</em></h1>
@@ -110,13 +110,13 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
             {name:"Creation & communication",count:"04",detail:"Create, write and communicate",icon:"sparkle" as const},
             {name:"Knowledge & insight",count:"06",detail:"Store, recall and understand information",icon:"folder" as const},
             {name:"System",count:"05",detail:"Control, search, automate and protect NN",icon:"settings" as const},
-          ].map((group,index)=><button className={styles.category} key={group.name} onClick={()=>{setQuery(group.name);setLauncherOpen(true);}}>
+          ].map((group,index)=><button className={`${styles.category} nn-holo`} key={group.name} onClick={()=>{setQuery(group.name);setLauncherOpen(true);}}>
             <span className={styles.categoryIcon}><Icon name={group.icon} size={19}/></span><span className={styles.categoryCopy}><strong>{group.name}</strong><small>{group.detail}</small></span><span className={styles.categoryCount}>{group.count}</span><span className={styles.categoryArrow}>↗</span><span className={styles.categoryIndex}>0{index+1}</span>
           </button>)}
         </div>
       </section>
       <section className={styles.bottomGrid}>
-        <article className={styles.statusPanel}>
+        <article className={`${styles.statusPanel} nn-holo`}>
           <div className={styles.panelHeading}><div><p>INTELLIGENCE LAYER</p><h2>REN</h2></div><span className={styles.renOrb}><NNLogo size={26} decorative/></span></div>
           <p className={styles.panelBody}>REN is designed as the intelligence layer across NN. Its visual identity is present; reasoning, memory and tool execution are not connected yet.</p>
           <div className={styles.panelStatus}><span>INTERFACE DESIGNED</span><strong>NOT CONNECTED</strong></div>
@@ -129,7 +129,7 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
       </section>
       <footer className={styles.footer}><span>NN / PERSONAL OPERATING ENVIRONMENT</span><span>BUILT WITH INTENT · PRIVATE BY DESIGN</span></footer>
     </div>
-    <div className={styles.dockWrap}>
+    <div className={`${styles.dockWrap} nn-holo`}>
       <Dock items={[{id:"home",label:"NN Home",icon:"grid"},{id:"life",label:"NN Life",icon:"calendar"},{id:"workspace",label:"Workspace",icon:"clock"},{id:"design",label:"Design system",icon:"sparkle"}]} activeId={activeDock} onSelect={(id)=>{
         if(id==="home")openRoute("/home",id);
         if(id==="life")openRoute("/life",id);
