@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { LiquidButton } from "@/components/ui/LiquidButton";
@@ -140,6 +140,8 @@ export function NNWorkspace({
   const [notice, setNotice] = useState("");
   const [renDraft, setRenDraft] = useState("");
   const narrow = useNarrow();
+  const swipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
+  const viewIndex = VIEWS.findIndex((item) => item.id === view);
 
   // Focus the first control in the panel when it opens; return focus to the
   // trigger when it closes. A popover that steals focus and loses it is worse
@@ -206,6 +208,30 @@ export function NNWorkspace({
   function changeView(next: View) {
     setView(next);
     setAlertsOpen(false);
+  }
+
+  function moveView(direction: -1 | 1) {
+    const next = VIEWS[Math.max(0, Math.min(VIEWS.length - 1, viewIndex + direction))];
+    if (next) changeView(next.id);
+  }
+
+  function beginViewSwipe(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== "touch") return;
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    if (target.closest("button, a, input, textarea, select, [contenteditable=\"true\"], [aria-roledescription=\"carousel\"]")) return;
+    swipeStart.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function endViewSwipe(event: ReactPointerEvent<HTMLDivElement>) {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < 52 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    moveView(dx < 0 ? 1 : -1);
   }
 
   /** The founder's own data, in a format nothing else owns. */
@@ -606,12 +632,23 @@ export function NNWorkspace({
                 ) : (
                   <span className={styles.date}>{periodLabel}</span>
                 )}
+                <div className={styles.viewControls} aria-label="Workspace view navigation">
+                  <button type="button" className={styles.viewArrow} onClick={() => moveView(-1)} disabled={viewIndex <= 0} aria-label="Previous workspace view">←</button>
+                  <span>{String(viewIndex + 1).padStart(2, "0")} / {String(VIEWS.length).padStart(2, "0")}</span>
+                  <button type="button" className={styles.viewArrow} onClick={() => moveView(1)} disabled={viewIndex >= VIEWS.length - 1} aria-label="Next workspace view">→</button>
+                </div>
               </div>
             </div>
 
             <div className={styles.mobileNav}>{nav(false)}</div>
 
-            <div key={view} className={styles.view}>
+            <div
+              key={view}
+              className={styles.view}
+              onPointerDown={beginViewSwipe}
+              onPointerUp={endViewSwipe}
+              onPointerCancel={() => { swipeStart.current = null; }}
+            >
               {view === "today" ? (
                 <>
                   <div className={styles.overviewGrid}>
@@ -684,7 +721,7 @@ export function NNWorkspace({
                   >
                     <div className={styles.panelTitle}>
                       <h2>Applications</h2>
-                      <span className={styles.smallLabel}>Drag, swipe or use the arrow keys</span>
+                      <span className={styles.smallLabel}>Swipe or use the arrows</span>
                     </div>
                     <Coverflow
                       cards={LAUNCHER.map((app) => ({
