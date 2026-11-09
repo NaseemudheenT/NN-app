@@ -27,7 +27,7 @@ const TABS: readonly { id: LifeTab; label: string; icon: IconName }[] = [
   { id: "goals", label: "Goals", icon: "graph" },
 ];
 const EMPTY: LifeData = { tasks: [], calendar_events: [], reminders: [], notes: [], goals: [] };
-const META = { schemaVersion: 1, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+const metadata = () => ({ schemaVersion: 1, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
 const localDateTime = (date = new Date()) => {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
   return local.toISOString().slice(0, 16);
@@ -141,7 +141,7 @@ function LifeSurface() {
     if (!title || !uid) return;
     const dueAt = taskDue ? Timestamp.fromDate(new Date(taskDue)) : null;
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "tasks"), {
-      ...META, title, status: "open", priority: "normal", dueAt, estimateMinutes: null, parentId: null, dependsOn: [],
+      ...metadata(), title, status: "open", priority: "normal", dueAt, estimateMinutes: null, parentId: null, dependsOn: [],
     }), "Task added to NN Life.");
     setTaskTitle(""); setTaskDue("");
   };
@@ -150,7 +150,7 @@ function LifeSurface() {
     const title = noteTitle.trim();
     if (!title || !uid) return;
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "notes"), {
-      ...META, title, format: "markdown", body: noteBody.trim(), folderId: null, tags: [], pinned: false, linkedIds: [],
+      ...metadata(), title, format: "markdown", body: noteBody.trim(), folderId: null, tags: [], pinned: false, linkedIds: [],
     }), "Note saved to NN Life.");
     setNoteTitle(""); setNoteBody("");
   };
@@ -163,7 +163,7 @@ function LifeSurface() {
       setError("Enter a title and a valid end time after the start time."); return;
     }
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "calendar_events"), {
-      ...META, calendarId: null, title, start: Timestamp.fromDate(start), end: Timestamp.fromDate(end),
+      ...metadata(), calendarId: null, title, start: Timestamp.fromDate(start), end: Timestamp.fromDate(end),
       allDay: false, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, rrule: null, exdates: [],
       location: null, travelMinutes: 0, status: "scheduled",
     }), "Event added to your calendar.");
@@ -175,7 +175,7 @@ function LifeSurface() {
     const fireAt = new Date(reminderAt);
     if (!title || !uid || Number.isNaN(fireAt.getTime())) { setError("Enter a reminder title and valid time."); return; }
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "reminders"), {
-      ...META, title, fireAt: Timestamp.fromDate(fireAt), rrule: null,
+      ...metadata(), title, fireAt: Timestamp.fromDate(fireAt), rrule: null,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, state: "scheduled", attempts: 0,
       snoozedUntil: null, escalation: null,
     }), "Reminder scheduled in NN Life.");
