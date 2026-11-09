@@ -4,6 +4,7 @@ import { ServiceWorker } from "@/components/ServiceWorker";
 import { Room } from "@/components/nn/Room";
 import { RenProvider } from "@/components/ren/RenProvider";
 import { RenChrome } from "@/components/ren/RenChrome";
+import { NNAppNavigation } from "@/components/nn/NNAppNavigation";
 import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <RenProvider>
               <div className="nn-shell nn-page-arrive">{children}</div>
               <RenChrome />
+              <NNAppNavigation />
             </RenProvider>
           </AuthProvider>
           <ServiceWorker />
