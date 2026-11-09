@@ -26,14 +26,14 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
   const [launcherOpen,setLauncherOpen]=useState(false);
   const [query,setQuery]=useState("");
   const [activeDock,setActiveDock]=useState("home");
-  const [clock,setClock]=useState({date:"",time:""});
+  const [clock,setClock]=useState({date:"",time:"",greeting:""});
   const filtered=useMemo(()=>APPLICATIONS.filter(app=>(app.name+" "+app.group+" "+app.description).toLowerCase().includes(query.trim().toLowerCase())),[query]);
   useEffect(()=>{
-    const update=()=>{const now=new Date();setClock({date:new Intl.DateTimeFormat(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(now),time:new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit"}).format(now)});};
+    const update=()=>{const now=new Date();const hour=now.getHours();const greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";setClock({date:new Intl.DateTimeFormat(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(now),time:new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit"}).format(now),greeting});};
     update();const timer=window.setInterval(update,30000);return()=>window.clearInterval(timer);
   },[]);
   useEffect(()=>{
-    const onKey=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();setLauncherOpen(true);}if(event.key==="Escape")setLauncherOpen(false);};
+    const onKey=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();setLauncherOpen(true);}if(event.key==="Escape"){setLauncherOpen(false);setQuery("");}};
     window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey);
   },[]);
   const openRoute=(href:"/home"|"/life"|"/workspace"|"/design",id:string)=>{setActiveDock(id);router.push(href);};
@@ -49,7 +49,7 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
     </header>
     <div className={styles.page}>
       <section className={styles.welcomeRow}>
-        <div className={styles.welcomeCopy}><p className={styles.eyebrow}><span/> YOUR PERSONAL OPERATING ENVIRONMENT</p><h1>Good evening, <em>{firstName}.</em></h1><p className={styles.welcomeSub}>Dream bigger. Build greater. Your next chapter starts here.</p></div>
+        <div className={styles.welcomeCopy}><p className={styles.eyebrow}><span/> YOUR PERSONAL OPERATING ENVIRONMENT</p><h1>{clock.greeting||"Welcome back"}, <em>{firstName}.</em></h1><p className={styles.welcomeSub}>Dream bigger. Build greater. Your next chapter starts here.</p></div>
         <div className={styles.timeCard}><span className={styles.timeOrb}><span/></span><div><p>{clock.date||"Your day, in focus"}</p><strong>{clock.time||"--:--"}</strong><small>LOCAL TIME · NN</small></div></div>
       </section>
       <section className={styles.hero+" nn-glass-primary nn-glass-card"}>
