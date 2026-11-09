@@ -103,7 +103,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     let stage = { width: 1440, height: 900, isMobile: false };
     let dirty = true;
     let welcomeDismissed = false;
-    let hasLeftWelcomePosition = false;
     let welcomeTimer: number | null = null;
     const dismissWelcome = () => {
       if (welcomeDismissed) return;
@@ -118,17 +117,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       if (welcomeTimer !== null) window.clearTimeout(welcomeTimer);
       welcomeTimer = window.setTimeout(dismissWelcome, 9000);
     };
-    const replayWelcome = () => {
-      const node = welcomeRef.current;
-      if (!node) return;
-      welcomeDismissed = false;
-      node.classList.remove(styles.welcomeActive!, styles.welcomeGone!);
-      // Force a style boundary so the left-to-right reveal restarts at W.
-      void node.offsetWidth;
-      node.classList.add(styles.welcomeActive!);
-      scheduleWelcomeDismiss();
-    };
-
     // The greeting is a brief opening moment, not a permanent overlay.
     scheduleWelcomeDismiss();
 
@@ -225,16 +213,10 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     /* ---- paint ------------------------------------------------------------ */
     const paint = () => {
       const p = progress.value;
-      // Detect the actual camera crossing the intro boundary. Using the
-      // spring's rendered value (rather than its target) makes replay happen
-      // when the viewer really returns to the opening position.
-      if (p > 0.015) {
-        hasLeftWelcomePosition = true;
-        dismissWelcome();
-      } else if (hasLeftWelcomePosition) {
-        hasLeftWelcomePosition = false;
-        replayWelcome();
-      }
+      // The greeting is a one-time entry moment. Once the viewer starts
+      // moving, it is dismissed permanently for this mounted visit; returning
+      // to the opening position must never replay or cover the experience.
+      if (p > 0.015) dismissWelcome();
       const farZ = stage.isMobile ? -1200 : -1700;
       const nearZ = stage.isMobile ? 350 : 500;
       const panStrength = stage.isMobile ? 20 : 45;
