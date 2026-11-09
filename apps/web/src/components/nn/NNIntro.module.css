@@ -386,7 +386,7 @@
 }
 
 
-/* Apple-inspired opening: SF system typography, revealed one letter at a time. */
+/* NN handwritten welcome: original connected SVG lettering, drawn as a glass filament. */
 .welcome {
   position: absolute;
   inset: 0;
@@ -396,69 +396,80 @@
   padding: 24px;
   pointer-events: none;
 }
-.welcomeWord {
-  display: inline-flex;
-  align-items: baseline;
-  max-width: 100%;
-  white-space: nowrap;
-  /* system-ui resolves to Apple's current San Francisco system face on Apple OSes. */
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(52px, 10vw, 112px);
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: -.075em;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 1px rgb(236 248 255 / 38%);
-  text-shadow: 0 1px 0 rgb(255 255 255 / 12%);
+.welcomeSvg {
+  display: block;
+  width: min( min(82vw, 690px), calc(100vw - 42px) );
+  height: auto;
+  overflow: visible;
+  opacity: 1;
+  transform: translateY(0) scale(1);
   filter:
-    drop-shadow(0 1px 1px rgb(255 255 255 / 30%))
-    drop-shadow(0 12px 38px rgb(101 164 255 / 28%));
+    drop-shadow(0 12px 24px rgb(32 68 145 / 24%))
+    drop-shadow(0 2px 4px rgb(0 0 0 / 22%));
+  transition:
+    opacity 520ms cubic-bezier(.2, .7, .2, 1),
+    transform 700ms cubic-bezier(.16, 1, .3, 1),
+    filter 520ms ease;
 }
-.welcomeLetter {
-  display: inline-block;
+.welcomeGlyph {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.welcomeGlyph path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--path-length, 1200);
+  stroke-dashoffset: var(--path-length, 1200);
+  animation: nn-welcome-draw 2500ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.welcomeShadow {
+  stroke: rgb(3 12 39 / 38%);
+  stroke-width: clamp(22px, 3vw, 28px);
+  transform: translateY(3px);
+}
+.welcomeBody {
+  stroke: url(#nn-welcome-silk);
+  stroke-width: clamp(16px, 2.5vw, 22px);
+  filter: drop-shadow(0 1px 1px rgb(255 255 255 / 22%));
+}
+.welcomeHighlight {
+  stroke: url(#nn-welcome-edge);
+  stroke-width: clamp(2px, .36vw, 3.2px);
+  opacity: .92;
+}
+.welcomeActive .welcomeGlyph:nth-child(1) path { animation-delay: 0ms; }
+.welcomeActive .welcomeGlyph:nth-child(2) path { animation-delay: 165ms; }
+.welcomeActive .welcomeGlyph:nth-child(3) path { animation-delay: 330ms; }
+.welcomeActive .welcomeGlyph:nth-child(4) path { animation-delay: 495ms; }
+.welcomeActive .welcomeGlyph:nth-child(5) path { animation-delay: 660ms; }
+.welcomeActive .welcomeGlyph:nth-child(6) path { animation-delay: 825ms; }
+.welcomeActive .welcomeGlyph:nth-child(7) path { animation-delay: 990ms; }
+.welcomeGone .welcomeSvg {
   opacity: 0;
-  /* Translucent glass pigment with a narrow moving specular highlight. */
-  background:
-    linear-gradient(108deg, transparent 0%, rgb(255 255 255 / 78%) 43%, rgb(255 255 255 / 96%) 50%, rgb(255 255 255 / 42%) 57%, transparent 100%),
-    linear-gradient(112deg, rgb(225 242 255 / 82%) 0%, rgb(177 211 255 / 76%) 34%, rgb(231 218 255 / 82%) 68%, rgb(255 255 255 / 88%) 100%);
-  background-size: 240% 100%, 100% 100%;
-  background-position: 0% 50%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  will-change: transform, opacity, filter, background-position;
+  transform: translateY(-12px) scale(1.018);
+  filter:
+    blur(8px)
+    drop-shadow(0 12px 24px rgb(32 68 145 / 12%));
+  transition:
+    opacity 460ms cubic-bezier(.2, .7, .2, 1),
+    transform 620ms cubic-bezier(.16, 1, .3, 1),
+    filter 460ms ease;
 }
-.welcomeActive .welcomeLetter {
-  animation:
-    welcome-letter-arrive 1050ms cubic-bezier(.16, 1, .3, 1) both,
-    welcome-letter-reflect 3.8s ease-in-out 1.05s infinite;
-}
-.welcomeActive .welcomeLetter:nth-child(1) { animation-delay: 0ms, 1.05s; }
-.welcomeActive .welcomeLetter:nth-child(2) { animation-delay: 65ms, 1.115s; }
-.welcomeActive .welcomeLetter:nth-child(3) { animation-delay: 130ms, 1.18s; }
-.welcomeActive .welcomeLetter:nth-child(4) { animation-delay: 195ms, 1.245s; }
-.welcomeActive .welcomeLetter:nth-child(5) { animation-delay: 260ms, 1.31s; }
-.welcomeActive .welcomeLetter:nth-child(6) { animation-delay: 325ms, 1.375s; }
-.welcomeActive .welcomeLetter:nth-child(7) { animation-delay: 390ms, 1.44s; }
-.welcomeGone .welcomeLetter {
-  animation: welcome-letter-dismiss 420ms cubic-bezier(.2, .7, .2, 1) forwards !important;
-}
-@keyframes welcome-letter-arrive {
-  0% { opacity: 0; transform: translate3d(0, 22px, 0) scale(.92); filter: blur(16px); }
-  62% { opacity: 1; transform: translate3d(0, -2px, 0) scale(1.015); filter: blur(0); }
-  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0); }
-}
-@keyframes welcome-letter-dismiss {
-  to { opacity: 0; transform: translate3d(0, -13px, 0) scale(1.03); filter: blur(10px); }
-}
-@keyframes welcome-letter-reflect {
-  0%, 15% { background-position: 0% 50%; }
-  58%, 100% { background-position: 100% 50%; }
+@keyframes nn-welcome-draw {
+  from { stroke-dashoffset: var(--path-length, 1200); }
+  to { stroke-dashoffset: 0; }
 }
 @media (max-width: 767px) {
-  .welcomeWord { font-size: clamp(48px, 13vw, 76px); letter-spacing: -.07em; }
+  .welcome { padding: 18px; }
+  .welcomeSvg { width: min(88vw, 560px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .welcomeActive .welcomeLetter { animation: none; opacity: 1; filter: none; transform: none; }
-  .welcomeGone .welcomeLetter { animation: none !important; opacity: 0; }
+  .welcomeGlyph path {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .welcomeSvg { transition: none; }
+  .welcomeGone .welcomeSvg { opacity: 0; transform: none; filter: none; }
 }
