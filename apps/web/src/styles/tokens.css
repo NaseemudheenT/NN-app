@@ -23,6 +23,45 @@
   --nn-icy:      #A9D9FF;
   --nn-accent:   #7A9CFF;
 
+  /* Derived optical reflections for the founder-approved iridescent glass.
+     These are material highlights only — never base surfaces, text or status colours. */
+  --nn-spectrum-cyan:   41 176 255;
+  --nn-spectrum-aqua:   82 206 255;
+  --nn-spectrum-blue:   35 102 255;
+  --nn-spectrum-indigo: 106 112 255;
+  --nn-spectrum-violet: 183 112 255;
+  --nn-spectrum-border: rgb(194 222 255 / 30%);
+  --nn-spectrum-rim: conic-gradient(
+    from 212deg,
+    rgb(var(--nn-spectrum-cyan) / 0%) 0deg,
+    rgb(195 232 255 / 72%) 56deg,
+    rgb(var(--nn-spectrum-violet) / 46%) 130deg,
+    rgb(var(--nn-spectrum-blue) / 6%) 196deg,
+    rgb(var(--nn-spectrum-aqua) / 58%) 292deg,
+    rgb(var(--nn-spectrum-cyan) / 0%) 360deg
+  );
+  --nn-wave-ribbon-primary: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(var(--nn-spectrum-cyan) / 62%) 22%,
+    rgb(var(--nn-spectrum-aqua) / 76%) 42%,
+    rgb(var(--nn-spectrum-indigo) / 68%) 67%,
+    rgb(var(--nn-spectrum-violet) / 48%) 84%,
+    transparent 100%
+  );
+  --nn-wave-ribbon-secondary: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(var(--nn-spectrum-blue) / 35%) 24%,
+    rgb(var(--nn-spectrum-indigo) / 50%) 48%,
+    rgb(var(--nn-spectrum-violet) / 52%) 70%,
+    transparent 100%
+  );
+  --nn-wave-hero-bg:
+    radial-gradient(ellipse at 76% 42%, rgb(var(--nn-spectrum-violet) / 30%), transparent 38%),
+    radial-gradient(ellipse at 23% 76%, rgb(var(--nn-spectrum-cyan) / 32%), transparent 42%),
+    linear-gradient(118deg, var(--nn-navy-800) 0%, var(--nn-navy-700) 58%, var(--nn-navy-800) 100%);
+
   /* ---- semantic: surfaces ----------------------------------------------- */
   --surface-base:     var(--nn-navy-900);
   --surface-deep:     var(--nn-navy-800);
@@ -42,16 +81,16 @@
   /* ---- glass material ----------------------------------------------------
      Three tiers. Denser information sits on a more opaque tier so text never
      has to fight the background — transparency is graded, never uniform.    */
-  --glass-1-bg:     linear-gradient(145deg, rgb(211 231 255 / 13%), rgb(151 174 255 / 5%) 52%, rgb(255 255 255 / 3%));
-  --glass-1-border: rgb(203 224 255 / 20%);
+  --glass-1-bg:     linear-gradient(145deg, rgb(232 246 255 / 14%), rgb(var(--nn-spectrum-cyan) / 6%) 28%, rgb(var(--nn-spectrum-indigo) / 5%) 68%, rgb(255 255 255 / 3%));
+  --glass-1-border: rgb(203 224 255 / 22%);
   --glass-1-blur:   20px;
 
-  --glass-2-bg:     linear-gradient(145deg, rgb(223 238 255 / 19%), rgb(162 181 255 / 9%) 55%, rgb(255 255 255 / 5%));
-  --glass-2-border: rgb(208 226 255 / 27%);
+  --glass-2-bg:     linear-gradient(145deg, rgb(232 246 255 / 20%), rgb(var(--nn-spectrum-cyan) / 10%) 30%, rgb(var(--nn-spectrum-violet) / 9%) 72%, rgb(255 255 255 / 6%));
+  --glass-2-border: rgb(208 226 255 / 30%);
   --glass-2-blur:   26px;
 
-  --glass-3-bg:     linear-gradient(145deg, rgb(34 48 91 / 88%), rgb(15 22 55 / 94%));
-  --glass-3-border: rgb(213 224 255 / 30%);
+  --glass-3-bg:     linear-gradient(145deg, rgb(34 48 91 / 94%), rgb(15 22 55 / 96%));
+  --glass-3-border: rgb(213 224 255 / 34%);
   --glass-3-blur:   30px;
 
   --glass-sheen:    rgb(232 242 255 / 16%);   /* 1px inset top highlight */
@@ -79,9 +118,9 @@
 
   /* ---- ambient light ----------------------------------------------------- */
   --ambient:
-    radial-gradient(980px 560px at 12% -8%, rgb(65 178 255 / 22%), transparent 64%),
-    radial-gradient(880px 620px at 88% 4%, rgb(142 105 255 / 18%), transparent 66%),
-    radial-gradient(780px 520px at 52% 92%, rgb(62 112 255 / 13%), transparent 68%);
+    radial-gradient(980px 560px at 12% -8%, rgb(var(--nn-spectrum-cyan) / 22%), transparent 64%),
+    radial-gradient(880px 620px at 88% 4%, rgb(var(--nn-spectrum-violet) / 18%), transparent 66%),
+    radial-gradient(780px 520px at 52% 92%, rgb(var(--nn-spectrum-blue) / 13%), transparent 68%);
 
   /* ---- spacing (4px base) ------------------------------------------------ */
   --space-0: 0;     --space-1: 2px;   --space-2: 4px;   --space-3: 6px;
@@ -167,11 +206,11 @@
   --text-accent:    #2F6FBD;
   --text-on-accent: var(--nn-white);
 
-  --glass-1-bg:     linear-gradient(158deg, rgb(255 255 255 / 76%), rgb(255 255 255 / 54%));
+  --glass-1-bg:     linear-gradient(145deg, rgb(255 255 255 / 80%), rgb(232 244 255 / 58%) 58%, rgb(239 235 255 / 48%));
   --glass-1-border: rgb(7 17 31 / 8%);
-  --glass-2-bg:     linear-gradient(158deg, rgb(255 255 255 / 88%), rgb(255 255 255 / 68%));
+  --glass-2-bg:     linear-gradient(145deg, rgb(255 255 255 / 90%), rgb(225 240 255 / 70%) 58%, rgb(239 235 255 / 60%));
   --glass-2-border: rgb(7 17 31 / 11%);
-  --glass-3-bg:     linear-gradient(158deg, rgb(255 255 255 / 97%), rgb(246 249 253 / 97%));
+  --glass-3-bg:     linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(239 245 253 / 98%) 58%, rgb(246 243 255 / 96%));
   --glass-3-border: rgb(7 17 31 / 13%);
 
   --glass-sheen:  rgb(255 255 255 / 85%);
@@ -182,6 +221,10 @@
   --border-normal: rgb(7 17 31 / 11%);
   --border-strong: rgb(7 17 31 / 18%);
   --focus-ring:    #2F6FBD;
+  --nn-spectrum-rim: conic-gradient(from 212deg, rgb(47 111 189 / 0%) 0deg, rgb(47 111 189 / 42%) 56deg, rgb(140 110 220 / 28%) 130deg, rgb(47 111 189 / 5%) 196deg, rgb(60 170 220 / 36%) 292deg, rgb(47 111 189 / 0%) 360deg);
+  --nn-wave-ribbon-primary: linear-gradient(100deg, transparent, rgb(47 111 189 / 20%), rgb(60 170 220 / 24%), rgb(140 110 220 / 18%), transparent);
+  --nn-wave-ribbon-secondary: linear-gradient(100deg, transparent, rgb(47 111 189 / 16%), rgb(140 110 220 / 14%), transparent);
+  --nn-wave-hero-bg: linear-gradient(135deg, rgb(255 255 255 / 96%), rgb(232 242 255 / 92%) 58%, rgb(241 237 255 / 88%));
 
   --status-ok:   #1E8A62;
   --status-warn: #9A6E12;
