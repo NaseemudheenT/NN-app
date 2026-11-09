@@ -160,3 +160,8 @@ The full application-by-application design and reusable implementation prompt is
 - `docs/NN_ANIMATION_COMPONENT_SOURCE_INDEX.md`
 
 Every new founder-supplied reference must be preserved in the repository (including its original prompt/source code where available), indexed, mapped to actual NN screens, and adapted to the existing architecture. Do not treat this visual specification as evidence that every mapped screen is already implemented.
+
+
+## Latest founder-approved visual direction
+
+Read `docs/NN_FOUNDER_VISUAL_RESET.md` before frontend work. It supersedes the older restrained navy/icy-blue-only look: retain midnight depth, but use the founder's flowing cyan/aqua/blue/indigo/violet wave palette, translucent floating 3D glass, calm luminous reflections and icon-led surfaces consistently across every application. Official NN and REN logo assets are pending founder delivery; preserve the existing logo component boundary and do not invent replacement marks.
