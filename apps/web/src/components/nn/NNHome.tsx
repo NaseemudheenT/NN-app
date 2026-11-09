@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Icon, type IconName } from "@/components/ui/Icon";
@@ -33,6 +33,7 @@ function HomeSurface(){
  const [drafts,setDrafts]=useState<string[]>([]);
  const [captureOpen,setCaptureOpen]=useState(false);
  const filtered=useMemo(()=>APPS.filter(a=>(a.name+" "+a.group+" "+a.description).toLowerCase().includes(query.toLowerCase())),[query]);
+ useEffect(()=>{const onKey=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();setLauncherOpen(true);}if(event.key==="Escape"){setLauncherOpen(false);setQuery("");}};window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey);},[]);
  const firstName=user?.displayName?.trim().split(/\s+/)[0]||"Founder";
  function addDraft(){const value=capture.trim();if(!value)return;setDrafts(items=>[value,...items].slice(0,4));setCapture("");setCaptureOpen(false);}
  return <main className={styles.root}>
@@ -60,7 +61,7 @@ function HomeSurface(){
      <section className={styles.panel}><div className={styles.panelHead}><div><small>QUICK CAPTURE</small><h2>Get it out of your head.</h2></div><Icon name="file"/></div><p>Capture a thought while it is fresh. Drafts stay in this page session; persistent notes are not connected yet.</p>{captureOpen?<form onSubmit={e=>{e.preventDefault();addDraft();}}><input autoFocus value={capture} onChange={e=>setCapture(e.target.value)} placeholder="Write a thought…" maxLength={240}/><button disabled={!capture.trim()}>Add draft</button></form>:<button className={styles.captureTrigger} onClick={()=>setCaptureOpen(true)}><Icon name="plus" size={17}/>Capture a thought ↗</button>}{drafts.length>0&&<div className={styles.drafts}><small>SESSION DRAFTS</small>{drafts.map((d,i)=><div key={d+"-"+i}>{d}</div>)}</div>}</section>
      <section className={styles.panel}><div className={styles.panelHead}><div><small>YOUR INTELLIGENCE</small><h2>REN is being prepared.</h2></div><span className={styles.renOrb}/></div><p>REN's interface is present across NN. Reasoning, memory and tool execution remain disabled until their services are implemented and verified.</p><div className={styles.renStatus}><span>● DESIGNED</span><b>NOT CONNECTED</b></div></section>
     </div>
-    <footer>NN / PERSONAL OPERATING ENVIRONMENT <span>Designed for clarity. Built with intent.</span></footer>
+    <footer className={styles.footer}>NN / PERSONAL OPERATING ENVIRONMENT <span>Designed for clarity. Built with intent.</span></footer>
    </div>
   </section>
   {launcherOpen&&<div className={styles.overlay} onMouseDown={e=>{if(e.target===e.currentTarget){setLauncherOpen(false);setQuery("");}}}><section className={styles.launcher} role="dialog" aria-modal="true" aria-labelledby="launcher-title"><header><div><small>NN APPLICATION INDEX</small><h2 id="launcher-title">Where to?</h2></div><button onClick={()=>{setLauncherOpen(false);setQuery("");}} aria-label="Close"><Icon name="close"/></button></header><label className={styles.launchSearch}><Icon name="search"/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Find an application…"/></label><div className={styles.launchList}>{filtered.map(app=><div key={app.name}>{app.href?<Link href={app.href} onClick={()=>setLauncherOpen(false)}><span><Icon name={app.icon}/></span><strong>{app.name}<small>{app.description}</small></strong><em>OPEN ↗</em></Link>:<article><span><Icon name={app.icon}/></span><strong>{app.name}<small>{app.description}</small></strong><em>IN DEVELOPMENT</em></article>}</div>)}</div><p>Only verified routes are openable. Applications in development are shown for orientation, not as working features.</p></section></div>}
