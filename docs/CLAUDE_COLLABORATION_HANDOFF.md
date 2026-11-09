@@ -117,3 +117,13 @@ rather than pasting them into chat.
 - The dock respects iOS safe-area insets, uses large touch targets, and disables its hover transition under reduced-motion settings.
 - This is frontend navigation only. It does not make planned applications available, change authentication, or add REN reasoning/tool capabilities.
 - Verification: source changes are committed on the feature branch; no local typecheck, lint, unit tests, production build or real-device/browser QA has been run. No deployment was requested or performed.
+
+
+## Founder-only product boundary — 2026-11-09
+
+- Founder clarified that NN is exclusively a private personal operating environment for its single owner, Naseemudheen. It is not a public SaaS product, multi-tenant workspace or collaboration platform.
+- Product scope now explicitly excludes public registration, invitations, member directories, team roles and additional owner accounts. All data, settings, files, memories and application state belong to the single passkey-enrolled founder identity.
+- Keep the existing server-side nnOwner: true claim, passkey-only access and default-deny Firestore/Storage rules. A users/{uid}/… namespace is a secure owner-data boundary, not a signal that multiple users are supported.
+- Build integrations for the founder's personal accounts/devices. Any outward sharing, publishing or consequential external action requires explicit founder authorisation.
+- Product prioritisation is based on the founder's real workflows and devices, not generic-market needs. Never represent a planned feature as operational before its data path, permissions, failure states and behaviour are verified.
+- This is a product-scope clarification and documentation change; it does not alter authentication or security rules.
