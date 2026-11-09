@@ -67,3 +67,20 @@ After each meaningful backend milestone, update this file with:
 - remaining blockers.
 
 After each frontend milestone, ChatGPT updates the same coordination snapshot. If both agents need the same file, stop and agree the smallest interface change before editing it.
+
+
+## Passkey-only security contract (founder instruction)
+
+NN app access is passkey-only. ChatGPT has hardened the Firebase client session,
+server token verifier, Firestore rules and Storage rules to require the
+server-issued Firebase custom claim `nnOwner: true`, which is minted only after
+a successful WebAuthn assertion. Do not add another Firebase sign-in provider
+or bypass this claim check. The bootstrap secret is a one-time first-owner
+enrollment gate only; it is not a login option. Preserve tests proving that
+Firebase-authenticated users without `nnOwner: true` cannot access data.
+
+Firebase preview deployment is not yet fully configured: the Vercel project
+currently has no environment variables. Never guess Firebase web config or
+service-account credentials. Keep all secrets server-side and ask the founder
+to provision them through the local CLI / Vercel secure environment interface
+rather than pasting them into chat.
