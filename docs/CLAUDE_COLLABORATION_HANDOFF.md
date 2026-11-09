@@ -150,10 +150,10 @@ rather than pasting them into chat.
 
 - Swipe-to-reveal remains the primary touch interaction for deleting Life records, but tapping Delete now opens the shared accessible Dialog and requires a second explicit confirmation before Firestore `deleteDoc` runs.
 - The confirmation states that deletion is permanent and cannot currently be undone. The action is disabled while another save is in progress; the existing verified-save/error path remains responsible for reporting the Firestore result.
-- Added a keyboard alternative: focus a record action group and press Delete/Backspace to reveal the delete action; Escape closes the revealed action. The group exposes its expanded state and a visible keyboard focus outline.
+- Added a keyboard alternative: focus a record action group and press Delete/Backspace to reveal the delete action; Escape closes the revealed action. The action group uses a state-specific accessible label and a visible keyboard focus outline. A subsequent CI lint run flagged `aria-expanded` as unsupported on role=group; that attribute was removed and replaced with a supported label announcement.
 - Added phone-friendly dialog actions and visible focus treatment. No data model, Firestore rules or authentication code was changed.
-- Source commits: `0c48fe71a25eb50bcd9a45e273fd709cf49509a2` (confirmation flow), `ba37d960d937e4b01e1916daed8c682714991a10` (dialog styling), `f0e89c75045eda4561cdb1f669ca9441586be522` (keyboard alternative), `6ead944f561d728422a66a091306592473bf5885` (expanded state), and `92ee43f6466370ff5fbd10c869cdc75dede5b4a3` (focus visibility).
-- Verification status: all changed source files were re-fetched from the feature branch and the intended changes were confirmed. No local test/build/browser or device QA has been run. This is implemented in source but is not yet a verified milestone.
+- Source commits: `0c48fe71a25eb50bcd9a45e273fd709cf49509a2` (confirmation flow), `ba37d960d937e4b01e1916daed8c682714991a10` (dialog styling), `f0e89c75045eda4561cdb1f669ca9441586be522` (keyboard alternative), `6ead944f561d728422a66a091306592473bf5885` (expanded state), and `92ee43f6466370ff5fbd10c869cdc75dede5b4a3` (focus visibility), and `c77a54f597bc7d7f5f01a38ccdc03ff83c26a270` (accessible state announcement correction).
+- Verification status: all changed source files were re-fetched from the feature branch and the intended changes were confirmed. The first CI attempt typechecked successfully but failed lint on the unsupported `aria-expanded` attribute described above; the source has since been corrected. A fresh CI run is required to verify the correction. Browser and device QA remain outstanding.
 
 ## Persistent room rendering efficiency pass — 2026-11-10
 
