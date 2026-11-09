@@ -113,7 +113,7 @@ rather than pasting them into chat.
 ## Shared application navigation — 2026-11-09
 
 - Added `NNAppNavigation` as a route-aware floating dock for the Life, Workspace and Design surfaces. It reuses the existing Dock primitive, marks the active route, provides direct navigation back to Home, and opens the persistent REN assistant.
-- The Home page keeps its existing richer launcher dock, avoiding duplicate navigation controls. The new dock is limited to the other application routes and does not add a side rail or separate menu panel.
+- Home and Life keep their purpose-built navigation, avoiding duplicate controls. The shared dock is shown on Workspace and Design, and does not add a side rail or separate menu panel.
 - The dock respects iOS safe-area insets, uses large touch targets, and disables its hover transition under reduced-motion settings.
 - This is frontend navigation only. It does not make planned applications available, change authentication, or add REN reasoning/tool capabilities.
 - Verification: source changes are committed on the feature branch; no local typecheck, lint, unit tests, production build or real-device/browser QA has been run. No deployment was requested or performed.
