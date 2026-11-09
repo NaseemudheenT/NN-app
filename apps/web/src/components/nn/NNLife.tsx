@@ -86,7 +86,7 @@ function LifeSurface() {
   const [reminderAt, setReminderAt] = useState(localDateTime(new Date(Date.now() + 60 * 60 * 1000)));
 
   const load = useCallback(async () => {
-    if (!uid) return;
+    if (!uid) { setLoading(false); setError("Visual preview only — connect the NN development Firebase environment and sign in to load or save personal records."); return; }
     if (!firebaseAvailable()) { setError("Firebase is not configured for this environment. Your data has not been loaded."); setLoading(false); return; }
     setLoading(true); setError(null);
     try {
@@ -259,5 +259,6 @@ function LifeSurface() {
 function EmptyState({ icon, title, body }: { icon: IconName; title: string; body: string }) {
   return <div className={styles.emptyState}><span><Icon name={icon} size={21}/></span><strong>{title}</strong><p>{body}</p></div>;
 }
+export function NNLifePreview() { return <LifeSurface />; }
 function LifePage() { return <RequireOwner><LifeSurface/></RequireOwner>; }
 export default LifePage;
