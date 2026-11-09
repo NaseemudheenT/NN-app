@@ -86,3 +86,15 @@ currently has no environment variables. Never guess Firebase web config or
 service-account credentials. Keep all secrets server-side and ask the founder
 to provision them through the local CLI / Vercel secure environment interface
 rather than pasting them into chat.
+
+
+## Frontend visual pass — 2026-11-09
+
+- Applied the founder-approved iridescent spatial-glass treatment to the existing entry corridor, sign-in card, Home, Life and Workspace CSS modules.
+- Added shared `--nn-glass-*` material recipes and reusable `.nn-glass`, `.nn-glass-primary`, `.nn-glass-reading` and `.nn-glass-icon` primitives in `apps/web/src/styles/global.css`.
+- Kept the fixed V3 base palette and existing logo component/geometry unchanged. No backend contracts or data behaviour were changed.
+- Exact latest implementation commit: `ee4676fa739ba203aa07e4bc984be7d00b31de40` on `design/nn-frontend-system` (the handoff update itself will create a later docs-only commit).
+- Verification: no local typecheck, unit test, production build, browser, accessibility or device review has been run in this session. Do not call this pass verified.
+- Preview deployment: attempted against the exact implementation commit; Vercel rejected it with `api-deployments-free-per-day` and `retryAfter=86400`. The current READY deployment remains an older commit and must not be represented as the updated design.
+- Release readiness: Vercel reports zero production environment variables, and SSO protection remains enabled for all except custom domains. Do not weaken SSO or invent production Firebase/passkey settings. Production is not ready to release.
+- Remaining work: run the documented pnpm typecheck/tests/build locally, review all routes at desktop and 360px/iPhone widths, correct regressions, provision production configuration securely, then deploy the exact verified commit when Vercel quota permits.
