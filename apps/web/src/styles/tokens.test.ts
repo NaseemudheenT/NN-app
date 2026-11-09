@@ -95,6 +95,27 @@ describe("palette integrity", () => {
   });
 });
 
+describe("iridescent material system", () => {
+  it("defines the founder-approved optical reflections separately from the base palette", () => {
+    for (const name of [
+      "--nn-spectrum-cyan",
+      "--nn-spectrum-aqua",
+      "--nn-spectrum-blue",
+      "--nn-spectrum-indigo",
+      "--nn-spectrum-violet",
+      "--nn-spectrum-rim",
+      "--nn-wave-ribbon-primary",
+      "--nn-wave-ribbon-secondary",
+    ]) {
+      expect(ROOT).toMatch(new RegExp(name + "\\s*:"));
+    }
+  });
+
+  it("keeps the home hero on a dark ground in light mode for its white copy", () => {
+    expect(token(LIGHT, "--nn-wave-hero-bg")).toContain("#101A3A");
+  });
+});
+
 describe("reduced motion", () => {
   it("collapses every duration token under the OS preference", () => {
     const media = block("@media (prefers-reduced-motion: reduce)");
