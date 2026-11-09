@@ -9,6 +9,7 @@ import {
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GlassPanel } from "@/components/ui/GlassPanel";
+import { Dialog } from "@/components/ui/Dialog";
 import { useAuth } from "@/lib/auth";
 import { firebaseAvailable, getFirebase } from "@/lib/firebase";
 import styles from "./NNLife.module.css";
@@ -96,6 +97,7 @@ function LifeSurface() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ name: CollectionName; id: string; success: string } | null>(null);
   const [offline, setOffline] = useState(false);
   const [busy, setBusy] = useState(false);
   const [taskTitle, setTaskTitle] = useState("");
@@ -209,7 +211,13 @@ function LifeSurface() {
   };
   const deleteRecord = (name: CollectionName, id: string, success: string) => {
     if (!uid) return;
-    void save(() => deleteDoc(doc(getFirebase().db, "users", uid, name, id)), success);
+    setPendingDelete({ name, id, success });
+  };
+  const confirmDelete = () => {
+    if (!uid || !pendingDelete || busy) return;
+    const selected = pendingDelete;
+    setPendingDelete(null);
+    void save(() => deleteDoc(doc(getFirebase().db, "users", uid, selected.name, selected.id)), selected.success);
   };
 
   const toggleTask = (item: RecordData) => {
@@ -232,7 +240,8 @@ function LifeSurface() {
       </article>
     </SwipeToDelete>
   );
-  return <main className={styles.root}>
+  return <>
+  <main className={styles.root}>
     <header className={styles.topbar}>
       <button className={styles.brand} onClick={() => router.push("/home")}><Icon name="grid" size={18}/><span>NN <i>/</i> LIFE</span></button>
       <div className={styles.topRight}><span className={styles.private}><i/> PRIVATE SPACE</span><button className={styles.refresh} onClick={() => void load()} aria-label="Refresh Life data" title="Refresh"><Icon name="clock" size={16}/></button><span className={styles.avatar}>{firstName.slice(0,1).toUpperCase()}</span></div>
@@ -288,7 +297,20 @@ function LifeSurface() {
       <footer className={styles.footer}><span>NN LIFE · PERSONAL OPERATING ENVIRONMENT</span><span>{offline ? "LOCAL CACHE / SYNC PENDING" : "OWNER-SCOPED FIRESTORE DATA"}</span></footer>
     </div>
     <div className={styles.dock}><button onClick={() => router.push("/home")} aria-label="NN Home"><Icon name="grid" size={19}/></button><button className={styles.dockCurrent} aria-current="page"><Icon name="calendar" size={19}/><span>Life</span></button><button onClick={() => setTab("tasks")} aria-label="Tasks"><Icon name="check" size={19}/></button><button onClick={() => setTab("notes")} aria-label="Notes"><Icon name="file" size={19}/></button></div>
-  </main>;
+  </main>
+  <Dialog
+    open={pendingDelete !== null}
+    onClose={() => setPendingDelete(null)}
+    title="Delete this record?"
+    description="This permanently removes the selected record from your private NN data. This action cannot currently be undone."
+    footer={<div className={styles.deleteDialogActions}>
+      <button type="button" className={styles.deleteCancel} onClick={() => setPendingDelete(null)}>Keep record</button>
+      <button type="button" className={styles.deleteConfirm} disabled={busy} onClick={confirmDelete}>Delete permanently</button>
+    </div>}
+  >
+    <p className={styles.deleteDialogText}>Only the selected record will be removed. Your other Life records will remain unchanged.</p>
+  </Dialog>
+  </>;
 }
 
 function SwipeToDelete({ children, onDelete }: { children: ReactNode; onDelete: () => void }) {
