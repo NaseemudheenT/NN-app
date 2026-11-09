@@ -50,7 +50,8 @@ const APPLICATIONS: readonly AppItem[] = [
   { name:"Control Room",group:"System",icon:"settings",description:"System health, integrations, jobs and cost visibility" },
 ];
 const ROUTES: readonly { name:string; description:string; icon:IconName; href:AppRoute }[] = [
-  {name:"NN Home",description:"Your personal operating environment",icon:"grid",href:"/home"},\n  {name:"NN Life",description:"Your calendar, tasks, reminders, notes and goals",icon:"calendar",href:"/life"},
+  {name:"NN Home",description:"Your personal operating environment",icon:"grid",href:"/home"},
+  {name:"NN Life",description:"Your calendar, tasks, reminders, notes and goals",icon:"calendar",href:"/life"},
   {name:"Workspace",description:"Interactive glass workspace prototype",icon:"calendar",href:"/workspace"},
   {name:"Design System",description:"NN materials, motion and component laboratory",icon:"sparkle",href:"/design"},
 ];
