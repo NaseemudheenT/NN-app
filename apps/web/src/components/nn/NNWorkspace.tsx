@@ -469,7 +469,7 @@ export function NNWorkspace({
    */
   const ren = (
     <section
-      className={[styles.panel, styles.ren, styles.reveal].join(" ")}
+      className={[styles.panel, "nn-glass-card", styles.ren, styles.reveal].join(" ")}
       style={{ "--i": 2 } as CSSProperties}
       aria-labelledby={`${id}-ren-heading`}
     >
@@ -560,7 +560,7 @@ export function NNWorkspace({
       }}
     >
       <div className={styles.workspace}>
-        <header className={[styles.topbar, styles.glass].join(" ")}>
+        <header className={[styles.topbar, styles.glass, "nn-glass-card"].join(" ")}>
           <div className={styles.brand}>
             <NNLogo size={20} />
             <span className={styles.brandDivider} />
@@ -616,7 +616,7 @@ export function NNWorkspace({
                 <>
                   <div className={styles.overviewGrid}>
                     <section
-                      className={[styles.panel, styles.focus, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.focus, styles.reveal].join(" ")}
                       style={{ "--i": 0 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -649,7 +649,7 @@ export function NNWorkspace({
                     </section>
 
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 1 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -679,7 +679,7 @@ export function NNWorkspace({
                   {ren}
 
                   <section
-                    className={[styles.panel, styles.launcher, styles.reveal].join(" ")}
+                    className={[styles.panel, "nn-glass-card", styles.launcher, styles.reveal].join(" ")}
                     style={{ "--i": 3 } as CSSProperties}
                   >
                     <div className={styles.panelTitle}>
@@ -703,7 +703,7 @@ export function NNWorkspace({
 
                   <div className={styles.lowerGrid}>
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 4 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -720,7 +720,7 @@ export function NNWorkspace({
                       {entryList(4)}
                     </section>
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 5 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -735,7 +735,7 @@ export function NNWorkspace({
 
               {view === "timeline" ? (
                 <section
-                  className={[styles.panel, styles.reveal].join(" ")}
+                  className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                   style={{ "--i": 0 } as CSSProperties}
                 >
                   <div className={styles.panelTitle}>
@@ -778,7 +778,7 @@ export function NNWorkspace({
                     </span>
                   </div>
                   <section
-                    className={[styles.panel, styles.reveal].join(" ")}
+                    className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                     style={{ "--i": 1 } as CSSProperties}
                   >
                     <div className={styles.panelTitle}>
@@ -799,7 +799,7 @@ export function NNWorkspace({
                       { label: "Planned", value: planned, icon: "calendar" as const },
                       { label: "Difference", value: Math.abs(studied - planned), icon: "graph" as const },
                     ].map((stat) => (
-                      <section className={styles.panel} key={stat.label}>
+                      <section className={[styles.panel, "nn-glass-card"].join(" ")} key={stat.label}>
                         <div className={styles.panelTitle}>
                           <span>{stat.label}</span>
                           <Icon name={stat.icon} size={17} />
@@ -813,7 +813,7 @@ export function NNWorkspace({
                   </div>
                   <div className={styles.reportsGrid}>
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 1 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -836,7 +836,7 @@ export function NNWorkspace({
                       ) : null}
                     </section>
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 2 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
