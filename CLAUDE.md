@@ -309,12 +309,13 @@ ordinary reversible engineering calls yourself.
 ## NN visual direction — founder-approved project context
 
 Before changing any frontend, read:
+- `docs/NN_FOUNDER_VISUAL_RESET.md`
 - `docs/FRONTEND_DESIGN_SYSTEM.md`
 - `docs/NN_CINEMATIC_VISUAL_SYSTEM.md`
 
 The founder's standing visual direction is a premium, futuristic personal operating environment using the supplied perspective-tunnel introduction, WebGL Glass Fold atmosphere, liquid-glass controls, floating 3D coverflow cards and adjustable-glass workspace language. Apply the same coherent NN visual identity across Home, Life, Learning, Work, Personal and System—not only the landing page.
 
-Preserve the existing NN V3 navy/icy-blue tokens, custom TypeScript + Next.js + CSS Modules architecture, NN icon family, accessibility and performance constraints. Reuse the existing `NNIntro`, `Room`/`GlassFold`, `LiquidButton`, `Coverflow`, `NNWorkspace` and REN components before creating alternatives. The supplied shadcn/Tailwind/Framer Motion/GSAP snippets are references to adapt, not instructions to add duplicate frameworks or dependencies.
+Follow `docs/NN_FOUNDER_VISUAL_RESET.md` as the latest founder-approved visual authority: deep midnight foundation with luminous cyan, aqua, electric-blue, indigo and violet wave light; premium iridescent floating glass; calm spatial depth. Preserve the custom TypeScript + Next.js + CSS Modules architecture, NN icon family, accessibility and performance constraints. The founder's official NN and REN logo assets are pending; do not redraw or approximate them. Reuse the existing `NNIntro`, `Room`/`GlassFold`, `LiquidButton`, `Coverflow`, `NNWorkspace` and REN components before creating alternatives. The supplied shadcn/Tailwind/Framer Motion/GSAP snippets are references to adapt, not instructions to add duplicate frameworks or dependencies.
 
 All visible controls must work. All live-looking animations must reflect actual state. Keep placeholder data clearly labelled. Respect reduced motion, touch and keyboard interaction, and low-power devices. Do not claim a feature or screen is complete until its real data path, states, responsive behaviour and tests are verified.
 
