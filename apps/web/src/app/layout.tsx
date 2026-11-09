@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               instance, mounted once, present on every screen. */}
           <AuthProvider>
             <RenProvider>
-              <div className="nn-shell">{children}</div>
+              <div className="nn-shell nn-page-arrive">{children}</div>
               <RenLauncher />
               <RenPanel />
             </RenProvider>
