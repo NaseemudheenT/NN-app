@@ -1,3 +1,30 @@
+## 2026-11-09 · CI foundation merged and main verified
+
+**Merged:** PR #1 (CI: add automated typecheck, lint, test and build gate) into
+main, squash commit 92c05b8a08eaa1c0b83776bb3d092c912c402c44.
+
+**GitHub Actions:** main-branch run
+[42570312929](https://github.com/NaseemudheenT/NN-app/actions/runs/42570312929)
+completed successfully. Dependency installation, typecheck, lint, unit/rules
+tests and the Next.js production build all passed.
+
+**Vercel:** existing nn-app project retains its Next.js monorepo settings,
+but the GitHub namespace is still access-restricted. A direct Git project
+connection was rejected because the Vercel GitHub integration is not installed
+with access to this repository. No deployment was created.
+
+**Repository visibility:** the owner temporarily changed NN-app to public.
+A preliminary path and common-token-pattern review found no obvious committed
+credential file or matching key pattern. This is not a complete secret-history
+audit. Keep all actual credentials and personal data out of Git; return the
+repository to private after the Vercel integration is configured.
+
+**Not verified:** deployed sign-in, cross-device sync, mobile installation,
+live AI/REN, production data persistence or backup restoration.
+These must be tested on the deployed application before calling NN ready.
+
+---
+
 # NN — Progress Log
 
 Append-only. Newest first. Every entry records what was actually run.
