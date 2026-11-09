@@ -47,3 +47,46 @@
   .appIcon { width: 39px; height: 39px; }
   .hero h2 { font-size: 43px; }
 }
+
+
+/* NN clarity + connected application constellation */
+.appGrid{position:relative;isolation:isolate}
+.appGrid::before{content:"";position:absolute;z-index:-1;inset:8% 4%;pointer-events:none;opacity:.72;background:linear-gradient(90deg,transparent 2%,rgb(92 205 255 / 18%) 18%,rgb(129 163 255 / 20%) 50%,rgb(178 145 255 / 18%) 82%,transparent 98%),linear-gradient(180deg,transparent 48%,rgb(117 180 255 / 11%) 50%,transparent 52%);filter:drop-shadow(0 0 12px rgb(91 194 255 / 15%))}
+.appTile{z-index:0;min-height:140px}
+.appTile strong{font-size:13px;letter-spacing:-.01em}
+.appTile small{font-size:10px;line-height:1.45;color:color-mix(in srgb,var(--text-primary) 68%,var(--text-muted))}
+.sectionHeading p,.panelHeading p{font-size:10px;letter-spacing:.14em}
+.sectionHeading>button,.panelLink{font-size:11px}
+.welcomeSub,.heroDescription,.panelBody{font-size:13px;line-height:1.7}
+.eyebrow,.heroKicker{font-size:10px}
+.timeCard p{font-size:11px}
+.timeCard small{font-size:9px}
+.focusEmpty strong,.goalVisual strong{font-size:14px}
+.focusEmpty p,.goalVisual p{font-size:12px;line-height:1.65}
+.quickAction strong{font-size:12px}
+.categoryCopy strong{font-size:12px}
+.categoryCopy small{font-size:10px}
+.indexText strong{font-size:12px}
+.indexText small{font-size:10px;line-height:1.5}
+.indexGroup h3{font-size:12px}
+.indexState,.openApp{font-size:9px}
+.launchFoot,.footer{font-size:9px}
+.tileArrow{display:none!important}
+.nn-icon-surface{position:relative;isolation:isolate;overflow:hidden}
+.nn-icon-surface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 28% 18%,rgb(255 255 255 / 22%),transparent 52%),linear-gradient(145deg,rgb(var(--nn-icon-rgb,120 190 255) / 18%),rgb(var(--nn-icon-rgb,120 190 255) / 6%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 25%)}
+.nn-icon-surface>*{position:relative;z-index:1}
+.appIcon,.panelGlyph,.quickAction>span,.categoryIcon,.indexIcon,.focusRing,.goalOrb{--nn-icon-rgb:92 194 255}
+.appIcon.violet,.goalOrb{--nn-icon-rgb:163 137 255}
+.appIcon.cyan,.focusRing{--nn-icon-rgb:74 220 230}
+@media(max-width:700px){
+ .appTile{min-height:116px}
+ .appTile strong{font-size:12px}
+ .appTile small{font-size:9px;line-height:1.35}
+ .welcomeSub,.heroDescription,.panelBody{font-size:12px}
+ .sectionHeading p,.panelHeading p{font-size:9px}
+ .focusEmpty p,.goalVisual p{font-size:11px}
+ .quickAction strong{font-size:11px}
+ .categoryCopy strong,.indexText strong{font-size:12px}
+ .categoryCopy small,.indexText small{font-size:10px}
+ .appGrid::before{inset:5% 1%;opacity:.5}
+}
