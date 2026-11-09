@@ -309,6 +309,7 @@ ordinary reversible engineering calls yourself.
 ## NN visual direction — founder-approved project context
 
 Before changing any frontend, read:
+- `docs/NN_FINAL_FRONTEND_DESIGN_SPEC.md`
 - `docs/NN_FOUNDER_VISUAL_RESET.md`
 - `docs/FRONTEND_DESIGN_SYSTEM.md`
 - `docs/NN_CINEMATIC_VISUAL_SYSTEM.md`
@@ -327,3 +328,8 @@ Before any product-wide UI or animation work, also read:
 - `docs/NN_ANIMATION_COMPONENT_SOURCE_INDEX.md` — mapping from the founder's five supplied animation references to the existing NN source components.
 
 These documents are the persistent implementation authority for the complete NN visual system. Store future founder-supplied UI prompts and source snippets in `docs/` (or a clearly named `docs/reference/` archive) and index them. Do not merely mention that references were seen in chat. Adapt every reference to NN's actual architecture, palette, data, accessibility, device and security constraints. The 34-app visual map is a design target, not a claim those apps are implemented.
+
+
+## Product-wide frontend completion contract
+
+The final page-by-page visual and interaction authority is `docs/NN_FINAL_FRONTEND_DESIGN_SPEC.md`. Implement the actual routes and unique application work surfaces from that spec and `docs/NN_APP_REGISTRY.md`; do not stop at docs, mockups, a generic placeholder route, or a successful build. Keep the shared shell coherent, every app's information architecture purpose-specific, and every state honest. The founder owns visual approval and official logo assets; do not invent the NN or REN marks. Frontend work remains on `design/nn-frontend-system` until founder approval to merge.
