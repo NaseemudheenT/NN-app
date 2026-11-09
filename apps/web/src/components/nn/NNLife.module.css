@@ -391,5 +391,11 @@
 
 /* Icon surfaces inherit each glyph's semantic NN spectrum tone. */
 .iconSurface{position:relative;isolation:isolate;overflow:hidden}
-.iconSurface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 28% 18%,rgb(255 255 255 / 22%),transparent 52%),linear-gradient(145deg,rgb(105 197 255 / 15%),rgb(129 150 255 / 7%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 25%)}
+.iconSurface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 28% 18%,rgb(255 255 255 / 22%),transparent 52%),linear-gradient(145deg,rgb(var(--nn-icon-rgb,105 197 255) / 17%),rgb(var(--nn-icon-rgb,105 197 255) / 6%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 25%)}
 .iconSurface>*{position:relative;z-index:1}
+
+.iconSurface:has(> svg[data-nn-icon="calendar"]){--nn-icon-rgb:75 205 255}
+.iconSurface:has(> svg[data-nn-icon="clock"]){--nn-icon-rgb:112 165 255}
+.iconSurface:has(> svg[data-nn-icon="check"]){--nn-icon-rgb:83 220 188}
+.iconSurface:has(> svg[data-nn-icon="file"]){--nn-icon-rgb:145 166 255}
+.iconSurface:has(> svg[data-nn-icon="graph"]){--nn-icon-rgb:171 137 255}
