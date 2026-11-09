@@ -16,6 +16,7 @@ describe("NN application registry", () => {
     expect(available.map((app) => app.id)).toEqual(["life"]);
     expect(available.every((app) => Boolean(app.href))).toBe(true);
     expect(APPLICATIONS.filter((app) => app.href)).toHaveLength(1);
+    expect(APPLICATIONS.every((app) => app.overviewHref === `/apps/${app.id}`)).toBe(true);
   });
 
   it("derives group counts from the registry rather than hardcoding them", () => {
