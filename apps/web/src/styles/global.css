@@ -600,3 +600,11 @@ body {
   transition: none !important;
   transform: none !important;
 }
+
+/* Preserve popovers, focus rings and floating controls above glass surfaces. */
+.nn-glass-card,.nn-glass,.nn-glass-primary,.nn-glass-reading,.nn-holo {
+  overflow: visible !important;
+}
+.nn-glass-card::after,.nn-glass::after,.nn-glass-primary::after,.nn-glass-reading::after,.nn-holo::after {
+  border-radius: inherit;
+}
