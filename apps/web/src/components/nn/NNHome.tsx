@@ -62,7 +62,6 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
   const [launcherOpen,setLauncherOpen]=useState(false);
   const [query,setQuery]=useState("");
   const [activeDock,setActiveDock]=useState("home");
-  const firstName=user?.displayName?.trim().split(/\s+/)[0]||"Founder";
   const filtered=useMemo(()=>APPLICATIONS.filter(app=>(app.name+" "+app.group+" "+app.description).toLowerCase().includes(query.trim().toLowerCase())),[query]);
   useEffect(()=>{
     const onKey=(event:KeyboardEvent)=>{
@@ -159,7 +158,7 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
 }
 function HomeSurface() {
   const { user, signOutHere } = useAuth();
-  const firstName = user?.displayName?.trim().split(/\\s+/)[0] || "Founder";
+  const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
   return <RequireOwner><HomeExperience firstName={firstName} onSignOut={() => void signOutHere()} /></RequireOwner>;
 }
 export function NNHomePreview() {
