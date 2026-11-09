@@ -11,7 +11,7 @@ import { NNLogo } from "@/components/ui/NNLogo";
 import { useAuth } from "@/lib/auth";
 import styles from "./NNHome.module.css";
 
-type AppRoute = "/home" | "/workspace" | "/design";
+type AppRoute = "/home" | "/workspace" | "/design" | "/life";
 type AppItem = { name: string; group: string; icon: IconName; description: string };
 const APPLICATIONS: readonly AppItem[] = [
   { name:"Life",group:"Life & wellbeing",icon:"calendar",description:"Calendar, tasks, reminders, notes, habits, goals and routines" },
@@ -129,9 +129,9 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
       <footer className={styles.footer}><span>NN / PERSONAL OPERATING ENVIRONMENT</span><span>BUILT WITH INTENT · PRIVATE BY DESIGN</span></footer>
     </div>
     <div className={styles.dockWrap}>
-      <Dock items={[{id:"home",label:"NN Home",icon:"grid"},{id:"workspace",label:"Workspace",icon:"calendar"},{id:"design",label:"Design system",icon:"sparkle"}]} activeId={activeDock} onSelect={(id)=>{
+      <Dock items={[{id:"home",label:"NN Home",icon:"grid"},{id:"life",label:"NN Life",icon:"calendar"},{id:"workspace",label:"Workspace",icon:"clock"},{id:"design",label:"Design system",icon:"sparkle"}]} activeId={activeDock} onSelect={(id)=>{
         if(id==="home")openRoute("/home",id);
-        if(id==="workspace")openRoute("/workspace",id);
+        if(id==="life")openRoute("/life",id);\n        if(id==="workspace")openRoute("/workspace",id);
         if(id==="design")openRoute("/design",id);
       }}/>
       <button className={styles.dockLauncher} onClick={()=>setLauncherOpen(true)} aria-label="Open application launcher" title="Applications"><Icon name="plus" size={21}/></button>
@@ -147,7 +147,7 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
           const apps=filtered.filter(app=>app.group===group);
           if(apps.length===0)return null;
           return <section className={styles.indexGroup} key={group}><h3>{group}<span>{String(apps.length).padStart(2,"0")}</span></h3>
-            {apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span><span className={styles.indexState}>IN DEVELOPMENT</span></article>)}
+            {apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span>{app.name==="Life"?<button className={styles.openApp} onClick={()=>{setLauncherOpen(false);openRoute("/life","life");}}>OPEN ↗</button>:<span className={styles.indexState}>IN DEVELOPMENT</span>}</article>)}
           </section>;
         })}
         {filtered.length===0?<p className={styles.noResults}>No application matches that search.</p>:null}
