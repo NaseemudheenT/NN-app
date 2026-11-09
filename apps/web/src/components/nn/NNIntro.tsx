@@ -79,6 +79,10 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     if (!container) return;
 
     let still = prefersReducedMotion();
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
 
     // Progress along the corridor, 0 at the far end and 1 past the viewer.
     const progress = createSpring(0, { stiffness: 80, damping: 30, rest: 0.00008 });
@@ -187,8 +191,8 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       const nearZ = stage.isMobile ? 350 : 500;
       const panStrength = stage.isMobile ? 20 : 45;
       const cardWidth = stage.isMobile
-        ? Math.max(130, Math.min(180, stage.width * 0.38))
-        : Math.max(180, Math.min(270, stage.width * 0.18));
+        ? Math.max(150, Math.min(230, stage.width * 0.52))
+        : Math.max(230, Math.min(340, stage.width * 0.25));
       const px = panX.value;
       const py = panY.value;
 
@@ -221,7 +225,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
         // The way out appears only once the corridor has actually been crossed.
         const shown = rampAcross(p, [0.94, 1], [0, 1]);
         enterRef.current.style.opacity = shown.toFixed(3);
-        enterRef.current.style.transform = `translateY(${((1 - shown) * 14).toFixed(1)}px)`;
+        enterRef.current.style.transform = `translate(-50%, ${((1 - shown) * 14).toFixed(1)}px)`;
         enterRef.current.style.pointerEvents = shown > 0.6 ? "auto" : "none";
         enterRef.current.setAttribute("aria-hidden", shown > 0.6 ? "false" : "true");
       }
@@ -250,6 +254,8 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     });
 
     return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
       stopLoop();
       stopMotionWatcher();
       resizeObserver.disconnect();
