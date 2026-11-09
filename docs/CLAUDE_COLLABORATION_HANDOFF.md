@@ -109,3 +109,11 @@ rather than pasting them into chat.
 - Implementation commits: `928b015b9a85f18e05f203bc4e7d1427c7cfa0bd` (programme), `480bb00d41383e3346cb581d534615f556f158a3` (registry), `1e59a4ffbfc677528566f151ecab4e20edca6d23` (Home integration), `f27aff729ec240a663436176be74ea8fe10f9a5a` (registry tests).
 - Verification: tests have been authored but not executed in a local checkout. Typecheck, lint, unit tests, production build and browser/device QA remain outstanding. Do not mark this milestone VERIFIED.
 - Next frontend milestone: inspect and implement the persistent responsive NN OS shell and route-aware app navigation using the central registry, then proceed through application modules in the approved sequence.
+
+## Shared application navigation — 2026-11-09
+
+- Added `NNAppNavigation` as a route-aware floating dock for the Life, Workspace and Design surfaces. It reuses the existing Dock primitive, marks the active route, provides direct navigation back to Home, and opens the persistent REN assistant.
+- The Home page keeps its existing richer launcher dock, avoiding duplicate navigation controls. The new dock is limited to the other application routes and does not add a side rail or separate menu panel.
+- The dock respects iOS safe-area insets, uses large touch targets, and disables its hover transition under reduced-motion settings.
+- This is frontend navigation only. It does not make planned applications available, change authentication, or add REN reasoning/tool capabilities.
+- Verification: source changes are committed on the feature branch; no local typecheck, lint, unit tests, production build or real-device/browser QA has been run. No deployment was requested or performed.
