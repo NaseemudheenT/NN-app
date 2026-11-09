@@ -78,7 +78,7 @@ function LifeSurface() {
   const beginTabSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "touch") return;
     const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
+    if (!(target instanceof Element)) return;
     if (target.closest("button, a, input, textarea, select, [contenteditable=\"true\"]")) return;
     swipeStart.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
     event.currentTarget.setPointerCapture(event.pointerId);
