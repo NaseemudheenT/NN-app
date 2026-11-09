@@ -140,7 +140,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     };
     const scheduleWelcomeDismiss = () => {
       if (welcomeTimer !== null) window.clearTimeout(welcomeTimer);
-      welcomeTimer = window.setTimeout(dismissWelcome, 4550);
+      welcomeTimer = window.setTimeout(dismissWelcome, 9000);
     };
     const replayWelcome = () => {
       const node = welcomeRef.current;
