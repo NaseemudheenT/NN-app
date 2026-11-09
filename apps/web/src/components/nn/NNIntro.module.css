@@ -401,20 +401,28 @@
   align-items: baseline;
   max-width: 100%;
   white-space: nowrap;
+  /* system-ui resolves to Apple's current San Francisco system face on Apple OSes. */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: clamp(52px, 10vw, 112px);
   line-height: 1;
-  font-weight: 560;
+  font-weight: 600;
   letter-spacing: -.075em;
   color: transparent;
-  -webkit-text-stroke: 1px rgb(236 248 255 / 26%);
-  filter: drop-shadow(0 2px 2px rgb(255 255 255 / 22%)) drop-shadow(0 12px 38px rgb(101 164 255 / 25%));
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px rgb(236 248 255 / 38%);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 12%);
+  filter:
+    drop-shadow(0 1px 1px rgb(255 255 255 / 30%))
+    drop-shadow(0 12px 38px rgb(101 164 255 / 28%));
 }
 .welcomeLetter {
   display: inline-block;
   opacity: 0;
-  background: linear-gradient(112deg, #fff 0%, #dff1ff 24%, #a9ceff 48%, #f2eaff 70%, #fff 100%);
-  background-size: 240% 100%;
+  /* Translucent glass pigment with a narrow moving specular highlight. */
+  background:
+    linear-gradient(108deg, transparent 0%, rgb(255 255 255 / 78%) 43%, rgb(255 255 255 / 96%) 50%, rgb(255 255 255 / 42%) 57%, transparent 100%),
+    linear-gradient(112deg, rgb(225 242 255 / 82%) 0%, rgb(177 211 255 / 76%) 34%, rgb(231 218 255 / 82%) 68%, rgb(255 255 255 / 88%) 100%);
+  background-size: 240% 100%, 100% 100%;
   background-position: 0% 50%;
   -webkit-background-clip: text;
   background-clip: text;
