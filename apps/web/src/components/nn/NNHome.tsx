@@ -158,4 +158,12 @@ function HomeSurface() {
     </Dialog>
   </main>;
 }
-export default function NNHome(){return <RequireOwner><HomeSurface/></RequireOwner>;}
+function HomeSurface() {
+  const { user, signOutHere } = useAuth();
+  const firstName = user?.displayName?.trim().split(/\\s+/)[0] || "Founder";
+  return <RequireOwner><HomeExperience firstName={firstName} onSignOut={() => void signOutHere()} /></RequireOwner>;
+}
+export function NNHomePreview() {
+  return <HomeExperience firstName="Founder" />;
+}
+export default function NNHome() { return <HomeSurface />; }
