@@ -48,9 +48,9 @@ function WorkspaceInner() {
     <NNWorkspace
       userName={isGuest ? "Guest Founder" : "Founder"}
       ownerUid={user?.uid}
-      footerNote={isGuest
-        ? "TEMPORARY GUEST PREVIEW · sample data only; no private account is signed in."
-        : undefined}
+      {...(isGuest
+        ? { footerNote: "TEMPORARY GUEST PREVIEW · sample data only; no private account is signed in." }
+        : {})}
       onSignOut={exitSession}
       onSignOutEverywhere={exitAllSessions}
     />
