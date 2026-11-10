@@ -25,7 +25,13 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
           <span>NN</span>
         </div>
         {onSignOut ? (
-          <button className={styles.profile} onClick={onSignOut} aria-label="Sign out" title="Sign out">
+          <button
+            type="button"
+            className={styles.profile}
+            onClick={onSignOut}
+            aria-label="Sign out"
+            title="Sign out"
+          >
             {firstName.slice(0, 1).toUpperCase()}
           </button>
         ) : null}
@@ -44,39 +50,55 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
             return (
               <section className={styles.group} key={group.name} aria-labelledby={`group-${groupIndex}`}>
                 <div className={styles.groupHeading}>
-                  <h2 id={`group-${groupIndex}`}>{group.name}</h2>
-                  <span>{apps.length.toString().padStart(2, "0")}</span>
+                  <div className={styles.groupTitle}>
+                    <h2 id={`group-${groupIndex}`}>{group.name}</h2>
+                    <p>{group.detail}</p>
+                  </div>
+                  <span className={styles.groupCount}>{apps.length.toString().padStart(2, "0")}</span>
                 </div>
+
                 <div className={styles.appGrid}>
-                  {apps.map((app, index) => (
-                    <button
-                      type="button"
-                      key={app.id}
-                      className={styles.appCard}
-                      onClick={() => openApplication(app)}
-                      aria-label={`${app.name}. Open application`}
-                      style={{ animationDelay: `${Math.min(index * 35, 210)}ms` }}
-                    >
-                      <span className={styles.iconWell}>
-                        <Icon name={app.icon} size={24} />
-                      </span>
-                      <span className={styles.appName}>{app.name}</span>
-                    </button>
-                  ))}
+                  {apps.map((app, index) => {
+                    const isAvailable = app.availability === "available" && Boolean(app.href);
+                    const availabilityLabel = isAvailable ? "Available" : "In development";
+                    return (
+                      <button
+                        type="button"
+                        key={app.id}
+                        className={styles.appCard}
+                        data-app-id={app.id}
+                        data-availability={isAvailable ? "available" : "planned"}
+                        onClick={() => openApplication(app)}
+                        aria-label={`${app.name}. ${isAvailable ? "Open application" : "Open application overview; currently in development"}`}
+                        title={`${app.name} · ${availabilityLabel}`}
+                        style={{ animationDelay: `${Math.min(index * 42, 252)}ms` }}
+                      >
+                        <span className={styles.cardWave} aria-hidden="true" />
+                        <span className={styles.iconWell}>
+                          <Icon name={app.icon} size={25} />
+                        </span>
+                        <span className={styles.appName}>{app.name}</span>
+                        <span className={styles.appState} aria-hidden="true">
+                          <i />
+                          {isAvailable ? "READY" : "IN DEVELOPMENT"}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </section>
             );
           })}
         </div>
       </div>
-
     </main>
   );
 }
 
 function HomeSurface() {
   const { user, signOutHere } = useAuth();
-  const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
+  const firstName = user?.displayName?.trim().split(/\\s+/)[0] || "Founder";
+
   return (
     <RequireOwner>
       <HomeExperience firstName={firstName} onSignOut={() => void signOutHere()} />
@@ -84,6 +106,7 @@ function HomeSurface() {
   );
 }
 
+/** A visual-only surface for the design route; production Home remains owner-gated. */
 export function NNHomePreview() {
   return <HomeExperience firstName="Founder" />;
 }
