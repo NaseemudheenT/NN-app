@@ -72,7 +72,8 @@ function LifeSurface() {
   const [tab, setTab] = useState<LifeTab>("today");
   const swipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
   const moveTab = (direction: -1 | 1) => {
-    const next = TABS[Math.max(0, Math.min(TABS.length - 1, tabIndex + direction))];
+    const currentIndex = TABS.findIndex((item) => item.id === tab);
+    const next = TABS[Math.max(0, Math.min(TABS.length - 1, currentIndex + direction))];
     if (next) setTab(next.id);
   };
   const beginTabSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
