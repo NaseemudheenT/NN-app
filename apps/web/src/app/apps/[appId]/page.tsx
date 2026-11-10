@@ -41,11 +41,11 @@ export default async function ApplicationOverviewPage({ params }: PageProps) {
           <span aria-current="page">{app.name.toUpperCase()}</span>
         </nav>
 
-        <section className={styles.hero}>
+        <section className={`${styles.hero} nn-surface-hero`}>
           <div className={styles.heroCopy}>
             <p className={styles.eyebrow}>NN APPLICATION · {app.group.toUpperCase()}</p>
             <div className={styles.titleRow}>
-              <span className={styles.appIcon}><Icon name={app.icon} size={29} /></span>
+              <span className={`${styles.appIcon} nn-icon-well`}><Icon name={app.icon} size={29} /></span>
               <h1>{app.name}</h1>
             </div>
             <p className={styles.description}>{app.description}.</p>
@@ -63,7 +63,7 @@ export default async function ApplicationOverviewPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className={styles.truthPanel} aria-labelledby="status-title">
+        <section className={`${styles.truthPanel} nn-callout nn-callout-warning`} aria-labelledby="status-title">
           <div className={styles.panelIcon}><Icon name="shield" size={20} /></div>
           <div>
             <p className={styles.panelEyebrow}>IMPLEMENTATION STATUS</p>
@@ -78,7 +78,7 @@ export default async function ApplicationOverviewPage({ params }: PageProps) {
             <h2 id="quality-title">What must be true before launch.</h2>
           </div>
           <div className={styles.gates}>
-            <article className={styles.gate}>
+            <article className={`${styles.gate} nn-surface-glass`}>
               <span>01</span><div><h3>Complete interface</h3><p>Responsive screens, real controls, readable states and accessible interactions.</p></div>
             </article>
             <article className={styles.gate}>
@@ -98,7 +98,7 @@ export default async function ApplicationOverviewPage({ params }: PageProps) {
             </div>
             <div className={styles.related}>
               {related.map((item) => (
-                <Link className={styles.relatedCard} href={item.overviewHref as Route} key={item.id}>
+                <Link className={`${styles.relatedCard} nn-card-interactive nn-focus-ring`} href={item.overviewHref as Route} key={item.id}>
                   <span><Icon name={item.icon} size={19} /></span>
                   <strong>{item.name}</strong>
                   <small>{item.availability === "available" ? "AVAILABLE" : "IN DEVELOPMENT"}</small>
