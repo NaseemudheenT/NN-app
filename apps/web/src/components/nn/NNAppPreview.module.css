@@ -108,3 +108,67 @@
 :global(html[data-motion="reduced"]) .architectureCard::before,
 :global(html[data-motion="reduced"]) .relatedCard::before,
 :global(html[data-motion="reduced"]) .previewNotice::before { animation:none; }
+
+
+/* Remove legacy control styling; keep only a precise glass segmented switch. */
+.tabs {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid rgb(207 231 255 / 22%);
+  border-radius: 999px;
+  background:
+    radial-gradient(ellipse at 18% 0%, rgb(166 218 255 / 10%), transparent 54%),
+    linear-gradient(145deg, rgb(255 255 255 / 8%), rgb(5 15 36 / 54%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%), 0 8px 22px rgb(0 0 0 / 16%);
+  -webkit-backdrop-filter: blur(24px) saturate(165%);
+  backdrop-filter: blur(24px) saturate(165%);
+}
+.tabs button {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  min-width: 92px;
+  min-height: 42px;
+  padding: 0 17px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(199 218 243 / 68%);
+  font: 600 11px/1 inherit;
+  letter-spacing: .015em;
+  text-transform: capitalize;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.tabs button:hover { color: #f3f8ff; background: rgb(255 255 255 / 6%); }
+.tabs button:active { transform: scale(.97); }
+.tabs button:focus-visible {
+  outline: 2px solid rgb(156 226 255 / 95%);
+  outline-offset: 3px;
+}
+.tabs .activeTab {
+  color: #f4f9ff;
+  border-color: rgb(208 235 255 / 28%);
+  background:
+    radial-gradient(ellipse at 25% 0%, rgb(255 255 255 / 22%), transparent 70%),
+    linear-gradient(145deg, rgb(142 204 255 / 23%), rgb(92 125 204 / 16%) 58%, rgb(24 37 80 / 58%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 38%), 0 4px 12px rgb(0 0 0 / 18%), 0 0 20px rgb(103 184 255 / 10%);
+}
+.emptyWorkspace { min-height: 260px; }
+.actions { display: none; }
+@media(max-width:700px) {
+  .tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    border-radius: 18px;
+  }
+  .tabs button { min-width: 0; min-height: 44px; padding-inline: 5px; font-size: 10px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .tabs button { transition: none; }
+}
