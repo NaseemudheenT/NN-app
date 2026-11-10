@@ -41,3 +41,70 @@
   .module,.architectureCard,.relatedCard{border-radius:16px}
 }
 @media(prefers-reduced-motion:reduce){.relatedCard{transition:none}}
+
+
+/* One consistent REN-like liquid-glass wave language across every preview card. */
+.hero,.workspace,.module,.architectureCard,.relatedCard,.previewNotice {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgb(205 229 255 / 27%);
+  background:
+    radial-gradient(ellipse at 12% 0%, rgb(139 207 255 / 13%), transparent 46%),
+    radial-gradient(ellipse at 94% 100%, rgb(157 132 255 / 12%), transparent 50%),
+    linear-gradient(148deg, rgb(255 255 255 / 10%), rgb(91 135 202 / 6%) 48%, rgb(7 20 48 / 70%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 27%), 0 3px 0 rgb(3 10 27 / 34%), 0 13px 30px rgb(0 0 0 / 18%);
+}
+.hero::before,.workspace::before,.module::before,.architectureCard::before,.relatedCard::before,.previewNotice::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  inset: -60% -28% 28%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 65% 24% at 50% 52%, rgb(169 222 255 / 17%), transparent 73%),
+    radial-gradient(ellipse 55% 22% at 52% 62%, rgb(177 155 255 / 14%), transparent 75%),
+    linear-gradient(110deg, transparent 30%, rgb(220 241 255 / 10%) 49%, rgb(184 169 255 / 10%) 57%, transparent 74%);
+  filter: blur(15px);
+  transform: rotate(-15deg) translate3d(-3%,0,0);
+  animation: nn-preview-wave 9s ease-in-out infinite alternate;
+}
+.hero::after,.workspace::after,.module::after,.architectureCard::after,.relatedCard::after,.previewNotice::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 1px;
+  border-radius: inherit;
+  border-top: 1px solid rgb(255 255 255 / 22%);
+  background: linear-gradient(112deg, transparent 28%, rgb(225 242 255 / 4%) 50%, transparent 72%);
+}
+.module,.architectureCard,.relatedCard { border-radius: 20px; }
+.module,.architectureCard { min-width: 0; }
+.relatedCard { transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+.relatedCard:active { transform: scale(.975); }
+.tabs button { min-height: 48px; padding-inline: 16px; touch-action: manipulation; }
+.emptyWorkspace button,.primaryAction,.secondaryAction { min-height: 48px; touch-action: manipulation; }
+@keyframes nn-preview-wave {
+  from { transform: rotate(-15deg) translate3d(-4%,-2%,0) scale(1); opacity: .65; }
+  to { transform: rotate(-9deg) translate3d(6%,7%,0) scale(1.1); opacity: 1; }
+}
+@media(max-width:700px) {
+  .root { padding-inline: 15px; padding-bottom: max(28px,env(safe-area-inset-bottom)); }
+  .moduleGrid,.architectureGrid { grid-template-columns: 1fr; gap: 10px; }
+  .module { min-height: 96px; padding: 17px; }
+  .related { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+  .workspace { padding: 19px 15px; }
+  .workspaceHead { flex-direction: column; gap: 12px; }
+  .tabs { width: 100%; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .tabs button { padding-inline: 6px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .hero::before,.workspace::before,.module::before,.architectureCard::before,.relatedCard::before,.previewNotice::before { animation:none; }
+}
+:global(html[data-motion="reduced"]) .hero::before,
+:global(html[data-motion="reduced"]) .workspace::before,
+:global(html[data-motion="reduced"]) .module::before,
+:global(html[data-motion="reduced"]) .architectureCard::before,
+:global(html[data-motion="reduced"]) .relatedCard::before,
+:global(html[data-motion="reduced"]) .previewNotice::before { animation:none; }
