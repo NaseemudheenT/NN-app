@@ -88,7 +88,7 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
 
 function HomeSurface() {
   const { user, signOutHere } = useAuth();
-  const firstName = user?.displayName?.trim().split(/\\s+/)[0] || "Founder";
+  const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
   return (
     <RequireOwner>
       <HomeExperience firstName={firstName} onSignOut={() => void signOutHere()} />
