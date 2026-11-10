@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
 import type { NNApplication } from "@/lib/apps/registry";
 import styles from "./NNAppPreview.module.css";
@@ -118,7 +119,7 @@ export function NNAppPreview({ app, related }: { app: NNApplication; related: NN
         <section className={styles.relatedSection}>
           <div className={styles.sectionHeading}><p>CONNECTED APPLICATIONS</p><h2>Part of {app.group}.</h2></div>
           <div className={styles.related}>
-            {related.map((item) => <Link className={styles.relatedCard} href={item.overviewHref} key={item.id}><span><Icon name={item.icon} size={18} /></span><strong>{item.name}</strong><small>{item.availability === "available" ? "AVAILABLE" : "DESIGN PREVIEW"}</small></Link>)}
+            {related.map((item) => <Link className={styles.relatedCard} href={item.overviewHref as Route} key={item.id}><span><Icon name={item.icon} size={18} /></span><strong>{item.name}</strong><small>{item.availability === "available" ? "AVAILABLE" : "DESIGN PREVIEW"}</small></Link>)}
           </div>
         </section>
 
