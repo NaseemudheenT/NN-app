@@ -137,7 +137,10 @@
   border-radius: 999px;
   background: transparent;
   color: rgb(199 218 243 / 68%);
-  font: 600 11px/1 inherit;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
   letter-spacing: .015em;
   text-transform: capitalize;
   cursor: pointer;
