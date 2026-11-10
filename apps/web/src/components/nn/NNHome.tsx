@@ -65,8 +65,8 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
             const app = getApplication(id);
             if (!app) return null;
             const available = app.availability === "available" && Boolean(app.href);
-            return <button className={styles.appTile} key={app.id} onClick={() => openApp(app.name)} aria-label={available ? `Open ${app.name}` : `View ${app.name} development status`}>
-              <span className={`${styles.appIcon} ${styles.iconSurface} ${styles[tone]}`}><Icon name={app.icon} size={25}/></span>
+            return <button className={`${styles.appTile} nn-card-interactive nn-focus-ring`} key={app.id} onClick={() => openApp(app.name)} aria-label={available ? `Open ${app.name}` : `View ${app.name} development status`}>
+              <span className={`${styles.appIcon} ${styles.iconSurface} ${styles[tone]} nn-icon-well`}><Icon name={app.icon} size={25}/></span>
               <strong>{app.name}</strong>
               <small>{detail}</small>
               <span className={available ? styles.appStatusAvailable : styles.appStatusPlanned}>{available ? "AVAILABLE" : "IN DEVELOPMENT"}</span>
