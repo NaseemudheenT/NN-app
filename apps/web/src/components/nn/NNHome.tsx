@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Dialog } from "@/components/ui/Dialog";
 import { Dock } from "@/components/ui/Dock";
@@ -37,7 +38,7 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
     window.addEventListener("keydown",onKey);return()=>window.removeEventListener("keydown",onKey);
   },[]);
   const openRoute=(href:"/home"|"/life"|"/workspace"|"/design",id:string)=>{setActiveDock(id);router.push(href);};
-  const openApp=(name:string)=>{if(name==="REN"){setLauncherOpen(false);summon("touch");return;}const app=getApplication(name);if(app){setLauncherOpen(false);const destination=app.availability==="available"&&app.href?app.href:app.overviewHref;router.push(destination);setActiveDock(app.id);}else{setQuery(name);setLauncherOpen(true);}};
+  const openApp=(name:string)=>{if(name==="REN"){setLauncherOpen(false);summon("touch");return;}const app=getApplication(name);if(app){setLauncherOpen(false);const destination=app.availability==="available"&&app.href?app.href:app.overviewHref;router.push(destination as Route);setActiveDock(app.id);}else{setQuery(name);setLauncherOpen(true);}};
   return <main className={styles.root}>
     <header className={styles.topbar}>
       <div className={styles.identity}><NNLogo size={32} decorative/><span>NN <i>/</i> <strong>PERSONAL OS</strong></span></div>
