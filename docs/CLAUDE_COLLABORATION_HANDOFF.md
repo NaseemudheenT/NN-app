@@ -199,3 +199,15 @@ rather than pasting them into chat.
 - Added the Next.js `Route` type import and narrowed the registry destination at the navigation boundary. This preserves the registry's string-based metadata model and does not alter route behaviour or security contracts.
 - Commit: `51ee18461bc4bec1273a253eff4be856e556cbc2`.
 - A fresh CI run is required. Do not mark the overview milestone build-verified until the full pipeline succeeds.
+
+
+## NN Future Interface System — 2026-11-10
+
+- Added `apps/web/src/styles/future-system.css` with 50 named core primitives, organised into five groups: optical surfaces; cards/tiles/icon materials; actions/fields/statuses; information architecture/data display; and feedback/safety/accessibility.
+- Added supporting variants for compact icon wells, active chips, navigation, safe-area spacing, overflow containment and reduced-motion handling.
+- Imported the system globally after the shared token and holographic material sheets. It consumes the approved NN semantic palette and existing glass tokens rather than creating a competing colour system.
+- Integrated the shared interaction/focus treatment and dimensional icon well into the Home application launcher.
+- Added `docs/NN_FUTURE_DESIGN_SYSTEM.md` as the 50-item design catalogue and `future-system.test.ts` to assert the exact 50 unique primitives exist and that reduced-motion, narrow-screen and no-backdrop-filter fallbacks remain present.
+- No backend, Firestore, authentication, owner-claim or storage contract was modified. No application is promoted to operational by this visual system.
+- Commits: `1733e3a47e826a7487a9de16170c9e6adad48fe0` (50 primitives), `fd2b93c9716b4119315635ecb105368216f42749` (global import), `a5933b4b771100734a7374bac3a710fb77c0eafd` (Home integration), `2200084e33c7ac4f77e3402156fd9f97ec6efc28` (catalogue), `3fe57236eb45058bacf19d31d97300886556e055` (primitive tests).
+- Verification pending: the full CI pipeline must confirm typecheck, lint, unit tests and production build. Real iPhone/desktop visual QA remains outstanding.
