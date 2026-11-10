@@ -7,12 +7,10 @@ import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAuth } from "@/lib/auth";
 import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
-import { useRen } from "@/components/ren/RenProvider";
 import styles from "./NNHome.module.css";
 
 function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut?: () => void }) {
   const router = useRouter();
-  const { summon } = useRen();
 
   const openApplication = (app: (typeof APPLICATIONS)[number]) => {
     const destination = app.availability === "available" && app.href ? app.href : app.overviewHref;
@@ -72,16 +70,6 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
         </div>
       </div>
 
-      <button
-        type="button"
-        className={styles.renButton}
-        onClick={() => summon("touch")}
-        aria-label="Open REN assistant"
-      >
-        <span className={styles.renAura} />
-        <Icon name="sparkle" size={23} />
-        <span>REN</span>
-      </button>
     </main>
   );
 }
