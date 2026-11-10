@@ -108,7 +108,6 @@ export function NNAppPreview({ app, related }: { app: NNApplication; related: NN
               <span className={styles.emptyIcon}><Icon name={app.icon} size={27} /></span>
               <p className={styles.eyebrow}>NO LIVE RECORDS</p><h3>Your {app.name.toLowerCase()} workspace will appear here.</h3>
               <p>When this application is implemented, this area will show your own records and actions. It is intentionally empty in this design preview.</p>
-              <button type="button" onClick={() => setTab("overview")}>Review interface</button>
             </div>
           ) : (
             <div className={styles.architectureGrid}>
@@ -124,7 +123,6 @@ export function NNAppPreview({ app, related }: { app: NNApplication; related: NN
           </div>
         </section>
 
-        <div className={styles.actions}><Link className={styles.primaryAction} href="/home">NN Home</Link><Link className={styles.secondaryAction} href="/life">NN Life</Link></div>
       </div>
       <footer className={styles.footer}><span>NN · PRIVATE PERSONAL OPERATING ENVIRONMENT</span><span>ONE OWNER · ONE PRIVATE ECOSYSTEM</span></footer>
     </main>
