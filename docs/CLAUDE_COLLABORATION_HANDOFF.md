@@ -211,3 +211,6 @@ rather than pasting them into chat.
 - No backend, Firestore, authentication, owner-claim or storage contract was modified. No application is promoted to operational by this visual system.
 - Commits: `1733e3a47e826a7487a9de16170c9e6adad48fe0` (50 primitives), `fd2b93c9716b4119315635ecb105368216f42749` (global import), `a5933b4b771100734a7374bac3a710fb77c0eafd` (Home integration), `2200084e33c7ac4f77e3402156fd9f97ec6efc28` (catalogue), `3fe57236eb45058bacf19d31d97300886556e055` (primitive tests).
 - Verification pending: the full CI pipeline must confirm typecheck, lint, unit tests and production build. Real iPhone/desktop visual QA remains outstanding.
+
+- Extended the shared material language to planned application overview pages: hero surfaces, owner-facing status callout, release-gate cards, related-application interaction feedback, and dimensional application icon wells. This changes presentation only; the explicit planned/not-operational state remains intact.
+- Overview visual integration commit: `e4ee43b5e84c35bee3e61bb77af1a3cc5c9b4fd8`.
