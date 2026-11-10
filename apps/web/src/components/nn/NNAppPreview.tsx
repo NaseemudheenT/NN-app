@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
+import { NNLogo } from "@/components/ui/NNLogo";
 import type { NNApplication } from "@/lib/apps/registry";
 import styles from "./NNAppPreview.module.css";
 
@@ -60,7 +61,7 @@ export function NNAppPreview({ app, related }: { app: NNApplication; related: NN
     <main className={styles.root}>
       <header className={styles.topbar}>
         <Link className={styles.brand} href="/home" aria-label="NN Home">
-          <span className={styles.brandMark}>NN</span><span>NN <i>/</i> PERSONAL OS</span>
+          <NNLogo size={32} decorative /><span>NN <i>/</i> PERSONAL OS</span>
         </Link>
         <span className={styles.privateState}><i /> PRIVATE ENVIRONMENT</span>
       </header>
@@ -100,14 +101,14 @@ export function NNAppPreview({ app, related }: { app: NNApplication; related: NN
           </div>
           {tab === "overview" ? (
             <div className={styles.moduleGrid}>
-              {modules.map((module, index) => <article className={styles.module} key={module.title}><span className={styles.moduleNumber}>0{index + 1}</span><div><h3>{module.title}</h3><p>{module.detail}</p></div><Icon name="expand" size={17} /></article>)}
+              {modules.map((module, index) => <article className={styles.module} key={module.title}><span className={styles.moduleNumber}>0{index + 1}</span><div><h3>{module.title}</h3><p>{module.detail}</p></div></article>)}
             </div>
           ) : tab === "workspace" ? (
             <div className={styles.emptyWorkspace}>
               <span className={styles.emptyIcon}><Icon name={app.icon} size={27} /></span>
               <p className={styles.eyebrow}>NO LIVE RECORDS</p><h3>Your {app.name.toLowerCase()} workspace will appear here.</h3>
               <p>When this application is implemented, this area will show your own records and actions. It is intentionally empty in this design preview.</p>
-              <button type="button" onClick={() => setTab("overview")}>Review the interface map <span>↗</span></button>
+              <button type="button" onClick={() => setTab("overview")}>Review interface</button>
             </div>
           ) : (
             <div className={styles.architectureGrid}>
@@ -123,7 +124,7 @@ export function NNAppPreview({ app, related }: { app: NNApplication; related: NN
           </div>
         </section>
 
-        <div className={styles.actions}><Link className={styles.primaryAction} href="/home">Back to NN Home <span>↗</span></Link><Link className={styles.secondaryAction} href="/life">Open NN Life <span>↗</span></Link></div>
+        <div className={styles.actions}><Link className={styles.primaryAction} href="/home">NN Home</Link><Link className={styles.secondaryAction} href="/life">NN Life</Link></div>
       </div>
       <footer className={styles.footer}><span>NN · PRIVATE PERSONAL OPERATING ENVIRONMENT</span><span>ONE OWNER · ONE PRIVATE ECOSYSTEM</span></footer>
     </main>
