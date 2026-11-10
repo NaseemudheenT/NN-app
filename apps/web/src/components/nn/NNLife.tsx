@@ -71,7 +71,6 @@ function LifeSurface() {
   const uid = user?.uid;
   const [tab, setTab] = useState<LifeTab>("today");
   const swipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
-  const tabIndex = TABS.findIndex((item) => item.id === tab);
   const moveTab = (direction: -1 | 1) => {
     const next = TABS[Math.max(0, Math.min(TABS.length - 1, tabIndex + direction))];
     if (next) setTab(next.id);
@@ -254,9 +253,7 @@ function LifeSurface() {
         <div className={styles.heroMeta}><span>01 <i>/</i> DAILY OVERVIEW</span><span>{offline ? "OFFLINE / CACHED" : "PERSONAL DATA SPACE"}</span></div>
       </section>
       <nav className={styles.tabs} aria-label="Life sections">
-        <button type="button" className={styles.tabArrow} onClick={() => moveTab(-1)} disabled={tabIndex <= 0} aria-label="Previous Life section">←</button>
         {TABS.map((item) => <button key={item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}><Icon name={item.icon} size={16}/><span>{item.label}</span>{item.id === "tasks" && todayTasks.length > 0 ? <small>{todayTasks.length}</small> : null}</button>)}
-        <button type="button" className={styles.tabArrow} onClick={() => moveTab(1)} disabled={tabIndex >= TABS.length - 1} aria-label="Next Life section">→</button>
       </nav>
       {error ? <div className={styles.error} role="alert"><Icon name="shield" size={17}/><span>{error}</span><button onClick={() => void load()}>Retry</button></div> : null}
       {notice ? <div className={styles.notice} role="status"><Icon name="check" size={16}/>{notice}<button onClick={() => setNotice(null)} aria-label="Dismiss"><Icon name="close" size={14}/></button></div> : null}
@@ -264,11 +261,11 @@ function LifeSurface() {
       {!loading && tab === "today" ? <section className={styles.dashboard}>
         <div className={styles.mainColumn}>
           <GlassPanel tier={2} padding="lg" className={styles.panel}>
-            <div className={styles.panelHead}><div><p className={styles.label}>YOUR SCHEDULE</p><h2>Today, in focus.</h2></div><button className={styles.inlineAction} onClick={() => setTab("calendar")}>Open calendar ↗</button></div>
+            <div className={styles.panelHead}><div><p className={styles.label}>YOUR SCHEDULE</p><h2>Today, in focus.</h2></div><button className={styles.inlineAction} onClick={() => setTab("calendar")}>Open calendar</button></div>
             {todayEvents.length ? todayEvents.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("calendar_events", item.id, "Calendar event deleted.")}><article className={styles.event}><time>{formatTime(item.start)}</time><span/><div><strong>{titleOf(item)}</strong><small>{formatTime(item.start)} — {formatTime(item.end)}</small></div></article></SwipeToDelete>) : <div className={styles.emptyInline}><span className={styles.emptyIcon+" "+styles.iconSurface}><Icon name="calendar" size={19}/></span><div><strong>Your day is open.</strong><small>No events scheduled for today.</small></div><button onClick={() => setTab("calendar")}>Add event</button></div>}
           </GlassPanel>
           <GlassPanel tier={2} padding="lg" className={styles.panel}>
-            <div className={styles.panelHead}><div><p className={styles.label}>NEXT ACTIONS</p><h2>Things to move forward.</h2></div><button className={styles.inlineAction} onClick={() => setTab("tasks")}>All tasks ↗</button></div>
+            <div className={styles.panelHead}><div><p className={styles.label}>NEXT ACTIONS</p><h2>Things to move forward.</h2></div><button className={styles.inlineAction} onClick={() => setTab("tasks")}>All tasks</button></div>
             {todayTasks.slice(0,5).map(renderTask)}
             {todayTasks.length === 0 ? <div className={styles.emptyInline}><span className={styles.emptyIcon}><Icon name="check" size={19}/></span><div><strong>Nothing waiting on you.</strong><small>Add a task when something needs your attention.</small></div><button onClick={() => setTab("tasks")}>Create task</button></div> : null}
           </GlassPanel>
