@@ -14,26 +14,37 @@ afterEach(cleanup);
 beforeEach(() => push.mockClear());
 
 describe("NN Home dashboard", () => {
-  it("renders every registered application exactly once", () => {
+  it("renders every registered application exactly once with an honest availability state", () => {
     render(<NNHomePreview />);
     expect(screen.getAllByRole("button")).toHaveLength(APPLICATIONS.length);
+
     for (const app of APPLICATIONS) {
-      expect(screen.getByRole("button", { name: new RegExp(app.name) })).toBeInTheDocument();
+      const isAvailable = app.availability === "available" && Boolean(app.href);
+      const name = isAvailable
+        ? new RegExp(`^${app.name}\\. Open application$`)
+        : new RegExp(`^${app.name}\\. Open application overview; currently in development$`);
+      expect(screen.getByRole("button", { name })).toBeInTheDocument();
     }
+
+    expect(screen.getAllByText("READY")).toHaveLength(1);
+    expect(screen.getAllByText("IN DEVELOPMENT")).toHaveLength(APPLICATIONS.length - 1);
   });
 
-  it("opens the real route for the operational Life application", async () => {
+  it("routes every application card to its real app or its honest overview", async () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
-    await user.click(screen.getByRole("button", { name: "Life. Open application" }));
-    expect(push).toHaveBeenCalledWith("/life");
-  });
 
-  it("opens an honest design overview for an application still in development", async () => {
-    const user = userEvent.setup();
-    render(<NNHomePreview />);
-    await user.click(screen.getByRole("button", { name: /College.*currently in development/ }));
-    expect(push).toHaveBeenCalledWith("/apps/college");
+    for (const app of APPLICATIONS) {
+      const isAvailable = app.availability === "available" && Boolean(app.href);
+      const destination = isAvailable ? app.href : app.overviewHref;
+      const label = isAvailable
+        ? new RegExp(`^${app.name}\\. Open application$`)
+        : new RegExp(`^${app.name}\\. Open application overview; currently in development$`);
+      await user.click(screen.getByRole("button", { name: label }));
+      expect(push).toHaveBeenLastCalledWith(destination);
+    }
+
+    expect(push).toHaveBeenCalledTimes(APPLICATIONS.length);
   });
 
   it("supports keyboard activation for application cards", async () => {
