@@ -23,6 +23,23 @@ Non-negotiable:
 - Preserve authentication, security boundaries, data contracts and existing functionality. Frontend visibility is never authorisation.
 - Do not claim a feature is verified until its behaviour and tests have been run.
 
+## Latest founder design direction — 2026-11-10
+
+This section supersedes any earlier shell/navigation guidance below where the two conflict.
+
+- **Phone is the primary device.** Design and validate the iPhone experience first; desktop and tablet adapt from the same interaction model.
+- **Home is an app launcher, not an analytics dashboard.** Show the application groups and their application cards. Do not add decorative metrics, activity feeds, quick-action strips, promotional panels or other widgets to Home.
+- **Remove navigation clutter.** No persistent side rail, bottom dock, carousel arrows, previous/next chevrons or duplicate navigation bars. Every route must retain a simple, discoverable way to return to Home without introducing a row of controls.
+- **Keep REN immediately accessible.** REN is the one persistent assistant entry point. Its surface, cards and icon treatment should follow the supplied REN visual reference.
+- **Brand fidelity.** Use the supplied official NN monogram as the source of truth. Do not redraw, distort, recolour arbitrarily or substitute a generic AI mark.
+- **Visual language.** One restrained premium spatial-glass system: thin, elegant translucent cards; layered optical depth; cool blue/cyan with restrained violet dispersion; soft reflections; precise icon wells; subtle floating motion. Avoid thick borders, heavy bevels, excessive glow, visual clutter and cyberpunk effects.
+- **Touch-first operation.** Make the complete intended card surface tappable, use generous hit areas, simple gestures, clear pressed/selected feedback and no hover-only functionality. Keep controls easy to reach one-handed.
+- **Smart behaviour must be real.** Build context-aware assistance, proactive reminders, routines and automation only when the underlying data, permissions, schedules and integrations exist. Display the source, freshness and confidence of important information. Never fabricate a device state, action, insight, AI execution or integration.
+- **Approval and safety.** Any outbound communication, publishing, purchase, financial operation, destructive change, permission change or other consequential external action remains behind explicit founder approval and an audit record.
+- **3D is a quality of presentation, not a false capability claim.** Use performant layered depth and motion. Do not claim spatial tracking, AR or WebXR unless those features are genuinely implemented and tested.
+
+The Home launcher must remain visually simple even as the applications become more capable. Complexity belongs inside the relevant application, not on the dashboard.
+
 ## Repository facts at programme start
 
 The route tree currently contains entry, sign-in, Home, Life, Workspace, offline and design-preview routes. Home's application index lists 34 planned surfaces and correctly labels all but Life as planned. The Workspace contains explicitly illustrative sample content. The current app registry is embedded in Home rather than shared as a typed product registry.
