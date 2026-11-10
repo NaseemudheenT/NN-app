@@ -99,7 +99,7 @@ export function NNAppPreview({ app, related }: { app: NNApplication; related: NN
           </div>
           {tab === "overview" ? (
             <div className={styles.moduleGrid}>
-              {modules.map((module, index) => <article className={styles.module} key={module.title}><span className={styles.moduleNumber}>0{index + 1}</span><div><h3>{module.title}</h3><p>{module.detail}</p></div><Icon name="arrow-up-right" size={17} /></article>)}
+              {modules.map((module, index) => <article className={styles.module} key={module.title}><span className={styles.moduleNumber}>0{index + 1}</span><div><h3>{module.title}</h3><p>{module.detail}</p></div><Icon name="expand" size={17} /></article>)}
             </div>
           ) : tab === "workspace" ? (
             <div className={styles.emptyWorkspace}>
@@ -110,7 +110,7 @@ export function NNAppPreview({ app, related }: { app: NNApplication; related: NN
             </div>
           ) : (
             <div className={styles.architectureGrid}>
-              {[["Owner-scoped","Only the founder can access personal records."],["Traceable","Important information keeps its source and timestamps."],["Permission-aware","Connected services expose only approved capabilities."],["Honest states","Loading, empty, offline and error states are explicit."]].map(([title, detail]) => <article className={styles.architectureCard} key={title}><span><Icon name="check-circle" size={18} /></span><h3>{title}</h3><p>{detail}</p></article>)}
+              {[["Owner-scoped","Only the founder can access personal records."],["Traceable","Important information keeps its source and timestamps."],["Permission-aware","Connected services expose only approved capabilities."],["Honest states","Loading, empty, offline and error states are explicit."]].map(([title, detail]) => <article className={styles.architectureCard} key={title}><span><Icon name="check" size={18} /></span><h3>{title}</h3><p>{detail}</p></article>)}
             </div>
           )}
         </section>
