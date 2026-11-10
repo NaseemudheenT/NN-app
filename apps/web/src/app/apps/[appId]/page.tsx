@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { Route } from "next";
 import { notFound, redirect } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { APPLICATIONS, getApplication } from "@/lib/apps/registry";
@@ -97,7 +98,7 @@ export default async function ApplicationOverviewPage({ params }: PageProps) {
             </div>
             <div className={styles.related}>
               {related.map((item) => (
-                <Link className={styles.relatedCard} href={item.overviewHref} key={item.id}>
+                <Link className={styles.relatedCard} href={item.overviewHref as Route} key={item.id}>
                   <span><Icon name={item.icon} size={19} /></span>
                   <strong>{item.name}</strong>
                   <small>{item.availability === "available" ? "AVAILABLE" : "IN DEVELOPMENT"}</small>
