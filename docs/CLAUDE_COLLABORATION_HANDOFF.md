@@ -191,3 +191,11 @@ rather than pasting them into chat.
 - The first full CI run for the overview-page milestone passed typecheck, lint and unit tests (including 90 Firebase rules tests and 125 web tests), but the Next.js production build failed because a dynamically typed registry overview URL was passed to a typed Next Link.
 - Corrected the Link destination with the Next.js `Route` type assertion in `apps/web/src/app/apps/[appId]/page.tsx` (commit `71f63048f971b589188c4f76c1cf4a5131f8a891`). This is a routing type correction only; no security or data contracts changed.
 - A fresh CI run for that commit is in progress at the time of this note. Do not mark the milestone build-verified until the run completes successfully.
+
+
+### Home launcher typed-route correction — 2026-11-10
+
+- The overview-route CI run passed TypeScript, lint, all 90 Firebase rules tests and all 125 web tests, but the Next.js production build then found a second typed-route error: the Home launcher passed the registry's string-typed `overviewHref` to `router.push`.
+- Added the Next.js `Route` type import and narrowed the registry destination at the navigation boundary. This preserves the registry's string-based metadata model and does not alter route behaviour or security contracts.
+- Commit: `51ee18461bc4bec1273a253eff4be856e556cbc2`.
+- A fresh CI run is required. Do not mark the overview milestone build-verified until the full pipeline succeeds.
