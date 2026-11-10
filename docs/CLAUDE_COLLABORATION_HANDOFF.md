@@ -214,3 +214,5 @@ rather than pasting them into chat.
 
 - Extended the shared material language to planned application overview pages: hero surfaces, owner-facing status callout, release-gate cards, related-application interaction feedback, and dimensional application icon wells. This changes presentation only; the explicit planned/not-operational state remains intact.
 - Overview visual integration commit: `e4ee43b5e84c35bee3e61bb77af1a3cc5c9b4fd8`.
+
+- Refined the Home visual composition with the shared spatial hero light field and a restrained refractive spectral rim on application tiles. This remains CSS-only and respects the existing reduced-motion rules. Commit: `2555871d76b987984661dfcc8bac4cb7f10af2bd`.
