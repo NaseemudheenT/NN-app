@@ -8,7 +8,7 @@ import styles from "./NNAppPreview.module.css";
 
 type PreviewTab = "overview" | "workspace" | "architecture";
 
-const MODULES: Record<string, { title: string; detail: string }[]> = {
+export const PREVIEW_MODULES: Record<string, { title: string; detail: string }[]> = {
   soul: [{title:"Reflection",detail:"A private space for thoughtful writing and review."},{title:"Gratitude",detail:"Capture what matters without turning it into a score."},{title:"Purpose",detail:"Keep principles and long-term direction visible."},{title:"Practices",detail:"Design personal routines with deliberate intent."}],
   mind: [{title:"Focus",detail:"Plan distraction-aware sessions and priorities."},{title:"Journal",detail:"Private reflection with dates and context."},{title:"Resilience",detail:"Track practices that support steady progress."},{title:"Patterns",detail:"Review trends only when supported by real entries."}],
   body: [{title:"Training",detail:"Plan sessions, exercises and progression."},{title:"Nutrition",detail:"Organise meals and personal nutrition notes."},{title:"Sleep",detail:"Review sleep records and consistency."},{title:"Recovery",detail:"Keep recovery routines and observations together."}],
@@ -52,7 +52,7 @@ const TAB_COPY: Record<PreviewTab, { title: string; description: string }> = {
 
 export function NNAppPreview({ app, related }: { app: NNApplication; related: NNApplication[] }) {
   const [tab, setTab] = useState<PreviewTab>("overview");
-  const modules = useMemo(() => MODULES[app.id] ?? [], [app.id]);
+  const modules = useMemo(() => PREVIEW_MODULES[app.id] ?? [], [app.id]);
   const copy = TAB_COPY[tab];
 
   return (
