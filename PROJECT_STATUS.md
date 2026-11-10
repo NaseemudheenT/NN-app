@@ -1,5 +1,14 @@
 # NN APP — Project Status
 
+## Latest founder-directed frontend pass — 2026-11-10
+
+- Simplified the global shell by removing the persistent bottom navigation dock; REN remains globally mounted.
+- Corrected founder-name parsing in the Home greeting.
+- Recorded the latest phone-first, app-cards-only Home direction; official NN mark and REN reference fidelity; thin spatial-glass surfaces; touch-first interactions; no decorative arrows or duplicate navigation; and truthful smart automation requirements in `docs/NN_FRONTEND_EXECUTION_PROGRAMME.md`.
+- These changes are committed on `design/nn-frontend-system`.
+- The new commits' Vercel checks were still pending at the last status inspection. No new Render deployment had been created; the public Render URL was still serving commit `97f29639179fb58d8b4852f7fcbea4ed5da716d5`.
+- This pass is not a full application implementation or a production release. NN Life remains the only registered operational app; planned-app screens are design previews.
+
 Last updated: 2026-11-10
 
 **Current handoff:** Claude is to lead completion of the remaining NN operating system using the frontend on `design/nn-frontend-system` as the approved baseline. Read `docs/CLAUDE_OS_COMPLETION_BRIEF.md` before implementation.
