@@ -184,3 +184,10 @@ rather than pasting them into chat.
 - Registry tests now assert that all 34 entries have a deterministic overview route while only genuinely operational routes are marked available.
 - Commits: `7dafb743b4761006f2b8f19c8bfed283b9570516` (registry), `677a74a86c2077dca9d6ca86912ab8e06c52b52e` (Home), `aabb39cba5c4f648bfcba5b8a053c68301dab781` (tests), `264fd49af9f49760e183fee9dc793aa622b09736` and `003f79b9916fd7bdc8b339875ee30ef0db8a0b2e` (overview route and styling).
 - Verification: all 34 overview route declarations, Home routing and status copy were re-fetched from GitHub. CI for these new commits has not yet been confirmed; no production build or browser/device QA is claimed.
+
+
+### Application overview route CI correction — 2026-11-10
+
+- The first full CI run for the overview-page milestone passed typecheck, lint and unit tests (including 90 Firebase rules tests and 125 web tests), but the Next.js production build failed because a dynamically typed registry overview URL was passed to a typed Next Link.
+- Corrected the Link destination with the Next.js `Route` type assertion in `apps/web/src/app/apps/[appId]/page.tsx` (commit `71f63048f971b589188c4f76c1cf4a5131f8a891`). This is a routing type correction only; no security or data contracts changed.
+- A fresh CI run for that commit is in progress at the time of this note. Do not mark the milestone build-verified until the run completes successfully.
