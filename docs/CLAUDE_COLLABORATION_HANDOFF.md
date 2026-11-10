@@ -216,3 +216,14 @@ rather than pasting them into chat.
 - Overview visual integration commit: `e4ee43b5e84c35bee3e61bb77af1a3cc5c9b4fd8`.
 
 - Refined the Home visual composition with the shared spatial hero light field and a restrained refractive spectral rim on application tiles. This remains CSS-only and respects the existing reduced-motion rules. Commit: `2555871d76b987984661dfcc8bac4cb7f10af2bd`.
+
+
+## Claude OS completion handoff — 2026-11-10
+
+- Founder has directed Claude to take the lead on completing the remaining NN operating system using the current frontend as the approved baseline. This supersedes the previous strict division where ChatGPT owned all frontend work and Claude only backend services.
+- Added `docs/CLAUDE_OS_COMPLETION_BRIEF.md` with the product boundary, current frontend baseline, confirmed CI evidence, architecture requirements, execution order, definition of done and required final report.
+- Current baseline commit with a confirmed full green CI workflow: `44b1ecf13b0444d96c30cd7f229dfe824fb4c4ba`; run `42734103628`. The workflow's typecheck/lint/tests stage and Next.js production build both succeeded.
+- The 50-primitive design system is implemented and tested. It does not constitute 50 completed app screens. NN Life is the only operational app in the frontend registry; 33 others remain planned.
+- Updated `CLAUDE.md` to point Claude at the new brief and clarify that Claude may extend frontend code while preserving the existing NN design system.
+- Updated the top-level project status to remove the stale ~3% completion claim and clarify the actual frontend/app availability state. Historical phase tables below still require reconciliation against repository evidence.
+- No production deployment, merge, production Firebase action or paid infrastructure change is authorised.
