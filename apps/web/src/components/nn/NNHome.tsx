@@ -53,7 +53,7 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
         <div className={styles.welcomeCopy}><p className={styles.eyebrow}><span/> YOUR PERSONAL OPERATING ENVIRONMENT</p><h1>{clock.greeting||"Welcome back"}, <em>{firstName}.</em></h1><p className={styles.welcomeSub}>Dream bigger. Build greater. Your next chapter starts here.</p></div>
         <div className={styles.timeCard}><span className={styles.timeOrb}><span/></span><div><p>{clock.date||"Your day, in focus"}</p><strong>{clock.time||"--:--"}</strong><small>LOCAL TIME · NN</small></div></div>
       </section>
-      <section className={styles.hero+" nn-glass-primary nn-glass-card"}>
+      <section className={styles.hero+" nn-glass-primary nn-glass-card nn-surface-hero"}>
         <div className={styles.heroText}><p className={styles.heroKicker}>YOUR NEXT CHAPTER</p><h2>Keep going<span>.</span></h2><p className={styles.heroDescription}>One calm environment for your life, learning, projects and ambitions. Everything important, within reach.</p><div className={styles.heroActions}><LiquidButton variant="accent" size="lg" onClick={()=>setLauncherOpen(true)}>Explore NN <span aria-hidden="true">↗</span></LiquidButton><LiquidButton size="lg" href="/life">Open NN Life</LiquidButton></div></div>
         <div className={styles.spatialMark} aria-hidden="true"><div className={styles.orbit+" "+styles.orbitOne}/><div className={styles.orbit+" "+styles.orbitTwo}/><div className={styles.orbit+" "+styles.orbitThree}/><div className={styles.core}><NNLogo size={70} decorative/></div><span className={styles.nodeOne}><Icon name="calendar" size={17}/></span><span className={styles.nodeTwo}><Icon name="book" size={17}/></span><span className={styles.nodeThree}><Icon name="grid" size={17}/></span><span className={styles.nodeFour}><Icon name="sparkle" size={17}/></span></div>
         <div className={styles.heroFoot}><span>PRIVATE BY DESIGN</span><span>NN OS <i>·</i> BUILT WITH INTENT</span></div>
@@ -65,7 +65,7 @@ function HomeExperience({firstName,onSignOut}:{firstName:string;onSignOut?:()=>v
             const app = getApplication(id);
             if (!app) return null;
             const available = app.availability === "available" && Boolean(app.href);
-            return <button className={`${styles.appTile} nn-card-interactive nn-focus-ring`} key={app.id} onClick={() => openApp(app.name)} aria-label={available ? `Open ${app.name}` : `View ${app.name} development status`}>
+            return <button className={`${styles.appTile} nn-card-interactive nn-focus-ring nn-holo`} key={app.id} onClick={() => openApp(app.name)} aria-label={available ? `Open ${app.name}` : `View ${app.name} development status`}>
               <span className={`${styles.appIcon} ${styles.iconSurface} ${styles[tone]} nn-icon-well`}><Icon name={app.icon} size={25}/></span>
               <strong>{app.name}</strong>
               <small>{detail}</small>
