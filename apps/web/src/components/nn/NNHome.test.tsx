@@ -22,7 +22,7 @@ describe("NN Home dashboard", () => {
       const isAvailable = app.availability === "available" && Boolean(app.href);
       const name = isAvailable
         ? new RegExp(`^${app.name}\\. Open application$`)
-        : new RegExp(`^${app.name}\\. Open application overview; currently in development$`);
+        : new RegExp(`^${app.name}\\. Open application workspace; currently in development$`);
       expect(screen.getByRole("button", { name })).toBeInTheDocument();
     }
 
@@ -30,7 +30,7 @@ describe("NN Home dashboard", () => {
     expect(screen.getAllByText("IN DEVELOPMENT")).toHaveLength(APPLICATIONS.length - 1);
   });
 
-  it("routes every application card to its real app or its honest overview", async () => {
+  it("routes every application card to its real app or its honest workspace", async () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
 
@@ -39,7 +39,7 @@ describe("NN Home dashboard", () => {
       const destination = isAvailable ? app.href : app.overviewHref;
       const label = isAvailable
         ? new RegExp(`^${app.name}\\. Open application$`)
-        : new RegExp(`^${app.name}\\. Open application overview; currently in development$`);
+        : new RegExp(`^${app.name}\\. Open application workspace; currently in development$`);
       await user.click(screen.getByRole("button", { name: label }));
       expect(push).toHaveBeenLastCalledWith(destination);
     }
