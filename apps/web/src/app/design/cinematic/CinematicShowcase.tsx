@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Coverflow, GlassFold, Icon, LiquidButton, NNLogo } from "@/components/ui";
+import {
+  Coverflow,
+  FolderCard,
+  GlassFold,
+  Icon,
+  LiquidButton,
+  LogoReveal,
+  NNLogo,
+  useFolderWidth,
+} from "@/components/ui";
 import { LAUNCHER } from "@/components/nn/workspaceContent";
 import { RenMark } from "@/components/ren/RenMark";
 import { REN_STATES, REN_STATUS } from "@/lib/ren/state";
@@ -29,6 +38,7 @@ const REN_STATE_NOTE: Record<string, string> = {
 };
 
 export function CinematicShowcase() {
+  const folderWidth = useFolderWidth(300);
   const [centred, setCentred] = useState<string>(LAUNCHER[0]?.id ?? "");
   const centredName = LAUNCHER.find((app) => app.id === centred)?.name ?? "—";
   const [busy, setBusy] = useState(false);
@@ -148,6 +158,33 @@ export function CinematicShowcase() {
         />
       </section>
 
+      {/* ---- 3b · the same ring, curved ---- */}
+      <section className={styles.block}>
+        <div className={styles.blockHead}>
+          <h2>03b · The arc</h2>
+          <p>
+            The same ring, stood on a cylinder: each card is turned by its share of the
+            arc and pushed out to the radius, so the way it faces is the real geometry
+            rather than a tilt painted on a flat row. The radius is derived from the card
+            width and the angle, so changing one never opens a gap in the other. This is
+            the carousel the dashboard uses — and it has no arrows to press. Drag it with
+            a finger or a cursor, flick it, or use the arrow keys.
+          </p>
+        </div>
+        <Coverflow
+          cards={LAUNCHER.map((app) => ({
+            id: app.id,
+            title: app.name,
+            subtitle: app.hint,
+            icon: app.icon,
+          }))}
+          curve={19}
+          showCaption
+          showPagination
+          label="The curved arc"
+        />
+      </section>
+
       {/* ---- 4 · REN ---- */}
       <section className={styles.block}>
         <div className={styles.blockHead}>
@@ -192,6 +229,73 @@ export function CinematicShowcase() {
           <LiquidButton href="/design/workspace" size="lg">
             Open the workspace surface
           </LiquidButton>
+        </div>
+      </section>
+
+      {/* ---- 6 · the folders ---- */}
+      <section className={styles.block}>
+        <div className={styles.blockHead}>
+          <h2>06 · The folders</h2>
+          <p>
+            Not a picture of a folder. Three real layers — a back panel holding generated
+            NN artwork, the things it contains, and a frosted front panel — so the glass
+            frosts the contents as they move, because they are genuinely behind it. At
+            rest it is closed; under a cursor it leans forward on its bottom hinge; opened,
+            the panel falls and the sheets rise and fan out, each one a real control. The
+            artwork is a domain-warped noise field lit as a liquid surface, painted here on
+            the device and never fetched — and only in NN&apos;s own colours.
+          </p>
+        </div>
+        <div className={styles.folders}>
+          <FolderCard
+            label="Life &amp; wellbeing"
+            meta="7 applications"
+            width={folderWidth}
+            sheets={[
+              { name: "Peace Mode", meta: "In development", icon: "clock" },
+              { name: "Body", meta: "In development", icon: "check" },
+              { name: "Soul", meta: "In development", icon: "sparkle" },
+              { name: "Life", meta: "Open", icon: "calendar" },
+            ]}
+          />
+          <FolderCard
+            label="Knowledge"
+            meta="Generated material"
+            width={folderWidth}
+            labelPlacement="top-left"
+            sheets={[
+              { name: "Field — deep", meta: "marble", art: "deep" },
+              { name: "Field — tide", meta: "streak", art: "tide" },
+              { name: "Field — violet", meta: "marble", art: "violet" },
+            ]}
+          />
+          <FolderCard
+            label="Archive"
+            meta="Empty, and says so"
+            width={folderWidth}
+            labelPlacement="top-right"
+            art="none"
+            sheets={[]}
+            emptyNote="Nothing here yet."
+          />
+        </div>
+      </section>
+
+      {/* ---- 7 · the arrival ---- */}
+      <section className={styles.block}>
+        <div className={styles.blockHead}>
+          <h2>07 · The arrival</h2>
+          <p>
+            The first thing NN does. The mark is not drawn: a distance field of the
+            approved geometry is read as the thickness of a glass slab, and the light
+            behind it is bent through the body — splitting into cyan and violet at the
+            edges because the three channels refract at slightly different angles. Where
+            there is no WebGL, or where reduced motion is asked for, the same mark arrives
+            as lit SVG instead. Nothing waits on a GPU it might not get.
+          </p>
+        </div>
+        <div className={styles.reveal}>
+          <LogoReveal size={132} duration={2600} />
         </div>
       </section>
 

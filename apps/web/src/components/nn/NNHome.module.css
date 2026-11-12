@@ -150,3 +150,26 @@
   .categoryCopy { justify-items: start; }
   .categoryIcon { width: 48px; height: 48px; flex-basis: 48px; }
 }
+
+/* ---------------------------------------------------------------------------
+   The six families are folders now, not buttons.
+
+   FolderCard carries its own width and height — every shape inside it is a
+   fixed path scaled by a single number — so this is a flow of intrinsically
+   sized objects rather than a grid of stretched cells. The row gap is
+   deliberately generous: each card needs headroom above it for its sheets to
+   rise into when it opens.
+   -------------------------------------------------------------------------*/
+.categoryGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-10) var(--space-7);
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 700px) {
+  .categoryGrid {
+    gap: var(--space-9) var(--space-5);
+  }
+}

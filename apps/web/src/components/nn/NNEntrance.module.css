@@ -1,0 +1,56 @@
+.root {
+  position: relative;
+  min-height: 100svh;
+  background: var(--surface-base);
+}
+
+.reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: var(--surface-base);
+}
+
+.reveal > :first-child {
+  width: 100%;
+  height: 100%;
+}
+
+.hint {
+  position: absolute;
+  bottom: max(var(--space-11), env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  font-size: var(--text-micro-size);
+  line-height: var(--text-micro-lh);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  /* Held back until the reveal is most of the way through, so it never
+     competes with the mark for attention at the moment it arrives. */
+  animation: hint-in var(--dur-slower) var(--ease-entrance) 1600ms both;
+}
+
+@keyframes hint-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.corridor {
+  animation: corridor-in var(--dur-slower) var(--ease-entrance) both;
+}
+
+@keyframes corridor-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint,
+  .corridor {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}

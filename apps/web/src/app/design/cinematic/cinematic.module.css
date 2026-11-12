@@ -115,3 +115,18 @@
   line-height: 1.5;
   color: var(--text-secondary);
 }
+
+/* The new surfaces, given room to be looked at. */
+.folders {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-10) var(--space-7);
+  padding-top: var(--space-6);
+}
+
+.reveal {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--glass-2-border);
+}

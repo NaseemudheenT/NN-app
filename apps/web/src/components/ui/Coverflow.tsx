@@ -46,6 +46,14 @@ export interface CoverflowProps {
   cardWidth?: string;
   /** Space between cards, as a fraction of card width. */
   gap?: number;
+  /**
+   * Degrees of arc between neighbouring cards.
+   *
+   * Above zero the cards stand on a cylinder and the ring curves away on both
+   * sides — the founder's curved-lens carousel. At zero they stay in the flat
+   * raked row, which is what every existing caller already gets.
+   */
+  curve?: number;
   loop?: boolean;
   showCaption?: boolean;
   showPagination?: boolean;
@@ -66,6 +74,7 @@ export function Coverflow({
   fade = 0.1,
   cardWidth = "clamp(148px, 22vw, 260px)",
   gap = 0.05,
+  curve = 0,
   loop = true,
   showCaption = false,
   showPagination = false,
@@ -107,6 +116,11 @@ export function Coverflow({
     if (!width) return;
     const pitch = width * (1 + gap);
     const pos = posRef.current;
+    /* Radius at which neighbouring cards, each `pitch` wide, exactly meet
+       around a ring whose cards are `curve` degrees apart. Derived rather
+       than guessed, so changing the angle never opens a gap in the arc. */
+    const radius =
+      curve > 0 ? pitch / (2 * Math.tan((curve * Math.PI) / 360)) : 0;
 
     cardRefs.current.forEach((card, index) => {
       if (!card) return;
@@ -127,20 +141,33 @@ export function Coverflow({
       // Capped short of edge-on so a far card never turns its back.
       const tilt = Math.min(rotate * ramp, 82) * Math.sign(offset);
 
-      card.style.transform =
-        `translateX(calc(-50% + ${offset * pitch}px)) ` +
-        `translateZ(${-depth * width * ramp}px) rotateY(${-tilt}deg)`;
+      if (curve > 0) {
+        /* A true arc, not a tilt painted on a flat row: each card is turned
+           by its share of the ring and pushed out to the radius. The leading
+           translateZ pulls the whole cylinder back so the centre card still
+           sits at the viewer's plane instead of looming out of the screen. */
+        const theta = offset * curve;
+        card.style.transform =
+          `translateX(-50%) translateZ(${-radius}px) ` +
+          `rotateY(${theta}deg) translateZ(${radius}px)`;
+        card.style.setProperty("--tilt", (-theta).toFixed(2));
+      } else {
+        card.style.transform =
+          `translateX(calc(-50% + ${offset * pitch}px)) ` +
+          `translateZ(${-depth * width * ramp}px) rotateY(${-tilt}deg)`;
+        card.style.setProperty("--tilt", tilt.toFixed(2));
+      }
 
       // A card is teleported across the ring at exactly half a turn out, so it
       // has to be gone by then or the jump is visible.
       const edge = loop ? Math.min(1, Math.max(0, count / 2 - distance)) : 1;
       card.style.opacity = String(Math.max(0, 1 - fade * distance) * edge);
       card.style.zIndex = String(100 - Math.round(distance));
-      // Drives the specular sweep in CSS: glass catches light as it turns.
-      card.style.setProperty("--tilt", tilt.toFixed(2));
+      // --tilt drives the specular sweep in CSS: glass catches light as it
+      // turns. It is written by whichever placement ran above.
       card.style.setProperty("--centred", (1 - Math.min(1, distance)).toFixed(3));
     });
-  }, [count, depth, fade, falloff, gap, loop, rotate]);
+  }, [count, curve, depth, fade, falloff, gap, loop, rotate]);
 
   const settle = React.useCallback(
     (target: number) => {

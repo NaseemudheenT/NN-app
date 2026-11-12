@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useAppTransition } from "@/components/nn/AppTransition";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Coverflow, type CoverflowCard } from "@/components/ui/Coverflow";
 import { Dialog } from "@/components/ui/Dialog";
 import { Dock } from "@/components/ui/Dock";
+import { FolderCard, useFolderWidth, type FolderSheet } from "@/components/ui/FolderCard";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { LiquidButton } from "@/components/ui/LiquidButton";
 import { NNLogo } from "@/components/ui/NNLogo";
@@ -49,6 +50,23 @@ const APPLICATIONS: readonly AppItem[] = [
   { name:"Security Centre",group:"System",icon:"shield",description:"Passkeys, devices, sessions and audit history" },
   { name:"Control Room",group:"System",icon:"settings",description:"System health, integrations, jobs and cost visibility" },
 ];
+/**
+ * The six families, counted from the registry above rather than written out.
+ * A number typed by hand is a number that goes stale the first time an
+ * application moves between families.
+ */
+const GROUPS: readonly { name: string; detail: string; icon: IconName }[] = [
+  { name:"Life & wellbeing", detail:"Your daily life, wellbeing and reflection", icon:"calendar" },
+  { name:"Education", detail:"Learn, practise and master new skills", icon:"book" },
+  { name:"Money & work", detail:"Build, manage and measure your work", icon:"wallet" },
+  { name:"Creation & communication", detail:"Create, write and communicate", icon:"sparkle" },
+  { name:"Knowledge & insight", detail:"Store, recall and understand information", icon:"folder" },
+  { name:"System", detail:"Control, search, automate and protect NN", icon:"settings" },
+];
+
+/** The applications that have a real surface today. Everything else is honest about not having one. */
+const LIVE_APPS: Readonly<Record<string, AppRoute>> = { Life: "/life" };
+
 const ROUTES: readonly { name:string; description:string; icon:IconName; href:AppRoute }[] = [
   {name:"NN Home",description:"Your personal operating environment",icon:"grid",href:"/home"},
   {name:"NN Life",description:"Your calendar, tasks, reminders, notes and goals",icon:"calendar",href:"/life"},
@@ -59,7 +77,8 @@ const CAROUSEL_CARDS: readonly CoverflowCard[] = ROUTES.map((app) => ({
   id:app.href,title:app.name,subtitle:app.description,icon:app.icon,meta:[{label:"SURFACE",value:"AVAILABLE"}],
 }));
 function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut?: () => void }) {
-  const router=useRouter();
+  const travel=useAppTransition();
+  const cardWidth=useFolderWidth();
   const [launcherOpen,setLauncherOpen]=useState(false);
   const [query,setQuery]=useState("");
   const [activeDock,setActiveDock]=useState("home");
@@ -71,7 +90,7 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
     window.addEventListener("keydown",onKey);
     return ()=>window.removeEventListener("keydown",onKey);
   },[]);
-  const openRoute=(href:AppRoute,id:string)=>{setActiveDock(id);router.push(href);};
+  const openRoute=(href:AppRoute,id:string,label:string)=>{setActiveDock(id);travel.open(href,label);};
   return <main className={styles.root}>
     <header className={styles.topbar}>
       <div className={styles.identity}><NNLogo size={31} decorative/><span>NN <i>/</i> <strong>HOME</strong></span></div>
@@ -103,16 +122,40 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
       <section className={styles.section}>
         <div className={styles.sectionHeading}><div><p>THE NN ENVIRONMENT</p><h2>One system. Many dimensions.</h2></div><button onClick={()=>setLauncherOpen(true)}>Application index <span>↗</span></button></div>
         <div className={styles.categoryGrid}>
-          {[
-            {name:"Life & wellbeing",count:"07",detail:"Your daily life, wellbeing and reflection",icon:"calendar" as const},
-            {name:"Education",count:"05",detail:"Learn, practise and master new skills",icon:"book" as const},
-            {name:"Money & work",count:"07",detail:"Build, manage and measure your work",icon:"wallet" as const},
-            {name:"Creation & communication",count:"04",detail:"Create, write and communicate",icon:"sparkle" as const},
-            {name:"Knowledge & insight",count:"06",detail:"Store, recall and understand information",icon:"folder" as const},
-            {name:"System",count:"05",detail:"Control, search, automate and protect NN",icon:"settings" as const},
-          ].map((group,index)=><button className={`${styles.category} nn-holo`} key={group.name} onClick={()=>{setQuery(group.name);setLauncherOpen(true);}}>
-            <span className={styles.categoryIcon}><Icon name={group.icon} size={19}/></span><span className={styles.categoryCopy}><strong>{group.name}</strong><small>{group.detail}</small></span><span className={styles.categoryCount}>{group.count}</span><span className={styles.categoryArrow}>↗</span><span className={styles.categoryIndex}>0{index+1}</span>
-          </button>)}
+          {GROUPS.map((group, index) => {
+            const apps = APPLICATIONS.filter((app) => app.group === group.name);
+            /* Whatever the founder can actually use sits nearest the glass.
+               The rest are behind it, named, and honest about their state. */
+            const ordered = [...apps].sort(
+              (a, b) => Number(a.name in LIVE_APPS) - Number(b.name in LIVE_APPS),
+            );
+            const sheets: FolderSheet[] = ordered.map((app) => ({
+              name: app.name,
+              meta: app.name in LIVE_APPS ? "Open" : "In development",
+              icon: app.icon,
+            }));
+            return (
+              <FolderCard
+                key={group.name}
+                label={group.name}
+                meta={`${apps.length} applications`}
+                sheets={sheets}
+                width={cardWidth}
+                appearDelay={index * 90}
+                onSheetSelect={(sheet) => {
+                  const href = LIVE_APPS[sheet.name];
+                  if (href) {
+                    openRoute(href, "life", `NN ${sheet.name}`);
+                    return;
+                  }
+                  // Not built yet — so this opens the index at that entry
+                  // rather than pretending to open an application.
+                  setQuery(sheet.name);
+                  setLauncherOpen(true);
+                }}
+              />
+            );
+          })}
         </div>
       </section>
       <section className={styles.bottomGrid}>
@@ -124,32 +167,32 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
         <article className={styles.statusPanel}>
           <div className={styles.panelHeading}><div><p>DESIGN LANGUAGE</p><h2>Spatial by nature.</h2></div><Icon name="sparkle" size={22}/></div>
           <p className={styles.panelBody}>Liquid glass, depth, cinematic motion and precise information surfaces—unified across every NN application.</p>
-          <button className={styles.textAction} onClick={()=>router.push("/design")}>Explore the design system <span>↗</span></button>
+          <button className={styles.textAction} onClick={()=>travel.open("/design","Design system")}>Explore the design system <span>↗</span></button>
         </article>
       </section>
       <footer className={styles.footer}><span>NN / PERSONAL OPERATING ENVIRONMENT</span><span>BUILT WITH INTENT · PRIVATE BY DESIGN</span></footer>
     </div>
     <div className={`${styles.dockWrap} nn-holo`}>
       <Dock items={[{id:"home",label:"NN Home",icon:"grid"},{id:"life",label:"NN Life",icon:"calendar"},{id:"workspace",label:"Workspace",icon:"clock"},{id:"design",label:"Design system",icon:"sparkle"}]} activeId={activeDock} onSelect={(id)=>{
-        if(id==="home")openRoute("/home",id);
-        if(id==="life")openRoute("/life",id);
-        if(id==="workspace")openRoute("/workspace",id);
-        if(id==="design")openRoute("/design",id);
+        if(id==="home")openRoute("/home",id,"NN Home");
+        if(id==="life")openRoute("/life",id,"NN Life");
+        if(id==="workspace")openRoute("/workspace",id,"Workspace");
+        if(id==="design")openRoute("/design",id,"Design system");
       }}/>
       <button className={styles.dockLauncher} onClick={()=>setLauncherOpen(true)} aria-label="Open application launcher" title="Applications"><Icon name="plus" size={21}/></button>
     </div>
     <Dialog open={launcherOpen} onClose={()=>{setLauncherOpen(false);setQuery("");}} title="Explore NN" description="The complete application map. Only routes already implemented are openable.">
       <label className={styles.launchSearch}><Icon name="search" size={18}/><input autoFocus value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search the 34 applications…"/>{query?<button type="button" onClick={()=>setQuery("")} aria-label="Clear search"><Icon name="close" size={15}/></button>:null}</label>
-      {!query?<div className={styles.coverflowWrap}><p className={styles.launchSectionLabel}>AVAILABLE SURFACES · SPATIAL VIEW</p><Coverflow cards={CAROUSEL_CARDS} cardWidth="clamp(160px, 24vw, 230px)" rotate={38} depth={0.48} showCaption showPagination showNavigation label="Available NN surfaces" onSelect={(id)=>{
+      {!query?<div className={styles.coverflowWrap}><p className={styles.launchSectionLabel}>AVAILABLE SURFACES · DRAG TO TURN</p><Coverflow cards={CAROUSEL_CARDS} cardWidth="clamp(160px, 24vw, 230px)" curve={19} showCaption showPagination label="Available NN surfaces" onSelect={(id)=>{
         const app=ROUTES.find(item=>item.href===id);
-        if(app){setLauncherOpen(false);openRoute(app.href,id==="/home"?"home":id==="/workspace"?"workspace":"design");}
+        if(app){setLauncherOpen(false);openRoute(app.href,id==="/home"?"home":id==="/workspace"?"workspace":"design",app.name);}
       }}/></div>:null}
       <div className={styles.applicationIndex}>
         {["Life & wellbeing","Education","Money & work","Creation & communication","Knowledge & insight","System"].map(group=>{
           const apps=filtered.filter(app=>app.group===group);
           if(apps.length===0)return null;
           return <section className={styles.indexGroup} key={group}><h3>{group}<span>{String(apps.length).padStart(2,"0")}</span></h3>
-            {apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span>{app.name==="Life"?<button className={styles.openApp} onClick={()=>{setLauncherOpen(false);openRoute("/life","life");}}>OPEN ↗</button>:<span className={styles.indexState}>IN DEVELOPMENT</span>}</article>)}
+            {apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span>{app.name==="Life"?<button className={styles.openApp} onClick={()=>{setLauncherOpen(false);openRoute("/life","life","NN Life");}}>OPEN ↗</button>:<span className={styles.indexState}>IN DEVELOPMENT</span>}</article>)}
           </section>;
         })}
         {filtered.length===0?<p className={styles.noResults}>No application matches that search.</p>:null}

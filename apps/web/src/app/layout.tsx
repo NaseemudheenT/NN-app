@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ServiceWorker } from "@/components/ServiceWorker";
+import { AppTransitionProvider } from "@/components/nn/AppTransition";
 import { Room } from "@/components/nn/Room";
 import { RenProvider } from "@/components/ren/RenProvider";
 import { RenChrome } from "@/components/ren/RenChrome";
@@ -52,14 +53,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           {/* The room, behind everything, for the life of the session. */}
           <Room />
+          {/* The light field over it. It has a layer of its own because the
+              ribbons run off every edge and something has to contain them. */}
+          <div className="nn-atmosphere" aria-hidden="true" />
           {/* One displacement map, shared by every liquid surface in NN. */}
           <LiquidGlassDefs />
           {/* REN is a property of NN, not a page you navigate to: one
               instance, mounted once, present on every screen. */}
           <AuthProvider>
             <RenProvider>
-              <div className="nn-shell nn-page-arrive">{children}</div>
-              <RenChrome />
+              {/* Opening a tool is a movement through the environment, so
+                  every route change that goes through NN's own controls
+                  travels the corridor rather than cutting. */}
+              <AppTransitionProvider>
+                <div className="nn-shell nn-page-arrive">{children}</div>
+                <RenChrome />
+              </AppTransitionProvider>
             </RenProvider>
           </AuthProvider>
           <ServiceWorker />

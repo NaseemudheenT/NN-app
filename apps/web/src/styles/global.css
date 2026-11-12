@@ -125,11 +125,30 @@ button, input, textarea, select { font: inherit; color: inherit; }
 /* Founder visual reset — one calm iridescent environment shared by every app.
    The WebGL room remains the source of motion; these CSS light fields are the
    low-cost fallback and colour atmosphere, not a second animation engine. */
-.nn-shell::before,
-.nn-shell::after {
-  content: "";
+/* The atmosphere layer.
+
+   The ribbons are deliberately wider than the screen — a light field that runs
+   off the edges rather than sitting in a box. They used to hang off `.nn-shell`
+   as fixed-position pseudo-elements, which gave NN a 48px horizontal scroll on
+   a 375px phone: a fixed element's containing block is the viewport, so no
+   ancestor's `overflow` reaches it, and `overflow-x: clip` on the root does not
+   contain it either (measured in Chrome, not assumed).
+
+   So they are given a parent that can hold them: one fixed, full-viewport,
+   clipping layer. The ribbons inside it are absolutely positioned, keep their
+   original geometry exactly, and cannot reach past the edge of the screen. */
+.nn-atmosphere {
   position: fixed;
+  inset: 0;
   z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.nn-atmosphere::before,
+.nn-atmosphere::after {
+  content: "";
+  position: absolute;
   pointer-events: none;
   inset: auto;
   width: 118vw;
@@ -142,7 +161,7 @@ button, input, textarea, select { font: inherit; color: inherit; }
   transform: rotate(-8deg);
   background: var(--nn-wave-ribbon-primary);
 }
-.nn-shell::after {
+.nn-atmosphere::after {
   top: 42vh;
   left: -12vw;
   height: 25vh;
@@ -152,9 +171,9 @@ button, input, textarea, select { font: inherit; color: inherit; }
   background: var(--nn-wave-ribbon-secondary);
 }
 @media (max-width: 700px) {
-  .nn-shell::before { top: 22vh; height: 26vh; opacity: .32; filter: blur(28px); }
-  .nn-shell::after { top: 45vh; height: 19vh; opacity: .2; filter: blur(36px); }
+  .nn-atmosphere::before { top: 22vh; height: 26vh; opacity: .32; filter: blur(28px); }
+  .nn-atmosphere::after { top: 45vh; height: 19vh; opacity: .2; filter: blur(36px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .nn-shell::before, .nn-shell::after { transform: none; }
+  .nn-atmosphere::before, .nn-atmosphere::after { transform: none; }
 }
