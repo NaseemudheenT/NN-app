@@ -91,7 +91,6 @@ export function NNAppPreview({ app }: { app: NNApplication; related?: NNApplicat
               >
                 <span className={styles.moduleIndex}>{String(index + 1).padStart(2, "0")}</span>
                 <span>{module.title}</span>
-                <Icon name="chevron-right" size={15} />
               </button>
             ))}
           </nav>
@@ -108,7 +107,7 @@ export function NNAppPreview({ app }: { app: NNApplication; related?: NNApplicat
                   <span className={styles.moduleIcon}><Icon name={app.icon} size={20} /></span>
                 </div>
                 <div className={styles.emptyState}>
-                  <span className={styles.emptyIcon}><Icon name="layers" size={23} /></span>
+                  <span className={styles.emptyIcon}><Icon name="folder" size={23} /></span>
                   <p className={styles.emptyEyebrow}>WORKSPACE NOT YET CONNECTED</p>
                   <h3>This module is being built.</h3>
                   <p>The interface structure is defined. Live records, create and edit actions, and connected services will appear here only after their implementation and verification.</p>
