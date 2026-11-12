@@ -47,12 +47,28 @@ async function post<T>(url: string, body: unknown, idToken?: string): Promise<T>
   return data as T;
 }
 
-export interface AuthStatus { claimed: boolean; bootstrapReady: boolean }
+export interface AuthStatus {
+  claimed: boolean;
+  bootstrapReady: boolean;
+  /** False when the deployment has no server credentials at all. */
+  configured: boolean;
+}
 
 export async function fetchAuthStatus(): Promise<AuthStatus> {
   const res = await fetch("/api/auth/status", { cache: "no-store" });
+  // 503 is NN answering, not NN being unreachable: the deployment is missing
+  // its server credentials. Treating it as a network failure sent the founder
+  // hunting for a connection problem that did not exist.
+  if (res.status === 503) {
+    return { claimed: false, bootstrapReady: false, configured: false };
+  }
   if (!res.ok) throw new PasskeyError("Could not reach NN.", res.status);
-  return (await res.json()) as AuthStatus;
+  const status = (await res.json()) as Partial<AuthStatus>;
+  return {
+    claimed: status.claimed === true,
+    bootstrapReady: status.bootstrapReady === true,
+    configured: status.configured !== false,
+  };
 }
 
 /**

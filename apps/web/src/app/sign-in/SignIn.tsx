@@ -67,6 +67,25 @@ export function SignIn() {
     );
   }
 
+  /* A deployment whose server has no credentials cannot sign anyone in, and
+     should say so rather than offering a button that will always fail. */
+  if (status !== null && !status.configured) {
+    return (
+      <main className={s.page}>
+        <GlassPanel tier={3} padding="lg" className={s.card}>
+          <div className={s.mark}><NNGlassMark size={64} /></div>
+          <h1 className={s.title}>Sign-in is not available here</h1>
+          <p className={s.lede}>
+            This deployment of NN has no server credentials, so it cannot verify a
+            passkey. Everything you can see without signing in still works. See{" "}
+            <code>docs/DEPLOY_VERCEL.md</code> for the variables this environment
+            still needs.
+          </p>
+        </GlassPanel>
+      </main>
+    );
+  }
+
   const claiming = status !== null && !status.claimed;
 
   return (

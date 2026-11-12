@@ -304,9 +304,22 @@ export function Coverflow({
   // in the middle of a drag.
   const notify = React.useRef(onSelect);
   notify.current = onSelect;
+  /* What was last reported, so mounting is not mistaken for choosing.
+     `onSelect` means the centred card *changed*; on the first render nothing
+     has, and the caller already knows which card starts in the middle. A
+     carousel that announced its first card on mount made a launcher open an
+     application the moment it appeared. */
+  const reported = React.useRef<string | null>(null);
   React.useEffect(() => {
     const card = cards[selected];
-    if (card) notify.current?.(card.id);
+    if (!card) return;
+    if (reported.current === null) {
+      reported.current = card.id;
+      return;
+    }
+    if (reported.current === card.id) return;
+    reported.current = card.id;
+    notify.current?.(card.id);
   }, [selected, cards]);
 
   if (count === 0) return null;

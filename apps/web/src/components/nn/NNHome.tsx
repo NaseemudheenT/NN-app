@@ -1,6 +1,14 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import type { Route } from "next";
 import { useAppTransition } from "@/components/nn/AppTransition";
+import {
+  APPLICATION_COUNT,
+  APP_FAMILIES,
+  applicationsIn,
+  matchApplications,
+  openableApplications,
+} from "@/lib/nn/apps";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Coverflow, type CoverflowCard } from "@/components/ui/Coverflow";
 import { Dialog } from "@/components/ui/Dialog";
@@ -12,77 +20,27 @@ import { NNLogo } from "@/components/ui/NNLogo";
 import { useAuth } from "@/lib/auth";
 import styles from "./NNHome.module.css";
 
-type AppRoute = "/home" | "/workspace" | "/design" | "/life";
-type AppItem = { name: string; group: string; icon: IconName; description: string };
-const APPLICATIONS: readonly AppItem[] = [
-  { name:"Life",group:"Life & wellbeing",icon:"calendar",description:"Calendar, tasks, reminders, notes, habits, goals and routines" },
-  { name:"Soul",group:"Life & wellbeing",icon:"sparkle",description:"Faith, purpose, gratitude and reflection" },
-  { name:"Mind",group:"Life & wellbeing",icon:"graph",description:"Focus, resilience, reflection and personal growth" },
-  { name:"Body",group:"Life & wellbeing",icon:"check",description:"Fitness, nutrition, sleep and recovery" },
-  { name:"Contacts",group:"Life & wellbeing",icon:"grid",description:"People, important dates and follow-ups" },
-  { name:"Nature & Universe",group:"Life & wellbeing",icon:"sparkle",description:"Science, astronomy and discovery" },
-  { name:"Peace Mode",group:"Life & wellbeing",icon:"clock",description:"A quieter environment for focus and reflection" },
-  { name:"College",group:"Education",icon:"book",description:"SMVEC subjects, exams, notes and academic progress" },
-  { name:"Academy",group:"Education",icon:"book",description:"Structured technical and professional learning" },
-  { name:"Formula Engine",group:"Education",icon:"graph",description:"Verified formulas, calculations and visualisation" },
-  { name:"Logic Lab",group:"Education",icon:"grid",description:"Reasoning, aptitude and programming challenges" },
-  { name:"Learning Vault",group:"Education",icon:"folder",description:"Books, research, flashcards and knowledge paths" },
-  { name:"Finance",group:"Money & work",icon:"wallet",description:"Personal money, budgets, assets and financial goals" },
-  { name:"Invest",group:"Money & work",icon:"graph",description:"Investment research, watchlists and portfolio tracking" },
-  { name:"Business",group:"Money & work",icon:"grid",description:"Ventures, validation, operations and decisions" },
-  { name:"Freelance",group:"Money & work",icon:"file",description:"Clients, proposals, deliverables and invoices" },
-  { name:"Career",group:"Money & work",icon:"book",description:"Skills, portfolio, interviews and career progress" },
-  { name:"Projects",group:"Money & work",icon:"grid",description:"Milestones, dependencies and execution" },
-  { name:"Achievements",group:"Money & work",icon:"sparkle",description:"Verified milestones, certificates and evidence" },
-  { name:"Creator Studio",group:"Creation & communication",icon:"sparkle",description:"Photography, video, design and content planning" },
-  { name:"Studio",group:"Creation & communication",icon:"file",description:"Writing, documents and publishing drafts" },
-  { name:"Mail",group:"Creation & communication",icon:"file",description:"Connected inboxes, drafts and follow-ups" },
-  { name:"English",group:"Creation & communication",icon:"mic",description:"Speaking, listening, grammar and writing practice" },
-  { name:"Files",group:"Knowledge & insight",icon:"folder",description:"Private documents, media and file organisation" },
-  { name:"Memory",group:"Knowledge & insight",icon:"sparkle",description:"Owner-controlled knowledge with source and provenance" },
-  { name:"Life Archive",group:"Knowledge & insight",icon:"clock",description:"A chronological record of milestones and memories" },
-  { name:"Analytics",group:"Knowledge & insight",icon:"graph",description:"Measured progress from real stored data" },
-  { name:"Travel",group:"Knowledge & insight",icon:"calendar",description:"Trips, itineraries, maps and travel planning" },
-  { name:"Simulator",group:"Knowledge & insight",icon:"grid",description:"Safe financial, business, science and coding scenarios" },
-  { name:"Command Centre",group:"System",icon:"sparkle",description:"Natural-language entry point and quick actions" },
-  { name:"Search",group:"System",icon:"search",description:"Permission-aware search across NN" },
-  { name:"Automation Studio",group:"System",icon:"settings",description:"Triggers, workflows, approvals and run history" },
-  { name:"Security Centre",group:"System",icon:"shield",description:"Passkeys, devices, sessions and audit history" },
-  { name:"Control Room",group:"System",icon:"settings",description:"System health, integrations, jobs and cost visibility" },
-];
-/**
- * The six families, counted from the registry above rather than written out.
- * A number typed by hand is a number that goes stale the first time an
- * application moves between families.
- */
-const GROUPS: readonly { name: string; detail: string; icon: IconName }[] = [
-  { name:"Life & wellbeing", detail:"Your daily life, wellbeing and reflection", icon:"calendar" },
-  { name:"Education", detail:"Learn, practise and master new skills", icon:"book" },
-  { name:"Money & work", detail:"Build, manage and measure your work", icon:"wallet" },
-  { name:"Creation & communication", detail:"Create, write and communicate", icon:"sparkle" },
-  { name:"Knowledge & insight", detail:"Store, recall and understand information", icon:"folder" },
-  { name:"System", detail:"Control, search, automate and protect NN", icon:"settings" },
-];
+type AppRoute = Route;
 
-/** The applications that have a real surface today. Everything else is honest about not having one. */
-const LIVE_APPS: Readonly<Record<string, AppRoute>> = { Life: "/life" };
+/* The surfaces that actually exist, taken from the registry rather than a
+   second list that would quietly fall out of step with it. */
+const ROUTES: readonly { name: string; description: string; icon: IconName; href: AppRoute }[] =
+  openableApplications().map((app) => ({
+    name: app.name, description: app.description, icon: app.icon, href: app.route!,
+  }));
 
-const ROUTES: readonly { name:string; description:string; icon:IconName; href:AppRoute }[] = [
-  {name:"NN Home",description:"Your personal operating environment",icon:"grid",href:"/home"},
-  {name:"NN Life",description:"Your calendar, tasks, reminders, notes and goals",icon:"calendar",href:"/life"},
-  {name:"Workspace",description:"Interactive glass workspace prototype",icon:"calendar",href:"/workspace"},
-  {name:"Design System",description:"NN materials, motion and component laboratory",icon:"sparkle",href:"/design"},
-];
 const CAROUSEL_CARDS: readonly CoverflowCard[] = ROUTES.map((app) => ({
-  id:app.href,title:app.name,subtitle:app.description,icon:app.icon,meta:[{label:"SURFACE",value:"AVAILABLE"}],
+  id: app.href, title: app.name, subtitle: app.description, icon: app.icon,
+  meta: [{ label: "SURFACE", value: "AVAILABLE" }],
 }));
+
 function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut?: () => void }) {
   const travel=useAppTransition();
   const cardWidth=useFolderWidth();
   const [launcherOpen,setLauncherOpen]=useState(false);
   const [query,setQuery]=useState("");
-  const [activeDock,setActiveDock]=useState("home");
-  const filtered=useMemo(()=>APPLICATIONS.filter(app=>(app.name+" "+app.group+" "+app.description).toLowerCase().includes(query.trim().toLowerCase())),[query]);
+  const [activeDock,setActiveDock]=useState<string>("/home");
+  const filtered=useMemo(()=>matchApplications(query),[query]);
   useEffect(()=>{
     const onKey=(event:KeyboardEvent)=>{
       if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();setLauncherOpen(true);}
@@ -122,30 +80,30 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
       <section className={styles.section}>
         <div className={styles.sectionHeading}><div><p>THE NN ENVIRONMENT</p><h2>One system. Many dimensions.</h2></div><button onClick={()=>setLauncherOpen(true)}>Application index <span>↗</span></button></div>
         <div className={styles.categoryGrid}>
-          {GROUPS.map((group, index) => {
-            const apps = APPLICATIONS.filter((app) => app.group === group.name);
-            /* Whatever the founder can actually use sits nearest the glass.
-               The rest are behind it, named, and honest about their state. */
+          {APP_FAMILIES.map((family, index) => {
+            const apps = applicationsIn(family);
+            /* Whatever the founder can actually open sits nearest the glass;
+               the rest are behind it, named, and honest about their state. */
             const ordered = [...apps].sort(
-              (a, b) => Number(a.name in LIVE_APPS) - Number(b.name in LIVE_APPS),
+              (a, b) => Number(a.route !== null) - Number(b.route !== null),
             );
             const sheets: FolderSheet[] = ordered.map((app) => ({
               name: app.name,
-              meta: app.name in LIVE_APPS ? "Open" : "In development",
+              meta: app.route ? "Open" : "In development",
               icon: app.icon,
             }));
             return (
               <FolderCard
-                key={group.name}
-                label={group.name}
+                key={family}
+                label={family}
                 meta={`${apps.length} applications`}
                 sheets={sheets}
                 width={cardWidth}
                 appearDelay={index * 90}
                 onSheetSelect={(sheet) => {
-                  const href = LIVE_APPS[sheet.name];
-                  if (href) {
-                    openRoute(href, "life", `NN ${sheet.name}`);
+                  const app = apps.find((entry) => entry.name === sheet.name);
+                  if (app?.route) {
+                    openRoute(app.route, app.slug, app.name);
                     return;
                   }
                   // Not built yet — so this opens the index at that entry
@@ -173,26 +131,25 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
       <footer className={styles.footer}><span>NN / PERSONAL OPERATING ENVIRONMENT</span><span>BUILT WITH INTENT · PRIVATE BY DESIGN</span></footer>
     </div>
     <div className={`${styles.dockWrap} nn-holo`}>
-      <Dock items={[{id:"home",label:"NN Home",icon:"grid"},{id:"life",label:"NN Life",icon:"calendar"},{id:"workspace",label:"Workspace",icon:"clock"},{id:"design",label:"Design system",icon:"sparkle"}]} activeId={activeDock} onSelect={(id)=>{
-        if(id==="home")openRoute("/home",id,"NN Home");
-        if(id==="life")openRoute("/life",id,"NN Life");
-        if(id==="workspace")openRoute("/workspace",id,"Workspace");
-        if(id==="design")openRoute("/design",id,"Design system");
+      <Dock items={[{id:"/home" as Route,label:"NN Home",icon:"grid" as const},...ROUTES.map(app=>({id:app.href,label:app.name,icon:app.icon}))]} activeId={activeDock} onSelect={(id)=>{
+        if(id==="/home"){setActiveDock(id);travel.open("/home" as Route,"NN Home");return;}
+        const app=ROUTES.find(entry=>entry.href===id);
+        if(app)openRoute(app.href,app.href,app.name);
       }}/>
       <button className={styles.dockLauncher} onClick={()=>setLauncherOpen(true)} aria-label="Open application launcher" title="Applications"><Icon name="plus" size={21}/></button>
     </div>
     <Dialog open={launcherOpen} onClose={()=>{setLauncherOpen(false);setQuery("");}} title="Explore NN" description="The complete application map. Only routes already implemented are openable.">
-      <label className={styles.launchSearch}><Icon name="search" size={18}/><input autoFocus value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search the 34 applications…"/>{query?<button type="button" onClick={()=>setQuery("")} aria-label="Clear search"><Icon name="close" size={15}/></button>:null}</label>
+      <label className={styles.launchSearch}><Icon name="search" size={18}/><input autoFocus value={query} onChange={(event)=>setQuery(event.target.value)} placeholder={`Search the ${APPLICATION_COUNT} applications…`}/>{query?<button type="button" onClick={()=>setQuery("")} aria-label="Clear search"><Icon name="close" size={15}/></button>:null}</label>
       {!query?<div className={styles.coverflowWrap}><p className={styles.launchSectionLabel}>AVAILABLE SURFACES · DRAG TO TURN</p><Coverflow cards={CAROUSEL_CARDS} cardWidth="clamp(160px, 24vw, 230px)" curve={19} showCaption showPagination label="Available NN surfaces" onSelect={(id)=>{
         const app=ROUTES.find(item=>item.href===id);
-        if(app){setLauncherOpen(false);openRoute(app.href,id==="/home"?"home":id==="/workspace"?"workspace":"design",app.name);}
+        if(app){setLauncherOpen(false);openRoute(app.href,id,app.name);}
       }}/></div>:null}
       <div className={styles.applicationIndex}>
-        {["Life & wellbeing","Education","Money & work","Creation & communication","Knowledge & insight","System"].map(group=>{
-          const apps=filtered.filter(app=>app.group===group);
+        {APP_FAMILIES.map(group=>{
+          const apps=filtered.filter(app=>app.family===group);
           if(apps.length===0)return null;
           return <section className={styles.indexGroup} key={group}><h3>{group}<span>{String(apps.length).padStart(2,"0")}</span></h3>
-            {apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span>{app.name==="Life"?<button className={styles.openApp} onClick={()=>{setLauncherOpen(false);openRoute("/life","life","NN Life");}}>OPEN ↗</button>:<span className={styles.indexState}>IN DEVELOPMENT</span>}</article>)}
+            {apps.map(app=><article className={styles.indexItem} key={app.name}><span className={styles.indexIcon}><Icon name={app.icon} size={17}/></span><span className={styles.indexText}><strong>{app.name}</strong><small>{app.description}</small></span>{app.route?<button className={styles.openApp} onClick={()=>{setLauncherOpen(false);openRoute(app.route!,app.slug,app.name);}}>OPEN ↗</button>:<span className={styles.indexState}>IN DEVELOPMENT</span>}</article>)}
           </section>;
         })}
         {filtered.length===0?<p className={styles.noResults}>No application matches that search.</p>:null}
