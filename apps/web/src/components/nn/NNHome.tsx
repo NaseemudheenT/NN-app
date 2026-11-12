@@ -21,7 +21,7 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
     <main className={styles.root}>
       <header className={styles.topbar}>
         <div className={styles.identity} aria-label="NN">
-          <NNLogo size={34} decorative />
+          <NNLogo size={30} decorative />
           <span>NN</span>
         </div>
         {onSignOut ? (
@@ -29,7 +29,7 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
             type="button"
             className={styles.profile}
             onClick={onSignOut}
-            aria-label="Sign out"
+            aria-label={`Sign out of NN, signed in as ${firstName}`}
             title="Sign out"
           >
             {firstName.slice(0, 1).toUpperCase()}
@@ -38,27 +38,17 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
       </header>
 
       <div className={styles.page}>
-        <section className={styles.welcome}>
-          <p className={styles.kicker}>YOUR PERSONAL SPACE</p>
-          <h1>Welcome back, <span>{firstName}</span></h1>
-          <p className={styles.subtitle}>Everything important. One calm place.</p>
-        </section>
-
         <div className={styles.applicationGroups}>
           {GROUPS.map((group, groupIndex) => {
             const apps = APPLICATIONS.filter((app) => app.group === group.name);
             return (
               <section className={styles.group} key={group.name} aria-labelledby={`group-${groupIndex}`}>
                 <div className={styles.groupHeading}>
-                  <div className={styles.groupTitle}>
-                    <h2 id={`group-${groupIndex}`}>{group.name}</h2>
-                    <p>{group.detail}</p>
-                  </div>
-                  <span className={styles.groupCount}>{apps.length.toString().padStart(2, "0")}</span>
+                  <h1 id={`group-${groupIndex}`}>{group.name}</h1>
                 </div>
 
                 <div className={styles.appGrid}>
-                  {apps.map((app, index) => {
+                  {apps.map((app) => {
                     const isAvailable = app.availability === "available" && Boolean(app.href);
                     const availabilityLabel = isAvailable ? "Available" : "In development";
                     return (
@@ -69,17 +59,15 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
                         data-app-id={app.id}
                         data-availability={isAvailable ? "available" : "planned"}
                         onClick={() => openApplication(app)}
-                        aria-label={`${app.name}. ${isAvailable ? "Open application" : "Open application overview; currently in development"}`}
+                        aria-label={`${app.name}. ${isAvailable ? "Open application" : "Open application workspace; currently in development"}`}
                         title={`${app.name} · ${availabilityLabel}`}
-                        style={{ animationDelay: `${Math.min(index * 42, 252)}ms` }}
                       >
-                        <span className={styles.cardWave} aria-hidden="true" />
-                        <span className={styles.iconWell}>
-                          <Icon name={app.icon} size={25} />
+                        <span className={styles.iconWell} aria-hidden="true">
+                          <Icon name={app.icon} size={22} />
                         </span>
                         <span className={styles.appName}>{app.name}</span>
-                        <span className={styles.appState} aria-hidden="true">
-                          <i />
+                        <span className={styles.appState}>
+                          <i aria-hidden="true" />
                           {isAvailable ? "READY" : "IN DEVELOPMENT"}
                         </span>
                       </button>
