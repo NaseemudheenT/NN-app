@@ -2,13 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import type { NNApplication } from "@/lib/apps/registry";
 import styles from "./NNAppPreview.module.css";
-
-type PreviewTab = "overview" | "workspace" | "architecture";
 
 export const PREVIEW_MODULES: Record<string, { title: string; detail: string }[]> = {
   soul: [{title:"Reflection",detail:"A private space for thoughtful writing and review."},{title:"Gratitude",detail:"Capture what matters without turning it into a score."},{title:"Purpose",detail:"Keep principles and long-term direction visible."},{title:"Practices",detail:"Design personal routines with deliberate intent."}],
@@ -46,85 +43,87 @@ export const PREVIEW_MODULES: Record<string, { title: string; detail: string }[]
   "control-room": [{title:"System health",detail:"Show measured service status and last checks."},{title:"Integrations",detail:"Inspect connected providers and permissions."},{title:"Jobs",detail:"Review scheduled and background work."},{title:"Costs",detail:"Show actual usage and billing data only."}],
 };
 
-const TAB_COPY: Record<PreviewTab, { title: string; description: string }> = {
-  overview: { title: "A clear view of what belongs here.", description: "This design preview maps the intended workspace. No personal records or external services are connected on this screen." },
-  workspace: { title: "Your workspace, ready to be connected.", description: "The finished application will place its real records, creation flows and review actions here." },
-  architecture: { title: "Designed around trust and clarity.", description: "Every production module must use owner-scoped data, explicit permissions, useful empty states and traceable actions." },
-};
-
-export function NNAppPreview({ app, related }: { app: NNApplication; related: NNApplication[] }) {
-  const [tab, setTab] = useState<PreviewTab>("overview");
+export function NNAppPreview({ app }: { app: NNApplication; related?: NNApplication[] }) {
   const modules = useMemo(() => PREVIEW_MODULES[app.id] ?? [], [app.id]);
-  const copy = TAB_COPY[tab];
+  const [activeModule, setActiveModule] = useState(0);
+  const selectedModule = modules[activeModule] ?? modules[0];
 
   return (
     <main className={styles.root}>
       <header className={styles.topbar}>
-        <Link className={styles.brand} href="/home" aria-label="NN Home">
-          <NNLogo size={32} decorative /><span>NN <i>/</i> PERSONAL OS</span>
+        <Link className={styles.brand} href="/home" aria-label="Return to NN launcher">
+          <NNLogo size={27} decorative />
+          <span>NN</span>
         </Link>
-        <span className={styles.privateState}><i /> PRIVATE ENVIRONMENT</span>
+        <div className={styles.topbarRight}>
+          <span className={styles.privateState}><i /> PRIVATE</span>
+          <Link className={styles.backLink} href="/home">All features</Link>
+        </div>
       </header>
 
       <div className={styles.content}>
         <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-          <Link href="/home">NN HOME</Link><span>/</span><span>{app.group.toUpperCase()}</span><span>/</span><span aria-current="page">{app.name.toUpperCase()}</span>
+          <Link href="/home">NN</Link><span>/</span><span>{app.group}</span><span>/</span><span aria-current="page">{app.name}</span>
         </nav>
 
-        <section className={styles.hero}>
-          <div className={styles.heroCopy}>
-            <p className={styles.eyebrow}>NN APPLICATION · {app.group.toUpperCase()}</p>
-            <div className={styles.titleRow}>
-              <span className={styles.appIcon}><Icon name={app.icon} size={28} /></span>
-              <div><h1>{app.name}</h1><p className={styles.description}>{app.description}.</p></div>
+        <section className={styles.workspaceHeader}>
+          <div className={styles.titleBlock}>
+            <span className={styles.appIcon}><Icon name={app.icon} size={22} /></span>
+            <div>
+              <p className={styles.eyebrow}>{app.group}</p>
+              <h1>{app.name}</h1>
+              <p className={styles.description}>{app.description}</p>
             </div>
-            <div className={styles.statusLine}><span className={styles.statusDot} /><strong>DESIGN PREVIEW</strong><span>·</span><span>NOT CONNECTED TO LIVE DATA</span></div>
           </div>
-          <div className={styles.orb} aria-hidden="true"><span className={styles.orbRing} /><span className={styles.orbRingInner} /><span className={styles.orbCore}><Icon name={app.icon} size={35} /></span></div>
-          <div className={styles.heroFoot}><span>ONE OWNER · PRIVATE BY DESIGN</span><span>INTERFACE CONCEPT · {app.id.toUpperCase()}</span></div>
+          <span className={styles.availability}><i /> IN DEVELOPMENT</span>
         </section>
 
-        <div className={styles.previewNotice} role="note">
-          <Icon name="shield" size={19} />
-          <div><strong>Interface preview — not an operational application.</strong><p>This screen is for design review. It does not create, save, sync, send or retrieve records. No sample balances, messages or personal activity are being presented as real.</p></div>
-        </div>
-
-        <section className={styles.workspace} aria-label={app.name + " preview workspace"}>
-          <div className={styles.workspaceHead}>
-            <div><p className={styles.eyebrow}>YOUR {app.name.toUpperCase()} SPACE</p><h2>{copy.title}</h2><p>{copy.description}</p></div>
-            <span className={styles.previewTag}>PREVIEW MODE</span>
-          </div>
-          <div className={styles.tabs} role="tablist" aria-label="Preview sections">
-            {(["overview", "workspace", "architecture"] as const).map((item) => (
-              <button key={item} type="button" role="tab" aria-selected={tab === item} className={tab === item ? styles.activeTab : ""} onClick={() => setTab(item)}>{item}</button>
+        <div className={styles.workspaceLayout}>
+          <nav className={styles.moduleNav} aria-label={`${app.name} workspace sections`}>
+            <p className={styles.navLabel}>WORKSPACE</p>
+            {modules.map((module, index) => (
+              <button
+                key={module.title}
+                type="button"
+                className={activeModule === index ? styles.moduleActive : styles.moduleButton}
+                aria-current={activeModule === index ? "page" : undefined}
+                onClick={() => setActiveModule(index)}
+              >
+                <span className={styles.moduleIndex}>{String(index + 1).padStart(2, "0")}</span>
+                <span>{module.title}</span>
+                <Icon name="chevron-right" size={15} />
+              </button>
             ))}
-          </div>
-          {tab === "overview" ? (
-            <div className={styles.moduleGrid}>
-              {modules.map((module, index) => <article className={styles.module} key={module.title}><span className={styles.moduleNumber}>0{index + 1}</span><div><h3>{module.title}</h3><p>{module.detail}</p></div></article>)}
-            </div>
-          ) : tab === "workspace" ? (
-            <div className={styles.emptyWorkspace}>
-              <span className={styles.emptyIcon}><Icon name={app.icon} size={27} /></span>
-              <p className={styles.eyebrow}>NO LIVE RECORDS</p><h3>Your {app.name.toLowerCase()} workspace will appear here.</h3>
-              <p>When this application is implemented, this area will show your own records and actions. It is intentionally empty in this design preview.</p>
-            </div>
-          ) : (
-            <div className={styles.architectureGrid}>
-              {[["Owner-scoped","Only the founder can access personal records."],["Traceable","Important information keeps its source and timestamps."],["Permission-aware","Connected services expose only approved capabilities."],["Honest states","Loading, empty, offline and error states are explicit."]].map(([title, detail]) => <article className={styles.architectureCard} key={title}><span><Icon name="check" size={18} /></span><h3>{title}</h3><p>{detail}</p></article>)}
-            </div>
-          )}
-        </section>
+          </nav>
 
-        <section className={styles.relatedSection}>
-          <div className={styles.sectionHeading}><p>CONNECTED APPLICATIONS</p><h2>Part of {app.group}.</h2></div>
-          <div className={styles.related}>
-            {related.map((item) => <Link className={styles.relatedCard} href={item.overviewHref as Route} key={item.id}><span><Icon name={item.icon} size={18} /></span><strong>{item.name}</strong><small>{item.availability === "available" ? "AVAILABLE" : "DESIGN PREVIEW"}</small></Link>)}
-          </div>
-        </section>
-
+          <section className={styles.moduleSurface} aria-live="polite" aria-labelledby="module-title">
+            {selectedModule ? (
+              <>
+                <div className={styles.moduleHeader}>
+                  <div>
+                    <p className={styles.eyebrow}>{app.name.toUpperCase()} / MODULE {String(activeModule + 1).padStart(2, "0")}</p>
+                    <h2 id="module-title">{selectedModule.title}</h2>
+                    <p>{selectedModule.detail}</p>
+                  </div>
+                  <span className={styles.moduleIcon}><Icon name={app.icon} size={20} /></span>
+                </div>
+                <div className={styles.emptyState}>
+                  <span className={styles.emptyIcon}><Icon name="layers" size={23} /></span>
+                  <p className={styles.emptyEyebrow}>WORKSPACE NOT YET CONNECTED</p>
+                  <h3>This module is being built.</h3>
+                  <p>The interface structure is defined. Live records, create and edit actions, and connected services will appear here only after their implementation and verification.</p>
+                  <span className={styles.dataBoundary}><Icon name="shield" size={14} /> No sample data · No simulated actions · No external connection</span>
+                </div>
+              </>
+            ) : (
+              <div className={styles.emptyState}>
+                <h3>Workspace definition required.</h3>
+                <p>This application does not yet have a verified module map.</p>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
-      <footer className={styles.footer}><span>NN · PRIVATE PERSONAL OPERATING ENVIRONMENT</span><span>ONE OWNER · ONE PRIVATE ECOSYSTEM</span></footer>
     </main>
   );
 }
