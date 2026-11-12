@@ -13,3 +13,68 @@
   font-size: var(--text-label-size); text-align: left;
 }
 .secret { margin-top: var(--space-7); text-align: left; }
+
+
+.card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(28px, 5vw, 46px);
+  border: 1px solid var(--nn-spectrum-border);
+  border-radius: var(--radius-2xl);
+  background:
+    linear-gradient(145deg, rgb(238 248 255 / 16%), rgb(var(--nn-spectrum-cyan) / 7%) 34%, rgb(var(--nn-spectrum-violet) / 9%) 74%),
+    var(--glass-3-bg);
+  box-shadow: var(--shadow-4), inset 0 1px 0 rgb(255 255 255 / 26%), inset 0 0 0 1px rgb(205 229 255 / 8%);
+  -webkit-backdrop-filter: blur(32px) saturate(160%);
+  backdrop-filter: blur(32px) saturate(160%);
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgb(var(--nn-spectrum-cyan) / 15%), transparent 60%);
+}
+@media (max-width: 520px) {
+  .page { padding: 16px; }
+  .card { padding: 28px 20px; border-radius: var(--radius-xl); }
+}
+
+
+/* Sign-in is the threshold into NN: the same substantial, clear glass object. */
+.card { border-color:rgb(215 235 255 / 46%);background:radial-gradient(ellipse 80% 34% at 12% 0%,rgb(255 255 255 / 15%),transparent 72%),linear-gradient(145deg,rgb(255 255 255 / 12%),rgb(var(--nn-spectrum-cyan) / 6%) 34%,rgb(var(--nn-spectrum-blue) / 8%) 70%),var(--glass-3-bg);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),inset 1px 0 0 rgb(255 255 255 / 10%),inset 0 -2px 0 rgb(0 0 0 / 26%),0 1px 0 rgb(177 211 255 / 24%),0 4px 0 rgb(3 10 27 / 72%),0 16px 32px rgb(0 0 0 / 28%),0 32px 64px rgb(0 0 0 / 26%); }
+
+/* Sign-in threshold: same substantial, legible NN glass material. */
+.card{border:1px solid rgb(215 235 255 / 48%);background:radial-gradient(ellipse 80% 34% at 12% 0%,rgb(255 255 255 / 17%),transparent 72%),linear-gradient(145deg,rgb(255 255 255 / 14%),rgb(var(--nn-spectrum-cyan) / 7%) 34%,rgb(var(--nn-spectrum-blue) / 8%) 70%),var(--glass-3-bg);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 52%),inset 1px 0 0 rgb(255 255 255 / 10%),inset 0 -2px 0 rgb(0 0 0 / 26%),0 1px 0 rgb(177 211 255 / 26%),0 4px 0 rgb(3 10 27 / 72%),0 18px 36px rgb(0 0 0 / 30%),0 34px 68px rgb(0 0 0 / 28%);-webkit-backdrop-filter:blur(34px) saturate(165%);backdrop-filter:blur(34px) saturate(165%);transform-style:preserve-3d}
+
+
+.guestButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--space-5);
+  padding: 0 var(--space-5);
+  border: 1px solid rgb(190 218 255 / 24%);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+  background: rgb(255 255 255 / 4%);
+  font: inherit;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+.guestButton:hover {
+  color: var(--text-primary);
+  border-color: rgb(190 218 255 / 48%);
+  background: rgb(255 255 255 / 9%);
+}
+.guestButton:focus-visible { outline: 2px solid var(--nn-icy); outline-offset: 3px; }
+.guestNote {
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--text-caption-size);
+  line-height: 1.5;
+}

@@ -54,3 +54,11 @@
 :global(html[data-theme="light"]) .panel::before {
   background: var(--nn-spectrum-rim);
 }
+
+
+/* Restrained physical bevel: keep the holographic rim on the edge only. */
+.panel { border:1px solid rgb(215 235 255 / 40%);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 40%),inset 1px 0 0 rgb(255 255 255 / 10%),inset 0 -2px 0 rgb(0 0 0 / 24%),0 1px 0 rgb(177 211 255 / 24%),0 4px 0 rgb(3 10 27 / 70%),0 14px 28px rgb(0 0 0 / 26%),0 30px 58px rgb(0 0 0 / 26%); }
+
+
+/* Preserve the physical panel's own stacking context for its glass bevel. */
+.panel { transform-style:preserve-3d;isolation:isolate; }

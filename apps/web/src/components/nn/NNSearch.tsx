@@ -1,12 +1,11 @@
 "use client";
 
 import * as React from "react";
-import type { Route } from "next";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { useAppTransition } from "@/components/nn/AppTransition";
 import { AppShell } from "@/components/nn/AppShell";
 import { Icon } from "@/components/ui/Icon";
-import { APPLICATION_COUNT } from "@/lib/nn/apps";
+import { APPLICATIONS } from "@/lib/apps/registry";
 import { RECENT_WINDOW, useSearch } from "@/lib/nn/search";
 import styles from "./NNSearch.module.css";
 
@@ -64,7 +63,7 @@ function SearchSurface() {
           ? "Reading your records…"
           : result.fault
             ? result.fault.message
-            : `${APPLICATION_COUNT} applications · ${result.searched} records searched`}
+            : `${APPLICATIONS.length} applications · ${result.searched} records searched`}
       </p>
 
       {!typing ? (
@@ -78,7 +77,7 @@ function SearchSurface() {
           </h2>
           <div className={styles.list}>
             {result.applications.map((app) => (
-              <article className={styles.row} key={app.slug}>
+              <article className={styles.row} key={app.id}>
                 <span className={styles.glyph}>
                   <Icon name={app.icon} size={17} />
                 </span>
@@ -86,11 +85,11 @@ function SearchSurface() {
                   <strong>{app.name}</strong>
                   <small>{app.description}</small>
                 </span>
-                {app.route ? (
+                {app.href ? (
                   <button
                     type="button"
                     className={styles.open}
-                    onClick={() => travel.open(app.route as Route, app.name)}
+                    onClick={() => travel.open(app.href!, app.name)}
                   >
                     Open
                   </button>
@@ -122,11 +121,11 @@ function SearchSurface() {
                 <span className={styles.kind}>
                   {COLLECTION_LABELS[hit.collection] ?? hit.collection}
                 </span>
-                {hit.app?.route ? (
+                {hit.app?.href ? (
                   <button
                     type="button"
                     className={styles.open}
-                    onClick={() => travel.open(hit.app!.route as Route, hit.app!.name)}
+                    onClick={() => travel.open(hit.app!.href!, hit.app!.name)}
                   >
                     Open in {hit.app.name}
                   </button>
@@ -143,7 +142,7 @@ function SearchSurface() {
           <strong>Nothing matched “{term.trim()}”.</strong>
           <p>
             NN searched {result.searched} of your records — the {RECENT_WINDOW} most recent in each
-            collection — and all {APPLICATION_COUNT} applications.
+            collection — and all {APPLICATIONS.length} applications.
           </p>
         </div>
       ) : null}

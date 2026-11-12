@@ -86,3 +86,144 @@ currently has no environment variables. Never guess Firebase web config or
 service-account credentials. Keep all secrets server-side and ask the founder
 to provision them through the local CLI / Vercel secure environment interface
 rather than pasting them into chat.
+
+
+## Frontend visual pass — 2026-11-09
+
+- Applied the founder-approved iridescent spatial-glass treatment to the existing entry corridor, sign-in card, Home, Life and Workspace CSS modules.
+- Added shared `--nn-glass-*` material recipes and reusable `.nn-glass`, `.nn-glass-primary`, `.nn-glass-reading` and `.nn-glass-icon` primitives in `apps/web/src/styles/global.css`.
+- Kept the fixed V3 base palette and existing logo component/geometry unchanged. No backend contracts or data behaviour were changed.
+- Exact latest implementation commit: `ee4676fa739ba203aa07e4bc984be7d00b31de40` on `design/nn-frontend-system` (the handoff update itself will create a later docs-only commit).
+- Verification: no local typecheck, unit test, production build, browser, accessibility or device review has been run in this session. Do not call this pass verified.
+- Preview deployment: attempted against the exact implementation commit; Vercel rejected it with `api-deployments-free-per-day` and `retryAfter=86400`. The current READY deployment remains an older commit and must not be represented as the updated design.
+- Release readiness: Vercel reports zero production environment variables, and SSO protection remains enabled for all except custom domains. Do not weaken SSO or invent production Firebase/passkey settings. Production is not ready to release.
+- Remaining work: run the documented pnpm typecheck/tests/build locally, review all routes at desktop and 360px/iPhone widths, correct regressions, provision production configuration securely, then deploy the exact verified commit when Vercel quota permits.
+
+## Frontend execution programme — 2026-11-09
+
+- Founder explicitly approved the complete NN frontend/UI execution programme. The scope is recorded in `docs/NN_FRONTEND_EXECUTION_PROGRAMME.md`; work remains on `design/nn-frontend-system`. No production deployment or merge is authorised by this approval.
+- Added `apps/web/src/lib/apps/registry.ts` as the typed canonical 34-application frontend registry, aligned to `docs/NN_APP_REGISTRY.md`. REN remains an ambient assistant capability and App Factory remains a system capability, not launcher applications.
+- Home now reads its application index and category counts from the shared registry instead of maintaining a duplicate 35-item list. Only NN Life is marked available because it is the only canonical application with an implemented route in the current route inventory; other app surfaces remain visibly in development.
+- Fixed the Home REN feature tile so it summons the persistent REN panel rather than filtering the app launcher for a non-existent REN app entry.
+- Added `apps/web/src/lib/apps/registry.test.ts` to check the 34-app count, unique IDs, route availability, derived category totals and capability separation.
+- Implementation commits: `928b015b9a85f18e05f203bc4e7d1427c7cfa0bd` (programme), `480bb00d41383e3346cb581d534615f556f158a3` (registry), `1e59a4ffbfc677528566f151ecab4e20edca6d23` (Home integration), `f27aff729ec240a663436176be74ea8fe10f9a5a` (registry tests).
+- Verification: tests have been authored but not executed in a local checkout. Typecheck, lint, unit tests, production build and browser/device QA remain outstanding. Do not mark this milestone VERIFIED.
+- Next frontend milestone: inspect and implement the persistent responsive NN OS shell and route-aware app navigation using the central registry, then proceed through application modules in the approved sequence.
+
+## Shared application navigation — 2026-11-09
+
+- Added `NNAppNavigation` as a route-aware floating dock for the Life, Workspace and Design surfaces. It reuses the existing Dock primitive, marks the active route, provides direct navigation back to Home, and opens the persistent REN assistant.
+- Home and Life keep their purpose-built navigation, avoiding duplicate controls. The shared dock is shown on Workspace and Design, and does not add a side rail or separate menu panel.
+- The dock respects iOS safe-area insets, uses large touch targets, and disables its hover transition under reduced-motion settings.
+- This is frontend navigation only. It does not make planned applications available, change authentication, or add REN reasoning/tool capabilities.
+- Verification: source changes are committed on the feature branch; no local typecheck, lint, unit tests, production build or real-device/browser QA has been run. No deployment was requested or performed.
+
+
+## Founder-only product boundary — 2026-11-09
+
+- Founder clarified that NN is exclusively a private personal operating environment for its single owner, Naseemudheen. It is not a public SaaS product, multi-tenant workspace or collaboration platform.
+- Product scope now explicitly excludes public registration, invitations, member directories, team roles and additional owner accounts. All data, settings, files, memories and application state belong to the single passkey-enrolled founder identity.
+- Keep the existing server-side nnOwner: true claim, passkey-only access and default-deny Firestore/Storage rules. A users/{uid}/… namespace is a secure owner-data boundary, not a signal that multiple users are supported.
+- Build integrations for the founder's personal accounts/devices. Any outward sharing, publishing or consequential external action requires explicit founder authorisation.
+- Product prioritisation is based on the founder's real workflows and devices, not generic-market needs. Never represent a planned feature as operational before its data path, permissions, failure states and behaviour are verified.
+- This is a product-scope clarification and documentation change; it does not alter authentication or security rules.
+
+## Home launch-surface integrity pass — 2026-11-09
+
+- Updated the Home featured application tiles to read their identity, icon and availability from the canonical 34-app registry. Life is presented as available; College, Projects and Finance are explicitly labelled in development and route into the filtered application index rather than pretending to open.
+- Kept REN separate from the application registry. The Home REN tile and quick action summon the existing persistent REN surface; the Home capability copy now states that appearance controls are available while text intelligence and voice are not connected.
+- Corrected the Home search affordance to say “Find an NN application”; it opens the application index and is not represented as a global content search.
+- Removed duplicate quick actions that all landed on the same Life route. The remaining actions have distinct outcomes: open Life, browse the application index, open Workspace, and summon REN.
+- Added visible availability pills, improved tile spacing for their additional state labels, and added explicit keyboard-focus outlines to Home launch and action controls.
+- Source commits: `3e0aaef0d3138ce982e0e1174e8418aeb5eb2ea8` (Home behavior/content) and `df91fb67f8a4b2ee50a53586422bcb7311b430ad` (Home styling).
+- Verification status: source was re-fetched from GitHub after each commit and the intended changes were confirmed in the committed files. No local checkout is available in this execution environment, so TypeScript, lint, unit tests, production build, browser interaction, responsive screenshots, accessibility audit and real iPhone QA have **not** been run. This milestone is implemented in source but not verified.
+- Release status: no merge, deployment or production change was made. Continue on `design/nn-frontend-system`.
+
+### Home interaction polish — 2026-11-09
+
+- The Home greeting now follows the device's local time (morning, afternoon or evening) rather than always saying “Good evening”.
+- Pressing Escape closes the application index and clears its query, so a later open starts cleanly.
+- Commit: `88650bfefde05ab53b39c3f67c49c65311d88818`.
+- Verification remains source-level only; no executable test/build/browser/device run was available in this session.
+
+## NN Life destructive-action safety pass — 2026-11-09
+
+- Swipe-to-reveal remains the primary touch interaction for deleting Life records, but tapping Delete now opens the shared accessible Dialog and requires a second explicit confirmation before Firestore `deleteDoc` runs.
+- The confirmation states that deletion is permanent and cannot currently be undone. The action is disabled while another save is in progress; the existing verified-save/error path remains responsible for reporting the Firestore result.
+- Added a keyboard alternative: focus a record action group and press Delete/Backspace to reveal the delete action; Escape closes the revealed action. The action group uses a state-specific accessible label and a visible keyboard focus outline. A subsequent CI lint run flagged `aria-expanded` as unsupported on role=group; that attribute was removed and replaced with a supported label announcement.
+- Added phone-friendly dialog actions and visible focus treatment. No data model, Firestore rules or authentication code was changed.
+- Source commits: `0c48fe71a25eb50bcd9a45e273fd709cf49509a2` (confirmation flow), `ba37d960d937e4b01e1916daed8c682714991a10` (dialog styling), `f0e89c75045eda4561cdb1f669ca9441586be522` (keyboard alternative), `6ead944f561d728422a66a091306592473bf5885` (expanded state), and `92ee43f6466370ff5fbd10c869cdc75dede5b4a3` (focus visibility), and `c77a54f597bc7d7f5f01a38ccdc03ff83c26a270` (accessible state announcement correction).
+- Verification status: all changed source files were re-fetched from the feature branch and the intended changes were confirmed. The first CI attempt typechecked successfully but failed lint on the unsupported `aria-expanded` attribute described above; the source has since been corrected. A fresh CI run is required to verify the correction. Browser and device QA remain outstanding.
+
+## Persistent room rendering efficiency pass — 2026-11-10
+
+- The shared WebGL room previously read `canvas.clientWidth` / `clientHeight` and reset the viewport on every animation frame, even when its dimensions were unchanged.
+- The drawing buffer now resizes only when the measured pixel dimensions change. A `ResizeObserver` handles element-size changes, and a passive window resize listener catches device-pixel-ratio changes such as display-scale or orientation transitions.
+- The correct drawing buffer is established before the first frame, including reduced-motion mode. Cleanup removes both observers/listeners.
+- The shader, palette, visual composition, DPR quality cap, motion preference behaviour and visibility-aware frame loop remain unchanged.
+- Source commits: `2289804eef276074c3f6bf1c98a3915527fc34d1` and `188b15ec40a689e42e6f2e707c29211f7f45168e`.
+- Expected benefit: fewer repeated layout reads and viewport resets in the persistent animation loop. This is a code-level optimisation hypothesis; no profiling or device battery/frame-time measurements have been run.
+- Verification: source re-fetched from GitHub and the resize, first-frame, observer and cleanup paths inspected. TypeScript/build/runtime/WebGL context-loss/mobile-device QA remain outstanding.
+
+### Design-branch verification coverage — 2026-11-10
+
+- Expanded `.github/workflows/ci.yml` push triggers to include `design/**` branches. The existing pipeline remains unchanged: frozen pnpm install, TypeScript checks, ESLint, unit tests and Next.js production build.
+- This closes a coverage gap where the active `design/nn-frontend-system` branch was excluded from the workflow's push filters.
+- Commit: `8f81562e515b77e7a96bf8f0160ab1cb5dc37961`.
+- The workflow file is committed and re-fetched. At the time of inspection, no associated workflow run was returned and no passing CI result was available. Do not treat the pipeline as executed until a run is visible.
+
+
+
+## Application discovery surfaces — 2026-11-10
+
+- Added a dedicated route at `/apps/[appId]` for all 34 registered applications. The registry now distinguishes an operational `href` from an `overviewHref`; this prevents a discovery page from being misrepresented as a working application.
+- The 33 planned applications open an explicit development-status overview. Each page states that the application is not operational and that the overview does not create records, connect accounts, run automations or claim unfinished functionality.
+- Overview pages show only registry-backed identity, group and description, plus shared release gates: complete interface, real functionality, owner security and verification. Related applications are derived from the same registry group.
+- NN Life redirects to its actual `/life` route. Unknown application IDs return the normal not-found response.
+- Home launcher now routes planned entries to their status overview rather than leaving them in a search loop; the index offers “VIEW STATUS” for planned apps and “OPEN” only for available apps.
+- Registry tests now assert that all 34 entries have a deterministic overview route while only genuinely operational routes are marked available.
+- Commits: `7dafb743b4761006f2b8f19c8bfed283b9570516` (registry), `677a74a86c2077dca9d6ca86912ab8e06c52b52e` (Home), `aabb39cba5c4f648bfcba5b8a053c68301dab781` (tests), `264fd49af9f49760e183fee9dc793aa622b09736` and `003f79b9916fd7bdc8b339875ee30ef0db8a0b2e` (overview route and styling).
+- Verification: all 34 overview route declarations, Home routing and status copy were re-fetched from GitHub. CI for these new commits has not yet been confirmed; no production build or browser/device QA is claimed.
+
+
+### Application overview route CI correction — 2026-11-10
+
+- The first full CI run for the overview-page milestone passed typecheck, lint and unit tests (including 90 Firebase rules tests and 125 web tests), but the Next.js production build failed because a dynamically typed registry overview URL was passed to a typed Next Link.
+- Corrected the Link destination with the Next.js `Route` type assertion in `apps/web/src/app/apps/[appId]/page.tsx` (commit `71f63048f971b589188c4f76c1cf4a5131f8a891`). This is a routing type correction only; no security or data contracts changed.
+- A fresh CI run for that commit is in progress at the time of this note. Do not mark the milestone build-verified until the run completes successfully.
+
+
+### Home launcher typed-route correction — 2026-11-10
+
+- The overview-route CI run passed TypeScript, lint, all 90 Firebase rules tests and all 125 web tests, but the Next.js production build then found a second typed-route error: the Home launcher passed the registry's string-typed `overviewHref` to `router.push`.
+- Added the Next.js `Route` type import and narrowed the registry destination at the navigation boundary. This preserves the registry's string-based metadata model and does not alter route behaviour or security contracts.
+- Commit: `51ee18461bc4bec1273a253eff4be856e556cbc2`.
+- A fresh CI run is required. Do not mark the overview milestone build-verified until the full pipeline succeeds.
+
+
+## NN Future Interface System — 2026-11-10
+
+- Added `apps/web/src/styles/future-system.css` with 50 named core primitives, organised into five groups: optical surfaces; cards/tiles/icon materials; actions/fields/statuses; information architecture/data display; and feedback/safety/accessibility.
+- Added supporting variants for compact icon wells, active chips, navigation, safe-area spacing, overflow containment and reduced-motion handling.
+- Imported the system globally after the shared token and holographic material sheets. It consumes the approved NN semantic palette and existing glass tokens rather than creating a competing colour system.
+- Integrated the shared interaction/focus treatment and dimensional icon well into the Home application launcher.
+- Added `docs/NN_FUTURE_DESIGN_SYSTEM.md` as the 50-item design catalogue and `future-system.test.ts` to assert the exact 50 unique primitives exist and that reduced-motion, narrow-screen and no-backdrop-filter fallbacks remain present.
+- No backend, Firestore, authentication, owner-claim or storage contract was modified. No application is promoted to operational by this visual system.
+- Commits: `1733e3a47e826a7487a9de16170c9e6adad48fe0` (50 primitives), `fd2b93c9716b4119315635ecb105368216f42749` (global import), `a5933b4b771100734a7374bac3a710fb77c0eafd` (Home integration), `2200084e33c7ac4f77e3402156fd9f97ec6efc28` (catalogue), `3fe57236eb45058bacf19d31d97300886556e055` (primitive tests).
+- Verification pending: the full CI pipeline must confirm typecheck, lint, unit tests and production build. Real iPhone/desktop visual QA remains outstanding.
+
+- Extended the shared material language to planned application overview pages: hero surfaces, owner-facing status callout, release-gate cards, related-application interaction feedback, and dimensional application icon wells. This changes presentation only; the explicit planned/not-operational state remains intact.
+- Overview visual integration commit: `e4ee43b5e84c35bee3e61bb77af1a3cc5c9b4fd8`.
+
+- Refined the Home visual composition with the shared spatial hero light field and a restrained refractive spectral rim on application tiles. This remains CSS-only and respects the existing reduced-motion rules. Commit: `2555871d76b987984661dfcc8bac4cb7f10af2bd`.
+
+
+## Claude OS completion handoff — 2026-11-10
+
+- Founder has directed Claude to take the lead on completing the remaining NN operating system using the current frontend as the approved baseline. This supersedes the previous strict division where ChatGPT owned all frontend work and Claude only backend services.
+- Added `docs/CLAUDE_OS_COMPLETION_BRIEF.md` with the product boundary, current frontend baseline, confirmed CI evidence, architecture requirements, execution order, definition of done and required final report.
+- Current baseline commit with a confirmed full green CI workflow: `44b1ecf13b0444d96c30cd7f229dfe824fb4c4ba`; run `42734103628`. The workflow's typecheck/lint/tests stage and Next.js production build both succeeded.
+- The 50-primitive design system is implemented and tested. It does not constitute 50 completed app screens. NN Life is the only operational app in the frontend registry; 33 others remain planned.
+- Updated `CLAUDE.md` to point Claude at the new brief and clarify that Claude may extend frontend code while preserving the existing NN design system.
+- Updated the top-level project status to remove the stale ~3% completion claim and clarify the actual frontend/app availability state. Historical phase tables below still require reconciliation against repository evidence.
+- No production deployment, merge, production Firebase action or paid infrastructure change is authorised.

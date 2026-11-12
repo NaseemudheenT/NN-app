@@ -35,6 +35,7 @@ export function GlassPanel({
 }: GlassPanelProps) {
   const cls = [
     (holo ?? tier === 3) ? "nn-holo" : "",
+    "nn-glass-card",
     styles.panel,
     TIER[tier],
     PAD[padding],

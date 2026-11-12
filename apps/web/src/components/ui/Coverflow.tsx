@@ -368,7 +368,7 @@ export function Coverflow({
                 role="group"
                 aria-roledescription="slide"
                 aria-label={`${index + 1} of ${count}: ${card.title}`}
-                className={styles.card}
+                className={["nn-glass-card", styles.card].join(" ")}
               >
                 <span className={styles.sheen} aria-hidden="true" />
                 <span className={styles.cardIcon}>

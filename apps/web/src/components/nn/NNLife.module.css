@@ -72,3 +72,430 @@
 }
 @media (max-width:700px) { .hero { border-radius: 21px; } }
 
+
+
+/* Founder visual reset — Life is a calm glass workspace, not a flat dashboard. */
+.topbar {
+  background: var(--nn-glass-float);
+  border-bottom-color: rgb(194 222 255 / 16%);
+  -webkit-backdrop-filter: blur(26px) saturate(155%);
+  backdrop-filter: blur(26px) saturate(155%);
+}
+.hero {
+  border: 1px solid var(--nn-spectrum-border);
+  background:
+    linear-gradient(142deg, rgb(235 248 255 / 15%), rgb(var(--nn-spectrum-cyan) / 5%) 40%, rgb(var(--nn-spectrum-violet) / 12%)),
+    var(--nn-wave-hero-bg);
+  box-shadow: var(--shadow-4), inset 0 1px 0 rgb(255 255 255 / 24%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
+  backdrop-filter: blur(28px) saturate(155%);
+}
+.panel, .quickPanel, .focusPanel, .notesList, .noteCard, .emptyState {
+  border: 1px solid var(--nn-spectrum-border);
+  border-radius: var(--radius-lg);
+  background: var(--nn-glass-float);
+  box-shadow: var(--nn-glass-shadow);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+}
+.panel, .quickPanel, .focusPanel, .notesList { padding: clamp(16px, 2vw, 24px); }
+.noteCard { padding: 17px; }
+.focusPanel {
+  background:
+    radial-gradient(ellipse at 86% 0%, rgb(var(--nn-spectrum-violet) / 17%), transparent 48%),
+    var(--nn-glass-primary);
+}
+.focusPanel .label { color: #d2eaff; }
+.metric { border-bottom-color: rgb(205 229 255 / 17%); }
+.metric strong { color: var(--nn-white); }
+.quickPanel > button, .captureForm input, .captureForm textarea, .noteForm input, .noteForm textarea {
+  border-color: rgb(205 229 255 / 26%);
+  background: var(--nn-glass-primary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%);
+}
+.tabs {
+  padding: 5px;
+  border: 1px solid var(--nn-spectrum-border);
+  border-radius: var(--radius-full);
+  background: var(--nn-glass-float);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+.tab { border-radius: var(--radius-full); }
+.tabActive {
+  background: var(--nn-glass-primary);
+  box-shadow: inset 0 0 0 1px rgb(205 229 255 / 24%), 0 5px 16px rgb(0 0 0 / 18%);
+}
+.record, .event {
+  border-top-color: rgb(205 229 255 / 16%);
+}
+.recordGlyph {
+  border: 1px solid rgb(205 229 255 / 28%);
+  background: var(--nn-glass-primary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%);
+}
+.goal {
+  border-top-color: rgb(205 229 255 / 16%);
+}
+.progress { background: rgb(195 220 255 / 12%); }
+.progress span { background: var(--nn-wave-ribbon-primary); }
+.dock {
+  border: 1px solid rgb(205 229 255 / 32%);
+  background: var(--nn-glass-primary);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 36%), inset 0 1px 0 rgb(255 255 255 / 25%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  backdrop-filter: blur(26px) saturate(160%);
+}
+@media (max-width: 620px) {
+  .hero { border-radius: 20px; }
+  .panel, .quickPanel, .focusPanel, .notesList { padding: 16px; }
+  .dock { bottom: max(12px, env(safe-area-inset-bottom)); }
+}
+
+
+/* NN REAL-WORLD DEPTH PASS — Life cards and working surfaces */
+.panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState,.focusPanel,.record,.goal,.tabs,.dock {
+  transform-style: preserve-3d;
+}
+.panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState {
+  border-color: rgb(210 231 255 / 34%);
+  background:
+    linear-gradient(148deg, rgb(255 255 255 / 14%), rgb(184 216 255 / 5%) 26%, transparent 60%),
+    linear-gradient(320deg, rgb(7 16 37 / 78%), rgb(22 41 72 / 78%) 54%, rgb(16 32 59 / 82%));
+  box-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 34%),
+    inset 1px 0 0 rgb(255 255 255 / 9%),
+    inset 0 -2px 0 rgb(0 0 0 / 26%),
+    0 1px 0 rgb(177 211 255 / 20%),
+    0 4px 0 rgb(3 10 27 / 72%),
+    0 10px 18px rgb(0 0 0 / 22%),
+    0 22px 42px rgb(0 0 0 / 24%);
+  -webkit-backdrop-filter: blur(26px) saturate(145%);
+  backdrop-filter: blur(26px) saturate(145%);
+}
+.noteCard { transition: transform 200ms ease, box-shadow 200ms ease, border-color 180ms ease; }
+.noteCard:hover {
+  transform: perspective(900px) translate3d(0,-4px,5px) rotateX(1deg);
+  border-color: rgb(220 239 255 / 58%);
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 46%), 0 1px 0 rgb(192 222 255 / 28%), 0 5px 0 rgb(3 10 27 / 76%), 0 14px 24px rgb(0 0 0 / 26%), 0 28px 48px rgb(0 0 0 / 28%);
+}
+.focusPanel {
+  background:
+    radial-gradient(ellipse at 85% 0%, rgb(var(--nn-spectrum-cyan) / 16%), transparent 48%),
+    linear-gradient(148deg, rgb(255 255 255 / 17%), rgb(184 216 255 / 5%) 28%, transparent 60%),
+    linear-gradient(320deg, rgb(7 16 37 / 78%), rgb(22 41 72 / 82%) 54%, rgb(16 32 59 / 86%));
+}
+.tabs,.dock {
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 34%), inset 0 -1px 0 rgb(0 0 0 / 25%), 0 3px 0 rgb(3 10 27 / 65%), 0 12px 26px rgb(0 0 0 / 24%);
+}
+.tabActive,.recordGlyph,.emptyIcon {
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 48%), inset 0 -2px 2px rgb(0 0 0 / 22%), 0 2px 0 rgb(3 10 27 / 68%), 0 7px 14px rgb(0 0 0 / 22%);
+}
+.record,.goal { border-color: rgb(205 229 255 / 18%); }
+@media (max-width:700px) {
+  .panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 30%), inset 0 -1px 0 rgb(0 0 0 / 24%), 0 2px 0 rgb(3 10 27 / 68%), 0 10px 24px rgb(0 0 0 / 24%);
+  }
+}
+@media (prefers-reduced-motion:reduce) { .noteCard { transition:none; } .noteCard:hover { transform:none; } }
+
+
+/* NN LIFE — unified dimensional glass language */
+.hero {
+  border: 1px solid rgb(206 229 255 / 32%);
+  background:
+    radial-gradient(ellipse 42% 88% at 84% 48%, rgb(var(--nn-spectrum-blue) / 14%), transparent 72%),
+    linear-gradient(145deg, rgb(255 255 255 / 9%), transparent 32%),
+    linear-gradient(118deg, rgb(7 17 35 / 92%), rgb(14 34 62 / 88%) 58%, rgb(7 18 38 / 94%));
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 30%), inset 0 -2px 0 rgb(0 0 0 / 28%), 0 1px 0 rgb(178 211 255 / 22%), 0 4px 0 rgb(3 10 27 / 66%), 0 14px 28px rgb(0 0 0 / 24%), 0 28px 60px rgb(0 0 0 / 26%);
+  -webkit-backdrop-filter: blur(26px) saturate(145%);
+  backdrop-filter: blur(26px) saturate(145%);
+}
+.panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState {
+  border: 1px solid rgb(210 231 255 / 34%);
+  background:
+    linear-gradient(148deg, rgb(255 255 255 / 13%), rgb(184 216 255 / 4%) 30%, transparent 62%),
+    linear-gradient(320deg, rgb(7 16 37 / 78%), rgb(22 41 72 / 78%) 54%, rgb(16 32 59 / 84%));
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 36%), inset 1px 0 0 rgb(255 255 255 / 8%), inset 0 -2px 0 rgb(0 0 0 / 26%), 0 1px 0 rgb(177 211 255 / 20%), 0 3px 0 rgb(3 10 27 / 70%), 0 9px 18px rgb(0 0 0 / 22%), 0 22px 42px rgb(0 0 0 / 24%);
+  -webkit-backdrop-filter: blur(26px) saturate(145%);
+  backdrop-filter: blur(26px) saturate(145%);
+  transform-style: preserve-3d;
+}
+.noteCard { transition: transform 200ms ease, box-shadow 200ms ease, border-color 180ms ease; }
+.noteCard:hover {
+  transform: perspective(1000px) translate3d(0,-4px,5px) rotateX(1deg);
+  border-color: rgb(224 241 255 / 58%);
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 48%), 0 1px 0 rgb(192 222 255 / 26%), 0 4px 0 rgb(3 10 27 / 76%), 0 13px 24px rgb(0 0 0 / 26%), 0 27px 48px rgb(0 0 0 / 28%);
+}
+.focusPanel {
+  background:
+    radial-gradient(ellipse at 86% 0%, rgb(var(--nn-spectrum-cyan) / 15%), transparent 52%),
+    linear-gradient(148deg, rgb(255 255 255 / 15%), transparent 34%),
+    linear-gradient(320deg, rgb(7 16 37 / 82%), rgb(22 41 72 / 84%) 54%, rgb(16 32 59 / 88%));
+}
+.tabs,.dock {
+  border: 1px solid rgb(210 231 255 / 28%);
+  background: linear-gradient(145deg, rgb(255 255 255 / 10%), rgb(11 24 45 / 74%));
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 34%), inset 0 -1px 0 rgb(0 0 0 / 25%), 0 3px 0 rgb(3 10 27 / 68%), 0 12px 26px rgb(0 0 0 / 24%);
+}
+.tabActive,.recordGlyph,.emptyIcon {
+  border-color: rgb(220 238 255 / 42%);
+  background: linear-gradient(145deg, rgb(255 255 255 / 26%), rgb(var(--nn-spectrum-blue) / 12%) 60%, rgb(9 24 47 / 80%));
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 48%), inset 0 -2px 2px rgb(0 0 0 / 22%), 0 2px 0 rgb(3 10 27 / 65%), 0 7px 14px rgb(0 0 0 / 22%);
+}
+.record,.goal { border-color: rgb(205 229 255 / 20%); }
+.quickPanel>button { box-shadow: inset 0 1px 0 rgb(255 255 255 / 22%), 0 2px 0 rgb(3 10 27 / 48%), 0 6px 12px rgb(0 0 0 / 18%); }
+@media (max-width:700px) {
+  .panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState,.hero { box-shadow: inset 0 1px 0 rgb(255 255 255 / 30%), 0 2px 0 rgb(3 10 27 / 68%), 0 10px 24px rgb(0 0 0 / 24%); }
+}
+@media (prefers-reduced-motion:reduce) { .noteCard { transition:none; } .noteCard:hover { transform:none; } }
+
+
+/* Transparency calibration for content cards. */
+.panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState {
+  background:linear-gradient(148deg,rgb(255 255 255 / 12%),rgb(184 216 255 / 3%) 30%,transparent 62%),linear-gradient(320deg,rgb(7 16 37 / 48%),rgb(22 41 72 / 56%) 54%,rgb(16 32 59 / 50%));
+  -webkit-backdrop-filter:blur(28px) saturate(155%);backdrop-filter:blur(28px) saturate(155%);
+}
+
+/* Unified NN Life material contract. Layout rules above remain authoritative. */
+.hero,.panel,.focus,.nextUp,.goals,.stats,.kindList,.chartWrap,.material,.notifications,.launcher,.rail,.ren,.glass,.dock,.toast{border:1px solid rgb(210 231 255 / 36%);background:var(--nn-glass-float);-webkit-backdrop-filter:blur(28px) saturate(155%);backdrop-filter:blur(28px) saturate(155%);box-shadow:var(--nn-glass-depth);transform-style:preserve-3d}
+.hero,.main{border-color:rgb(210 231 255 / 42%);background:radial-gradient(ellipse 55% 65% at 84% 45%,rgb(var(--nn-spectrum-violet) / 15%),transparent 75%),linear-gradient(135deg,rgb(13 27 61 / 92%),rgb(17 35 72 / 88%) 58%,rgb(9 18 45 / 94%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 44%),inset 0 -2px 0 rgb(0 0 0 / 28%),0 3px 0 rgb(3 10 27 / 68%),0 18px 38px rgb(0 0 0 / 26%),0 32px 62px rgb(0 0 0 / 24%)}
+.panel,.focus,.nextUp,.goals,.stats,.kindList,.chartWrap,.material,.notifications,.ren,.rail,.glass{border-radius:max(var(--radius-lg),18px)}
+.panel,.focus,.nextUp,.goals,.stats,.kindList,.chartWrap{padding:clamp(18px,2.2vw,28px)}
+.entryIcon,.goalIcon,.nextIcon,.renBadge,.iconButton,.avatar,.refresh{border:1px solid rgb(220 238 255 / 44%);background:linear-gradient(145deg,rgb(255 255 255 / 25%),rgb(var(--nn-spectrum-blue) / 12%) 58%,rgb(9 24 47 / 78%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 50%),inset 0 -2px 2px rgb(0 0 0 / 22%),0 2px 0 rgb(3 10 27 / 65%),0 8px 16px rgb(0 0 0 / 22%)}
+.segment{border:1px solid rgb(210 231 255 / 28%);background:linear-gradient(145deg,rgb(255 255 255 / 10%),rgb(8 19 37 / 70%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 26%),0 2px 0 rgb(2 8 22 / 42%)}
+.segment button[aria-pressed="true"]{background:linear-gradient(145deg,rgb(255 255 255 / 25%),rgb(var(--nn-spectrum-blue) / 15%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),inset 0 -2px 0 rgb(0 0 0 / 20%),0 2px 0 rgb(3 10 27 / 62%),0 7px 14px rgb(0 0 0 / 22%)}
+.dock{background:var(--nn-glass-primary);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),inset 0 -2px 0 rgb(0 0 0 / 24%),0 3px 0 rgb(3 10 27 / 70%),0 12px 26px rgb(0 0 0 / 28%)}
+.dock button[aria-current]{background:linear-gradient(145deg,rgb(255 255 255 / 25%),rgb(var(--nn-spectrum-blue) / 14%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),inset 0 -2px 2px rgb(0 0 0 / 20%),0 2px 0 rgb(3 10 27 / 65%),0 7px 14px rgb(0 0 0 / 22%)}
+@media(hover:hover) and (pointer:fine){.panel:hover,.focus:hover,.nextUp:hover,.goals:hover,.stats:hover,.kindList:hover,.chartWrap:hover{border-color:rgb(225 241 255 / 54%);transform:perspective(1100px) translate3d(0,-3px,4px) rotateX(.7deg);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 52%),0 1px 0 rgb(192 222 255 / 28%),0 4px 0 rgb(3 10 27 / 74%),0 14px 26px rgb(0 0 0 / 26%),0 28px 48px rgb(0 0 0 / 26%)}}
+:global(html[data-theme="light"]) .hero,:global(html[data-theme="light"]) .main,:global(html[data-theme="light"]) .panel,:global(html[data-theme="light"]) .focus,:global(html[data-theme="light"]) .nextUp,:global(html[data-theme="light"]) .goals,:global(html[data-theme="light"]) .stats,:global(html[data-theme="light"]) .kindList,:global(html[data-theme="light"]) .chartWrap{border-color:rgb(91 137 192 / 26%);background:var(--nn-glass-float)}
+@media(max-width:767px){.hero,.main,.panel,.focus,.nextUp,.goals,.stats,.kindList,.chartWrap,.material,.notifications,.toast,.ren,.rail,.dock,.launcher{box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 36%),inset 0 -1px 0 rgb(0 0 0 / 22%),0 2px 0 rgb(3 10 27 / 66%),0 10px 24px rgb(0 0 0 / 24%)}}
+@media(prefers-reduced-motion:reduce){.panel:hover,.focus:hover,.nextUp:hover,.goals:hover,.stats:hover,.kindList:hover,.chartWrap:hover{transform:none}}
+
+
+/* Fixed Life workspace with deliberate horizontal section navigation. */
+.layout { touch-action: pan-y; }
+.tabArrow { flex: 0 0 34px; width: 34px; min-height: 38px; display: grid; place-items: center; border: 1px solid rgb(210 231 255 / 26%); border-radius: 999px; background: linear-gradient(145deg,rgb(255 255 255 / 17%),rgb(91 145 220 / 12%)); color: var(--text-primary); font-size: 16px; cursor: pointer; box-shadow: inset 0 1px 0 rgb(255 255 255 / 30%), 0 2px 0 rgb(3 10 27 / 48%); }
+.tabArrow:disabled { opacity: .28; cursor: not-allowed; }
+.tabArrow:not(:disabled):active { transform: translateY(1px) scale(.96); }
+@media(max-width:620px) { .tabs { gap: 4px; } .tabArrow { flex-basis: 30px; width: 30px; min-height: 36px; } }
+@media(prefers-reduced-motion:reduce) { .tabArrow:active { transform: none; } }
+
+
+/* NN dashboard language alignment: calm prismatic glass, without a scenic
+   hero image or a separate navigation rail. */
+.topbar{
+  background:var(--nn-glass-float);
+  border-bottom-color:rgb(194 222 255 / 13%);
+  box-shadow:inset 0 -1px 0 rgb(255 255 255 / 5%);
+  -webkit-backdrop-filter:blur(28px) saturate(155%);
+  backdrop-filter:blur(28px) saturate(155%);
+}
+.hero{
+  border-color:var(--nn-spectrum-border);
+  border-radius:25px;
+  background:
+    radial-gradient(ellipse at 78% 48%,rgb(var(--nn-spectrum-cyan) / 16%),transparent 35%),
+    radial-gradient(ellipse at 91% 88%,rgb(var(--nn-spectrum-violet) / 15%),transparent 36%),
+    linear-gradient(112deg,rgb(9 20 48 / 96%),rgb(17 37 79 / 88%) 55%,rgb(23 25 76 / 82%));
+  box-shadow:0 24px 70px rgb(0 0 0 / 24%),inset 0 1px 0 rgb(255 255 255 / 25%);
+}
+.hero::before{
+  content:"";position:absolute;inset:1px;z-index:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(125deg,rgb(255 255 255 / 9%),transparent 35%,transparent 70%,rgb(var(--nn-spectrum-violet) / 10%));
+}
+.heroCopy,.heroMeta{z-index:2}
+.orbitRing{border-color:rgb(192 222 255 / 34%);box-shadow:0 0 32px rgb(var(--nn-spectrum-cyan) / 9%)}
+.orbitCore{
+  border-color:rgb(220 239 255 / 62%);
+  background:radial-gradient(circle at 28% 22%,rgb(255 255 255 / 48%),transparent 28%),linear-gradient(145deg,rgb(var(--nn-spectrum-cyan) / 28%),rgb(19 36 79 / 88%) 52%,rgb(var(--nn-spectrum-violet) / 30%));
+  box-shadow:0 0 82px rgb(var(--nn-spectrum-cyan) / 22%),inset 0 1px 0 rgb(255 255 255 / 60%),inset 0 -12px 28px rgb(0 0 0 / 25%);
+}
+.tabs{border-color:var(--nn-spectrum-border);background:var(--nn-glass-float);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.tabActive{border-color:rgb(205 229 255 / 38%);background:var(--nn-glass-primary);box-shadow:inset 0 1px 0 rgb(255 255 255 / 22%)}
+.focusPanel,.quickPanel,.panel,.notesList{
+  border-color:var(--nn-spectrum-border);
+  background:var(--nn-glass-float);
+  box-shadow:var(--nn-glass-shadow);
+  -webkit-backdrop-filter:blur(24px) saturate(150%);
+  backdrop-filter:blur(24px) saturate(150%);
+}
+.focusPanel{background:linear-gradient(145deg,rgb(20 43 76 / 88%),rgb(10 25 49 / 90%))}
+.focusPanel .label{color:#b5d8ff}
+.metric{border-bottom-color:rgb(197 221 255 / 12%)}
+.event,.record{border-top-color:rgb(197 221 255 / 12%)}
+.emptyIcon,.recordGlyph{background:var(--nn-glass-primary);border-color:var(--nn-spectrum-border)}
+.quickPanel>button{background:var(--nn-glass-float);border-color:var(--nn-spectrum-border)}
+.quickPanel>button:hover{background:var(--nn-glass-primary);border-color:rgb(205 232 255 / 55%)}
+@media(prefers-reduced-motion:reduce){.orbitCore{animation:none}}
+:global(html[data-motion="reduced"]) .orbitCore{animation:none}
+
+
+/* One NN card material across every Life panel, capture surface and saved item. */
+.panel,.focusPanel,.quickPanel,.noteCard,.notesList{
+  position:relative;
+  isolation:isolate;
+  border:1px solid var(--nn-glass-rim);
+  border-radius:19px;
+  background:
+    linear-gradient(142deg,rgb(255 255 255 / 16%),transparent 38%,rgb(var(--nn-spectrum-violet) / 5%)),
+    var(--nn-glass-float);
+  box-shadow:var(--nn-glass-laminate),var(--nn-glass-contact),0 0 0 1px rgb(190 224 255 / 7%);
+  -webkit-backdrop-filter:blur(28px) saturate(165%);
+  backdrop-filter:blur(28px) saturate(165%);
+}
+.focusPanel{background:linear-gradient(145deg,rgb(25 49 86 / 94%),rgb(10 24 50 / 94%))}
+.noteCard{padding:17px;border-radius:15px}
+.record{border:1px solid rgb(210 231 255 / 25%);border-radius:14px;padding:12px 14px;margin:8px 0;background:linear-gradient(145deg,rgb(255 255 255 / 12%),rgb(var(--nn-spectrum-cyan) / 4%) 52%,rgb(8 19 42 / 28%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 27%),0 2px 0 rgb(3 10 27 / 48%),0 8px 18px rgb(0 0 0 / 15%)}
+.goal{border:1px solid rgb(210 231 255 / 22%);border-radius:14px;padding:14px;background:linear-gradient(145deg,rgb(255 255 255 / 10%),rgb(var(--nn-spectrum-blue) / 5%) 55%,rgb(8 19 42 / 24%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 24%),0 2px 0 rgb(3 10 27 / 42%),0 8px 18px rgb(0 0 0 / 13%)}
+.emptyInline{border-top-color:rgb(197 221 255 / 14%)}
+.captureForm input,.noteForm input,.noteForm textarea{
+  border:1px solid rgb(210 231 255 / 28%);
+  border-radius:11px;
+  background:linear-gradient(145deg,rgb(255 255 255 / 11%),rgb(8 20 43 / 48%));
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 13%);
+}
+.captureForm button,.noteForm button,.quickPanel>button{
+  border:1px solid rgb(210 231 255 / 34%);
+  border-radius:11px;
+  background:linear-gradient(145deg,rgb(255 255 255 / 21%),rgb(var(--nn-spectrum-cyan) / 10%) 48%,rgb(9 24 47 / 65%));
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 38%),0 2px 0 rgb(3 10 27 / 52%),0 7px 14px rgb(0 0 0 / 17%);
+}
+@media(hover:hover) and (pointer:fine){.panel:hover,.focusPanel:hover,.quickPanel:hover,.noteCard:hover,.record:hover,.goal:hover{border-color:rgb(225 241 255 / 48%);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),0 3px 0 rgb(3 10 27 / 62%),0 13px 26px rgb(0 0 0 / 21%)}}
+:global(html[data-theme="light"]) .panel,:global(html[data-theme="light"]) .focusPanel,:global(html[data-theme="light"]) .quickPanel,:global(html[data-theme="light"]) .noteCard,:global(html[data-theme="light"]) .record,:global(html[data-theme="light"]) .goal{border-color:rgb(91 137 192 / 25%);background:linear-gradient(145deg,rgb(255 255 255 / 88%),rgb(226 243 255 / 73%) 55%,rgb(242 235 255 / 72%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 95%),0 3px 0 rgb(91 137 192 / 10%),0 14px 28px rgb(35 62 102 / 10%)}
+@media(prefers-reduced-motion:reduce){.panel:hover,.focusPanel:hover,.quickPanel:hover,.noteCard:hover,.record:hover,.goal:hover{transform:none}}
+
+
+/* Swipe-to-reveal delete: safe, explicit and touch-first. */
+.swipeShell{position:relative;min-width:0;overflow:hidden;border-radius:inherit;touch-action:pan-y}
+.swipeContent{position:relative;z-index:1;transform:translateX(0);transition:transform 190ms cubic-bezier(.2,.72,.24,1);will-change:transform}
+.swipeOpen .swipeContent{transform:translateX(-78px)}
+.swipeDelete{position:absolute;z-index:0;inset:0 0 0 auto;width:78px;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1px solid rgb(255 145 157 / 35%);border-radius:14px;background:linear-gradient(145deg,rgb(255 112 132 / 22%),rgb(160 35 66 / 36%));color:#ffdce2;font-size:10px;font-weight:650;cursor:pointer}
+.swipeDelete svg{filter:drop-shadow(0 0 7px rgb(255 135 155 / 45%))}
+.swipeDelete span{font-size:10px}
+.recordMain strong,.noteCard strong,.goal strong{font-size:14px;line-height:1.4}
+.recordMain small,.noteCard small,.goal small{font-size:11px;line-height:1.5}
+.label,.count,.heroMeta,.footer{font-size:9px}
+.sub,.quickPanel>p{font-size:13px;line-height:1.7}
+.tab,.tabActive{font-size:12px}
+@media(max-width:700px){
+ .recordMain strong,.noteCard strong,.goal strong{font-size:13px}
+ .recordMain small,.noteCard small,.goal small{font-size:10px}
+ .sub,.quickPanel>p{font-size:12px}
+ .swipeDelete{width:74px}
+ .swipeOpen .swipeContent{transform:translateX(-74px)}
+}
+@media(prefers-reduced-motion:reduce){.swipeContent{transition:none}}
+
+
+/* Icon surfaces inherit each glyph's semantic NN spectrum tone. */
+.iconSurface{position:relative;isolation:isolate;overflow:hidden}
+.iconSurface::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 28% 18%,rgb(255 255 255 / 22%),transparent 52%),linear-gradient(145deg,rgb(var(--nn-icon-rgb,105 197 255) / 17%),rgb(var(--nn-icon-rgb,105 197 255) / 6%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 25%)}
+.iconSurface>*{position:relative;z-index:1}
+
+.iconSurface:has(> svg[data-nn-icon="calendar"]){--nn-icon-rgb:75 205 255}
+.iconSurface:has(> svg[data-nn-icon="clock"]){--nn-icon-rgb:112 165 255}
+.iconSurface:has(> svg[data-nn-icon="check"]){--nn-icon-rgb:83 220 188}
+.iconSurface:has(> svg[data-nn-icon="file"]){--nn-icon-rgb:145 166 255}
+.iconSurface:has(> svg[data-nn-icon="graph"]){--nn-icon-rgb:171 137 255}
+
+/* Destructive actions require an explicit second step. */
+.deleteDialogText {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.deleteDialogActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.deleteCancel,
+.deleteConfirm {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border-normal);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.deleteCancel {
+  background: var(--nn-glass-float);
+  color: var(--text-primary);
+}
+.deleteConfirm {
+  border-color: rgb(255 135 151 / 42%);
+  background: linear-gradient(145deg, rgb(255 112 132 / 24%), rgb(151 35 62 / 42%));
+  color: #ffe7eb;
+}
+.deleteConfirm:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.deleteCancel:focus-visible,
+.deleteConfirm:focus-visible {
+  outline: 2px solid var(--nn-icy);
+  outline-offset: 3px;
+}
+@media (max-width: 520px) {
+  .deleteDialogActions { display: grid; grid-template-columns: 1fr; }
+  .deleteCancel, .deleteConfirm { width: 100%; }
+}
+
+.swipeShell:focus-visible {
+  outline: 2px solid var(--nn-icy);
+  outline-offset: 3px;
+}
+
+
+/* Unified REN-inspired card and icon material across the operational Life app. */
+.panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState,.goal,.event,.record{
+  border-color:rgb(205 229 255 / 24%);
+}
+.panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState{
+  background:
+    radial-gradient(ellipse at 14% 0%,rgb(115 196 255 / 11%),transparent 46%),
+    radial-gradient(ellipse at 96% 100%,rgb(153 123 255 / 10%),transparent 48%),
+    linear-gradient(145deg,rgb(255 255 255 / 10%),rgb(91 135 202 / 5%) 48%,rgb(8 21 48 / 64%));
+  border:1px solid rgb(205 229 255 / 28%);
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 28%),inset 0 -1px 0 rgb(0 0 0 / 18%),0 4px 0 rgb(3 10 27 / 40%),0 13px 28px rgb(0 0 0 / 18%);
+  -webkit-backdrop-filter:blur(25px) saturate(158%);
+  backdrop-filter:blur(25px) saturate(158%);
+}
+.hero{
+  border-color:rgb(205 229 255 / 34%);
+  background:
+    radial-gradient(ellipse at 80% 45%,rgb(91 191 255 / 19%),transparent 38%),
+    radial-gradient(ellipse at 98% 100%,rgb(153 123 255 / 16%),transparent 44%),
+    linear-gradient(145deg,rgb(255 255 255 / 11%),rgb(11 28 62 / 92%) 52%,rgb(18 23 66 / 90%));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 36%),inset 0 -2px 0 rgb(0 0 0 / 22%),0 4px 0 rgb(3 10 27 / 56%),0 22px 48px rgb(0 0 0 / 26%);
+}
+.orbitCore,.emptyIcon,.recordGlyph,.panelGlyph,.goalOrb,.iconSurface{
+  border:1px solid rgb(207 231 255 / 40%);
+  background:
+    radial-gradient(circle at 25% 18%,rgb(255 255 255 / 32%),transparent 35%),
+    radial-gradient(ellipse at 90% 100%,rgb(153 123 255 / 18%),transparent 48%),
+    linear-gradient(145deg,rgb(120 194 255 / 24%),rgb(88 120 197 / 15%) 56%,rgb(17 29 66 / 62%));
+  color:#e2f4ff;
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 42%),inset 0 -5px 12px rgb(4 14 38 / 22%),0 8px 20px rgb(0 0 0 / 20%);
+}
+.quickPanel>button,.captureForm input,.noteForm input,.noteForm textarea{
+  border-color:rgb(205 229 255 / 28%);
+  background:linear-gradient(145deg,rgb(255 255 255 / 10%),rgb(84 129 198 / 8%));
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 20%),0 3px 0 rgb(3 10 27 / 34%),0 8px 16px rgb(0 0 0 / 14%);
+}
+.tabActive{
+  border-color:rgb(205 229 255 / 42%);
+  background:linear-gradient(145deg,rgb(255 255 255 / 20%),rgb(86 137 208 / 14%) 58%,rgb(133 117 221 / 12%));
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 36%),0 3px 0 rgb(3 10 27 / 38%);
+}
+.noteCard{border-radius:19px}
+.recordGlyph,.emptyIcon{border-radius:14px}
+@media(max-width:700px){
+  .panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState{border-radius:17px}
+  .panel,.quickPanel,.focusPanel,.notesList,.emptyState{padding:16px}
+}

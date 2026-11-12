@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
-  addDoc, collection, doc, getDocs, limit, orderBy, query, Timestamp, updateDoc, serverTimestamp,
+  addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query, Timestamp, updateDoc, serverTimestamp,
   type Firestore, type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GlassPanel } from "@/components/ui/GlassPanel";
+import { Dialog } from "@/components/ui/Dialog";
 import { useAuth } from "@/lib/auth";
 import { firebaseAvailable, getFirebase } from "@/lib/firebase";
 import styles from "./NNLife.module.css";
@@ -69,10 +70,34 @@ function LifeSurface() {
   const { user } = useAuth();
   const uid = user?.uid;
   const [tab, setTab] = useState<LifeTab>("today");
+  const swipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
+  const moveTab = (direction: -1 | 1) => {
+    const currentIndex = TABS.findIndex((item) => item.id === tab);
+    const next = TABS[Math.max(0, Math.min(TABS.length - 1, currentIndex + direction))];
+    if (next) setTab(next.id);
+  };
+  const beginTabSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "touch") return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.closest("button, a, input, textarea, select, [contenteditable=\"true\"], .swipeShell")) return;
+    swipeStart.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const endTabSwipe = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < 52 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    moveTab(dx < 0 ? 1 : -1);
+  };
   const [data, setData] = useState<LifeData>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ name: CollectionName; id: string; success: string } | null>(null);
   const [offline, setOffline] = useState(false);
   const [busy, setBusy] = useState(false);
   const [taskTitle, setTaskTitle] = useState("");
@@ -184,6 +209,17 @@ function LifeSurface() {
     }), "Reminder scheduled in NN Life.");
     setReminderTitle("");
   };
+  const deleteRecord = (name: CollectionName, id: string, success: string) => {
+    if (!uid) return;
+    setPendingDelete({ name, id, success });
+  };
+  const confirmDelete = () => {
+    if (!uid || !pendingDelete || busy) return;
+    const selected = pendingDelete;
+    setPendingDelete(null);
+    void save(() => deleteDoc(doc(getFirebase().db, "users", uid, selected.name, selected.id)), selected.success);
+  };
+
   const toggleTask = (item: RecordData) => {
     if (!uid) return;
     const nextStatus = item.status === "done" || item.status === "completed" ? "open" : "done";
@@ -194,38 +230,43 @@ function LifeSurface() {
   const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
   const heading = greeting.toLowerCase().includes("am") ? "A clear start." : greeting.toLowerCase().includes("pm") ? "Make today count." : "Welcome back.";
   const renderTask = (item: RecordData) => (
-    <article className={styles.record} key={item.id}>
-      <button className={styles.checkButton} onClick={() => toggleTask(item)} aria-label={item.status === "done" ? "Reopen task" : "Complete task"}>
-        <span className={item.status === "done" || item.status === "completed" ? styles.checked : ""}>{item.status === "done" || item.status === "completed" ? "✓" : ""}</span>
-      </button>
-      <div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{item.dueAt ? `Due ${formatDate(item.dueAt)} · ${formatTime(item.dueAt)}` : "No due date"}</small></div>
-      <span className={styles.priority}>{typeof item.priority === "string" ? item.priority : "normal"}</span>
-    </article>
+    <SwipeToDelete key={item.id} onDelete={() => deleteRecord("tasks", item.id, "Task deleted.")}>
+      <article className={`${styles.record} nn-glass-card`}>
+        <button className={styles.checkButton} onClick={() => toggleTask(item)} aria-label={item.status === "done" ? "Reopen task" : "Complete task"}>
+          <span className={item.status === "done" || item.status === "completed" ? styles.checked : ""}>{item.status === "done" || item.status === "completed" ? "✓" : ""}</span>
+        </button>
+        <div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{item.dueAt ? `Due ${formatDate(item.dueAt)} · ${formatTime(item.dueAt)}` : "No due date"}</small></div>
+        <span className={styles.priority}>{typeof item.priority === "string" ? item.priority : "normal"}</span>
+      </article>
+    </SwipeToDelete>
   );
-  return <main className={styles.root}>
+  return <>
+  <main className={styles.root}>
     <header className={styles.topbar}>
       <button className={styles.brand} onClick={() => router.push("/home")}><Icon name="grid" size={18}/><span>NN <i>/</i> LIFE</span></button>
       <div className={styles.topRight}><span className={styles.private}><i/> PRIVATE SPACE</span><button className={styles.refresh} onClick={() => void load()} aria-label="Refresh Life data" title="Refresh"><Icon name="clock" size={16}/></button><span className={styles.avatar}>{firstName.slice(0,1).toUpperCase()}</span></div>
     </header>
-    <div className={styles.layout}>
+    <div className={styles.layout} onPointerDown={beginTabSwipe} onPointerUp={endTabSwipe} onPointerCancel={() => { swipeStart.current = null; }}>
       <div className={styles.breadcrumb}><button onClick={() => router.push("/home")}>NN HOME</button><span>/</span><span>LIFE</span><span className={styles.date}>{dateLabel()}</span></div>
-      <section className={styles.hero}>
+      <section className={`${styles.hero} nn-glass-card`}>
         <div className={styles.heroCopy}><p className={styles.kicker}>YOUR PERSONAL DAYSPACE</p><h1>{heading}<br/><em>{firstName}.</em></h1><p className={styles.sub}>A thoughtful place for what matters today—and the things you&apos;re building over time.</p></div>
-        <div className={styles.orbit} aria-hidden="true"><div className={styles.orbitRing}/><div className={styles.orbitCore}><Icon name="calendar" size={32}/></div><span className={styles.orbitDot}/></div>
+        <div className={styles.orbit} aria-hidden="true"><div className={styles.orbitRing}/><div className={styles.orbitCore+" "+styles.iconSurface}><Icon name="calendar" size={32}/></div><span className={styles.orbitDot}/></div>
         <div className={styles.heroMeta}><span>01 <i>/</i> DAILY OVERVIEW</span><span>{offline ? "OFFLINE / CACHED" : "PERSONAL DATA SPACE"}</span></div>
       </section>
-      <nav className={styles.tabs} aria-label="Life sections">{TABS.map((item) => <button key={item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}><Icon name={item.icon} size={16}/><span>{item.label}</span>{item.id === "tasks" && todayTasks.length > 0 ? <small>{todayTasks.length}</small> : null}</button>)}</nav>
+      <nav className={styles.tabs} aria-label="Life sections">
+        {TABS.map((item) => <button key={item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}><Icon name={item.icon} size={16}/><span>{item.label}</span>{item.id === "tasks" && todayTasks.length > 0 ? <small>{todayTasks.length}</small> : null}</button>)}
+      </nav>
       {error ? <div className={styles.error} role="alert"><Icon name="shield" size={17}/><span>{error}</span><button onClick={() => void load()}>Retry</button></div> : null}
       {notice ? <div className={styles.notice} role="status"><Icon name="check" size={16}/>{notice}<button onClick={() => setNotice(null)} aria-label="Dismiss"><Icon name="close" size={14}/></button></div> : null}
       {loading ? <div className={styles.loading}><span/><p>Opening your personal data…</p></div> : null}
       {!loading && tab === "today" ? <section className={styles.dashboard}>
         <div className={styles.mainColumn}>
           <GlassPanel tier={2} padding="lg" className={styles.panel}>
-            <div className={styles.panelHead}><div><p className={styles.label}>YOUR SCHEDULE</p><h2>Today, in focus.</h2></div><button className={styles.inlineAction} onClick={() => setTab("calendar")}>Open calendar ↗</button></div>
-            {todayEvents.length ? todayEvents.map((item) => <article className={styles.event} key={item.id}><time>{formatTime(item.start)}</time><span/><div><strong>{titleOf(item)}</strong><small>{formatTime(item.start)} — {formatTime(item.end)}</small></div></article>) : <div className={styles.emptyInline}><span className={styles.emptyIcon}><Icon name="calendar" size={19}/></span><div><strong>Your day is open.</strong><small>No events scheduled for today.</small></div><button onClick={() => setTab("calendar")}>Add event</button></div>}
+            <div className={styles.panelHead}><div><p className={styles.label}>YOUR SCHEDULE</p><h2>Today, in focus.</h2></div><button className={styles.inlineAction} onClick={() => setTab("calendar")}>Open calendar</button></div>
+            {todayEvents.length ? todayEvents.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("calendar_events", item.id, "Calendar event deleted.")}><article className={styles.event}><time>{formatTime(item.start)}</time><span/><div><strong>{titleOf(item)}</strong><small>{formatTime(item.start)} — {formatTime(item.end)}</small></div></article></SwipeToDelete>) : <div className={styles.emptyInline}><span className={styles.emptyIcon+" "+styles.iconSurface}><Icon name="calendar" size={19}/></span><div><strong>Your day is open.</strong><small>No events scheduled for today.</small></div><button onClick={() => setTab("calendar")}>Add event</button></div>}
           </GlassPanel>
           <GlassPanel tier={2} padding="lg" className={styles.panel}>
-            <div className={styles.panelHead}><div><p className={styles.label}>NEXT ACTIONS</p><h2>Things to move forward.</h2></div><button className={styles.inlineAction} onClick={() => setTab("tasks")}>All tasks ↗</button></div>
+            <div className={styles.panelHead}><div><p className={styles.label}>NEXT ACTIONS</p><h2>Things to move forward.</h2></div><button className={styles.inlineAction} onClick={() => setTab("tasks")}>All tasks</button></div>
             {todayTasks.slice(0,5).map(renderTask)}
             {todayTasks.length === 0 ? <div className={styles.emptyInline}><span className={styles.emptyIcon}><Icon name="check" size={19}/></span><div><strong>Nothing waiting on you.</strong><small>Add a task when something needs your attention.</small></div><button onClick={() => setTab("tasks")}>Create task</button></div> : null}
           </GlassPanel>
@@ -243,19 +284,60 @@ function LifeSurface() {
       </section> : null}
       {!loading && tab === "calendar" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>CALENDAR</p><h2>Make room for what matters.</h2></div><span className={styles.count}>{data.calendar_events.length} EVENTS LOADED</span></div>
         <form className={styles.captureForm} onSubmit={createEvent}><input value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} placeholder="Event title" aria-label="Event title" required maxLength={160}/><input type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} aria-label="Event starts" required/><input type="datetime-local" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} aria-label="Event ends" required/><button disabled={busy || !eventTitle.trim()}><Icon name="plus" size={16}/> Add event</button></form>
-        <div className={styles.list}>{data.calendar_events.map((item) => <article className={styles.record} key={item.id}><span className={styles.recordGlyph}><Icon name="calendar" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.start)} · {formatTime(item.start)} — {formatTime(item.end)}</small></div><span className={styles.priority}>{typeof item.status === "string" ? item.status : "scheduled"}</span></article>)}{data.calendar_events.length === 0 ? <EmptyState icon="calendar" title="Your calendar is open." body="Create your first event. It will be stored in your private NN account."/> : null}</div>
+        <div className={styles.list}>{data.calendar_events.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("calendar_events", item.id, "Calendar event deleted.")}><article className={`${styles.record} nn-glass-card`}><span className={styles.recordGlyph+" "+styles.iconSurface}><Icon name="calendar" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.start)} · {formatTime(item.start)} — {formatTime(item.end)}</small></div><span className={styles.priority}>{typeof item.status === "string" ? item.status : "scheduled"}</span></article></SwipeToDelete>)}{data.calendar_events.length === 0 ? <EmptyState icon="calendar" title="Your calendar is open." body="Create your first event. It will be stored in your private NN account."/> : null}</div>
       </GlassPanel></section> : null}
       {!loading && tab === "reminders" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>REMINDERS</p><h2>Remember at the right moment.</h2></div><span className={styles.count}>{data.reminders.length} SAVED</span></div>
         <form className={styles.captureForm} onSubmit={createReminder}><input value={reminderTitle} onChange={(e) => setReminderTitle(e.target.value)} placeholder="What should NN remind you?" aria-label="Reminder title" required maxLength={160}/><input type="datetime-local" value={reminderAt} onChange={(e) => setReminderAt(e.target.value)} aria-label="Reminder time" required/><button disabled={busy || !reminderTitle.trim()}><Icon name="plus" size={16}/> Schedule</button></form>
-        <div className={styles.list}>{data.reminders.map((item) => <article className={styles.record} key={item.id}><span className={styles.recordGlyph}><Icon name="clock" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.fireAt)} · {formatTime(item.fireAt)}</small></div><span className={styles.priority}>{typeof item.state === "string" ? item.state : "scheduled"}</span></article>)}{data.reminders.length === 0 ? <EmptyState icon="clock" title="No reminders yet." body="Add a reminder and it will be stored in your private NN account. Delivery requires the notification service."/> : null}</div>
+        <div className={styles.list}>{data.reminders.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("reminders", item.id, "Reminder deleted.")}><article className={`${styles.record} nn-glass-card`}><span className={styles.recordGlyph}><Icon name="clock" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.fireAt)} · {formatTime(item.fireAt)}</small></div><span className={styles.priority}>{typeof item.state === "string" ? item.state : "scheduled"}</span></article></SwipeToDelete>)}{data.reminders.length === 0 ? <EmptyState icon="clock" title="No reminders yet." body="Add a reminder and it will be stored in your private NN account. Delivery requires the notification service."/> : null}</div>
       </GlassPanel></section> : null}
-      {!loading && tab === "notes" ? <section className={styles.notesLayout}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>QUICK NOTE</p><h2>Save the thought.</h2><form className={styles.noteForm} onSubmit={createNote}><input value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="Give this note a title" aria-label="Note title" required maxLength={160}/><textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="Write freely. Your original note is kept in NN." aria-label="Note content" rows={7}/><button disabled={busy || !noteTitle.trim()}><Icon name="plus" size={16}/> Save note</button></form></GlassPanel><div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR NOTES</p><h2>Thoughts, collected.</h2></div><span className={styles.count}>{data.notes.length} LOADED</span></div>{data.notes.map((item) => <GlassPanel key={item.id} tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(item)}</strong><p>{typeof item.body === "string" ? item.body : ""}</p><small>{formatDate(item.updatedAt)}</small></GlassPanel>)}{data.notes.length === 0 ? <EmptyState icon="file" title="Your notes begin here." body="The first note you save will appear in this space."/> : null}</div></section> : null}
-      {!loading && tab === "goals" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>LONG-TERM DIRECTION</p><h2>Progress with purpose.</h2></div><span className={styles.count}>{data.goals.length} GOALS</span></div><div className={styles.list}>{data.goals.map((item) => { const progress = typeof item.progress === "number" ? item.progress : 0; const target = typeof item.target === "number" ? item.target : 0; const pct = target > 0 ? Math.min(100, Math.max(0, progress / target * 100)) : 0; return <article className={styles.goal} key={item.id}><div><strong>{titleOf(item)}</strong><small>{progress} / {target || "—"} {typeof item.unit === "string" ? item.unit : ""}</small></div><div className={styles.progress}><span style={{ width: `${pct}%` }}/></div></article>; })}{data.goals.length === 0 ? <EmptyState icon="graph" title="Give your ambition a shape." body="Goals you create in NN will be tracked here. No sample goals are inserted."/> : null}</div></GlassPanel></section> : null}
+      {!loading && tab === "notes" ? <section className={styles.notesLayout}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>QUICK NOTE</p><h2>Save the thought.</h2><form className={styles.noteForm} onSubmit={createNote}><input value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="Give this note a title" aria-label="Note title" required maxLength={160}/><textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="Write freely. Your original note is kept in NN." aria-label="Note content" rows={7}/><button disabled={busy || !noteTitle.trim()}><Icon name="plus" size={16}/> Save note</button></form></GlassPanel><div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR NOTES</p><h2>Thoughts, collected.</h2></div><span className={styles.count}>{data.notes.length} LOADED</span></div>{data.notes.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("notes", item.id, "Note deleted.")}><GlassPanel tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(item)}</strong><p>{typeof item.body === "string" ? item.body : ""}</p><small>{formatDate(item.updatedAt)}</small></GlassPanel></SwipeToDelete>)}{data.notes.length === 0 ? <EmptyState icon="file" title="Your notes begin here." body="The first note you save will appear in this space."/> : null}</div></section> : null}
+      {!loading && tab === "goals" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>LONG-TERM DIRECTION</p><h2>Progress with purpose.</h2></div><span className={styles.count}>{data.goals.length} GOALS</span></div><div className={styles.list}>{data.goals.map((item) => { const progress = typeof item.progress === "number" ? item.progress : 0; const target = typeof item.target === "number" ? item.target : 0; const pct = target > 0 ? Math.min(100, Math.max(0, progress / target * 100)) : 0; return <SwipeToDelete key={item.id} onDelete={() => deleteRecord("goals", item.id, "Goal deleted.")}><article className={styles.goal}><div><strong>{titleOf(item)}</strong><small>{progress} / {target || "—"} {typeof item.unit === "string" ? item.unit : ""}</small></div><div className={styles.progress}><span style={{ width: `${pct}%` }}/></div></article></SwipeToDelete>; })}{data.goals.length === 0 ? <EmptyState icon="graph" title="Give your ambition a shape." body="Goals you create in NN will be tracked here. No sample goals are inserted."/> : null}</div></GlassPanel></section> : null}
       <footer className={styles.footer}><span>NN LIFE · PERSONAL OPERATING ENVIRONMENT</span><span>{offline ? "LOCAL CACHE / SYNC PENDING" : "OWNER-SCOPED FIRESTORE DATA"}</span></footer>
     </div>
     <div className={styles.dock}><button onClick={() => router.push("/home")} aria-label="NN Home"><Icon name="grid" size={19}/></button><button className={styles.dockCurrent} aria-current="page"><Icon name="calendar" size={19}/><span>Life</span></button><button onClick={() => setTab("tasks")} aria-label="Tasks"><Icon name="check" size={19}/></button><button onClick={() => setTab("notes")} aria-label="Notes"><Icon name="file" size={19}/></button></div>
-  </main>;
+  </main>
+  <Dialog
+    open={pendingDelete !== null}
+    onClose={() => setPendingDelete(null)}
+    title="Delete this record?"
+    description="This permanently removes the selected record from your private NN data. This action cannot currently be undone."
+    footer={<div className={styles.deleteDialogActions}>
+      <button type="button" className={styles.deleteCancel} onClick={() => setPendingDelete(null)}>Keep record</button>
+      <button type="button" className={styles.deleteConfirm} disabled={busy} onClick={confirmDelete}>Delete permanently</button>
+    </div>}
+  >
+    <p className={styles.deleteDialogText}>Only the selected record will be removed. Your other Life records will remain unchanged.</p>
+  </Dialog>
+  </>;
 }
+
+function SwipeToDelete({ children, onDelete }: { children: ReactNode; onDelete: () => void }) {
+  const [open, setOpen] = useState(false);
+  const start = useRef<{ id: number; x: number; y: number } | null>(null);
+  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (event.pointerType !== "touch") return;
+    const target = event.target;
+    if (target instanceof Element && target.closest("button, a, input, textarea, select, [contenteditable=\"true\"]")) return;
+    start.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    const origin = start.current;
+    start.current = null;
+    if (!origin || origin.id !== event.pointerId) return;
+    const dx = event.clientX - origin.x;
+    const dy = event.clientY - origin.y;
+    if (Math.abs(dx) < 58 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    setOpen(dx < 0);
+  };
+  return <div className={`${styles.swipeShell} ${open ? styles.swipeOpen : ""}`} role="group" tabIndex={0} aria-label={open ? "Delete action revealed. Press Escape to close." : "Item actions. Swipe left or press Delete to reveal the delete action."} onKeyDown={(event) => { if (event.key === "Delete" || event.key === "Backspace") { event.preventDefault(); setOpen(true); } if (event.key === "Escape") setOpen(false); }} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => { start.current = null; }} onClick={(event) => event.stopPropagation()}>
+    <button type="button" className={styles.swipeDelete} onClick={onDelete} aria-label="Delete this item" aria-hidden={!open} tabIndex={open ? 0 : -1}><Icon name="close" size={16}/><span>Delete</span></button>
+    <div className={styles.swipeContent}>{children}</div>
+  </div>;
+}
+
 function EmptyState({ icon, title, body }: { icon: IconName; title: string; body: string }) {
   return <div className={styles.emptyState}><span><Icon name={icon} size={21}/></span><strong>{title}</strong><p>{body}</p></div>;
 }

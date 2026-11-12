@@ -7,7 +7,7 @@ import { useAppTransition } from "@/components/nn/AppTransition";
 import { Dock } from "@/components/ui/Dock";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
-import { openableApplications } from "@/lib/nn/apps";
+import { openableApplications } from "@/lib/apps/registry";
 import styles from "./AppShell.module.css";
 
 /**
@@ -40,7 +40,7 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
   const dockItems = React.useMemo(
     () => [
       { id: "/home" as Route, label: "NN Home", icon: "grid" as const },
-      ...openable.map((app) => ({ id: app.route!, label: app.name, icon: app.icon })),
+      ...openable.map((app) => ({ id: app.href!, label: app.name, icon: app.icon })),
     ],
     [openable],
   );

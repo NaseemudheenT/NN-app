@@ -8,7 +8,18 @@ Owner and sole user: **Naseemudheen T.** · Repository: `NaseemudheenT/NN-app`
 
 ---
 
-## 0. Parallel implementation ownership\n\nRead `docs/CLAUDE_COLLABORATION_HANDOFF.md` before substantial work. ChatGPT owns the complete product design and frontend implementation. Claude owns backend services, persistence, REN execution, integrations and backend verification. Avoid overlapping edits to frontend-owned files; agree on typed contracts first. The handoff document defines constraints, approval gates and status reporting.\n\n## 1. What NN is
+## 0. Current implementation ownership and handoff
+
+The founder has asked Claude to take the lead on completing the remaining NN operating system using the existing frontend as the approved baseline. Read `docs/CLAUDE_OS_COMPLETION_BRIEF.md` and `docs/CLAUDE_COLLABORATION_HANDOFF.md` before substantial work.
+
+- **Existing frontend baseline:** `design/nn-frontend-system`. It contains the approved NN design tokens, spatial/glass material language, shared UI components, Home/Life/Workspace surfaces, 34-app registry and honest planned-app overview routes. It is not a complete OS.
+- **Claude's assignment:** audit the actual repository, reconcile stale docs, then lead the remaining OS build end-to-end: shell, app workflows, backend integration, REN, security, tests and documentation. Claude may change frontend code when required, but must preserve the founder-approved NN visual direction and existing tested behaviours.
+- **Coordination:** avoid destructive rewrites. Work on a feature branch, use focused commits, keep the handoff/status documents accurate and report exact evidence. If a product decision or conflicting canonical spec cannot be resolved from founder instructions, ask the founder rather than guessing.
+- **Release:** no production merge/deploy, production Firebase changes, billing/Blaze, paid services or domain changes without explicit founder approval.
+
+The previous division in which ChatGPT owned all frontend changes and Claude only backend services is superseded by this founder-directed OS completion handoff. The existing frontend is the baseline to build upon, not a blank slate.
+
+## 1. What NN is
 
 A private, lifelong **personal operating environment** — one coherent system
 holding the founder's life, education, work, business, finances, health,

@@ -52,3 +52,14 @@
 
 .minimized { height: auto !important; min-height: 0; }
 .minimized .body { display: none; }
+
+
+/* Floating windows: thicker lower bevel and a clean reflected upper edge. */
+.win { isolation:isolate;transform-style:preserve-3d;border-color:rgb(210 231 255 / 38%);background:linear-gradient(145deg,rgb(255 255 255 / 14%),transparent 34%),var(--glass-3-bg);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 42%),inset 1px 0 0 rgb(255 255 255 / 10%),inset 0 -2px 0 rgb(0 0 0 / 28%),0 1px 0 rgb(177 211 255 / 22%),0 4px 0 rgb(3 10 27 / 70%),0 14px 28px rgb(0 0 0 / 28%),0 30px 58px rgb(0 0 0 / 26%); }
+.focused { border-color:rgb(225 241 255 / 60%);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 50%),0 1px 0 rgb(192 222 255 / 28%),0 5px 0 rgb(3 10 27 / 76%),0 18px 32px rgb(0 0 0 / 30%),0 34px 62px rgb(0 0 0 / 28%); }
+.bar { background:linear-gradient(180deg,rgb(255 255 255 / 7%),transparent); }
+
+/* Floating windows: laminated glass with a grounded contact shadow. */
+.win{isolation:isolate;transform-style:preserve-3d;border-color:rgb(210 231 255 / 42%);background:linear-gradient(145deg,rgb(255 255 255 / 15%),transparent 36%),var(--glass-3-bg);-webkit-backdrop-filter:blur(32px) saturate(160%);backdrop-filter:blur(32px) saturate(160%);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),inset 1px 0 0 rgb(255 255 255 / 10%),inset 0 -2px 0 rgb(0 0 0 / 28%),0 1px 0 rgb(190 220 255 / 24%),0 4px 0 rgb(3 10 27 / 72%),0 16px 30px rgb(0 0 0 / 28%),0 32px 60px rgb(0 0 0 / 26%)}
+.focused{border-color:rgb(225 241 255 / 60%);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 54%),0 1px 0 rgb(192 222 255 / 30%),0 5px 0 rgb(3 10 27 / 76%),0 18px 34px rgb(0 0 0 / 30%),0 36px 66px rgb(0 0 0 / 28%)}
+.bar{background:linear-gradient(180deg,rgb(255 255 255 / 8%),transparent)}

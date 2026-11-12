@@ -19,7 +19,7 @@ import {
   matchApplications,
   searchableCollections,
   type NNApplication,
-} from "./apps";
+} from "@/lib/apps/registry";
 import { useRecords, type NNRecord, type RecordFault } from "./records";
 
 /** How much of each collection is held on the device and searched. */
