@@ -1,21 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { RequireOwner } from "@/components/auth/RequireOwner";
-import { Icon } from "@/components/ui/Icon";
+import { useAppTransition } from "@/components/nn/AppTransition";
+import { FolderCard, useFolderWidth, type FolderSheet } from "@/components/ui/FolderCard";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAuth } from "@/lib/auth";
-import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
+import { applicationsInFamily, GROUPS } from "@/lib/apps/registry";
 import styles from "./NNHome.module.css";
 
 function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut?: () => void }) {
-  const router = useRouter();
-
-  const openApplication = (app: (typeof APPLICATIONS)[number]) => {
-    const destination = app.availability === "available" && app.href ? app.href : app.overviewHref;
-    router.push(destination as Route);
-  };
+  const travel = useAppTransition();
+  const cardWidth = useFolderWidth();
 
   return (
     <main className={styles.root}>
@@ -44,49 +40,45 @@ function HomeExperience({ firstName, onSignOut }: { firstName: string; onSignOut
           <p className={styles.subtitle}>Everything important. One calm place.</p>
         </section>
 
+        {/* Each family is a folder you can open: the glass leans forward, the
+            sheets rise and fan, and each sheet is the application itself.
+            A folder shows a bounded stack — past four, sheets read as a crowd
+            — so the key at its corner opens the whole family. Nothing is
+            hidden behind the preview. */}
         <div className={styles.applicationGroups}>
-          {GROUPS.map((group, groupIndex) => {
-            const apps = APPLICATIONS.filter((app) => app.group === group.name);
-            return (
-              <section className={styles.group} key={group.name} aria-labelledby={`group-${groupIndex}`}>
-                <div className={styles.groupHeading}>
-                  <div className={styles.groupTitle}>
-                    <h2 id={`group-${groupIndex}`}>{group.name}</h2>
-                    <p>{group.detail}</p>
-                  </div>
-                  <span className={styles.groupCount}>{apps.length.toString().padStart(2, "0")}</span>
-                </div>
+          {GROUPS.map((family, index) => {
+            const apps = applicationsInFamily(family.name);
+            /* What the founder can actually use sits nearest the glass; the
+               rest are behind it, named, and honest about their state. */
+            const ordered = [...apps].sort(
+              (a, b) => Number(a.href !== undefined) - Number(b.href !== undefined),
+            );
+            const sheets: FolderSheet[] = ordered.map((app) => ({
+              name: app.name,
+              meta: app.href ? "Ready" : "In development",
+              icon: app.icon,
+            }));
 
-                <div className={styles.appGrid}>
-                  {apps.map((app, index) => {
-                    const isAvailable = app.availability === "available" && Boolean(app.href);
-                    const availabilityLabel = isAvailable ? "Available" : "In development";
-                    return (
-                      <button
-                        type="button"
-                        key={app.id}
-                        className={styles.appCard}
-                        data-app-id={app.id}
-                        data-availability={isAvailable ? "available" : "planned"}
-                        onClick={() => openApplication(app)}
-                        aria-label={`${app.name}. ${isAvailable ? "Open application" : "Open application overview; currently in development"}`}
-                        title={`${app.name} · ${availabilityLabel}`}
-                        style={{ animationDelay: `${Math.min(index * 42, 252)}ms` }}
-                      >
-                        <span className={styles.cardWave} aria-hidden="true" />
-                        <span className={styles.iconWell}>
-                          <Icon name={app.icon} size={25} />
-                        </span>
-                        <span className={styles.appName}>{app.name}</span>
-                        <span className={styles.appState} aria-hidden="true">
-                          <i />
-                          {isAvailable ? "READY" : "IN DEVELOPMENT"}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
+            return (
+              <FolderCard
+                key={family.name}
+                label={family.name}
+                meta={`${apps.length} applications`}
+                sheets={sheets}
+                width={cardWidth}
+                appearDelay={index * 90}
+                actionLabel={`Open all ${apps.length} in ${family.name}`}
+                onAction={() =>
+                  travel.open(`/family/${family.slug}` as Route, family.name)
+                }
+                onSheetSelect={(sheet) => {
+                  const app = apps.find((entry) => entry.name === sheet.name);
+                  if (!app) return;
+                  // A real destination either way: the application when it
+                  // exists, its honest overview when it does not.
+                  travel.open((app.href ?? app.overviewHref) as Route, app.name);
+                }}
+              />
             );
           })}
         </div>

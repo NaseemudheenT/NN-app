@@ -1,0 +1,117 @@
+.count {
+  margin: 0 0 var(--space-8);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption-size);
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 860px;
+}
+
+.row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  /* Comfortably past the 44px a finger needs. */
+  min-height: 72px;
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-1-bg);
+  backdrop-filter: blur(var(--glass-1-blur));
+  -webkit-backdrop-filter: blur(var(--glass-1-blur));
+  box-shadow: inset 0 1px 0 var(--glass-sheen);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.row:hover {
+  transform: translateY(-2px);
+  background: var(--glass-hover);
+  border-color: var(--nn-spectrum-border);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.glyph {
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-2-bg);
+  color: var(--nn-icy);
+}
+
+.text {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.text strong {
+  font-size: var(--text-lg-size);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.01em;
+}
+
+.text small {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  color: var(--text-muted);
+}
+
+.state {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro-size);
+  letter-spacing: var(--text-micro-ls);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.state i {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--text-muted);
+}
+
+/* Only a surface that genuinely works gets the live dot. */
+.row[data-ready] .state { color: var(--nn-icy); }
+.row[data-ready] .state i {
+  background: var(--status-ok);
+  box-shadow: 0 0 8px var(--status-ok);
+}
+
+@media (max-width: 700px) {
+  .row { gap: var(--space-5); padding: var(--space-5); }
+  .text strong { font-size: var(--text-body-size); }
+  .state { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row:hover { transform: none; }
+}

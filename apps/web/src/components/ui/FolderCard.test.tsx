@@ -47,6 +47,19 @@ describe("FolderCard", () => {
     expect(list.hasAttribute("inert")).toBe(false);
   });
 
+  it("names a sheet with its state separated, not run together", async () => {
+    // Composed from the text inside, "Contacts" + "In development" announced
+    // as "ContactsIn development".
+    render(<FolderCard label="Life & wellbeing" sheets={SHEETS} />);
+    expect(screen.getByRole("button", { name: "Life — Open" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Soul — In development" })).toBeInTheDocument();
+  });
+
+  it("falls back to just the name when a sheet has no second line", () => {
+    render(<FolderCard label="Plain" sheets={[{ name: "Untitled" }]} />);
+    expect(screen.getByRole("button", { name: "Untitled" })).toBeInTheDocument();
+  });
+
   it("reports the chosen sheet with its index in the full list, not the visible slice", async () => {
     const user = userEvent.setup();
     const onSheetSelect = vi.fn();

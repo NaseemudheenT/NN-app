@@ -366,3 +366,27 @@
 }
 :global(html[data-motion="reduced"]) .appCard:hover,
 :global(html[data-motion="reduced"]) .appCard:active { transform: none; }
+
+/* ---------------------------------------------------------------------------
+   The six families are folders.
+
+   FolderCard carries its own width and height — every shape inside it is a
+   fixed path scaled by one number — so this is a flow of intrinsically sized
+   objects, not a grid of stretched cells. The row gap is generous on purpose:
+   an open folder's sheets rise above the card's own box.
+   -------------------------------------------------------------------------*/
+.applicationGroups {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--space-12) var(--space-8);
+  margin-top: var(--space-9);
+}
+
+@media (max-width: 700px) {
+  .applicationGroups {
+    gap: var(--space-11) var(--space-5);
+    margin-top: var(--space-7);
+  }
+}

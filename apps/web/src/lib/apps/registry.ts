@@ -97,10 +97,31 @@ const GROUP_DETAILS: ReadonlyArray<{ name: NNAppGroup; detail: string; icon: Ico
   { name: "System", detail: "Control, search and protect NN", icon: "settings" },
 ];
 
+/**
+ * A URL-safe slug for a family.
+ *
+ * Derived rather than stored, because the family names are the canonical
+ * thing and a second hand-written list would drift from them.
+ */
+export function familySlug(group: NNAppGroup): string {
+  return group.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 export const GROUPS = GROUP_DETAILS.map((group) => ({
   ...group,
+  slug: familySlug(group.name),
   count: String(APPLICATIONS.filter((app) => app.group === group.name).length).padStart(2, "0"),
 }));
+
+export type NNFamily = (typeof GROUPS)[number];
+
+export function familyBySlug(slug: string): NNFamily | undefined {
+  return GROUPS.find((group) => group.slug === slug);
+}
+
+export function applicationsInFamily(group: NNAppGroup): readonly NNApplication[] {
+  return APPLICATIONS.filter((app) => app.group === group);
+}
 
 export const getApplication = (idOrName: string) =>
   APPLICATIONS.find(

@@ -221,6 +221,16 @@ export interface FolderCardProps {
   appearDelay?: number;
   /** Shown in place of the stack when there is genuinely nothing here. */
   emptyNote?: string;
+  /**
+   * The key at the folder's lower-right corner.
+   *
+   * A folder shows a bounded stack — beyond four, sheets read as a crowd
+   * rather than a set of things — so whenever it holds more than it can show,
+   * this is how the rest is reached. Without it the folder would be hiding
+   * things, which is worse than looking busy.
+   */
+  actionLabel?: string;
+  onAction?: (() => void) | undefined;
   className?: string | undefined;
   style?: React.CSSProperties | undefined;
 }
@@ -271,6 +281,8 @@ export function FolderCard({
   appear = true,
   appearDelay = 0,
   emptyNote = "Nothing here yet.",
+  actionLabel,
+  onAction,
   className,
   style,
 }: FolderCardProps) {
@@ -513,6 +525,10 @@ export function FolderCard({
                 </>
               );
               const common = {
+                /* Named explicitly. Left to compose itself from the text
+                   inside, the name and the second line ran together — a
+                   screen reader announced "ContactsIn development". */
+                "aria-label": sheet.meta ? `${sheet.name} — ${sheet.meta}` : sheet.name,
                 className: picture ? `${styles.sheet} ${styles.sheetArtCard}` : styles.sheet,
                 style: {
                   "--fc-slot": slot,
@@ -550,6 +566,27 @@ export function FolderCard({
               </p>
             ) : null}
           </div>
+
+          {actionLabel && onAction ? (
+            <button
+              type="button"
+              className={styles.key}
+              aria-label={actionLabel}
+              title={actionLabel}
+              onClick={(event) => {
+                // The front panel behind this toggles the folder; without
+                // stopping here, one tap would both open it and leave.
+                event.stopPropagation();
+                onAction();
+              }}
+            >
+              <svg className={styles.keyGlyph} viewBox="0 0 30 12" aria-hidden="true">
+                <rect x="1" y="1.5" width="8" height="9" rx="3.4" />
+                <rect x="11" y="1.5" width="8" height="9" rx="3.4" />
+                <rect x="21" y="1.5" width="8" height="9" rx="3.4" />
+              </svg>
+            </button>
+          ) : null}
         </div>
       </div>
     </div>
