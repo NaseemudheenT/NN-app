@@ -310,3 +310,110 @@ founder provisions them through the Vercel interface or CLI.
 roughly one navigation in five. React regenerates the subtree and the page
 renders correctly. The browser verification run reports it separately rather
 than failing or swallowing it.
+
+## Production is live — 2026-11-13
+
+Founder gave explicit approval for production, the card direction and full
+management. Acted on all three.
+
+**https://nn-app-sooty.vercel.app** — production, commit `009ddea0`.
+Publicly reachable (no Vercel login wall), `robots: noindex, nofollow`, and
+every personal surface is behind passkey plus owner-scoped Firestore rules.
+Public reachability is deliberate: the SSO wall on the preview would have sat
+in front of every launch and broken standalone PWA install on iPhone.
+
+The preview alias remains for review:
+https://nn-app-git-design-nn-frontend-system-clientflownn.vercel.app
+
+### Production configuration
+
+Production had **no environment variables at all** before this. Now set: all
+six `NEXT_PUBLIC_FIREBASE_*`, `NEXT_PUBLIC_USE_FIREBASE_EMULATORS=false`, and
+`WEBAUTHN_RP_ID` / `WEBAUTHN_ORIGIN` / `WEBAUTHN_RP_NAME` pointed at
+`nn-app-sooty.vercel.app`.
+
+**Passkeys bind to the relying-party id.** They will only work on
+`nn-app-sooty.vercel.app`. A custom domain later means updating
+`WEBAUTHN_RP_ID` and `WEBAUTHN_ORIGIN` and re-registering the passkey.
+
+### Still required: two credentials
+
+Passkey sign-in cannot work until both exist, in **both** environments.
+Claude did not create, read or transfer either — they are credentials, and
+`gcloud` is not installed while the Firebase CLI cannot mint service-account
+keys, so the first genuinely needs the founder's console session.
+
+| Variable | Source |
+|---|---|
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase console → `nn-os-dev` → Project settings → Service accounts → Generate new private key. Empty in `.env.local` too, so local sign-in outside the emulators is blocked as well. |
+| `NN_BOOTSTRAP_SECRET` | Already in `apps/web/.env.local`; needs to exist on Vercel to claim NN as first owner. |
+
+**Claim NN immediately after adding these.** While NN is unclaimed and the
+bootstrap secret is live on a publicly reachable host, the secret is the only
+thing standing between a stranger and ownership.
+
+### The dashboard now uses the founder's folder cards
+
+Each of the six families is a glass folder: the panel leans on its bottom
+hinge, the sheets rise and fan, each sheet is an application, and opening one
+travels the corridor. Artwork is generated on the device from NN's palette —
+never fetched.
+
+A folder shows four sheets before they read as a crowd, and families hold up
+to seven, so the key at its lower-right corner — the affordance from the
+founder's own reference — opens `/family/[slug]`, a real page listing every
+application in that family with its honest state. Nothing is hidden behind the
+preview.
+
+### `start_url` was wrong for an installed app
+
+The manifest launched into `/workspace`, a design surface. It now opens
+`/home`. A test checks every manifest shortcut against the real route list,
+because a shortcut to a route that does not exist is a dead button on the
+founder's phone.
+
+### Passkey authentication is proven to work
+
+All **10 real-browser passkey tests pass** — Chrome's own WebAuthn against a
+CDP virtual authenticator, hitting the real route handlers backed by real
+Firestore and Auth emulators. That includes the full ceremony: claiming NN
+with a passkey, exchanging the assertion for a Firebase session, and landing
+in the workspace with the owner's uid. Also covered: a wrong bootstrap secret
+refused, the secret dying once NN is claimed, a challenge that cannot be
+replayed, an unknown credential refused without disclosure, malformed input,
+and rate limiting actually engaging.
+
+So the code is right. The live site is missing only the credential.
+
+Two things were wrong with the suite and are now fixed:
+
+- It failed on the first test for want of a compiler, not a bug. `next dev`
+  compiles each route on first request — 50s for the entrance on this Intel
+  Air — and `/api/auth/status` was still compiling when the 30s assertion gave
+  up. The page sat on "Checking this environment…" and it read like a logic
+  error. `e2e/warm.ts` (Playwright `globalSetup`) now compiles every route the
+  suite touches before any assertion runs, serially, because compiling six at
+  once on 8 GB starts swapping.
+- The ceremony test asserted a heading, "You are signed in.", from the old
+  placeholder workspace. It now asserts the owner's Firebase uid is printed
+  and the guest notice is absent — proof of a real session rather than of page
+  copy, and it will not break the next time the wording changes.
+
+### Evidence
+
+5/5 packages typecheck, lint clean, **271 unit/integration tests**, **10/10
+real-browser passkey e2e tests**, production build, and **10/10 checks against
+the live production site** in a real browser: the
+refraction shader drawing (6240 distinct colours), the mark handing over to
+the corridor, sign-in stating why it cannot verify a passkey, `/home` gated,
+the family page listing all seven, a planned application admitting it is not
+operational, the manifest asking for standalone launch into `/home`, and no
+sideways scroll at 375px.
+
+### What is still not built
+
+**32 of the 34 applications have no work surface.** Only Life and Search do.
+The registry, record layer, app shell, corridor, folder dashboard and family
+pages are the scaffolding they will be built on; the honest overview at
+`/apps/[appId]` is what each planned application shows today. Finance,
+Projects and Files are the natural next three.
