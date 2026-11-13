@@ -74,7 +74,7 @@ export const APPLICATIONS: readonly NNApplication[] = [
   { id: "mail", name: "Mail", group: "Creation & communication", icon: "file", description: "Connected inboxes, drafts and follow-ups", availability: "planned", overviewHref: "/apps/mail" },
   { id: "english", name: "English", group: "Creation & communication", icon: "mic", description: "Speaking, listening, grammar and writing practice", availability: "planned", overviewHref: "/apps/english" },
 
-  { id: "files", name: "Files", group: "Knowledge & insight", icon: "folder", description: "Private documents, media and file organisation", availability: "planned", overviewHref: "/apps/files" },
+  { id: "files", name: "Files", group: "Knowledge & insight", icon: "folder", description: "Private documents, media and file organisation", availability: "available", overviewHref: "/apps/files", href: "/files", collections: ["documents"] },
   { id: "memory", name: "Memory", group: "Knowledge & insight", icon: "sparkle", description: "Owner-controlled knowledge with source and provenance", availability: "planned", overviewHref: "/apps/memory" },
   { id: "life-archive", name: "Life Archive", group: "Knowledge & insight", icon: "clock", description: "A chronological record of milestones and memories", availability: "planned", overviewHref: "/apps/life-archive" },
   { id: "analytics", name: "Analytics", group: "Knowledge & insight", icon: "graph", description: "Measured progress from real stored data", availability: "planned", overviewHref: "/apps/analytics" },

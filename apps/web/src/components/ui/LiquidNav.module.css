@@ -1,0 +1,151 @@
+/* NN's navigation, as a body of water. */
+
+.nav {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  border-radius: var(--radius-full);
+  isolation: isolate;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* The pill the water sits in. */
+.glass {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: inherit;
+  overflow: hidden;
+  background: rgb(16 26 58 / 46%);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow:
+    inset 0 1px 1px rgb(226 240 255 / 22%),
+    inset 0 0 0 1px rgb(206 228 255 / 13%),
+    var(--shadow-3);
+}
+
+.water {
+  position: absolute;
+  left: -14px;   /* PAD in LiquidNav.tsx */
+  top: -14px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.nav[data-gl="off"] .water { display: none; }
+
+/* The fallback drop: the same geometry, drawn by CSS instead of a shader. */
+.drop {
+  display: none;
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  z-index: -1;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  will-change: transform, width;
+  background:
+    radial-gradient(120% 140% at 30% 0%, rgb(255 255 255 / 62%), transparent 55%),
+    rgb(var(--nn-spectrum-aqua) / 34%);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 70%),
+    inset 0 -2px 6px rgb(var(--nn-spectrum-blue) / 34%),
+    inset 0 0 0 1px rgb(226 240 255 / 40%),
+    0 6px 16px -6px rgb(6 12 34 / 60%);
+}
+
+.nav[data-gl="off"] .drop { display: block; }
+
+.item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: color var(--dur-base) var(--ease-standard);
+}
+
+.item:hover,
+.item[aria-current="page"] {
+  color: var(--text-primary);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.glyph {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.glyph svg {
+  transition: transform var(--dur-slow) cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.item[aria-current="page"] .glyph svg {
+  transform: translateY(-1px) scale(1.08);
+}
+
+/* Compact hides the label without removing it: the button still has an
+   accessible name from aria-label, and the title gives a pointer tooltip. */
+.compact .item { padding: 0 13px; }
+
+.compact .label,
+.vertical .label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.vertical .item {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+/* Below this the dock cannot hold five labels without wrapping, so it
+   becomes icons. The names stay available to assistive technology. */
+@media (max-width: 719px) {
+  .nav:not(.vertical) .item { padding: 0 13px; }
+  .nav:not(.vertical) .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glyph svg { transition-duration: 1ms; }
+}

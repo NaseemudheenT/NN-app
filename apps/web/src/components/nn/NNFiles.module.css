@@ -1,0 +1,144 @@
+/* Files — documents as folders you can open. */
+
+.root {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(18px, 3vw, 44px) clamp(14px, 3vw, 32px) clamp(60px, 8vw, 110px);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: clamp(26px, 4vw, 44px);
+}
+
+.kicker {
+  margin: 0 0 8px;
+  font-size: var(--text-micro-size);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.head h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.line {
+  margin: 12px 0 0;
+  max-width: 52ch;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  color: var(--text-secondary);
+}
+
+.total {
+  flex: none;
+  margin: 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The folders sit on a baseline, because they are objects on a desk and a
+   folder that has been opened grows upward out of its own footprint. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  align-items: end;
+  justify-items: center;
+  gap: clamp(28px, 5vw, 56px) clamp(20px, 3vw, 40px);
+}
+
+.fault,
+.problem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 22px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-label-size);
+  line-height: 1.55;
+}
+
+.fault {
+  border: 1px solid rgb(232 194 122 / 26%);
+  background: rgb(232 194 122 / 7%);
+  color: var(--text-secondary);
+}
+
+.fault svg { flex: none; margin-top: 2px; color: var(--status-warn); }
+
+.problem {
+  border: 1px solid rgb(232 133 133 / 30%);
+  background: rgb(232 133 133 / 8%);
+  color: var(--text-secondary);
+}
+
+.problem svg { flex: none; margin-top: 2px; color: var(--status-err); }
+
+.quiet {
+  margin: 0;
+  font-size: var(--text-label-size);
+  color: var(--text-muted);
+}
+
+.blank {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  max-width: 44ch;
+  margin: clamp(40px, 8vw, 90px) auto;
+  padding: clamp(26px, 4vw, 40px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: rgb(232 244 255 / 4%);
+  text-align: center;
+}
+
+.blank svg { color: var(--text-muted); }
+
+.blank h2 {
+  margin: 0;
+  font-size: var(--text-t3-size);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.015em;
+}
+
+.blank p {
+  margin: 0;
+  font-size: var(--text-label-size);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.blank button {
+  margin-top: 6px;
+  padding: 11px 20px;
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-full);
+  background: linear-gradient(160deg, rgb(var(--nn-spectrum-blue) / 40%), rgb(var(--nn-spectrum-indigo) / 32%));
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: filter var(--dur-base) var(--ease-standard);
+}
+
+.blank button:hover:not(:disabled) { filter: brightness(1.14); }
+.blank button:disabled { opacity: 0.45; cursor: not-allowed; }
+.blank button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+
+@media (max-width: 719px) {
+  .head { flex-direction: column; gap: 10px; }
+  .grid { grid-template-columns: 1fr; }
+}

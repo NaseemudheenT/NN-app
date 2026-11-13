@@ -4,16 +4,15 @@ import * as React from "react";
 import Link from "next/link";
 import {
   ART_PRESETS,
-  createArtJob,
   fanSlot,
   hashString,
   presetFor,
   rng,
   seedFor,
-  type ArtJob,
   type ArtPreset,
   type ArtRecipe,
 } from "@/lib/folderArt";
+import { paintArt } from "@/lib/artPainter";
 import { prefersReducedMotion } from "@/lib/motion";
 import { Icon, type IconName } from "./Icon";
 import styles from "./FolderCard.module.css";
@@ -37,71 +36,6 @@ import styles from "./FolderCard.module.css";
  */
 
 /* ------------------------------------------------------------------ painter */
-
-/**
- * One painter for the whole page.
- *
- * Every card queues its artwork here and the queue spends a few milliseconds
- * a frame on it, so a wall of application cards never stalls the main thread.
- * Finished paintings are cached by recipe, seed and size — and because NN
- * folds seeds into a small set, a screen of 34 cards costs a bounded number
- * of paintings rather than thirty-four.
- */
-const artCache = new Map<string, Promise<HTMLCanvasElement>>();
-const queue: { job: ArtJob; priority: number; done: (c: HTMLCanvasElement) => void }[] = [];
-let pumping = false;
-
-function pump() {
-  if (pumping) return;
-  pumping = true;
-  const tick = () => {
-    const until = performance.now() + 6;
-    while (queue.length && performance.now() < until) {
-      const head = queue[0]!;
-      if (head.job.step(4)) {
-        queue.shift();
-        const canvas = document.createElement("canvas");
-        canvas.width = head.job.width;
-        canvas.height = head.job.height;
-        const context = canvas.getContext("2d");
-        if (context) {
-          context.putImageData(
-            new ImageData(head.job.pixels, canvas.width, canvas.height),
-            0,
-            0,
-          );
-        }
-        head.done(canvas);
-      }
-    }
-    if (queue.length) requestAnimationFrame(tick);
-    else pumping = false;
-  };
-  requestAnimationFrame(tick);
-}
-
-/** Lower priority paints first: back panels before the sheets behind glass. */
-function paint(
-  recipe: ArtRecipe,
-  seed: number,
-  w: number,
-  h: number,
-  priority: number,
-): Promise<HTMLCanvasElement> {
-  const key = JSON.stringify([recipe, seed, w, h]);
-  let pending = artCache.get(key);
-  if (!pending) {
-    pending = new Promise<HTMLCanvasElement>((done) => {
-      // never jump ahead of the job already in progress
-      let at = queue.length;
-      while (at > 1 && queue[at - 1]!.priority > priority) at--;
-      queue.splice(at, 0, { job: createArtJob(w, h, recipe, seed), priority, done });
-      pump();
-    });
-    artCache.set(key, pending);
-  }
-  return pending;
-}
 
 function ArtCanvas({
   art,
@@ -133,7 +67,7 @@ function ArtCanvas({
   React.useEffect(() => {
     if (paused) return;
     let live = true;
-    void paint(JSON.parse(key) as ArtRecipe, seed, pw, ph, priority).then((src) => {
+    void paintArt(JSON.parse(key) as ArtRecipe, seed, pw, ph, priority).then((src) => {
       const canvas = ref.current;
       if (!live || !canvas) return;
       canvas.width = src.width;

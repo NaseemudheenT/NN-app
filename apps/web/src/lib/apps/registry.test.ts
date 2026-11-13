@@ -22,7 +22,7 @@ describe("NN application registry", () => {
     const available = APPLICATIONS.filter((app) => app.availability === "available");
     // Named deliberately: marking an application available is a claim that it
     // works, and this is the guard against making that claim by accident.
-    expect(available.map((app) => app.id)).toEqual(["life", "search"]);
+    expect(available.map((app) => app.id)).toEqual(["life", "files", "search"]);
     expect(available.every((app) => Boolean(app.href))).toBe(true);
     // The two are the same set from either direction.
     expect(APPLICATIONS.filter((app) => app.href)).toHaveLength(available.length);
