@@ -43,6 +43,36 @@ describe("NN mark", () => {
     expect(container.querySelector("svg")).toHaveAttribute("viewBox", "0 0 100 108");
   });
 
+  it("is drawn evenodd everywhere, in code and in the brand files", async () => {
+    // One of the three strokes filling in is not a subtle bug: the mark
+    // becomes a black rectangle. This checks every place it is rasterised,
+    // not only the component, because the icons and the SDF draw it too.
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const roots = [
+      "src/components/ui/NNLogo.tsx",
+      "src/components/ui/NNGlassMark.tsx",
+      "src/app/icon.tsx",
+      "src/app/apple-icon.tsx",
+      "src/app/maskable-icon/route.tsx",
+      "src/lib/markSdf.ts",
+    ];
+    // Declarations only. The word also appears in the comments that explain
+    // why it must not be used, and failing on prose would teach the next
+    // person to delete the explanation.
+    const declaresNonzero = /(fillRule|fill-rule)\s*=\s*["'{]\s*["']?nonzero|,\s*["']nonzero["']/;
+    for (const file of roots) {
+      expect(declaresNonzero.test(readFileSync(file, "utf8")), file).toBe(false);
+    }
+    const brand = "public/brand/nn";
+    for (const name of readdirSync(brand)) {
+      if (!name.endsWith(".svg")) continue;
+      const body = readFileSync(join(brand, name), "utf8");
+      expect(body.includes("evenodd"), name).toBe(true);
+      expect(declaresNonzero.test(body), name).toBe(false);
+    }
+  });
+
   it("is filled evenodd, or the hollow strokes close up into a blob", () => {
     // Each of the three strokes is an outline. With the nonzero rule the
     // counters fill in and the mark becomes a solid rectangle at small sizes.

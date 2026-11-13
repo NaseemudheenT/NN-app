@@ -105,9 +105,10 @@ export function buildMarkField(height: number, padding = 0.22): MarkField | null
   context.fillStyle = "#ffffff";
   context.translate(pad, pad);
   context.scale(scale, scale);
-  // `nonzero` matches the fill rule the mark is drawn with everywhere else,
-  // so the gap between the two N forms stays a gap.
-  context.fill(new Path2D(NN_MARK_PATH), "nonzero");
+  // `evenodd` matches the fill rule the mark is drawn with everywhere else.
+  // The mark's three strokes are outlines; filled nonzero their counters close
+  // up, and the glass would refract a solid slab instead of the letter.
+  context.fill(new Path2D(NN_MARK_PATH), "evenodd");
 
   const pixels = context.getImageData(0, 0, w, h).data;
   const count = w * h;
