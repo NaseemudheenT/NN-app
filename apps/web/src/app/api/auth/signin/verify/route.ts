@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { enforceRateLimit } from "@/server/auth/ratelimit";
+import { requireServerCredentials } from "@/server/auth/credentials";
 import { confirmAuthentication, isUsable, readRelyingParty, type AuthenticationResponseJSON } from "@nn/auth";
 import { getAdmin } from "@/server/admin";
 import {
@@ -18,6 +19,11 @@ export const dynamic = "force-dynamic";
  * authorisation layer meet here and nowhere else.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Asked before the rate limiter, which needs Firestore itself and would
+  // otherwise be the thing that throws.
+  const unconfigured = requireServerCredentials();
+  if (unconfigured !== null) return unconfigured;
+
   const limited = await enforceRateLimit(request, "signin-verify");
   if (limited !== null) return limited;
 

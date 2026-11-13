@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { enforceRateLimit } from "@/server/auth/ratelimit";
+import { requireServerCredentials } from "@/server/auth/credentials";
 import {
   buildRegistrationOptions, evaluateRegistration, makeRecord, readRelyingParty,
 } from "@nn/auth";
@@ -18,6 +19,11 @@ export const dynamic = "force-dynamic";
  * caller learns nothing — not even whether NN has an owner.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Asked before the rate limiter, which needs Firestore itself and would
+  // otherwise be the thing that throws.
+  const unconfigured = requireServerCredentials();
+  if (unconfigured !== null) return unconfigured;
+
   const limited = await enforceRateLimit(request, "register-options");
   if (limited !== null) return limited;
 
