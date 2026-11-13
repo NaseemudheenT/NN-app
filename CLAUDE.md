@@ -6,6 +6,13 @@ different developer, can continue NN without the original chat history.
 Owner and sole user: **Naseemudheen T.** · Repository: `NaseemudheenT/NN-app`
 (private) · Workspace: `/Users/thajudeen/NN-app-workspace`
 
+**Live at https://getrenew.in** (also `nn-app-sooty.vercel.app`). The domain
+was moved from the founder's Renew project to NN on 2026-11-13 at the
+founder's explicit instruction; Renew remains deployed on its own Vercel URL
+and the move is reversible by reassigning the domain back. WebAuthn binds to
+the hostname, so `WEBAUTHN_RP_ID` and `WEBAUTHN_ORIGIN` point at
+`getrenew.in`: a passkey registered here will not work on any other host.
+
 ---
 
 ## 0. Current implementation ownership and handoff
@@ -56,7 +63,7 @@ disconnected pages. It is not finished because a page exists.
 | **Never enable Blaze or attach billing** without explicit founder approval | cost control |
 | **No install scripts.** All three are explicitly declined in `pnpm-workspace.yaml` | supply chain |
 | **Never weaken the security rules** | they are the only authorisation boundary |
-| **Never redesign the NN logo** | approved geometry, test-guarded |
+| **Never redesign the NN logo** | founder-supplied geometry, test-guarded |
 | **The assistant is REN.** Renamed from ORIN on 2026-11-08 | founder decision |
 | **REN has three capabilities and no more:** text, voice, appearance | founder decision |
 | **Never claim something works without running it** | the founder's hardest rule |
@@ -160,8 +167,11 @@ Palette (fixed): `#07111F` `#0B1930` `#10223B` `#172B45` `#F7F9FC` `#E7EDF6`
   opaque tier. This single rule is what keeps glassmorphism readable.
 - `.nn-holo` adds the prismatic chamfer; the rim is painted only in a 1 px
   border band via a mask.
-- The logo is **Concept A, 94 × 76, not square**, with a 6-unit gap. Declared
-  once as `NN_MARK_PATH` and guarded by a test.
+- The logo is the founder's own mark: **a single N drawn as a double stroke**,
+  100 × 108, each of its three strokes an outline. Declared once as
+  `NN_MARK_PATH`, filled **evenodd** (with nonzero the hollow strokes close up
+  into a blob), and guarded by a test. It replaced the earlier two-N lockup on
+  2026-11-13. Every file in `/public/brand/nn/` is generated from that one path.
 
 Forbidden: permanent left sidebar · widget walls · neon · cyberpunk · cartoon ·
 gaming aesthetics · robot mascots · glow for its own sake.
