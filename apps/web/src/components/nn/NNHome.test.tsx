@@ -108,41 +108,22 @@ describe("NN dashboard", () => {
     }
   });
 
-  it("lets the founder set the glass, and keeps it on the device", async () => {
-    const { unmount } = render(<NNHomePreview />);
-    await userEvent.click(screen.getByRole("button", { name: /Adjust glass/ }));
 
-    // Blur, opacity, saturation and edge light — the five values minus the
-    // tint, which is a colour input rather than a slider.
-    expect(screen.getAllByRole("slider")).toHaveLength(4);
-    expect(screen.getByText("24 px")).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Solid" }));
-    expect(window.localStorage.getItem("nn.glass")).toContain('"blur":32');
 
-    unmount();
+  it("puts the founder's own things in the top bar, and no material control", () => {
     render(<NNHomePreview />);
-    await userEvent.click(screen.getByRole("button", { name: /Adjust glass/ }));
-    expect(screen.getByText("32 px")).toBeInTheDocument();
+    // The glass belongs in Settings. A floating "Adjust glass" panel in the
+    // chrome of a personal environment is a control shown for its own sake.
+    expect(screen.queryByRole("button", { name: /Adjust glass/ })).toBeNull();
+    expect(screen.getByRole("button", { name: "Settings" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /profile and settings/ })).toBeInTheDocument();
   });
 
-  it("closes the appearance panel on Escape and gives focus back to its trigger", async () => {
+  it("opens Settings from either control", async () => {
     render(<NNHomePreview />);
-    const trigger = screen.getByRole("button", { name: /Adjust glass/ });
-    await userEvent.click(trigger);
-    expect(screen.getByRole("complementary", { name: "Glass appearance" })).toBeInTheDocument();
-
-    await userEvent.keyboard("{Escape}");
-    expect(screen.queryByRole("complementary", { name: "Glass appearance" })).toBeNull();
-    expect(trigger).toHaveFocus();
-  });
-
-  it("does not claim to send notifications it cannot send", async () => {
-    render(<NNHomePreview />);
-    await userEvent.click(screen.getByRole("button", { name: "System messages" }));
-    expect(
-      screen.getByText(/NN does not send notifications yet/),
-    ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Settings" }));
+    expect(open).toHaveBeenCalledWith("/settings", "Settings");
   });
 
   it("reports the session honestly when nobody is signed in", async () => {

@@ -13,7 +13,7 @@ import {
   useFolderWidth,
 } from "@/components/ui";
 import { LAUNCHER } from "@/components/nn/workspaceContent";
-import { RenMark } from "@/components/ren/RenMark";
+import { RenOrb } from "@/components/ren/RenOrb";
 import { REN_STATES, REN_STATUS } from "@/lib/ren/state";
 import styles from "./cinematic.module.css";
 
@@ -200,7 +200,7 @@ export function CinematicShowcase() {
         <div className={styles.renStates}>
           {REN_STATES.map((state, index) => (
             <figure key={state}>
-              <RenMark state={state} size={72} level={state === "listening" ? 0.55 : 0} />
+              <RenOrb state={state} size={72} level={state === "listening" ? 0.55 : 0} />
               <figcaption>
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <strong>{REN_STATUS[state]}</strong>

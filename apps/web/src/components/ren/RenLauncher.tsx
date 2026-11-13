@@ -1,7 +1,7 @@
 "use client";
 
 import { useRen } from "./RenProvider";
-import { RenMark } from "./RenMark";
+import { RenOrb } from "./RenOrb";
 import styles from "./RenLauncher.module.css";
 
 /**
@@ -25,7 +25,7 @@ export function RenLauncher() {
       aria-expanded={open}
       {...(open ? { tabIndex: -1, "aria-hidden": true as const } : {})}
     >
-      <RenMark state={machine.state} size={34} />
+      <RenOrb state={machine.state} size={34} />
       <span className={styles.hint} aria-hidden="true">
         <kbd>⌘</kbd>
         <kbd>K</kbd>

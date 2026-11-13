@@ -1,23 +1,31 @@
 /**
- * The official NN mark — Concept A, approved 2026-11-08, revised 2026-11-08
- * at the founder's direction to open a light gap between the two forms so the
- * mark reads unambiguously as N N.
+ * The official NN mark.
  *
- * The path data below is the single locked geometry. It is identical to every
- * file in /public/brand/nn/ and MUST NOT be altered without founder approval.
- * Two N forms on a 76-unit grid, separated by a 6-unit gap.
+ * A single N drawn as a double stroke: each of its three strokes is an
+ * outline, so every edge reads as two parallel lines and the letter holds
+ * together as one architectural form rather than three bars.
+ *
+ * The founder supplied this mark directly and has confirmed it three times.
+ * It replaces the earlier two-N lockup.
+ *
+ * The path below is the single locked geometry. Every file in
+ * /public/brand/nn/ is generated from it, and it MUST NOT be altered without
+ * founder approval. Because the strokes are hollow, it is filled **evenodd**:
+ * with nonzero the counters would fill in and the mark would become a solid
+ * blob at small sizes.
  */
 export const NN_MARK_PATH =
-  "M0 0 H12 L32 46 V0 H44 V76 H32 L12 30 V76 H0 Z " +
-  "M50 0 H62 L82 46 V0 H94 V76 H82 L62 30 V76 H50 Z";
+  "M0 0 H22 V108 H0 Z M7 7 H15 V101 H7 Z " +
+  "M78 0 H100 V108 H78 Z M85 7 H93 V101 H85 Z " +
+  "M22 0 H42 L78 108 H58 Z M29 7 H35 L71 101 H65 Z";
 
-/** The mark is 94 × 76. Never assume it is square. */
-export const NN_MARK_W = 94;
-export const NN_MARK_H = 76;
+/** The mark is 100 × 108. Never assume it is square. */
+export const NN_MARK_W = 100;
+export const NN_MARK_H = 108;
 export const NN_MARK_RATIO = NN_MARK_W / NN_MARK_H;
 
 export interface NNLogoProps {
-  /** Rendered HEIGHT in px. Width follows the mark's 94:76 ratio. */
+  /** Rendered HEIGHT in px. Width follows the mark's 100:108 ratio. */
   size?: number;
   /** Decorative marks are hidden from assistive technology. */
   decorative?: boolean;
@@ -36,7 +44,7 @@ export function NNLogo({ size = 32, decorative = false, className }: NNLogoProps
         ? { "aria-hidden": true as const, role: "presentation" as const }
         : { role: "img" as const, "aria-label": "NN" })}
     >
-      <path fillRule="nonzero" d={NN_MARK_PATH} />
+      <path fillRule="evenodd" d={NN_MARK_PATH} />
     </svg>
   );
 }

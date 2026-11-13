@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  useCallback, useEffect, useMemo, useRef, useState,
+  useCallback, useEffect, useMemo, useState,
   type CSSProperties, type ReactNode,
 } from "react";
 import type { Route } from "next";
@@ -11,10 +11,7 @@ import { LiquidNav, type LiquidNavItem } from "@/components/ui/LiquidNav";
 import { CurvedCarousel, type CarouselSlide } from "@/components/ui/CurvedCarousel";
 import { WaveCard, WaveChip } from "@/components/ui/WaveCard";
 import { useAppTransition } from "@/components/nn/AppTransition";
-import {
-  DEFAULT_GLASS, GLASS_PRESETS, glassVariables, normaliseGlass,
-  readStoredGlass, writeStoredGlass, type GlassSettings,
-} from "@/lib/glass";
+import { DEFAULT_GLASS, glassVariables, readStoredGlass, type GlassSettings } from "@/lib/glass";
 import { APPLICATIONS, GROUPS, applicationsInFamily } from "@/lib/apps/registry";
 import { useRecords, type RecordFault, type RecordState } from "@/lib/nn/records";
 import { relativeTime, useClock } from "@/lib/clock";
@@ -36,7 +33,7 @@ import styles from "./NNDashboard.module.css";
  * same on a dashboard and mean opposite things, so NN never conflates them.
  *
  * Built to the founder's supplied adjustable-glass reference: the topbar and
- * rail, the floating dock, the appearance panel and the view switch are all
+ * rail, the floating dock and the view switch are all
  * from it, rewritten for NN's palette, data, routes and accessibility rules.
  */
 
@@ -582,51 +579,14 @@ export function NNDashboard({
   onSignOutEverywhere,
   initialView = "today",
 }: NNDashboardProps) {
+  const travel = useAppTransition();
   const [view, setView] = useState<ViewId>(initialView);
   const [glass, setGlass] = useState<GlassSettings>(DEFAULT_GLASS);
-  const [appearanceOpen, setAppearanceOpen] = useState(false);
-  const [messagesOpen, setMessagesOpen] = useState(false);
-  const appearanceButton = useRef<HTMLButtonElement>(null);
-  const messagesButton = useRef<HTMLButtonElement>(null);
-  const appearancePanel = useRef<HTMLDivElement>(null);
 
   // Read after mount, never during render: the server has no localStorage, and
   // reading it in a initial-state function would make the first client render
   // disagree with the server's and throw away the whole tree.
   useEffect(() => { setGlass(readStoredGlass()); }, []);
-
-  const apply = useCallback((patch: Partial<GlassSettings>) => {
-    setGlass((previous) => {
-      const next = normaliseGlass({ ...previous, ...patch });
-      writeStoredGlass(next);
-      return next;
-    });
-  }, []);
-
-  // Escape closes whichever panel is open, innermost first.
-  useEffect(() => {
-    if (!appearanceOpen && !messagesOpen) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      if (messagesOpen) { setMessagesOpen(false); messagesButton.current?.focus(); }
-      else { setAppearanceOpen(false); appearanceButton.current?.focus(); }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [appearanceOpen, messagesOpen]);
-
-  // Moving focus into the panel is what makes it reachable by keyboard at all;
-  // without this the founder tabs from the trigger into the page behind it.
-  useEffect(() => {
-    if (appearanceOpen) appearancePanel.current?.querySelector<HTMLElement>("button")?.focus();
-  }, [appearanceOpen]);
-
-  const sliders = [
-    { key: "blur", label: "Blur", min: 0, max: 40, step: 1, show: `${Math.round(glass.blur)} px` },
-    { key: "opacity", label: "Opacity", min: 0.08, max: 0.9, step: 0.01, show: `${Math.round(glass.opacity * 100)}%` },
-    { key: "saturation", label: "Saturation", min: 0.5, max: 2, step: 0.05, show: `${Math.round(glass.saturation * 100)}%` },
-    { key: "edge", label: "Edge light", min: 0, max: 1, step: 0.05, show: `${Math.round(glass.edge * 100)}%` },
-  ] as const;
 
   return (
     <div className={styles.root} style={glassVariables(glass) as CSSProperties}>
@@ -641,37 +601,23 @@ export function NNDashboard({
         <div className={styles.toolbar}>
           <button
             type="button"
-            ref={appearanceButton}
-            className={styles.adjust}
-            aria-expanded={appearanceOpen}
-            onClick={() => { setAppearanceOpen((open) => !open); setMessagesOpen(false); }}
+            className={styles.iconButton}
+            aria-label="Settings"
+            title="Settings"
+            onClick={() => travel.open("/settings" as Route, "Settings")}
           >
-            <Icon name="sparkle" size={15} />
-            <span>Adjust glass</span>
+            <Icon name="settings" size={17} />
           </button>
 
           <button
             type="button"
-            ref={messagesButton}
-            className={styles.iconButton}
-            aria-label="System messages"
-            aria-expanded={messagesOpen}
-            onClick={() => { setMessagesOpen((open) => !open); setAppearanceOpen(false); }}
+            className={styles.avatar}
+            aria-label={`${firstName} — profile and settings`}
+            title={`${firstName} — profile and settings`}
+            onClick={() => travel.open("/settings" as Route, "Settings")}
           >
-            <Icon name="shield" size={17} />
+            {firstName.slice(0, 1).toUpperCase()}
           </button>
-
-          {onSignOut ? (
-            <button
-              type="button"
-              className={styles.avatar}
-              onClick={onSignOut}
-              aria-label="Sign out"
-              title="Sign out"
-            >
-              {firstName.slice(0, 1).toUpperCase()}
-            </button>
-          ) : null}
         </div>
       </header>
 
@@ -734,91 +680,6 @@ export function NNDashboard({
         </main>
       </div>
 
-      {messagesOpen ? (
-        <aside className={styles.aside} aria-label="System messages">
-          <div className={styles.asideTop}>
-            <h2>System messages</h2>
-            <button type="button" aria-label="Close" onClick={() => setMessagesOpen(false)}>
-              <Icon name="close" size={16} />
-            </button>
-          </div>
-          <p className={styles.note}>
-            NN does not send notifications yet. When a read fails, the panel that
-            needed it says so in place — nothing is hidden behind a badge here.
-          </p>
-        </aside>
-      ) : null}
-
-      {appearanceOpen ? (
-        <aside className={styles.aside} ref={appearancePanel} aria-label="Glass appearance">
-          <div className={styles.asideTop}>
-            <h2>Glass appearance</h2>
-            <button type="button" aria-label="Close" onClick={() => {
-              setAppearanceOpen(false);
-              appearanceButton.current?.focus();
-            }}>
-              <Icon name="close" size={16} />
-            </button>
-          </div>
-          <p className={styles.note}>
-            How much glass is right depends on your room and your screen. This
-            is kept on this device.
-          </p>
-
-          <div className={styles.sample} aria-hidden="true">
-            <WaveCard tone="aurora" className={styles.sampleCard}>
-              <WaveChip className={styles.sampleChip}>Live material</WaveChip>
-            </WaveCard>
-          </div>
-
-          <div className={styles.presets}>
-            {GLASS_PRESETS.map((preset) => (
-              <button
-                key={preset.name}
-                type="button"
-                title={preset.hint}
-                onClick={() => apply(preset.value)}
-              >
-                {preset.name}
-              </button>
-            ))}
-          </div>
-
-          {sliders.map((slider) => (
-            <label className={styles.slider} key={slider.key}>
-              <span>
-                {slider.label}
-                <output>{slider.show}</output>
-              </span>
-              <input
-                type="range"
-                min={slider.min}
-                max={slider.max}
-                step={slider.step}
-                value={glass[slider.key]}
-                onChange={(event) => apply({ [slider.key]: Number(event.target.value) })}
-              />
-            </label>
-          ))}
-
-          <label className={styles.tint}>
-            <span>Tint</span>
-            <input
-              type="color"
-              value={glass.tint}
-              onChange={(event) => apply({ tint: event.target.value })}
-            />
-          </label>
-
-          <button
-            type="button"
-            className={styles.reset}
-            onClick={() => apply(DEFAULT_GLASS)}
-          >
-            Reset to NN&apos;s default
-          </button>
-        </aside>
-      ) : null}
     </div>
   );
 }

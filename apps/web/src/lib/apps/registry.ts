@@ -1,6 +1,7 @@
 import type { Route } from "next";
 
 import type { IconName } from "@/components/ui/Icon";
+import { APP_SECTIONS } from "./sections";
 
 /**
  * Canonical frontend navigation registry.
@@ -46,7 +47,7 @@ export interface NNApplication {
   overviewHref: string;
 }
 
-export const APPLICATIONS: readonly NNApplication[] = [
+const REGISTERED: readonly NNApplication[] = [
   { id: "life", name: "Life", group: "Life & wellbeing", icon: "calendar", description: "Calendar, tasks, reminders, notes, habits, goals and routines", availability: "available", overviewHref: "/apps/life", href: "/life", collections: ["tasks", "calendar_events", "reminders", "notes", "goals"] },
   { id: "soul", name: "Soul", group: "Life & wellbeing", icon: "sparkle", description: "Faith, purpose, gratitude and reflection", availability: "planned", overviewHref: "/apps/soul" },
   { id: "mind", name: "Mind", group: "Life & wellbeing", icon: "graph", description: "Focus, resilience, reflection and personal growth", availability: "planned", overviewHref: "/apps/mind" },
@@ -87,6 +88,30 @@ export const APPLICATIONS: readonly NNApplication[] = [
   { id: "security-centre", name: "Security Centre", group: "System", icon: "shield", description: "Passkeys, devices, sessions and audit history", availability: "planned", overviewHref: "/apps/security-centre" },
   { id: "control-room", name: "Control Room", group: "System", icon: "settings", description: "System health, integrations, jobs and cost visibility", availability: "planned", overviewHref: "/apps/control-room" },
 ] as const;
+
+/**
+ * The registry, with each application's surface and collections filled in
+ * from its sections.
+ *
+ * Derived rather than retyped: an application is available exactly when it
+ * has somewhere real to work, and it reads exactly the collections its
+ * sections name. Keeping those as three hand-maintained facts is how a
+ * launcher ends up offering a screen that does not exist.
+ */
+export const APPLICATIONS: readonly NNApplication[] = REGISTERED.map((app) => {
+  const sections = APP_SECTIONS[app.id];
+  if (!sections || sections.length === 0) return app;
+  // `overviewHref` is a plain string because it is derived from the id;
+  // asserting it here is safe because /apps/[appId] is a real route and the
+  // id came from this same array.
+  const href = (app.href ?? app.overviewHref) as Route;
+  return {
+    ...app,
+    availability: "available",
+    href,
+    collections: app.collections ?? sections.map((section) => section.collection),
+  };
+});
 
 const GROUP_DETAILS: ReadonlyArray<{ name: NNAppGroup; detail: string; icon: IconName }> = [
   { name: "Life & wellbeing", detail: "Plan, organise and live well", icon: "calendar" },

@@ -7,7 +7,7 @@ import { LiquidButton } from "@/components/ui/LiquidButton";
 import { REN_STATUS } from "@/lib/ren/state";
 import { resolveIntent } from "@/lib/ren/intents";
 import { useRen } from "./RenProvider";
-import { RenMark } from "./RenMark";
+import { RenOrb } from "./RenOrb";
 import styles from "./RenPanel.module.css";
 
 /**
@@ -145,7 +145,7 @@ export function RenPanel() {
         </button>
 
         <div className={styles.identity}>
-          <RenMark state={machine.state} size={96} level={level} />
+          <RenOrb state={machine.state} size={104} level={level} />
           <h2 className={styles.title} id={`${id}-title`}>
             REN
           </h2>
