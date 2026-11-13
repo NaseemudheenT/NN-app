@@ -227,3 +227,86 @@ rather than pasting them into chat.
 - Updated `CLAUDE.md` to point Claude at the new brief and clarify that Claude may extend frontend code while preserving the existing NN design system.
 - Updated the top-level project status to remove the stale ~3% completion claim and clarify the actual frontend/app availability state. Historical phase tables below still require reconciliation against repository evidence.
 - No production deployment, merge, production Firebase action or paid infrastructure change is authorised.
+
+## Deployment state — 2026-11-13
+
+**Live preview:** https://nn-app-git-design-nn-frontend-system-clientflownn.vercel.app
+(branch alias, re-pointed at the current deployment). Commit `210c8a82fd5560651bd21e64a150f002f2eea920`.
+Reachable only to someone signed in to the Vercel account — Deployment
+Protection (`vercel_authentication`) is on.
+
+### Fixed: authentication was completely broken in production
+
+Every `/api/auth/*` route returned 500 on the deployed site. It did not
+reproduce locally and was only found by reading the deployed function's own
+logs:
+
+```
+Error: require() of ES Module .../jose@6.2.15/dist/webapi/index.js
+from .../jwks-rsa@4.1.0/src/utils.js not supported   (ERR_REQUIRE_ESM)
+```
+
+`firebase-admin` → `jwks-rsa@4` does `require('jose')`; jose 6 is ESM-only.
+`jose` is now held at `^5.10.0` in `pnpm-workspace.yaml` (**not**
+`package.json` — pnpm 11 ignores the `pnpm` field there, silently). jwks-rsa
+uses only `importJWK` and `exportSPKI`, both present in jose 5, which ships
+CommonJS. Verified live: `/api/auth/status` returns its real body from the
+deployed function, and the deployment logs contain zero error lines.
+
+### Fixed: unconfigured deployments lied about why
+
+A deployment with no service account made `getAdmin()` throw inside the rate
+limiter — before any route's own handling — so all six auth routes answered a
+bare 500 with an empty body, which the sign-in screen could only report as
+"could not reach NN". `requireServerCredentials()`
+(`src/server/auth/credentials.ts`) is now asked first in every auth route and
+answers 503 with a message a person can act on. Which variable is missing
+stays on the server, guarded by a test. `/sign-in` renders a dedicated
+"Sign-in is not available here" panel instead of a dead button.
+
+### Environment variables
+
+Set (Preview, branch `design/nn-frontend-system`): all six
+`NEXT_PUBLIC_FIREBASE_*` values, `NEXT_PUBLIC_USE_FIREBASE_EMULATORS=false`,
+`WEBAUTHN_RP_ID`, `WEBAUTHN_ORIGIN`, `WEBAUTHN_RP_NAME`. `WEBAUTHN_RP_ID`
+matches the alias hostname exactly — verified, because a mismatch fails passkey
+registration with a confusing error.
+
+`NEXT_PUBLIC_FIREBASE_API_KEY` is stored as **Config**, not Secret. Vercel
+flags the name as credential-shaped; for Firebase that is a false positive —
+the Web API key identifies the project rather than authorising anything, the
+browser SDK cannot initialise without it, and NN's authorisation boundary is
+the Firestore rules.
+
+**Still required, and only the founder can provide them** — passkey sign-in
+cannot work until both exist:
+
+| Variable | Where it comes from |
+|---|---|
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase console → `nn-os-dev` → Project settings → Service accounts → Generate new private key. **Empty in `.env.local` too**, so local sign-in outside the emulators is also blocked. |
+| `NN_BOOTSTRAP_SECRET` | Already in `apps/web/.env.local`; needs to exist on Vercel to claim NN as first owner. |
+
+Claude did not create, read or transfer either: both are credentials, and the
+founder provisions them through the Vercel interface or CLI.
+
+### Open decisions for the founder
+
+1. **Deployment Protection vs the iPhone home screen.** Protection keeps the
+   preview private but puts a Vercel sign-in in front of every visit, which
+   will interfere with installing NN as a standalone PWA. NN's real security is
+   passkey-only sign-in plus owner-scoped rules; `docs/DEPLOY_VERCEL.md` §5
+   says URL-only privacy is not enough, so this is not Claude's call to reverse.
+2. **Production.** This is a preview deployment. `CLAUDE.md` §0 requires
+   explicit founder approval before any production deploy, so the production
+   domain was left untouched.
+3. **The dashboard card design.** The glass folder cards the founder asked for
+   are built and shown on `/design/cinematic`; the dashboard currently uses the
+   frontend lane's own card design, which survived the merge. Which one the
+   dashboard should use is a visual decision, not a merge outcome.
+
+### Known, not hidden
+
+`/apps/[appId]` throws an intermittent React hydration mismatch (#418) on
+roughly one navigation in five. React regenerates the subtree and the page
+renders correctly. The browser verification run reports it separately rather
+than failing or swallowing it.
