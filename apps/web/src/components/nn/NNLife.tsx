@@ -12,6 +12,7 @@ import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Dialog } from "@/components/ui/Dialog";
 import { useAuth } from "@/lib/auth";
 import { firebaseAvailable, getFirebase } from "@/lib/firebase";
+import { useClock } from "@/lib/clock";
 import styles from "./NNLife.module.css";
 
 type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals";
@@ -105,10 +106,23 @@ function LifeSurface() {
   const [noteTitle, setNoteTitle] = useState("");
   const [noteBody, setNoteBody] = useState("");
   const [eventTitle, setEventTitle] = useState("");
-  const [eventStart, setEventStart] = useState(localDateTime());
-  const [eventEnd, setEventEnd] = useState(localDateTime(new Date(Date.now() + 60 * 60 * 1000)));
+  // Empty until mounted: a datetime-local seeded from the clock renders one
+  // value on the server and a different one in the browser, and React throws
+  // the form away when it finds them disagreeing.
+  const [eventStart, setEventStart] = useState("");
+  const [eventEnd, setEventEnd] = useState("");
   const [reminderTitle, setReminderTitle] = useState("");
-  const [reminderAt, setReminderAt] = useState(localDateTime(new Date(Date.now() + 60 * 60 * 1000)));
+  const [reminderAt, setReminderAt] = useState("");
+  // Null until mounted. Everything below that depends on what time it is
+  // reads this, so the server and the browser's first render always agree.
+  const clock = useClock(60_000);
+
+  useEffect(() => {
+    const hour = new Date(Date.now() + 60 * 60 * 1000);
+    setEventStart(localDateTime());
+    setEventEnd(localDateTime(hour));
+    setReminderAt(localDateTime(hour));
+  }, []);
 
   const load = useCallback(async () => {
     if (!uid) { setLoading(false); setError("Visual preview only — connect the NN development Firebase environment and sign in to load or save personal records."); return; }
@@ -142,10 +156,13 @@ function LifeSurface() {
   }, []);
 
   const todayTasks = useMemo(() => data.tasks.filter((item) => item.status !== "done" && item.status !== "completed"), [data.tasks]);
-  const todayEvents = useMemo(() => data.calendar_events.filter((item) => {
-    const date = asDate(item.start);
-    return date?.toDateString() === new Date().toDateString();
-  }).sort((a, b) => (asDate(a.start)?.getTime() ?? 0) - (asDate(b.start)?.getTime() ?? 0)), [data.calendar_events]);
+  const todayEvents = useMemo(() => {
+    if (clock === null) return [];
+    const today = new Date(clock).toDateString();
+    return data.calendar_events
+      .filter((item) => asDate(item.start)?.toDateString() === today)
+      .sort((a, b) => (asDate(a.start)?.getTime() ?? 0) - (asDate(b.start)?.getTime() ?? 0));
+  }, [data.calendar_events, clock]);
   const completedTasks = data.tasks.filter((item) => item.status === "done" || item.status === "completed").length;
 
   const save = async (action: () => Promise<unknown>, success: string) => {
@@ -226,9 +243,11 @@ function LifeSurface() {
     void save(() => updateDoc(doc(getFirebase().db, "users", uid, "tasks", item.id), { status: nextStatus, updatedAt: serverTimestamp() }), nextStatus === "done" ? "Task completed." : "Task reopened.");
   };
 
-  const greeting = new Intl.DateTimeFormat(undefined, { hour: "numeric" }).format(new Date());
   const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
-  const heading = greeting.toLowerCase().includes("am") ? "A clear start." : greeting.toLowerCase().includes("pm") ? "Make today count." : "Welcome back.";
+  // "Welcome back" until the browser says what time it is there — which is
+  // also what the server renders, so the two always agree on first paint.
+  const hour = clock === null ? null : new Date(clock).getHours();
+  const heading = hour === null ? "Welcome back." : hour < 12 ? "A clear start." : "Make today count.";
   const renderTask = (item: RecordData) => (
     <SwipeToDelete key={item.id} onDelete={() => deleteRecord("tasks", item.id, "Task deleted.")}>
       <article className={`${styles.record} nn-glass-card`}>
@@ -247,7 +266,7 @@ function LifeSurface() {
       <div className={styles.topRight}><span className={styles.private}><i/> PRIVATE SPACE</span><button className={styles.refresh} onClick={() => void load()} aria-label="Refresh Life data" title="Refresh"><Icon name="clock" size={16}/></button><span className={styles.avatar}>{firstName.slice(0,1).toUpperCase()}</span></div>
     </header>
     <div className={styles.layout} onPointerDown={beginTabSwipe} onPointerUp={endTabSwipe} onPointerCancel={() => { swipeStart.current = null; }}>
-      <div className={styles.breadcrumb}><button onClick={() => router.push("/home")}>NN HOME</button><span>/</span><span>LIFE</span><span className={styles.date}>{dateLabel()}</span></div>
+      <div className={styles.breadcrumb}><button onClick={() => router.push("/home")}>NN HOME</button><span>/</span><span>LIFE</span><span className={styles.date}>{clock === null ? "" : dateLabel(new Date(clock))}</span></div>
       <section className={`${styles.hero} nn-glass-card`}>
         <div className={styles.heroCopy}><p className={styles.kicker}>YOUR PERSONAL DAYSPACE</p><h1>{heading}<br/><em>{firstName}.</em></h1><p className={styles.sub}>A thoughtful place for what matters today—and the things you&apos;re building over time.</p></div>
         <div className={styles.orbit} aria-hidden="true"><div className={styles.orbitRing}/><div className={styles.orbitCore+" "+styles.iconSurface}><Icon name="calendar" size={32}/></div><span className={styles.orbitDot}/></div>

@@ -162,6 +162,7 @@ export function CurvedCarousel({
 }: CurvedCarouselProps) {
   const count = slides.length;
   const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [index, setIndex] = useState(0);
   const [hasGL, setHasGL] = useState(true);
@@ -182,7 +183,8 @@ export function CurvedCarousel({
   useEffect(() => {
     const canvas = canvasRef.current;
     const root = rootRef.current;
-    if (!canvas || !root || count === 0) return;
+    const stage = stageRef.current;
+    if (!canvas || !root || !stage || count === 0) return;
 
     const gl = canvas.getContext("webgl", {
       premultipliedAlpha: true, antialias: true, alpha: true,
@@ -300,7 +302,7 @@ export function CurvedCarousel({
       gl.uniform2f(u.uSize!, cardW, cardH);
       gl.uniform1f(u.uBend!, bend);
       gl.uniform1f(u.uVel!, reduced.matches ? 0 : Math.max(-1, Math.min(1, velocity * 0.12)));
-      gl.uniform1f(u.uLift!, stageW < 640 ? 0.22 : 0.1);
+      gl.uniform1f(u.uLift!, 0);
       const step = cardW + gap;
 
       for (let i = 0; i < count; i += 1) {
@@ -411,13 +413,13 @@ export function CurvedCarousel({
       const box = entries[0]?.contentRect;
       if (box) resize(box.width, box.height);
     });
-    ro.observe(root);
+    ro.observe(stage);
 
     const io = new IntersectionObserver((entries) => {
       visible = entries[0]?.isIntersecting ?? true;
       if (visible) kick();
     });
-    io.observe(root);
+    io.observe(stage);
 
     return () => {
       disposed = true;
@@ -457,15 +459,22 @@ export function CurvedCarousel({
       aria-roledescription="carousel"
       aria-label={label}
     >
-      {hasGL ? (
-        <canvas
-          ref={canvasRef}
-          className={styles.canvas}
-          aria-hidden="true"
-          tabIndex={-1}
-        />
-      ) : null}
+      {/* The lens gets its own band. The reference overlays its copy on the
+          cards because it shows nine of them with dead space either side; NN
+          shows thirty-four, so the row is full width and an overlay would
+          land on a card at every size. */}
+      <div className={styles.stage} ref={stageRef}>
+        {hasGL ? (
+          <canvas
+            ref={canvasRef}
+            className={styles.canvas}
+            aria-hidden="true"
+            tabIndex={-1}
+          />
+        ) : null}
+      </div>
 
+      <div className={styles.footer}>
       <div className={styles.copy}>
         {slide.kicker ? <span className={styles.kicker}>{slide.kicker}</span> : null}
         <h3 className={styles.title}>{slide.title}</h3>
@@ -498,6 +507,7 @@ export function CurvedCarousel({
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
           </button>
         </div>
+      </div>
       </div>
 
       <ul className={styles.list} aria-label={`All ${label.toLowerCase()}`}>

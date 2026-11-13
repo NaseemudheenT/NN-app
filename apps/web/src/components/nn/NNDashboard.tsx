@@ -17,6 +17,7 @@ import {
 } from "@/lib/glass";
 import { APPLICATIONS, GROUPS, applicationsInFamily } from "@/lib/apps/registry";
 import { useRecords, type RecordFault, type RecordState } from "@/lib/nn/records";
+import { relativeTime, useClock } from "@/lib/clock";
 import styles from "./NNDashboard.module.css";
 
 /**
@@ -104,25 +105,6 @@ function when(record: Record<string, unknown>, ...fields: string[]): Date | null
   return null;
 }
 
-/** "in 20 minutes", "3 days ago" — said the way the founder would say it. */
-function relative(date: Date, now: number): string {
-  const seconds = Math.round((date.getTime() - now) / 1000);
-  const abs = Math.abs(seconds);
-  const units: ReadonlyArray<[Intl.RelativeTimeFormatUnit, number]> = [
-    ["second", 60], ["minute", 60], ["hour", 24], ["day", 7], ["week", 4.35],
-    ["month", 12], ["year", Number.POSITIVE_INFINITY],
-  ];
-  let value = seconds;
-  for (const [unit, size] of units) {
-    if (Math.abs(value) < size) {
-      return new Intl.RelativeTimeFormat("en", { numeric: "auto" })
-        .format(Math.round(value), unit);
-    }
-    value /= size;
-  }
-  return abs < 60 ? "just now" : date.toLocaleDateString();
-}
-
 /* ------------------------------------------------------------ fault panel -- */
 
 /**
@@ -151,6 +133,23 @@ function Fault({ fault }: { fault: RecordFault }) {
   );
 }
 
+/**
+ * A count, or an em dash when NN did not get to count.
+ *
+ * `items.length` is zero both when a collection is empty and when the read
+ * was refused, and those mean opposite things. Everything that shows a number
+ * on this dashboard goes through here, so the distinction cannot be lost by
+ * one panel forgetting to make it.
+ */
+function Count({ state, one, many }: { state: RecordState; one?: string; many?: string }) {
+  if (state.fault || state.loading) {
+    return <span title={state.fault?.message ?? "Reading"}>{"\u2014"}</span>;
+  }
+  const n = state.items.length;
+  const noun = many === undefined ? "" : ` ${n === 1 ? (one ?? many) : many}`;
+  return <>{n}{noun}</>;
+}
+
 /** One panel's state, rendered the same way everywhere. */
 function Stateful<T extends { id: string }>({
   state, empty, children,
@@ -174,14 +173,9 @@ function Stateful<T extends { id: string }>({
 /* -------------------------------------------------------------- the views -- */
 
 function TodayView({ firstName }: { firstName: string }) {
-  // One clock for the whole view, ticking a minute at a time. Reading
-  // Date.now() during render would make every relative label disagree with
-  // the next, and re-render the view on every paint.
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 60_000);
-    return () => window.clearInterval(id);
-  }, []);
+  // Null until mounted, so the server and the browser's first render agree.
+  // Everything below that formats a date is gated on it.
+  const now = useClock();
 
   const tasks = useRecords("tasks", { limit: 60 });
   const events = useRecords("calendar_events", { orderBy: "startsAt", direction: "asc", limit: 12 });
@@ -194,6 +188,7 @@ function TodayView({ firstName }: { firstName: string }) {
   );
 
   const upcoming = useMemo(() => {
+    if (now === null) return [];
     return events.items
       .map((event) => ({ event, at: when(event, "startsAt", "start", "at") }))
       .filter((entry): entry is { event: typeof entry.event; at: Date } => entry.at !== null)
@@ -210,7 +205,7 @@ function TodayView({ firstName }: { firstName: string }) {
     { label: "Goals", state: goals, value: goals.items.length, icon: "graph" },
   ];
 
-  const today = new Date(now);
+  const today = now === null ? null : new Date(now);
 
   return (
     <>
@@ -218,26 +213,36 @@ function TodayView({ firstName }: { firstName: string }) {
         <div className={styles.heroInner}>
           <div>
             <p className={styles.heroKicker}>
-              {today.toLocaleDateString(undefined, {
-                weekday: "long", day: "numeric", month: "long",
-              })}
+              {today
+                ? today.toLocaleDateString(undefined, {
+                    weekday: "long", day: "numeric", month: "long",
+                  })
+                : "\u00a0"}
             </p>
             <h2 className={styles.heroTitle}>
-              {next
-                ? text(next.event, "title", "name", "summary") ?? "Something is scheduled"
-                : `Nothing is scheduled, ${firstName}.`}
+              {events.fault
+                ? `Hello, ${firstName}.`
+                : next
+                  ? text(next.event, "title", "name", "summary") ?? "Something is scheduled"
+                  : `Nothing is scheduled, ${firstName}.`}
             </h2>
             <p className={styles.heroLine}>
-              {next
-                ? `${relative(next.at, now)} · ${next.at.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`
-                : "A clear day. NN is holding everything else."}
+              {events.fault
+                ? "NN has not read your calendar, so it cannot say what today holds."
+                : next && now !== null
+                  ? `${relativeTime(next.at, now)} \u00b7 ${next.at.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`
+                  : "A clear day. NN is holding everything else."}
             </p>
           </div>
 
           <WaveChip className={styles.heroChip}>
-            <span className={styles.heroChipValue}>{openTasks.length}</span>
+            <span className={styles.heroChipValue}>
+              {tasks.fault || tasks.loading ? "\u2014" : openTasks.length}
+            </span>
             <span className={styles.heroChipLabel}>
-              {openTasks.length === 1 ? "task open" : "tasks open"}
+              {tasks.fault
+                ? "not readable"
+                : openTasks.length === 1 ? "task open" : "tasks open"}
             </span>
           </WaveChip>
         </div>
@@ -279,7 +284,9 @@ function TodayView({ firstName }: { firstName: string }) {
         <section className={styles.panel}>
           <header className={styles.panelTop}>
             <h3>Next</h3>
-            <span className={styles.small}>{upcoming.length} scheduled</span>
+            <span className={styles.small}>
+              <Count state={events} /> scheduled
+            </span>
           </header>
           <Stateful state={events} empty="Nothing on the calendar yet.">
             {() =>
@@ -296,7 +303,9 @@ function TodayView({ firstName }: { firstName: string }) {
                           weekday: "short", hour: "numeric", minute: "2-digit",
                         })}</span>
                       </span>
-                      <span className={styles.rowMeta}>{relative(at, now)}</span>
+                      <span className={styles.rowMeta}>
+                        {now === null ? "" : relativeTime(at, now)}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -308,7 +317,9 @@ function TodayView({ firstName }: { firstName: string }) {
         <section className={styles.panel}>
           <header className={styles.panelTop}>
             <h3>Goals</h3>
-            <span className={styles.small}>{goals.items.length} tracked</span>
+            <span className={styles.small}>
+              <Count state={goals} /> tracked
+            </span>
           </header>
           <Stateful state={goals} empty="No goals set. NN will track them when you add one.">
             {(items) => (
@@ -408,11 +419,7 @@ function ApplicationsView() {
 }
 
 function ActivityView() {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 60_000);
-    return () => window.clearInterval(id);
-  }, []);
+  const now = useClock();
   const [filter, setFilter] = useState("");
 
   const tasks = useRecords("tasks", { limit: 40 });
@@ -479,7 +486,7 @@ function ActivityView() {
                 <span>{row.kind}</span>
               </span>
               <span className={styles.rowMeta}>
-                {row.at ? relative(row.at, now) : "No date"}
+                {row.at && now !== null ? relativeTime(row.at, now) : ""}
               </span>
             </li>
           ))}

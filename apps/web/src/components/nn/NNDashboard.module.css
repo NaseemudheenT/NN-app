@@ -441,7 +441,7 @@
 .family:hover { background: var(--glass-hover); transform: translateY(-2px); }
 .family:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
-.familyName { font-size: var(--text-label-size); font-weight: var(--weight-medium); }
+.familyName { grid-column: 1; font-size: var(--text-label-size); font-weight: var(--weight-medium); }
 
 .familyMeta {
   grid-column: 1;
@@ -449,7 +449,7 @@
   color: var(--text-muted);
 }
 
-.family svg { grid-row: 1 / span 2; color: var(--text-muted); }
+.family svg { grid-column: 2; grid-row: 1 / span 2; color: var(--text-muted); }
 
 /* ----------------------------------------------------------------- system -- */
 

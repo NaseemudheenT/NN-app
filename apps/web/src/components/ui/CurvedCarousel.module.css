@@ -2,8 +2,10 @@
 
 .root {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  min-height: 420px;
+  min-height: 460px;
   overflow: hidden;
   isolation: isolate;
   border-radius: var(--radius-2xl);
@@ -12,6 +14,14 @@
     linear-gradient(168deg, rgb(14 22 52 / 78%), rgb(8 13 36 / 90%));
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* The band the lens draws into. Its height is what sizes the cards, so it
+   must not include the copy below it. */
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 250px;
 }
 
 .canvas {
@@ -24,14 +34,19 @@
   touch-action: pan-y;   /* the page still scrolls; only sideways is ours */
 }
 
+.footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 48px);
+  padding: clamp(18px, 2.6vw, 30px) clamp(20px, 4vw, 44px) clamp(20px, 3vw, 32px);
+}
+
 .canvas:active { cursor: grabbing; }
 
 .copy {
-  position: absolute;
-  left: clamp(20px, 4vw, 44px);
-  bottom: clamp(84px, 11vw, 104px);
-  max-width: min(460px, 68%);
-  z-index: 1;
+  min-width: 0;
+  flex: 1;
   color: var(--text-primary);
 }
 
@@ -46,7 +61,7 @@
 
 .title {
   margin: 0;
-  font-size: clamp(30px, 5.2vw, 56px);
+  font-size: clamp(26px, 4vw, 44px);
   font-weight: var(--weight-medium);
   line-height: 1.02;
   letter-spacing: -0.028em;
@@ -83,10 +98,7 @@
 .open:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 
 .controls {
-  position: absolute;
-  right: clamp(20px, 4vw, 44px);
-  bottom: clamp(22px, 4vw, 40px);
-  z-index: 1;
+  flex: none;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -188,6 +200,8 @@
 }
 
 /* No WebGL: the lens never appears, and the list becomes the carousel. */
+.flat .stage { display: none; }
+
 .flat .list {
   position: static;
   width: auto;
@@ -196,8 +210,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  padding: clamp(20px, 4vw, 44px);
-  padding-bottom: 180px;
+  padding: 0 clamp(20px, 4vw, 44px) clamp(20px, 4vw, 44px);
 }
 
 .flat .list button {
@@ -226,10 +239,9 @@
 }
 
 @media (max-width: 719px) {
-  .root { min-height: 480px; }
-  .copy { max-width: calc(100% - 40px); bottom: 150px; }
+  .root { min-height: 520px; }
+  .footer { flex-direction: column; align-items: stretch; gap: 18px; }
   .controls {
-    left: clamp(20px, 4vw, 44px);
     flex-direction: row;
     align-items: center;
     justify-content: space-between;

@@ -64,19 +64,19 @@ interface Band {
  */
 const BANDS: readonly Band[] = [
   {
+    base: 0.44,
+    harmonics: [[1, 40, 0], [2, 17, 1.9], [3, 7, 4.1]],
+    colour: 0, blur: 26, opacity: 0.62, period: 19, direction: 1,
+  },
+  {
     base: 0.62,
-    harmonics: [[1, 26, 0], [2, 11, 1.9], [3, 5, 4.1]],
-    colour: 0, blur: 16, opacity: 0.85, period: 19, direction: 1,
+    harmonics: [[1, 33, 2.4], [2, 14, 5.2], [4, 6, 0.7]],
+    colour: 1, blur: 30, opacity: 0.58, period: 27, direction: -1,
   },
   {
-    base: 0.74,
-    harmonics: [[1, 21, 2.4], [2, 9, 5.2], [4, 4, 0.7]],
-    colour: 1, blur: 20, opacity: 0.78, period: 27, direction: -1,
-  },
-  {
-    base: 0.86,
-    harmonics: [[1, 16, 4.6], [3, 8, 2.2]],
-    colour: 2, blur: 24, opacity: 0.7, period: 34, direction: 1,
+    base: 0.8,
+    harmonics: [[1, 26, 4.6], [3, 12, 2.2]],
+    colour: 2, blur: 34, opacity: 0.52, period: 34, direction: 1,
   },
 ];
 
@@ -136,8 +136,11 @@ function bandPath(band: Band, gain: number): string {
     }
     d += `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(2)}`;
   }
-  // Close down the right edge, along the floor, and back up the left.
-  return `${d}L${span} ${VIEW_H + 40}L0 ${VIEW_H + 40}Z`;
+  // Closed just below the band rather than down to the floor. Filling to the
+  // bottom edge made three ribbons stack into one solid block of colour; this
+  // keeps each one a band of light with the card visible between them.
+  const floor = band.base * VIEW_H + 86;
+  return `${d}L${span} ${floor.toFixed(1)}L0 ${floor.toFixed(1)}Z`;
 }
 
 export interface WaveCardProps {
@@ -201,9 +204,9 @@ export function WaveCard({
                 x1="0" y1="0" x2="1" y2="0.35"
               >
                 <stop offset="0" stopColor={`rgb(var(${pair[0]}) / 0%)`} />
-                <stop offset="0.22" stopColor={`rgb(var(${pair[0]}) / 78%)`} />
-                <stop offset="0.55" stopColor={`rgb(var(${pair[1]}) / 92%)`} />
-                <stop offset="0.82" stopColor={`rgb(var(${pair[1]}) / 60%)`} />
+                <stop offset="0.18" stopColor={`rgb(var(${pair[0]}) / 52%)`} />
+                <stop offset="0.46" stopColor={`rgb(var(${pair[1]}) / 72%)`} />
+                <stop offset="0.74" stopColor={`rgb(var(${pair[1]}) / 44%)`} />
                 <stop offset="1" stopColor={`rgb(var(${pair[1]}) / 0%)`} />
               </linearGradient>
             );
