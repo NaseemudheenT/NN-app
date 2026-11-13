@@ -72,6 +72,10 @@ uniform vec3  uA;         // cyan
 uniform vec3  uB;         // blue
 uniform vec3  uC;         // indigo
 uniform vec3  uD;         // violet
+uniform float uRing;      // 0..1 how present the orbital rings are
+uniform vec3  uU[3];      // each ring's plane, first basis vector
+uniform vec3  uV[3];      // and its second
+uniform float uR[3];      // each ring's radius
 
 float hash(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
 
@@ -115,10 +119,63 @@ vec3 spectrum(float x){
                   : mix(uC, uD, (x - 0.66) / 0.34);
 }
 
+/**
+ * One orbital ring, exactly.
+ *
+ * A ring of radius R in the plane spanned by u and v projects, under
+ * orthographic view, to the ellipse q = M·(R·cos t, R·sin t) where M has the
+ * screen components of u and v as its columns. So inverting M takes a pixel
+ * straight back to its ring parameter — the nearest point, its distance and
+ * its depth all fall out in constant time, with no marching along the curve.
+ */
+vec4 ringAt(vec2 q, vec3 u, vec3 v, float R){
+  mat2 M = mat2(u.xy, v.xy);
+  float det = M[0][0] * M[1][1] - M[0][1] * M[1][0];
+  // A ring seen exactly edge-on projects to a line: there is no inverse, and
+  // nothing to draw.
+  if (abs(det) < 1e-4) return vec4(0.0);
+  mat2 Minv = mat2(M[1][1], -M[0][1], -M[1][0], M[0][0]) / det;
+  vec2 w = Minv * q;
+  float len = length(w);
+  if (len < 1e-5) return vec4(0.0);
+  vec2 dir = w / len;
+  float dist = abs(len - R) * abs(det) / max(length(vec2(M[0][0], M[0][1])), 1e-4);
+  float z = R * (dir.x * u.z + dir.y * v.z);
+  // Parameter angle, so beads can be spaced along the ring.
+  float t = atan(dir.y, dir.x);
+  return vec4(dist, z, t, 1.0);
+}
+
 void main(){
   vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / min(uRes.x, uRes.y) * 2.2;
   float r2 = dot(uv, uv);
-  if (r2 > 1.32) { outColor = vec4(0.0); return; }
+
+  // The rings, gathered first: those behind the sphere are drawn under it,
+  // those in front over it, which is the whole reason the orb reads as an
+  // object in space rather than a disc with decoration.
+  vec3 behind = vec3(0.0), front = vec3(0.0);
+  float behindA = 0.0, frontA = 0.0;
+  if (uRing > 0.001) {
+    for (int i = 0; i < 3; i++) {
+      vec4 hit = ringAt(uv, uU[i], uV[i], uR[i]);
+      if (hit.w < 0.5) continue;
+      float line = exp(-hit.x * hit.x / 0.00042);
+      // Beads riding the ring: brighter where they sit, so the ring turns.
+      float bead = pow(max(0.0, sin(hit.z * 9.0 + uTime * 1.6 + float(i) * 2.1)), 22.0);
+      float glow = line * (0.42 + 0.9 * bead) * uRing;
+      vec3 tint = spectrum(fract(0.18 * float(i) + hit.z * 0.08 + 0.3));
+      if (hit.y < 0.0) { behind += tint * glow; behindA = max(behindA, glow); }
+      else             { front  += tint * glow; frontA  = max(frontA,  glow); }
+    }
+  }
+
+  if (r2 > 1.32) {
+    // Outside the sphere only the rings exist.
+    vec3 c = behind + front;
+    float a = clamp(max(behindA, frontA), 0.0, 1.0);
+    outColor = vec4(c * a, a);
+    return;
+  }
 
   // The sphere's surface point for this pixel, and its normal.
   float z = sqrt(max(0.0, 1.0 - r2));
@@ -154,7 +211,13 @@ void main(){
   // being cut out of it.
   alpha += smoothstep(1.32, 0.98, r2) * 0.16;
 
-  outColor = vec4(colour * alpha, clamp(alpha, 0.0, 1.0));
+  // Behind, then the sphere, then in front.
+  vec3 stack = behind * (1.0 - alpha) + colour * alpha;
+  float stackA = behindA * (1.0 - alpha) + alpha;
+  stack = stack * (1.0 - frontA) + front * frontA;
+  stackA = stackA * (1.0 - frontA) + frontA;
+
+  outColor = vec4(stack, clamp(stackA, 0.0, 1.0));
 }`;
 
 /** Per-state motion. `calm` 1 is still; `swirl` and `pulse` shape the rest. */
@@ -232,7 +295,10 @@ export function RenOrb({ state = "idle", size = 120, level = 0, className }: Ren
     gl.vertexAttribPointer(location, 2, gl.FLOAT, false, 0, 0);
 
     const u: Record<string, WebGLUniformLocation | null> = {};
-    for (const name of ["uRes", "uTime", "uLevel", "uCalm", "uSwirl", "uPulse", "uA", "uB", "uC", "uD"]) {
+    for (const name of [
+      "uRes", "uTime", "uLevel", "uCalm", "uSwirl", "uPulse",
+      "uA", "uB", "uC", "uD", "uRing", "uU[0]", "uV[0]", "uR[0]",
+    ]) {
       u[name] = gl.getUniformLocation(program, name);
     }
     gl.enable(gl.BLEND);
@@ -265,7 +331,43 @@ export function RenOrb({ state = "idle", size = 120, level = 0, className }: Ren
     // resumes where REN left off instead of jumping.
     let elapsed = 0;
     // Eased towards the target so switching state is a transition, not a cut.
-    let calm = 1, swirl = 0, pulse = 0, loud = 0;
+    let calm = 1, swirl = 0, pulse = 0, loud = 0, ring = 0;
+
+    /**
+     * The three orbital planes.
+     *
+     * Each ring is a circle in its own plane, and the planes turn at
+     * different rates about different axes — which is what stops the set
+     * reading as one wobbling hoop. Rebuilt per frame because the whole point
+     * is that they move; three rotations a frame costs nothing.
+     */
+    const basis = new Float32Array(9);
+    const basis2 = new Float32Array(9);
+    const radii = new Float32Array(3);
+    const TILT = [0.42, -1.05, 2.2];
+    const SPIN = [0.21, -0.14, 0.09];
+    const RADIUS = [0.86, 1.02, 1.16];
+
+    const orbit = (t: number) => {
+      for (let i = 0; i < 3; i++) {
+        const tilt = TILT[i]!;
+        const a = t * SPIN[i]! + i * 1.7;
+        // u and v span the ring's plane: start in the xy plane, tilt about x,
+        // then spin the whole plane about y.
+        const ct = Math.cos(tilt), st = Math.sin(tilt);
+        const ca = Math.cos(a), sa = Math.sin(a);
+        // u = Ry(a) · (1, 0, 0)
+        basis[i * 3 + 0] = ca;
+        basis[i * 3 + 1] = 0;
+        basis[i * 3 + 2] = -sa;
+        // v = Ry(a) · Rx(tilt) · (0, 1, 0)
+        const vx = 0, vy = ct, vz = st;
+        basis2[i * 3 + 0] = ca * vx + sa * vz;
+        basis2[i * 3 + 1] = vy;
+        basis2[i * 3 + 2] = -sa * vx + ca * vz;
+        radii[i] = RADIUS[i]!;
+      }
+    };
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -290,7 +392,11 @@ export function RenOrb({ state = "idle", size = 120, level = 0, className }: Ren
       swirl += (profile.swirl - swirl) * ease;
       pulse += (profile.pulse - pulse) * ease;
       loud += (Math.max(0, Math.min(1, live.current.level)) - loud) * Math.min(1, dt * 9);
+      // The rings come out when REN is engaged and withdraw when it rests, so
+      // an idle orb in the corner is quiet rather than a spinning orrery.
+      ring += ((live.current.state === "idle" ? 0.22 : 1) - ring) * Math.min(1, dt * 2.2);
       elapsed += dt * profile.speed;
+      orbit(elapsed);
 
       resize();
       gl.uniform1f(u.uTime!, elapsed);
@@ -302,6 +408,10 @@ export function RenOrb({ state = "idle", size = 120, level = 0, className }: Ren
       gl.uniform3fv(u.uB!, colours.b);
       gl.uniform3fv(u.uC!, colours.c);
       gl.uniform3fv(u.uD!, colours.d);
+      gl.uniform1f(u.uRing!, ring);
+      gl.uniform3fv(u["uU[0]"]!, basis);
+      gl.uniform3fv(u["uV[0]"]!, basis2);
+      gl.uniform1fv(u["uR[0]"]!, radii);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 3);

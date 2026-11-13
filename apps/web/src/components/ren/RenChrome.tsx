@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { RenLauncher } from "./RenLauncher";
-import { RenPanel } from "./RenPanel";
+import { RenConsole } from "./RenConsole";
 
 /** REN is intentionally absent from the cinematic entry and authentication door. */
 export function RenChrome() {
@@ -11,7 +11,7 @@ export function RenChrome() {
   return (
     <>
       <RenLauncher />
-      <RenPanel />
+      <RenConsole />
     </>
   );
 }
