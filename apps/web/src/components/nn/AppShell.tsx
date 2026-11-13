@@ -80,7 +80,12 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
 
       <div className={styles.body}>{children}</div>
 
-      <div className={`${styles.dock} nn-holo`}>
+      {/* The Dock already wears the holographic chamfer. Repeating `nn-holo`
+          on this wrapper also brought `position: relative` from the global
+          utility, which beat the module's `position: fixed` on source order —
+          so the dock was never fixed, never clipped, and thirty-four
+          applications pushed the page sideways. */}
+      <div className={styles.dock}>
         <Dock
           items={dockItems}
           activeId={activeId}
