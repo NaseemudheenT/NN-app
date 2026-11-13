@@ -24,7 +24,12 @@ export function SignIn() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secret, setSecret] = useState("");
-  const supported = passkeysSupported();
+  // Null until mounted. Asked during render, this is false on the server —
+  // which made every visitor's sign-in page ship with "This browser does not
+  // support passkeys" already in it, and React threw the page away on
+  // hydration when the browser disagreed. Unknown is the honest third state.
+  const [supported, setSupported] = useState<boolean | null>(null);
+  useEffect(() => { setSupported(passkeysSupported()); }, []);
 
   const enterTemporaryGuestMode = () => {
     window.sessionStorage.setItem("nn.temporary-guest", "1");
@@ -149,7 +154,7 @@ export function SignIn() {
           {status !== null && claiming ? (
             <Button
               variant="primary" size="lg" loading={busy}
-              disabled={!supported || !status.bootstrapReady || secret.length === 0}
+              disabled={supported !== true || !status.bootstrapReady || secret.length === 0}
               onClick={() => void run(async () => {
                 await registerPasskey({ bootstrapSecret: secret, label: "First device" });
                 await signInWithPasskey();
@@ -159,7 +164,7 @@ export function SignIn() {
             </Button>
           ) : (
             <Button
-              variant="primary" size="lg" loading={busy} disabled={!supported || status === null}
+              variant="primary" size="lg" loading={busy} disabled={supported !== true || status === null}
               onClick={() => void run(signInWithPasskey)}
             >
               Sign in with passkey
@@ -171,7 +176,7 @@ export function SignIn() {
 
         {error !== null ? <p className={s.error} role="alert" data-testid="signin-error">{error}</p> : null}
 
-        {!supported ? (
+        {supported === false ? (
           <p className={s.error} role="alert" data-testid="signin-unsupported">
             This browser does not support passkeys. Use a recent Safari, Chrome or Edge.
           </p>
