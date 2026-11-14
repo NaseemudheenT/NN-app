@@ -1,0 +1,257 @@
+/* NN's applications, seen through a curved lens. */
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 460px;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: var(--radius-2xl);
+  background:
+    radial-gradient(60% 46% at 50% 44%, rgb(var(--nn-spectrum-indigo) / 11%), transparent 72%),
+    linear-gradient(168deg, rgb(14 22 52 / 78%), rgb(8 13 36 / 90%));
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The band the lens draws into. Its height is what sizes the cards, so it
+   must not include the copy below it. */
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 250px;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: pan-y;   /* the page still scrolls; only sideways is ours */
+}
+
+.footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 48px);
+  padding: clamp(18px, 2.6vw, 30px) clamp(20px, 4vw, 44px) clamp(20px, 3vw, 32px);
+}
+
+.canvas:active { cursor: grabbing; }
+
+.copy {
+  min-width: 0;
+  flex: 1;
+  color: var(--text-primary);
+}
+
+.kicker {
+  display: block;
+  margin-bottom: 10px;
+  font-size: var(--text-micro-size);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: var(--weight-medium);
+  line-height: 1.02;
+  letter-spacing: -0.028em;
+}
+
+.caption {
+  margin: 12px 0 0;
+  max-width: 36ch;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  color: var(--text-secondary);
+}
+
+.open {
+  margin-top: 18px;
+  padding: 10px 18px;
+  border: 1px solid rgb(206 228 255 / 24%);
+  border-radius: var(--radius-full);
+  background: rgb(232 244 255 / 10%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--dur-base) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.open:hover { background: rgb(232 244 255 / 18%); }
+.open:active { transform: scale(0.97); }
+.open:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+
+.controls {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+  color: var(--text-primary);
+}
+
+.count {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.14em;
+}
+
+.count i { font-style: normal; opacity: 0.45; }
+
+.bar {
+  width: 128px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgb(206 228 255 / 16%);
+  overflow: hidden;
+}
+
+.bar > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, rgb(var(--nn-spectrum-cyan)), rgb(var(--nn-spectrum-violet)));
+  transform-origin: 0 50%;
+  transition: transform var(--dur-slow) var(--ease-entrance);
+}
+
+.buttons { display: flex; gap: 10px; }
+
+.buttons button {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  border: 1px solid rgb(206 228 255 / 16%);
+  background: linear-gradient(180deg, rgb(232 244 255 / 13%), rgb(232 244 255 / 4%));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgb(236 246 255 / 20%), var(--shadow-2);
+  transition:
+    transform var(--dur-fast) cubic-bezier(0.3, 1.6, 0.5, 1),
+    background var(--dur-base) var(--ease-standard);
+}
+
+.buttons button:hover {
+  transform: translateY(-2px) scale(1.05);
+  background: linear-gradient(180deg, rgb(232 244 255 / 21%), rgb(232 244 255 / 7%));
+}
+
+.buttons button:active { transform: scale(0.94); }
+.buttons button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+
+.buttons svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Every slide as a real control. Off screen while the lens is doing the work,
+   and the whole carousel once it is not. */
+.list {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  list-style: none;
+}
+
+.list button:focus-visible {
+  position: fixed;
+  left: 50%;
+  top: 16px;
+  width: auto;
+  height: auto;
+  transform: translateX(-50%);
+  clip-path: none;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  outline: 2px solid var(--focus-ring);
+  z-index: 50;
+}
+
+/* No WebGL: the lens never appears, and the list becomes the carousel. */
+.flat .stage { display: none; }
+
+.flat .list {
+  position: static;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 clamp(20px, 4vw, 44px) clamp(20px, 4vw, 44px);
+}
+
+.flat .list button {
+  padding: 12px 16px;
+  border: 1px solid rgb(206 228 255 / 18%);
+  border-radius: var(--radius-md);
+  background: rgb(232 244 255 / 7%);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-label-size);
+  cursor: pointer;
+}
+
+.flat .list button[aria-current] {
+  background: rgb(var(--nn-spectrum-blue) / 26%);
+  border-color: rgb(var(--nn-spectrum-aqua) / 40%);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 719px) {
+  .root { min-height: 520px; }
+  .footer { flex-direction: column; align-items: stretch; gap: 18px; }
+  .controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .bar { width: 86px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar > span,
+  .open,
+  .buttons button { transition-duration: 1ms; }
+  .buttons button:hover { transform: none; }
+}

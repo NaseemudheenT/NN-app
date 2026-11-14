@@ -1,0 +1,392 @@
+.root {
+  min-height: 100svh;
+  padding: 0 0 max(40px, env(safe-area-inset-bottom));
+  color: var(--text-primary);
+  overflow: clip;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: max(22px, calc((100vw - 1180px) / 2));
+  border-bottom: 1px solid rgb(204 226 255 / 13%);
+  background: rgb(7 15 35 / 70%);
+  -webkit-backdrop-filter: blur(30px) saturate(170%);
+  backdrop-filter: blur(30px) saturate(170%);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #f5f8ff;
+}
+.identity > span {
+  font-size: 15px;
+  font-weight: 760;
+  letter-spacing: .2em;
+}
+
+.profile {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(202 228 255 / 38%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 28% 18%, rgb(255 255 255 / 42%), transparent 38%),
+    linear-gradient(145deg, rgb(159 215 255 / 24%), rgb(83 117 191 / 16%) 55%, rgb(17 28 66 / 76%));
+  color: #e8f6ff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 52%),
+    inset 0 -2px 0 rgb(0 0 0 / 22%),
+    0 2px 0 rgb(3 10 27 / 55%),
+    0 8px 20px rgb(0 0 0 / 22%);
+  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+.profile:hover { transform: translateY(-2px); border-color: rgb(208 235 255 / 68%); }
+.profile:active { transform: scale(.96); }
+
+.page {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 42px 24px 54px;
+}
+.welcome { padding: 8px 2px 34px; }
+.kicker {
+  margin: 0;
+  color: #9ddfff;
+  font: 650 9px/1.4 var(--font-mono);
+  letter-spacing: .2em;
+}
+.welcome h1 {
+  margin: 12px 0 0;
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.1;
+  font-weight: 540;
+  letter-spacing: -.055em;
+}
+.welcome h1 span { color: #b6d6ff; }
+.subtitle {
+  margin: 10px 0 0;
+  color: #aebed7;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.applicationGroups { display: grid; gap: 34px; }
+.group { min-width: 0; }
+.groupHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 2px 14px;
+}
+.groupTitle { min-width: 0; }
+.groupTitle h2 {
+  margin: 0;
+  color: #e7f0ff;
+  font-size: 14px;
+  font-weight: 640;
+  letter-spacing: -.015em;
+}
+.groupTitle p {
+  margin: 4px 0 0;
+  color: rgb(174 194 222 / 66%);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.groupCount {
+  flex: none;
+  color: #8ca6ca;
+  font: 10px/1 var(--font-mono);
+  letter-spacing: .08em;
+}
+
+.appGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+.appCard {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 17px 10px 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgb(211 234 255 / 32%);
+  border-radius: 23px;
+  background:
+    radial-gradient(ellipse at 14% 4%, rgb(175 226 255 / 18%), transparent 43%),
+    radial-gradient(ellipse at 92% 96%, rgb(155 132 255 / 17%), transparent 49%),
+    linear-gradient(152deg, rgb(235 247 255 / 13%), rgb(85 130 203 / 10%) 48%, rgb(5 17 43 / 82%));
+  color: #f2f7ff;
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 38%),
+    inset 0 -1px 0 rgb(0 0 0 / 26%),
+    0 2px 0 rgb(3 10 27 / 58%),
+    0 12px 26px rgb(0 0 0 / 24%),
+    0 0 24px rgb(95 172 255 / 8%);
+  -webkit-backdrop-filter: blur(25px) saturate(165%);
+  backdrop-filter: blur(25px) saturate(165%);
+  transform: translate3d(0, 0, 0);
+  animation: nn-card-enter 520ms cubic-bezier(.2,.8,.2,1) both;
+  transition:
+    transform 240ms cubic-bezier(.2,.8,.2,1),
+    border-color 240ms ease,
+    box-shadow 240ms ease,
+    filter 240ms ease;
+}
+
+.cardWave {
+  position: absolute;
+  z-index: 0;
+  inset: -55% -35% 20%;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 25% at 48% 52%, rgb(177 228 255 / 27%), transparent 74%),
+    radial-gradient(ellipse 56% 23% at 54% 63%, rgb(178 157 255 / 20%), transparent 76%),
+    linear-gradient(108deg, transparent 29%, rgb(221 243 255 / 15%) 48%, rgb(183 169 255 / 13%) 57%, transparent 74%);
+  filter: blur(14px);
+  opacity: .82;
+  transform: rotate(-16deg) translate3d(-5%, -2%, 0) scale(1);
+  transform-origin: 50% 50%;
+  animation: nn-card-wave 8s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+.appCard::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 1px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-top-color: rgb(255 255 255 / 27%);
+  border-radius: 22px;
+  pointer-events: none;
+  background: linear-gradient(116deg, transparent 24%, rgb(224 242 255 / 5%) 48%, transparent 70%);
+}
+.iconWell {
+  position: relative;
+  z-index: 1;
+  width: 49px;
+  height: 49px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(207 231 255 / 48%);
+  border-radius: 17px;
+  background:
+    radial-gradient(ellipse at 28% 14%, rgb(255 255 255 / 52%), transparent 39%),
+    radial-gradient(ellipse at 85% 100%, rgb(170 151 255 / 25%), transparent 54%),
+    linear-gradient(145deg, rgb(149 215 255 / 34%), rgb(69 111 190 / 21%) 60%, rgb(15 29 72 / 80%));
+  color: #e3f5ff;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 58%),
+    inset 0 -6px 13px rgb(3 12 34 / 30%),
+    0 8px 20px rgb(0 0 0 / 24%),
+    0 0 25px rgb(103 190 255 / 16%);
+  transition: transform 240ms cubic-bezier(.2,.8,.2,1), box-shadow 240ms ease;
+}
+.iconWell svg { filter: drop-shadow(0 1px 5px rgb(128 205 255 / 48%)); }
+.appName {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  color: #f0f6ff;
+  font-size: 12px;
+  font-weight: 620;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+  overflow-wrap: anywhere;
+}
+.appState {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: rgb(178 199 228 / 64%);
+  font: 600 7px/1.2 var(--font-mono);
+  letter-spacing: .09em;
+  white-space: nowrap;
+}
+.appState i {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: #8d9db8;
+  box-shadow: 0 0 7px rgb(141 157 184 / 35%);
+}
+.appCard[data-availability="available"] {
+  border-color: rgb(128 224 218 / 48%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 42%),
+    inset 0 -1px 0 rgb(0 0 0 / 24%),
+    0 2px 0 rgb(3 10 27 / 58%),
+    0 12px 26px rgb(0 0 0 / 24%),
+    0 0 25px rgb(75 222 218 / 11%);
+}
+.appCard[data-availability="available"] .appState { color: #a7e8dc; }
+.appCard[data-availability="available"] .appState i {
+  background: #78e4c9;
+  box-shadow: 0 0 9px rgb(120 228 201 / 70%);
+}
+
+.appCard:hover {
+  border-color: rgb(207 238 255 / 65%);
+  filter: brightness(1.08) saturate(1.08);
+  transform: translate3d(0, -4px, 0) scale(1.012);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 48%),
+    inset 0 -1px 0 rgb(0 0 0 / 22%),
+    0 4px 0 rgb(3 10 27 / 56%),
+    0 19px 38px rgb(0 0 0 / 30%),
+    0 0 30px rgb(111 189 255 / 17%);
+}
+.appCard:hover .iconWell { transform: translateY(-2px) scale(1.035); }
+.appCard:hover .cardWave { opacity: 1; }
+.appCard:active {
+  filter: brightness(1.02);
+  transform: translate3d(0, 1px, 0) scale(.975);
+  box-shadow:
+    inset 0 2px 10px rgb(2 11 30 / 30%),
+    0 1px 0 rgb(3 10 27 / 52%),
+    0 4px 10px rgb(0 0 0 / 20%);
+}
+
+/* ---------------------------------------------------------------------------
+   The six families are folders now, not buttons.
+
+   FolderCard carries its own width and height — every shape inside it is a
+   fixed path scaled by a single number — so this is a flow of intrinsically
+   sized objects rather than a grid of stretched cells. The row gap is
+   deliberately generous: each card needs headroom above it for its sheets to
+   rise into when it opens.
+   -------------------------------------------------------------------------*/
+.categoryGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-10) var(--space-7);
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 700px) {
+  .categoryGrid {
+    gap: var(--space-9) var(--space-5);
+  }
+}
+.appCard:active .iconWell { transform: scale(.96); }
+.appCard:focus-visible,
+.profile:focus-visible {
+  outline: 2px solid rgb(164 229 255 / 98%);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px rgb(113 193 255 / 12%), 0 14px 30px rgb(0 0 0 / 25%);
+}
+
+@keyframes nn-card-enter {
+  from { opacity: 0; filter: blur(3px); }
+  to { opacity: 1; filter: blur(0); }
+}
+@keyframes nn-card-wave {
+  from { transform: rotate(-16deg) translate3d(-5%, -2%, 0) scale(1); opacity: .68; }
+  to { transform: rotate(-10deg) translate3d(7%, 8%, 0) scale(1.12); opacity: 1; }
+}
+
+@media (min-width: 1500px) {
+  .appGrid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+}
+@media (max-width: 900px) {
+  .page { padding-top: 34px; }
+  .appGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .appCard { min-height: 124px; }
+}
+@media (max-width: 620px) {
+  .topbar { height: 60px; padding-inline: 17px; }
+  .page { padding: 27px 16px 44px; }
+  .welcome { padding-bottom: 27px; }
+  .applicationGroups { gap: 27px; }
+  .appGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+  .appCard { min-height: 112px; padding: 13px 5px 11px; border-radius: 19px; gap: 8px; }
+  .appCard::before { border-radius: 18px; }
+  .iconWell { width: 44px; height: 44px; border-radius: 15px; }
+  .appName { font-size: 11px; }
+  .appState { font-size: 6.5px; letter-spacing: .06em; }
+  .groupTitle p { font-size: 10px; }
+}
+@media (max-width: 370px) {
+  .appGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .appCard { min-height: 108px; }
+  .appState { font-size: 7px; }
+}
+@media (hover: none) {
+  .appCard:hover { transform: none; filter: none; }
+  .appCard:hover .iconWell { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .appCard, .cardWave, .iconWell, .profile { animation: none !important; transition: none !important; }
+  .appCard:hover, .appCard:active, .appCard:hover .iconWell, .appCard:active .iconWell { transform: none; }
+}
+:global(html[data-motion="reduced"]) .appCard,
+:global(html[data-motion="reduced"]) .cardWave,
+:global(html[data-motion="reduced"]) .iconWell,
+:global(html[data-motion="reduced"]) .profile {
+  animation: none !important;
+  transition: none !important;
+}
+:global(html[data-motion="reduced"]) .appCard:hover,
+:global(html[data-motion="reduced"]) .appCard:active { transform: none; }
+
+/* ---------------------------------------------------------------------------
+   The six families are folders.
+
+   FolderCard carries its own width and height — every shape inside it is a
+   fixed path scaled by one number — so this is a flow of intrinsically sized
+   objects, not a grid of stretched cells. The row gap is generous on purpose:
+   an open folder's sheets rise above the card's own box.
+   -------------------------------------------------------------------------*/
+.applicationGroups {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--space-12) var(--space-8);
+  margin-top: var(--space-9);
+}
+
+@media (max-width: 700px) {
+  .applicationGroups {
+    gap: var(--space-11) var(--space-5);
+    margin-top: var(--space-7);
+  }
+}

@@ -13,7 +13,7 @@ import styles from "./Room.module.css";
 export function Room() {
   return (
     <div className={styles.room} aria-hidden="true">
-      <GlassFold />
+      <GlassFold noise={0} />
       <div className={styles.veil} />
     </div>
   );

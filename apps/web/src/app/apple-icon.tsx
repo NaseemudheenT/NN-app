@@ -22,7 +22,7 @@ export default function AppleIcon() {
         }}
       >
         <svg width="102" height="82" viewBox="0 0 94 76">
-          <path d={NN_MARK_PATH} fill="#F7F9FC" fillRule="nonzero" />
+          <path d={NN_MARK_PATH} fill="#F7F9FC" fillRule="evenodd" />
         </svg>
       </div>
     ),

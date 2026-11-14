@@ -42,8 +42,9 @@ beforeAll(async () => {
 afterAll(async () => { await env.cleanup(); });
 beforeEach(async () => { await env.clearFirestore(); });
 
-const asOwner = () => env.authenticatedContext(OWNER).firestore();
-const asIntruder = () => env.authenticatedContext(INTRUDER).firestore();
+const asOwner = () => env.authenticatedContext(OWNER, { nnOwner: true }).firestore();
+const asIntruder = () => env.authenticatedContext(INTRUDER, { nnOwner: true }).firestore();
+const asNonPasskey = () => env.authenticatedContext(OWNER).firestore();
 const asStranger = () => env.unauthenticatedContext().firestore();
 
 /* ─────────────────────────── the boundary ────────────────────────────── */
@@ -68,6 +69,11 @@ describe("ownership boundary", () => {
 
   it("DENIES another signed-in user listing the founder's collections", async () => {
     await assertFails(getDocs(collection(asIntruder(), `users/${OWNER}/notes`)));
+  });
+
+  it("DENIES a Firebase-authenticated user without the verified passkey owner claim", async () => {
+    await assertFails(getDoc(doc(asNonPasskey(), `users/${OWNER}/notes/private`)));
+    await assertFails(setDoc(doc(asNonPasskey(), `users/${OWNER}/notes/private`), validDoc()));
   });
 
   it("DENIES an unauthenticated request entirely", async () => {

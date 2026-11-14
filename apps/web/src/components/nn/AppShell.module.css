@@ -1,0 +1,102 @@
+.root {
+  position: relative;
+  min-height: 100dvh;
+  padding: 0 clamp(var(--space-5), 3vw, var(--space-11)) calc(var(--space-14) + var(--space-8));
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  height: 60px;
+  margin-bottom: var(--space-6);
+  /* The bar sits over live, moving light. Without its own ground the text
+     would be read against whatever happens to be behind it. */
+  background: color-mix(in srgb, var(--surface-base) 72%, transparent);
+  backdrop-filter: blur(var(--glass-2-blur));
+  -webkit-backdrop-filter: blur(var(--glass-2-blur));
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  margin-left: calc(var(--space-4) * -1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-primary);
+  font-size: var(--text-label-size);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.brand:hover { background: var(--glass-hover); }
+.brand i { color: var(--text-muted); font-style: normal; }
+.brand strong { font-weight: var(--weight-semibold); }
+
+.barRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  /* 44px is the smallest a finger reliably hits. */
+  min-height: 44px;
+  padding: 0 var(--space-6);
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-full);
+  background: var(--glass-1-bg);
+  color: var(--text-secondary);
+  font-size: var(--text-caption-size);
+  cursor: pointer;
+}
+
+.search:hover { background: var(--glass-hover); color: var(--text-primary); }
+
+.subtitle {
+  margin: 0 0 var(--space-7);
+  color: var(--text-muted);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+}
+
+.body { padding-bottom: var(--space-11); }
+
+.dock {
+  position: fixed;
+  z-index: 8;
+  left: 50%;
+  bottom: max(var(--space-7), env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  padding: var(--space-3);
+  border: 1px solid var(--glass-2-border);
+  border-radius: var(--radius-2xl);
+  background: color-mix(in srgb, var(--surface-base) 62%, transparent);
+  backdrop-filter: blur(var(--glass-2-blur));
+  -webkit-backdrop-filter: blur(var(--glass-2-blur));
+  box-shadow: var(--shadow-4);
+  /* 100dvw, not 100vw: on a desktop with a classic scrollbar 100vw includes
+     it, and the dock would sit a scrollbar's width past the right edge. */
+  max-width: min(calc(100dvw - var(--space-7)), 1180px);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.dock::-webkit-scrollbar { display: none; }
+
+@media (max-width: 700px) {
+  .search span { display: none; }
+  .search { padding: 0; width: 44px; justify-content: center; }
+}

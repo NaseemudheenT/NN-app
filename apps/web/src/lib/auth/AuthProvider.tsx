@@ -61,13 +61,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const { auth } = getFirebase();
-    return onIdTokenChanged(auth, (u) => {
-      setUser(u);
+    return onIdTokenChanged(auth, async (u) => {
       if (u === null) {
+        setUser(null);
         setPhase("signed-out");
         clearSession();
         return;
       }
+
+      // A Firebase session alone is not an NN session. Only the server-issued
+      // custom claim minted after a verified passkey assertion may enter NN.
+      try {
+        const token = await u.getIdTokenResult();
+        if (token.claims.nnOwner !== true) {
+          clearSession();
+          await fbSignOut(auth);
+          setUser(null);
+          setPhase("signed-out");
+          return;
+        }
+      } catch {
+        clearSession();
+        await fbSignOut(auth);
+        setUser(null);
+        setPhase("signed-out");
+        return;
+      }
+      setUser(u);
       // onIdTokenChanged also fires on Firebase's silent hourly refresh. An
       // existing session must be left untouched here: bumping lastActiveAt on
       // a refresh would mean a tab left open never goes idle, quietly

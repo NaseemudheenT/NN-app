@@ -47,3 +47,5 @@ Thumbs.db
 # python bytecode from local skills
 __pycache__/
 *.pyc
+.vercel
+.env*

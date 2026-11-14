@@ -63,8 +63,17 @@ test.describe("passkey authentication", () => {
     // The browser performs a genuine WebAuthn create() against the virtual
     // authenticator, then NN exchanges the assertion for a Firebase session.
     await page.waitForURL("**/workspace", { timeout: 30_000 });
-    await expect(page.getByRole("heading", { name: "You are signed in." })).toBeVisible();
-    await expect(page.getByText(/owner uid · /)).toBeVisible();
+
+    /* Arriving at /workspace already means the ceremony completed. What is
+       asserted here is that a *real* session exists, not the guest preview:
+       the workspace prints the owner's Firebase uid only when it has one, and
+       drops the guest notice. Asserting the uid is stronger than asserting a
+       heading, which is what this used to do before /workspace became the
+       actual work surface. */
+    await expect(page.getByText(/owner · \S+/)).toBeVisible();
+    await expect(page.getByText(/TEMPORARY GUEST PREVIEW/)).toHaveCount(0);
+    await expect(page.getByText("Good evening, Founder.")
+      .or(page.getByText(/Good (morning|afternoon), Founder\./))).toBeVisible();
   });
 
   test("NN is now claimed, so the sign-in screen changes", async ({ page }) => {

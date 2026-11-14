@@ -56,3 +56,9 @@ export type { GlassFoldProps } from "./GlassFold";
 
 export { Coverflow } from "./Coverflow";
 export type { CoverflowProps, CoverflowCard } from "./Coverflow";
+
+export { FolderCard, useFolderWidth } from "./FolderCard";
+export type { FolderCardProps, FolderSheet } from "./FolderCard";
+
+export { LogoReveal } from "./LogoReveal";
+export type { LogoRevealProps } from "./LogoReveal";

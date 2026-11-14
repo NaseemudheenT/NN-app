@@ -7,6 +7,7 @@ import {
   fetchAuthStatus, passkeysSupported, registerPasskey, signInWithPasskey,
   useAuth, type AuthStatus,
 } from "@/lib/auth";
+import { enterPreview, leavePreview, previewOffered } from "@/lib/preview";
 import s from "./signin.module.css";
 
 /**
@@ -24,10 +25,24 @@ export function SignIn() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secret, setSecret] = useState("");
-  const supported = passkeysSupported();
+  // Null until mounted. Asked during render, this is false on the server —
+  // which made every visitor's sign-in page ship with "This browser does not
+  // support passkeys" already in it, and React threw the page away on
+  // hydration when the browser disagreed. Unknown is the honest third state.
+  const [supported, setSupported] = useState<boolean | null>(null);
+  useEffect(() => { setSupported(passkeysSupported()); }, []);
+
+  const enterTemporaryGuestMode = () => {
+    enterPreview();
+    // Home, not the workspace: the dashboard is where exploring NN starts.
+    router.replace("/home");
+  };
 
   useEffect(() => {
-    if (phase === "signed-in") router.replace("/workspace");
+    if (phase === "signed-in") {
+      leavePreview();
+      router.replace("/home");
+    }
   }, [phase, router]);
 
   useEffect(() => {
@@ -62,6 +77,46 @@ export function SignIn() {
             Firebase credentials are missing. Copy <code>.env.example</code> to{" "}
             <code>.env.local</code> and fill it in, then reload.
           </p>
+          {previewOffered() ? (
+            <>
+              <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
+                Explore NN without an account
+              </button>
+              <p className={s.guestNote}>
+                Nothing is signed in and no records are loaded. Every surface will say so.
+              </p>
+            </>
+          ) : null}
+        </GlassPanel>
+      </main>
+    );
+  }
+
+  /* A deployment whose server has no credentials cannot sign anyone in, and
+     should say so rather than offering a button that will always fail. */
+  if (status !== null && !status.configured) {
+    return (
+      <main className={s.page}>
+        <GlassPanel tier={3} padding="lg" className={s.card}>
+          <div className={s.mark}><NNGlassMark size={64} /></div>
+          <h1 className={s.title}>Sign-in is not available here</h1>
+          <p className={s.lede}>
+            This deployment of NN has no server credentials, so it cannot verify a
+            passkey. Everything you can see without signing in still works. See{" "}
+            <code>docs/DEPLOY_VERCEL.md</code> for the variables this environment
+            still needs.
+          </p>
+          {previewOffered() ? (
+            <>
+              <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
+                Explore NN without an account
+              </button>
+              <p className={s.guestNote}>
+                Nothing is signed in and no records are loaded. Every surface will
+                say so.
+              </p>
+            </>
+          ) : null}
         </GlassPanel>
       </main>
     );
@@ -118,7 +173,7 @@ export function SignIn() {
           {status !== null && claiming ? (
             <Button
               variant="primary" size="lg" loading={busy}
-              disabled={!supported || !status.bootstrapReady || secret.length === 0}
+              disabled={supported !== true || !status.bootstrapReady || secret.length === 0}
               onClick={() => void run(async () => {
                 await registerPasskey({ bootstrapSecret: secret, label: "First device" });
                 await signInWithPasskey();
@@ -128,7 +183,7 @@ export function SignIn() {
             </Button>
           ) : (
             <Button
-              variant="primary" size="lg" loading={busy} disabled={!supported || status === null}
+              variant="primary" size="lg" loading={busy} disabled={supported !== true || status === null}
               onClick={() => void run(signInWithPasskey)}
             >
               Sign in with passkey
@@ -140,7 +195,7 @@ export function SignIn() {
 
         {error !== null ? <p className={s.error} role="alert" data-testid="signin-error">{error}</p> : null}
 
-        {!supported ? (
+        {supported === false ? (
           <p className={s.error} role="alert" data-testid="signin-unsupported">
             This browser does not support passkeys. Use a recent Safari, Chrome or Edge.
           </p>
@@ -150,6 +205,16 @@ export function SignIn() {
           The fingerprint above is a symbol. Your device performs the biometric check
           itself — NN never receives or stores biometric data, only a public key.
         </p>
+        {previewOffered() ? (
+          <>
+            <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
+              Explore NN without an account
+            </button>
+            <p className={s.guestNote}>
+              Nothing is signed in and no records are loaded. Every surface will say so.
+            </p>
+          </>
+        ) : null}
       </GlassPanel>
     </main>
   );

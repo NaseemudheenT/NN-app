@@ -6,7 +6,25 @@ different developer, can continue NN without the original chat history.
 Owner and sole user: **Naseemudheen T.** · Repository: `NaseemudheenT/NN-app`
 (private) · Workspace: `/Users/thajudeen/NN-app-workspace`
 
+**Live at https://getrenew.in** (also `nn-app-sooty.vercel.app`). The domain
+was moved from the founder's Renew project to NN on 2026-11-13 at the
+founder's explicit instruction; Renew remains deployed on its own Vercel URL
+and the move is reversible by reassigning the domain back. WebAuthn binds to
+the hostname, so `WEBAUTHN_RP_ID` and `WEBAUTHN_ORIGIN` point at
+`getrenew.in`: a passkey registered here will not work on any other host.
+
 ---
+
+## 0. Current implementation ownership and handoff
+
+The founder has asked Claude to take the lead on completing the remaining NN operating system using the existing frontend as the approved baseline. Read `docs/CLAUDE_OS_COMPLETION_BRIEF.md` and `docs/CLAUDE_COLLABORATION_HANDOFF.md` before substantial work.
+
+- **Existing frontend baseline:** `design/nn-frontend-system`. It contains the approved NN design tokens, spatial/glass material language, shared UI components, Home/Life/Workspace surfaces, 34-app registry and honest planned-app overview routes. It is not a complete OS.
+- **Claude's assignment:** audit the actual repository, reconcile stale docs, then lead the remaining OS build end-to-end: shell, app workflows, backend integration, REN, security, tests and documentation. Claude may change frontend code when required, but must preserve the founder-approved NN visual direction and existing tested behaviours.
+- **Coordination:** avoid destructive rewrites. Work on a feature branch, use focused commits, keep the handoff/status documents accurate and report exact evidence. If a product decision or conflicting canonical spec cannot be resolved from founder instructions, ask the founder rather than guessing.
+- **Release:** no production merge/deploy, production Firebase changes, billing/Blaze, paid services or domain changes without explicit founder approval.
+
+The previous division in which ChatGPT owned all frontend changes and Claude only backend services is superseded by this founder-directed OS completion handoff. The existing frontend is the baseline to build upon, not a blank slate.
 
 ## 1. What NN is
 
@@ -45,7 +63,7 @@ disconnected pages. It is not finished because a page exists.
 | **Never enable Blaze or attach billing** without explicit founder approval | cost control |
 | **No install scripts.** All three are explicitly declined in `pnpm-workspace.yaml` | supply chain |
 | **Never weaken the security rules** | they are the only authorisation boundary |
-| **Never redesign the NN logo** | approved geometry, test-guarded |
+| **Never redesign the NN logo** | founder-supplied geometry, test-guarded |
 | **The assistant is REN.** Renamed from ORIN on 2026-11-08 | founder decision |
 | **REN has three capabilities and no more:** text, voice, appearance | founder decision |
 | **Never claim something works without running it** | the founder's hardest rule |
@@ -149,8 +167,11 @@ Palette (fixed): `#07111F` `#0B1930` `#10223B` `#172B45` `#F7F9FC` `#E7EDF6`
   opaque tier. This single rule is what keeps glassmorphism readable.
 - `.nn-holo` adds the prismatic chamfer; the rim is painted only in a 1 px
   border band via a mask.
-- The logo is **Concept A, 94 × 76, not square**, with a 6-unit gap. Declared
-  once as `NN_MARK_PATH` and guarded by a test.
+- The logo is the founder's own mark: **a single N drawn as a double stroke**,
+  100 × 108, each of its three strokes an outline. Declared once as
+  `NN_MARK_PATH`, filled **evenodd** (with nonzero the hollow strokes close up
+  into a blob), and guarded by a test. It replaced the earlier two-N lockup on
+  2026-11-13. Every file in `/public/brand/nn/` is generated from that one path.
 
 Forbidden: permanent left sidebar · widget walls · neon · cyberpunk · cartoon ·
 gaming aesthetics · robot mascots · glow for its own sake.
@@ -305,3 +326,31 @@ Honest completion: roughly **7%**. See `docs/NN_GAP_ANALYSIS.md` and
 Ask the founder only for: production changes, paid services, billing,
 destructive operations, brand changes, or a genuine scope decision. Make
 ordinary reversible engineering calls yourself.
+
+## NN visual direction — founder-approved project context
+
+Before changing any frontend, read:
+- `docs/NN_FINAL_FRONTEND_DESIGN_SPEC.md`
+- `docs/NN_FOUNDER_VISUAL_RESET.md`
+- `docs/FRONTEND_DESIGN_SYSTEM.md`
+- `docs/NN_CINEMATIC_VISUAL_SYSTEM.md`
+
+The founder's standing visual direction is a premium, futuristic personal operating environment using the supplied perspective-tunnel introduction, WebGL Glass Fold atmosphere, liquid-glass controls, floating 3D coverflow cards and adjustable-glass workspace language. Apply the same coherent NN visual identity across Home, Life, Learning, Work, Personal and System—not only the landing page.
+
+Follow `docs/NN_FOUNDER_VISUAL_RESET.md` as the latest founder-approved visual authority: deep midnight foundation with luminous cyan, aqua, electric-blue, indigo and violet wave light; premium iridescent floating glass; calm spatial depth. Preserve the custom TypeScript + Next.js + CSS Modules architecture, NN icon family, accessibility and performance constraints. The founder's official NN and REN logo assets are pending; do not redraw or approximate them. Reuse the existing `NNIntro`, `Room`/`GlassFold`, `LiquidButton`, `Coverflow`, `NNWorkspace` and REN components before creating alternatives. The supplied shadcn/Tailwind/Framer Motion/GSAP snippets are references to adapt, not instructions to add duplicate frameworks or dependencies.
+
+All visible controls must work. All live-looking animations must reflect actual state. Keep placeholder data clearly labelled. Respect reduced motion, touch and keyboard interaction, and low-power devices. Do not claim a feature or screen is complete until its real data path, states, responsive behaviour and tests are verified.
+
+
+##  Design and animation implementation authority
+
+Before any product-wide UI or animation work, also read:
+- `docs/NN_PRODUCT_UI_ANIMATION_MASTER_PROMPT.md` — complete product design and reusable implementation prompt for all approved NN applications.
+- `docs/NN_ANIMATION_COMPONENT_SOURCE_INDEX.md` — mapping from the founder's five supplied animation references to the existing NN source components.
+
+These documents are the persistent implementation authority for the complete NN visual system. Store future founder-supplied UI prompts and source snippets in `docs/` (or a clearly named `docs/reference/` archive) and index them. Do not merely mention that references were seen in chat. Adapt every reference to NN's actual architecture, palette, data, accessibility, device and security constraints. The 34-app visual map is a design target, not a claim those apps are implemented.
+
+
+## Product-wide frontend completion contract
+
+The final page-by-page visual and interaction authority is `docs/NN_FINAL_FRONTEND_DESIGN_SPEC.md`. Implement the actual routes and unique application work surfaces from that spec and `docs/NN_APP_REGISTRY.md`; do not stop at docs, mockups, a generic placeholder route, or a successful build. Keep the shared shell coherent, every app's information architecture purpose-specific, and every state honest. The founder owns visual approval and official logo assets; do not invent the NN or REN marks. Frontend work remains on `design/nn-frontend-system` until founder approval to merge.

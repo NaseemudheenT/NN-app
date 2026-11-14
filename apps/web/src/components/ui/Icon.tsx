@@ -49,6 +49,7 @@ export function Icon({ name, size = 20, title, className }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      data-nn-icon={name}
       {...(title !== undefined
         ? { role: "img" as const }
         : { "aria-hidden": true as const, role: "presentation" as const })}

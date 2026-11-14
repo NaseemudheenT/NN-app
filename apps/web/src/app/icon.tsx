@@ -21,7 +21,7 @@ export default function Icon() {
         }}
       >
         <svg width="300" height="243" viewBox="0 0 94 76">
-          <path d={NN_MARK_PATH} fill="#F7F9FC" fillRule="nonzero" />
+          <path d={NN_MARK_PATH} fill="#F7F9FC" fillRule="evenodd" />
         </svg>
       </div>
     ),

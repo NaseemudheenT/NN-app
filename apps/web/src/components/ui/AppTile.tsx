@@ -13,7 +13,7 @@ export interface AppTileProps extends Omit<ButtonHTMLAttributes<HTMLButtonElemen
 export function AppTile({
   name, icon, description, compact = false, className, ...rest
 }: AppTileProps) {
-  const cls = ["nn-holo", styles.tile, compact ? styles.compact : "", className ?? ""]
+  const cls = ["nn-holo", "nn-glass-card", styles.tile, compact ? styles.compact : "", className ?? ""]
     .filter(Boolean).join(" ");
   return (
     <button type="button" className={cls} {...rest}>

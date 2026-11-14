@@ -13,9 +13,9 @@ import s from "./design.module.css";
 /* ------------------------------------------------------------------ data -- */
 
 const PALETTE = [
-  ["Base", "#07111F"], ["Deep", "#0B1930"], ["Surface", "#10223B"], ["Elevated", "#172B45"],
-  ["White", "#F7F9FC"], ["Soft", "#E7EDF6"], ["Silver", "#A6B3C5"], ["Grey", "#77869B"],
-  ["Icy", "#9CC8FF"], ["Accent", "#649CE3"],
+  ["Base", "#080D24"], ["Deep", "#101A3A"], ["Surface", "#19264D"], ["Elevated", "#253565"],
+  ["White", "#F7F9FC"], ["Soft", "#E7EDF6"], ["Silver", "#C3CBE2"], ["Grey", "#929FC0"],
+  ["Icy", "#A9D9FF"], ["Accent", "#7A9CFF"],
 ] as const;
 
 const TYPE_SCALE = [

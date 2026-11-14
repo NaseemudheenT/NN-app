@@ -76,7 +76,7 @@ export function NNGlassMark({
           </linearGradient>
 
           <clipPath id={clip}>
-            <path d={NN_MARK_PATH} fillRule="nonzero" />
+            <path d={NN_MARK_PATH} fillRule="evenodd" />
           </clipPath>
         </defs>
 
@@ -86,14 +86,14 @@ export function NNGlassMark({
           <g style={{ mixBlendMode: "screen" }} aria-hidden="true">
             <path
               d={NN_MARK_PATH}
-              fillRule="nonzero"
+              fillRule="evenodd"
               fill="#4FD8FF"
               opacity="0.42"
               transform={`translate(${-dispersion} ${-dispersion * 0.45})`}
             />
             <path
               d={NN_MARK_PATH}
-              fillRule="nonzero"
+              fillRule="evenodd"
               fill="#C77BFF"
               opacity="0.34"
               transform={`translate(${dispersion} ${dispersion * 0.45})`}
@@ -102,10 +102,10 @@ export function NNGlassMark({
         ) : null}
 
         {/* The mark itself. */}
-        <path d={NN_MARK_PATH} fillRule="nonzero" fill={`url(#${body})`} />
+        <path d={NN_MARK_PATH} fillRule="evenodd" fill={`url(#${body})`} />
         <path
           d={NN_MARK_PATH}
-          fillRule="nonzero"
+          fillRule="evenodd"
           fill="none"
           stroke={`url(#${edge})`}
           strokeWidth="0.9"

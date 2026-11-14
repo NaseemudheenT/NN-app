@@ -1,0 +1,63 @@
+/* The mark of a surface entered without an account. */
+
+.banner {
+  position: fixed;
+  left: 50%;
+  top: max(10px, env(safe-area-inset-top, 0px));
+  transform: translateX(-50%);
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(560px, calc(100dvw - 20px));
+  padding: 9px 10px 9px 15px;
+  border: 1px solid rgb(232 194 122 / 38%);
+  border-radius: var(--radius-full);
+  background: rgb(38 30 16 / 88%);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  box-shadow: var(--shadow-3);
+  color: var(--text-secondary);
+}
+
+.dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--status-warn);
+  box-shadow: 0 0 10px rgb(232 194 122 / 70%);
+}
+
+.banner p {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  min-width: 0;
+  font-size: var(--text-caption-size);
+  line-height: 1.45;
+}
+
+.banner strong { color: var(--text-primary); font-weight: var(--weight-medium); }
+.banner span { color: var(--text-muted); }
+
+.banner button {
+  flex: none;
+  padding: 7px 13px;
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-full);
+  background: rgb(232 244 255 / 7%);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-caption-size);
+  cursor: pointer;
+}
+
+.banner button:hover { background: var(--glass-hover); }
+.banner button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+@media (max-width: 719px) {
+  .banner { padding: 8px 8px 8px 12px; gap: 9px; }
+  .banner span { display: none; }
+}

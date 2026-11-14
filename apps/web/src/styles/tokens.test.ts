@@ -56,7 +56,7 @@ describe("colour contrast — dark theme", () => {
   const ground = token(ROOT, "--surface-base");
 
   it("uses the approved midnight base", () => {
-    expect(ground.toUpperCase()).toBe("#07111F");
+    expect(ground.toUpperCase()).toBe("#080D24");
   });
 
   it.each(TEXT_TOKENS)("%s meets WCAG AA (4.5:1) on the base surface", (name) => {
@@ -86,12 +86,33 @@ describe("colour contrast — light theme", () => {
 
 describe("palette integrity", () => {
   const APPROVED = [
-    "#07111F", "#0B1930", "#10223B", "#172B45", "#F7F9FC",
-    "#E7EDF6", "#A6B3C5", "#77869B", "#9CC8FF", "#649CE3",
+    "#080D24", "#101A3A", "#19264D", "#253565", "#F7F9FC",
+    "#E7EDF6", "#C3CBE2", "#929FC0", "#A9D9FF", "#7A9CFF",
   ];
 
   it("contains every approved Version 3.0 colour, unaltered", () => {
     for (const hex of APPROVED) expect(css.toUpperCase()).toContain(hex);
+  });
+});
+
+describe("iridescent material system", () => {
+  it("defines the founder-approved optical reflections separately from the base palette", () => {
+    for (const name of [
+      "--nn-spectrum-cyan",
+      "--nn-spectrum-aqua",
+      "--nn-spectrum-blue",
+      "--nn-spectrum-indigo",
+      "--nn-spectrum-violet",
+      "--nn-spectrum-rim",
+      "--nn-wave-ribbon-primary",
+      "--nn-wave-ribbon-secondary",
+    ]) {
+      expect(ROOT).toMatch(new RegExp(name + "\\s*:"));
+    }
+  });
+
+  it("keeps the home hero on a dark ground in light mode for its white copy", () => {
+    expect(token(LIGHT, "--nn-wave-hero-bg")).toContain("#101A3A");
   });
 });
 

@@ -1,0 +1,137 @@
+/* NN phone-first usability layer.
+   Keeps the established visual system while prioritising touch, legibility,
+   compact layouts, keyboard-safe forms and iOS safe areas. */
+@media (max-width: 700px) {
+  html { scroll-padding-top: 76px; }
+  body {
+    min-width: 320px;
+    overflow-x: clip;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nn-shell {
+    min-height: 100svh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .nn-page-arrive { animation-duration: 220ms; }
+  :where(main, section, article, aside, header, footer, nav, form, fieldset) {
+    min-width: 0;
+  }
+  :where(h1, h2, h3, h4, p, label, small, span) {
+    overflow-wrap: anywhere;
+  }
+  :where(button, [role="button"], a, input, select, textarea) {
+    touch-action: manipulation;
+  }
+  :where(button, [role="button"]) {
+    min-height: 44px;
+  }
+  :where(input, select, textarea) {
+    min-height: 46px;
+    max-width: 100%;
+    font-size: 16px !important;
+    scroll-margin-bottom: 120px;
+  }
+  textarea { min-height: 104px; }
+  :where(button, input, select, textarea) {
+    border-radius: 13px;
+  }
+  :where(button, [role="button"]):focus-visible,
+  :where(input, select, textarea):focus-visible {
+    outline-offset: 3px;
+  }
+
+  /* Prevent dense desktop grids from becoming narrow columns on phones. */
+  :where(.grid, .cards, .cardGrid, .widgetGrid, .contentGrid, .dashboardGrid,
+    .workspaceGrid, .panelGrid, .statsGrid, .tiles, .appGrid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-width: 0;
+  }
+  :where(.grid, .cards, .cardGrid, .widgetGrid, .contentGrid, .dashboardGrid,
+    .workspaceGrid, .panelGrid, .statsGrid, .tiles, .appGrid) > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  :where(.nn-glass-card, .nn-glass, .nn-glass-primary, .nn-glass-reading,
+    .nn-holo, .panel, .focusPanel, .quickPanel, .notesList, .noteCard,
+    .focus, .nextUp, .goals, .stats, .kindList, .chartWrap) {
+    min-width: 0;
+    max-width: 100%;
+    border-radius: 17px;
+    -webkit-backdrop-filter: blur(18px) saturate(145%);
+    backdrop-filter: blur(18px) saturate(145%);
+  }
+  :where(.nn-glass-card, .panel, .focusPanel, .quickPanel, .notesList,
+    .focus, .nextUp, .goals, .stats, .kindList, .chartWrap) {
+    padding: 16px;
+  }
+
+  /* Keep horizontal navigation deliberate and finger-friendly. */
+  :where(.tabs, [role="tablist"]) {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  :where(.tabs, [role="tablist"])::-webkit-scrollbar { display: none; }
+  :where(.tabs button, [role="tab"]) {
+    flex: 0 0 auto;
+    min-height: 42px;
+    white-space: nowrap;
+  }
+  .dock {
+    max-width: calc(100vw - 20px);
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    gap: 4px;
+  }
+  .dock button {
+    min-width: 44px;
+    min-height: 46px;
+  }
+
+  /* Forms should remain visible above the iOS keyboard. */
+  :where(form) { gap: 12px; }
+  :where(form button[type="submit"], form [type="submit"]) {
+    min-height: 48px;
+    width: 100%;
+  }
+  :where(input, textarea, select) { line-height: 1.35; }
+  :where(table) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  :where(pre, code) { overflow-wrap: anywhere; }
+  :where(img, video, canvas, svg) { max-width: 100%; }
+
+  /* Simplify visual movement on touch devices; retain depth and colour. */
+  .nn-shell::before, .nn-shell::after { opacity: .2; filter: blur(24px); }
+  .nn-glass-card, .nn-glass, .nn-glass-primary, .nn-glass-reading,
+  .nn-holo, .noteCard {
+    transition-duration: 160ms;
+  }
+}
+@media (max-width: 420px) {
+  .nn-shell { font-size: 15px; }
+  :where(.nn-glass-card, .panel, .focusPanel, .quickPanel, .notesList,
+    .focus, .nextUp, .goals, .stats, .kindList, .chartWrap) {
+    padding: 14px;
+    border-radius: 15px;
+  }
+  .dock { gap: 2px; }
+}
+@media (hover: none), (pointer: coarse) {
+  .nn-glass-card:hover, .nn-glass:hover, .nn-glass-primary:hover,
+  .nn-glass-reading:hover, .nn-holo:hover, .noteCard:hover {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nn-page-arrive, .nn-glass-card, .nn-glass, .nn-glass-primary,
+  .nn-glass-reading, .nn-holo, .noteCard {
+    animation: none !important;
+    transition: none !important;
+  }
+}

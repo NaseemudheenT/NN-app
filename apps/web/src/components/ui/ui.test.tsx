@@ -9,13 +9,14 @@ import {
 /* ------------------------------------------------------- brand lock ------ */
 
 describe("NN mark", () => {
-  // The founder approved this exact geometry. If this test fails, the brand was
-  // changed — which requires founder approval, not a code review.
+  // The founder supplied this exact geometry. If this test fails, the brand
+  // was changed — which requires founder approval, not a code review.
   const APPROVED =
-    "M0 0 H12 L32 46 V0 H44 V76 H32 L12 30 V76 H0 Z " +
-    "M50 0 H62 L82 46 V0 H94 V76 H82 L62 30 V76 H50 Z";
+    "M0 0 H22 V108 H0 Z M7 7 H15 V101 H7 Z " +
+    "M78 0 H100 V108 H78 Z M85 7 H93 V101 H85 Z " +
+    "M22 0 H42 L78 108 H58 Z M29 7 H35 L71 101 H65 Z";
 
-  it("geometry is unchanged from the approved Concept A", () => {
+  it("geometry is unchanged from the mark the founder supplied", () => {
     expect(NN_MARK_PATH).toBe(APPROVED);
   });
 
@@ -30,16 +31,53 @@ describe("NN mark", () => {
     expect(container.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("renders at the requested height and keeps the 94:76 ratio", () => {
-    const { container } = render(<NNLogo size={76} decorative />);
+  it("renders at the requested height and keeps the 100:108 ratio", () => {
+    const { container } = render(<NNLogo size={108} decorative />);
     const svg = container.querySelector("svg");
-    expect(svg).toHaveAttribute("height", "76");
-    expect(svg).toHaveAttribute("width", "94");
+    expect(svg).toHaveAttribute("height", "108");
+    expect(svg).toHaveAttribute("width", "100");
   });
 
-  it("is not square — the two forms are separated by a gap", () => {
+  it("is taller than it is wide, and never assumed square", () => {
     const { container } = render(<NNLogo decorative />);
-    expect(container.querySelector("svg")).toHaveAttribute("viewBox", "0 0 94 76");
+    expect(container.querySelector("svg")).toHaveAttribute("viewBox", "0 0 100 108");
+  });
+
+  it("is drawn evenodd everywhere, in code and in the brand files", async () => {
+    // One of the three strokes filling in is not a subtle bug: the mark
+    // becomes a black rectangle. This checks every place it is rasterised,
+    // not only the component, because the icons and the SDF draw it too.
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const roots = [
+      "src/components/ui/NNLogo.tsx",
+      "src/components/ui/NNGlassMark.tsx",
+      "src/app/icon.tsx",
+      "src/app/apple-icon.tsx",
+      "src/app/maskable-icon/route.tsx",
+      "src/lib/markSdf.ts",
+    ];
+    // Declarations only. The word also appears in the comments that explain
+    // why it must not be used, and failing on prose would teach the next
+    // person to delete the explanation.
+    const declaresNonzero = /(fillRule|fill-rule)\s*=\s*["'{]\s*["']?nonzero|,\s*["']nonzero["']/;
+    for (const file of roots) {
+      expect(declaresNonzero.test(readFileSync(file, "utf8")), file).toBe(false);
+    }
+    const brand = "public/brand/nn";
+    for (const name of readdirSync(brand)) {
+      if (!name.endsWith(".svg")) continue;
+      const body = readFileSync(join(brand, name), "utf8");
+      expect(body.includes("evenodd"), name).toBe(true);
+      expect(declaresNonzero.test(body), name).toBe(false);
+    }
+  });
+
+  it("is filled evenodd, or the hollow strokes close up into a blob", () => {
+    // Each of the three strokes is an outline. With the nonzero rule the
+    // counters fill in and the mark becomes a solid rectangle at small sizes.
+    const { container } = render(<NNLogo decorative />);
+    expect(container.querySelector("path")).toHaveAttribute("fill-rule", "evenodd");
   });
 });
 
