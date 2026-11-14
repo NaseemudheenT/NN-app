@@ -7,6 +7,7 @@ import {
   fetchAuthStatus, passkeysSupported, registerPasskey, signInWithPasskey,
   useAuth, type AuthStatus,
 } from "@/lib/auth";
+import { enterPreview, leavePreview, previewOffered } from "@/lib/preview";
 import s from "./signin.module.css";
 
 /**
@@ -32,14 +33,15 @@ export function SignIn() {
   useEffect(() => { setSupported(passkeysSupported()); }, []);
 
   const enterTemporaryGuestMode = () => {
-    window.sessionStorage.setItem("nn.temporary-guest", "1");
-    router.replace("/workspace");
+    enterPreview();
+    // Home, not the workspace: the dashboard is where exploring NN starts.
+    router.replace("/home");
   };
 
   useEffect(() => {
     if (phase === "signed-in") {
-      window.sessionStorage.removeItem("nn.temporary-guest");
-      router.replace("/workspace");
+      leavePreview();
+      router.replace("/home");
     }
   }, [phase, router]);
 
@@ -75,10 +77,16 @@ export function SignIn() {
             Firebase credentials are missing. Copy <code>.env.example</code> to{" "}
             <code>.env.local</code> and fill it in, then reload.
           </p>
-          <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
-            Continue without login
-          </button>
-          <p className={s.guestNote}>Temporary development access. Passkey sign-in is not active.</p>
+          {previewOffered() ? (
+            <>
+              <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
+                Explore NN without an account
+              </button>
+              <p className={s.guestNote}>
+                Nothing is signed in and no records are loaded. Every surface will say so.
+              </p>
+            </>
+          ) : null}
         </GlassPanel>
       </main>
     );
@@ -98,6 +106,17 @@ export function SignIn() {
             <code>docs/DEPLOY_VERCEL.md</code> for the variables this environment
             still needs.
           </p>
+          {previewOffered() ? (
+            <>
+              <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
+                Explore NN without an account
+              </button>
+              <p className={s.guestNote}>
+                Nothing is signed in and no records are loaded. Every surface will
+                say so.
+              </p>
+            </>
+          ) : null}
         </GlassPanel>
       </main>
     );
@@ -186,10 +205,16 @@ export function SignIn() {
           The fingerprint above is a symbol. Your device performs the biometric check
           itself — NN never receives or stores biometric data, only a public key.
         </p>
-        <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
-          Continue without login
-        </button>
-        <p className={s.guestNote}>Temporary development access · your private account is not signed in.</p>
+        {previewOffered() ? (
+          <>
+            <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
+              Explore NN without an account
+            </button>
+            <p className={s.guestNote}>
+              Nothing is signed in and no records are loaded. Every surface will say so.
+            </p>
+          </>
+        ) : null}
       </GlassPanel>
     </main>
   );

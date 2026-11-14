@@ -89,7 +89,11 @@ describe("NN dashboard", () => {
     expect(APPLICATIONS).toHaveLength(34);
   });
 
-  it("opens each family at a route that exists", async () => {
+  // Seven clicks, each re-rendering a tree that mounts a thirty-four card
+  // carousel. That is genuinely slow in jsdom — it passes in under a second
+  // alone and overran vitest's five-second default only under full-suite
+  // load. The budget is raised to match the work, not to hide a hang.
+  it("opens each family at a route that exists", { timeout: 25_000 }, async () => {
     render(<NNHomePreview />);
     await userEvent.click(
       screen.getAllByRole("button", { name: "Applications — All thirty-four" })[0]!,

@@ -4,14 +4,20 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { NNLogo } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
-
-const TEMPORARY_GUEST_KEY = "nn.temporary-guest";
+import { inPreview, leavePreview } from "@/lib/preview";
+import { PreviewBanner } from "./PreviewBanner";
 
 /**
- * Keeps unauthenticated visitors out of private NN surfaces unless they
- * explicitly entered the temporary, browser-tab guest preview from sign-in.
- * This is only a UI development bypass. Firebase and server-side data rules
- * continue to require a real authenticated owner.
+ * Keeps visitors out of NN's private surfaces.
+ *
+ * The one way past it is the preview door, entered deliberately from the
+ * sign-in page and alive for a single browser tab. It grants nothing: no
+ * session, no token, and the Firestore rules still require a real owner, so
+ * every panel behind it reports honestly that it could not read. What it
+ * opens is the environment, not anyone's records.
+ *
+ * Surfaces reached that way carry a banner that cannot be dismissed, because
+ * a preview mistaken for the real thing is worse than no preview.
  */
 export function RequireOwner({ children }: { children: ReactNode }) {
   const { phase } = useAuth();
@@ -20,13 +26,14 @@ export function RequireOwner({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (phase === "signed-in") {
-      window.sessionStorage.removeItem(TEMPORARY_GUEST_KEY);
+      // A real session supersedes the preview, and clearing it here means the
+      // banner cannot linger over a surface that is genuinely the founder's.
+      leavePreview();
       setGuestMode(false);
       return;
     }
 
-    const temporaryGuest = window.sessionStorage.getItem(TEMPORARY_GUEST_KEY) === "1";
-    if (temporaryGuest) {
+    if (inPreview()) {
       setGuestMode(true);
       return;
     }
@@ -47,5 +54,10 @@ export function RequireOwner({ children }: { children: ReactNode }) {
       </div>
     );
   }
-  return <>{children}</>;
+  return (
+    <>
+      {guestMode ? <PreviewBanner /> : null}
+      {children}
+    </>
+  );
 }
