@@ -622,9 +622,18 @@ body {
   transform: none !important;
 }
 
-/* Preserve popovers, focus rings and floating controls above glass surfaces. */
+/* Preserve popovers, focus rings and floating controls above glass surfaces.
+ *
+ * Not `!important`. Global utilities load before CSS Modules, so this already
+ * loses to any component that sets `overflow` itself — which is the point: a
+ * surface whose design depends on clipping its own decoration must be allowed
+ * to clip it. Forcing this on everything made Life's hero stop containing a
+ * 1347px blurred ribbon, and the page scrolled sideways at every width.
+ *
+ * A component that needs content to escape either says nothing, and inherits
+ * this, or says `overflow: visible` itself. Both are explicit. */
 .nn-glass-card,.nn-glass,.nn-glass-primary,.nn-glass-reading,.nn-holo {
-  overflow: visible !important;
+  overflow: visible;
 }
 .nn-glass-card::after,.nn-glass::after,.nn-glass-primary::after,.nn-glass-reading::after,.nn-holo::after {
   border-radius: inherit;
