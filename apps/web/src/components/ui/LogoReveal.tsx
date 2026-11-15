@@ -193,7 +193,6 @@ export function LogoReveal({
   className,
 }: LogoRevealProps) {
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [fallback, setFallback] = React.useState(false);
   const revealed = React.useRef(false);
 
@@ -218,8 +217,19 @@ export function LogoReveal({
     }
 
     const host = hostRef.current;
-    const canvas = canvasRef.current;
-    if (!host || !canvas) return;
+    /* A canvas per run of this effect, created here rather than rendered.
+       Cleanup loses the context, and a lost context is permanent: ask the
+       same element for `webgl2` afterwards and the browser returns the dead
+       one, whose shaders then fail to compile with no error text. React keeps
+       the DOM node across effect re-runs, so a rendered canvas meant the
+       reveal worked once and was a still SVG every time after — the same
+       trap the orb was in. */
+    const canvas = document.createElement("canvas");
+    canvas.className = styles.canvas ?? "";
+    canvas.setAttribute("aria-hidden", "true");
+    if (!host) return;
+    host.appendChild(canvas);
+    const drop = () => { canvas.remove(); };
 
     const gl = canvas.getContext("webgl2", {
       alpha: false,
@@ -230,6 +240,7 @@ export function LogoReveal({
       powerPreference: "low-power",
     });
     if (!gl) {
+      drop();
       setFallback(true);
       announce();
       return;
@@ -237,6 +248,7 @@ export function LogoReveal({
 
     const field = buildMarkField(Math.max(96, Math.round(size * 1.6)));
     if (!field) {
+      drop();
       setFallback(true);
       announce();
       return;
@@ -246,6 +258,7 @@ export function LogoReveal({
     const fragment = compile(gl, gl.FRAGMENT_SHADER, FRAGMENT);
     const program = vertex && fragment ? gl.createProgram() : null;
     if (!vertex || !fragment || !program) {
+      drop();
       setFallback(true);
       announce();
       return;
@@ -255,6 +268,7 @@ export function LogoReveal({
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       console.error("NN LogoReveal program failed to link:", gl.getProgramInfoLog(program));
+      drop();
       setFallback(true);
       announce();
       return;
@@ -292,7 +306,13 @@ export function LogoReveal({
        guaranteed way to make a smooth animation stutter. */
     const applyPalette = () => {
       const style = getComputedStyle(document.documentElement);
-      const ground = readColour(style, "--nn-navy-900", [0.031, 0.051, 0.141]);
+      /* The ground the light falls onto, not a fixed midnight. `--nn-navy-900`
+         is the brand's darkest navy and it is correct in the dark theme — but
+         in the light theme it painted the entry as a black slab on a white
+         page, which is where the founder first saw the light theme not
+         following. `--surface-deep` is the same depth in whichever theme is
+         on. */
+      const ground = readColour(style, "--surface-deep", [0.043, 0.098, 0.188]);
       const cyan = readColour(style, "--nn-spectrum-cyan", [0.161, 0.69, 1]);
       const violet = readColour(style, "--nn-spectrum-violet", [0.718, 0.439, 1]);
       const light = readColour(style, "--nn-icy", [0.663, 0.851, 1]);
@@ -365,6 +385,7 @@ export function LogoReveal({
       // which matters on a machine with 8 GB and a browser holding several
       // contexts open at once.
       gl.getExtension("WEBGL_lose_context")?.loseContext();
+      drop();
     };
   }, [size, duration, announce]);
 
@@ -382,7 +403,6 @@ export function LogoReveal({
         </span>
       ) : (
         <>
-          <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
           {/* A canvas has no accessible name of its own, and the mark is the
               product's name — so it is given one, as text. */}
           <span className={styles.name}>NN</span>

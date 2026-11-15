@@ -96,17 +96,6 @@
   font-size: var(--text-label-size);
 }
 
-.model { display: inline-flex; align-items: center; }
-
-.modelSelect {
-  composes: nn-liquid from global;
-  padding: var(--space-3) var(--space-5);
-  border-radius: var(--radius-full);
-  appearance: none;
-  font: inherit;
-  font-size: var(--text-label-size);
-}
-
 /* --------------------------------------------------------------- thread -- */
 
 .thread {

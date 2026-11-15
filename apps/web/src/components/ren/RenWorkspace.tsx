@@ -121,15 +121,23 @@ export function RenWorkspace() {
     }
   };
 
+  /**
+   * What the header says under REN's name.
+   *
+   * Never the model, and never another company's. REN is NN's own
+   * intelligence and the only identity on this screen; which engine carries
+   * its language is infrastructure, the way the database is, and putting a
+   * vendor's name where REN's state belongs would make REN look like a
+   * wrapper around someone else's assistant. The founder was explicit about
+   * this. The deployment detail still exists — it is in the setup card
+   * below, and in the deployment guide, where an operator needs it.
+   */
   const badge = useMemo(() => {
     if (!ren.checked) return null;
-    if (ren.answeredBy) return `${ren.answeredBy.label} · ${ren.answeredBy.model}`;
-    if (ren.providers.length > 0) {
-      const first = ren.providers[0];
-      return first ? `${first.label} · ${first.model}` : null;
-    }
-    return "No model connected";
-  }, [ren.answeredBy, ren.checked, ren.providers]);
+    if (!ready) return "Language not connected";
+    if (ren.busy) return last?.role === "ren" && last.text !== "" ? "Answering" : "Thinking";
+    return "Ready";
+  }, [ren.busy, ren.checked, last, ready]);
 
   return (
     <div className={styles.root}>
@@ -152,20 +160,6 @@ export function RenWorkspace() {
         </div>
 
         <div className={styles.barActions}>
-          {ren.providers.length > 1 ? (
-            <label className={styles.model}>
-              <span className={styles.srOnly}>Model</span>
-              <select
-                className={styles.modelSelect}
-                value={ren.chosen ?? ren.providers[0]?.id ?? ""}
-                onChange={(event) => ren.choose(event.target.value)}
-              >
-                {ren.providers.map((provider) => (
-                  <option key={provider.id} value={provider.id}>{provider.label}</option>
-                ))}
-              </select>
-            </label>
-          ) : null}
           <button
             type="button"
             className={styles.ghost}
@@ -185,7 +179,7 @@ export function RenWorkspace() {
             <p>
               {ready
                 ? "Ask me anything, or tell me to do something in NN. I can read what you send me, write code, work through problems, and operate NN itself."
-                : "I have no language on this deployment yet. NN needs a model provider key before I can think — everything else about me is already here."}
+                : "My language is not connected on this deployment yet. Everything else about me is already here — I just cannot speak until NN is given an engine to think with."}
             </p>
             {ready ? (
               <ul className={styles.openers}>
@@ -207,10 +201,14 @@ export function RenWorkspace() {
               </ul>
             ) : (
               <div className={styles.setup} role="status">
+                {/* Operator detail, shown only while REN cannot speak. It names
+                    variables rather than companies: this is a deployment step,
+                    not REN's identity. */}
                 <p>
-                  Set one of <code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code> or{" "}
-                  <code>GOOGLE_API_KEY</code> in NN&apos;s environment and redeploy. The key is
-                  read on the server only — it never reaches this page, and it is never logged.
+                  <strong>To connect it:</strong> set <code>ANTHROPIC_API_KEY</code>,{" "}
+                  <code>OPENAI_API_KEY</code> or <code>GOOGLE_API_KEY</code> in NN&apos;s
+                  environment and redeploy. The key is read on the server only — it never reaches
+                  this page, and it is never logged.
                 </p>
               </div>
             )}
@@ -280,7 +278,7 @@ export function RenWorkspace() {
             ref={inputRef}
             rows={1}
             value={draft}
-            placeholder={ready ? `Ask REN anything, ${firstName}…` : "REN has no model connected"}
+            placeholder={ready ? `Ask REN anything, ${firstName}…` : "REN cannot speak yet"}
             disabled={!ready}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={onKeyDown}

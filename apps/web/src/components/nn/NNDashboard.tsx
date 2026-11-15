@@ -1,19 +1,20 @@
 "use client";
 
 import {
-  useCallback, useEffect, useMemo, useState,
-  type CSSProperties, type ReactNode,
+  useCallback, useMemo, useState,
+  type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { LiquidNav, type LiquidNavItem } from "@/components/ui/LiquidNav";
 import { CurvedCarousel, type CarouselSlide } from "@/components/ui/CurvedCarousel";
 import { WaveCard, WaveChip } from "@/components/ui/WaveCard";
 import { useAppTransition } from "@/components/nn/AppTransition";
-import { DEFAULT_GLASS, glassVariables, readStoredGlass, type GlassSettings } from "@/lib/glass";
-import { APPLICATIONS, GROUPS, applicationsInFamily } from "@/lib/apps/registry";
+import { APPLICATIONS } from "@/lib/apps/registry";
+import { waveFor } from "@/lib/folderArt";
 import { useRecords, type RecordFault, type RecordState } from "@/lib/nn/records";
 import { relativeTime, useClock } from "@/lib/clock";
 import styles from "./NNDashboard.module.css";
@@ -43,11 +44,23 @@ import styles from "./NNDashboard.module.css";
 const VIEWS = [
   { id: "today", label: "Today", icon: "calendar", hint: "What NN has for you" },
   { id: "apps", label: "Applications", icon: "grid", hint: "All thirty-four" },
+  { id: "ren", label: "REN", icon: "sparkle", hint: "Your intelligence" },
   { id: "activity", label: "Activity", icon: "clock", hint: "Everything recorded" },
   { id: "system", label: "System", icon: "settings", hint: "The environment itself" },
 ] as const satisfies readonly (LiquidNavItem & { id: string })[];
 
-type ViewId = (typeof VIEWS)[number]["id"];
+/**
+ * REN sits in the dock with the views, but it is not one.
+ *
+ * It is the only item that leaves the dashboard, because REN is a place
+ * rather than a panel — and it belongs in the dock because the founder
+ * reaches for it as often as for Today. Selecting it navigates and the
+ * dashboard keeps whichever view it was on, so coming back lands where you
+ * left rather than resetting to Today.
+ */
+const NAV_ROUTES: Partial<Record<string, string>> = { ren: "/ren" };
+
+type ViewId = Exclude<(typeof VIEWS)[number]["id"], "ren">;
 
 const VIEW_TITLE: Record<ViewId, string> = {
   today: "Today",
@@ -196,11 +209,13 @@ function TodayView({ firstName }: { firstName: string }) {
 
   const next = upcoming[0];
 
-  const counters: ReadonlyArray<{ label: string; state: RecordState; value: number; icon: IconName }> = [
-    { label: "Open tasks", state: tasks, value: openTasks.length, icon: "check" },
-    { label: "Scheduled", state: events, value: upcoming.length, icon: "calendar" },
-    { label: "Notes", state: notes, value: notes.items.length, icon: "file" },
-    { label: "Goals", state: goals, value: goals.items.length, icon: "graph" },
+  const counters: ReadonlyArray<{
+    label: string; state: RecordState; value: number; icon: IconName; tone: GlassIconTone;
+  }> = [
+    { label: "Open tasks", state: tasks, value: openTasks.length, icon: "check", tone: "green" },
+    { label: "Scheduled", state: events, value: upcoming.length, icon: "calendar", tone: "cyan" },
+    { label: "Notes", state: notes, value: notes.items.length, icon: "file", tone: "blue" },
+    { label: "Goals", state: goals, value: goals.items.length, icon: "graph", tone: "violet" },
   ];
 
   const today = now === null ? null : new Date(now);
@@ -254,7 +269,7 @@ function TodayView({ firstName }: { firstName: string }) {
           <li className={styles.counter} key={counter.label}>
             <p className={styles.counterTop}>
               <span>{counter.label}</span>
-              <Icon name={counter.icon} size={16} />
+              <GlassIcon name={counter.icon} tone={counter.tone} size={28} />
             </p>
             {counter.state.fault ? (
               <strong className={styles.counterUnknown} title={counter.state.fault.message}>
@@ -368,6 +383,7 @@ function ApplicationsView() {
         kicker: app.group,
         caption: app.description,
         icon: app.icon,
+        art: waveFor(app.name),
         ready: app.href !== undefined,
       })),
     [],
@@ -393,26 +409,6 @@ function ApplicationsView() {
         className={styles.carousel}
       />
 
-      <div className={styles.families}>
-        {GROUPS.map((family) => {
-          const apps = applicationsInFamily(family.name);
-          const ready = apps.filter((app) => app.href !== undefined).length;
-          return (
-            <button
-              key={family.name}
-              type="button"
-              className={styles.family}
-              onClick={() => travel.open(`/family/${family.slug}` as Route, family.name)}
-            >
-              <span className={styles.familyName}>{family.name}</span>
-              <span className={styles.familyMeta}>
-                {apps.length} applications · {ready} ready
-              </span>
-              <Icon name="expand" size={16} />
-            </button>
-          );
-        })}
-      </div>
     </>
   );
 }
@@ -587,15 +583,14 @@ export function NNDashboard({
   // the movement means something.
   const router = useRouter();
   const [view, setView] = useState<ViewId>(initialView);
-  const [glass, setGlass] = useState<GlassSettings>(DEFAULT_GLASS);
 
-  // Read after mount, never during render: the server has no localStorage, and
-  // reading it in a initial-state function would make the first client render
-  // disagree with the server's and throw away the whole tree.
-  useEffect(() => { setGlass(readStoredGlass()); }, []);
-
+  const choose = useCallback((item: LiquidNavItem) => {
+    const route = NAV_ROUTES[item.id];
+    if (route) { router.push(route as Route); return; }
+    setView(item.id as ViewId);
+  }, [router]);
   return (
-    <div className={styles.root} style={glassVariables(glass) as CSSProperties}>
+    <div className={styles.root}>
       <header className={styles.topbar}>
         <div className={styles.brand}>
           <span className={styles.mark}><NNLogo size={20} decorative /></span>
@@ -632,7 +627,7 @@ export function NNDashboard({
           <LiquidNav
             items={VIEWS}
             activeId={view}
-            onSelect={(item) => setView(item.id as ViewId)}
+            onSelect={choose}
             orientation="vertical"
             compact
             aria-label="Dashboard views"
@@ -655,7 +650,7 @@ export function NNDashboard({
             <LiquidNav
               items={VIEWS}
               activeId={view}
-              onSelect={(item) => setView(item.id as ViewId)}
+              onSelect={choose}
               aria-label="Dashboard views"
             />
           </div>
@@ -679,7 +674,7 @@ export function NNDashboard({
             <LiquidNav
               items={VIEWS}
               activeId={view}
-              onSelect={(item) => setView(item.id as ViewId)}
+              onSelect={choose}
               aria-label="Dashboard views"
             />
           </div>

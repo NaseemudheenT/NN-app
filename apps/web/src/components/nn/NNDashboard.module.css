@@ -242,11 +242,19 @@
 }
 
 .counter {
-  padding: 16px;
-  border: 1px solid var(--border-subtle);
+  padding: var(--card-pad);
+  border: var(--card-edge) solid var(--glass-2-border);
   border-radius: var(--radius-lg);
-  background: rgb(232 244 255 / 4%);
+  background: var(--glass-2-bg);
+  backdrop-filter: blur(var(--glass-2-blur)) saturate(1.25);
+  -webkit-backdrop-filter: blur(var(--glass-2-blur)) saturate(1.25);
+  box-shadow: var(--card-lift);
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    box-shadow var(--dur-base) var(--ease-standard);
 }
+
+.counter:hover { transform: translateY(-2px); }
 
 .counterTop {
   display: flex;
@@ -260,7 +268,7 @@
 
 .counter strong {
   display: block;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: var(--weight-medium);
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
@@ -288,10 +296,13 @@
 }
 
 .panel {
-  padding: 18px;
-  border: 1px solid var(--border-subtle);
+  padding: var(--card-pad);
+  border: var(--card-edge) solid var(--glass-2-border);
   border-radius: var(--radius-lg);
-  background: rgb(232 244 255 / 4%);
+  background: var(--glass-2-bg);
+  backdrop-filter: blur(var(--glass-2-blur)) saturate(1.25);
+  -webkit-backdrop-filter: blur(var(--glass-2-blur)) saturate(1.25);
+  box-shadow: var(--card-lift);
   min-width: 0;
 }
 

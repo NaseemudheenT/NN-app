@@ -24,12 +24,12 @@
   z-index: -2;
   border-radius: inherit;
   overflow: hidden;
-  background: rgb(16 26 58 / 46%);
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  background: var(--glass-3-bg);
+  backdrop-filter: blur(var(--glass-3-blur)) saturate(1.4);
+  -webkit-backdrop-filter: blur(var(--glass-3-blur)) saturate(1.4);
   box-shadow:
-    inset 0 1px 1px rgb(226 240 255 / 22%),
-    inset 0 0 0 1px rgb(206 228 255 / 13%),
+    inset 0 1px 1px var(--glass-sheen),
+    inset 0 0 0 1px var(--glass-3-border),
     var(--shadow-3);
 }
 
@@ -39,6 +39,15 @@
   top: -14px;
   z-index: -1;
   pointer-events: none;
+  /* The canvas is PAD wider than the pill on every side, on purpose: the
+   * shader needs somewhere to put the drop's shadow and the ripples. The
+   * global `canvas { max-width: 100% }` reset was clamping it back to the
+   * pill's own width — so the water was squeezed horizontally while its
+   * height was not, and every coordinate the shader works in stopped
+   * agreeing with the buttons it was supposed to sit under. The drop landed
+   * left of whatever you had chosen and the pill's edge cut across the icons.
+   * It has to opt out. */
+  max-width: none;
 }
 
 .nav[data-gl="off"] .water { display: none; }

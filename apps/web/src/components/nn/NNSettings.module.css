@@ -1,9 +1,27 @@
 /* NN's settings, built the way a phone's settings are built. */
 
 .root {
+  position: relative;
   max-width: 720px;
   margin: 0 auto;
   padding: clamp(16px, 3vw, 36px) clamp(14px, 3vw, 24px) clamp(60px, 8vw, 110px);
+}
+
+/* A quiet ground under the whole page. The room keeps moving behind it —
+   NN is still one place — but it stops being something the text has to be
+   read through. */
+.root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-base) 62%, transparent),
+      color-mix(in srgb, var(--surface-base) 86%, transparent)
+    );
 }
 
 .heading {
@@ -54,15 +72,18 @@
   padding-left: 16px;
   font-size: var(--text-caption-size);
   font-weight: var(--weight-medium);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .rows {
-  border: 1px solid var(--border-subtle);
+  border: var(--card-edge) solid var(--glass-2-border);
   border-radius: var(--radius-lg);
-  background: rgb(232 244 255 / 5%);
+  background: var(--glass-3-bg);
+  -webkit-backdrop-filter: blur(var(--glass-3-blur)) saturate(1.2);
+  backdrop-filter: blur(var(--glass-3-blur)) saturate(1.2);
+  box-shadow: var(--card-lift);
   overflow: hidden;
 }
 
@@ -71,7 +92,7 @@
   padding: 0 16px;
   font-size: var(--text-caption-size);
   line-height: 1.55;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 /* ------------------------------------------------------------------- rows -- */

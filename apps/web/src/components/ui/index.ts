@@ -2,6 +2,8 @@ export { NNLogo, NNLockup, NN_MARK_PATH } from "./NNLogo";
 export type { NNLogoProps, NNLockupProps } from "./NNLogo";
 
 export { Icon } from "./Icon";
+export { GlassIcon } from "./GlassIcon";
+export type { GlassIconProps, GlassIconTone } from "./GlassIcon";
 export type { IconName, IconProps } from "./Icon";
 
 export { GlassPanel } from "./GlassPanel";

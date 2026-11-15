@@ -6,7 +6,6 @@ import type { Route } from "next";
 import { useRecordWriter } from "@/lib/nn/records";
 import { passkeysSupported, signInWithPasskey, useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
-import { normaliseGlass, readStoredGlass, writeStoredGlass } from "@/lib/glass";
 import { routeFor, sectionName, needsReauthentication, type RenPlan } from "./capabilities";
 
 /**
@@ -174,21 +173,13 @@ export function useRenOperator(): RenOperator {
           setTheme(choice);
           return { ok: true, said: `NN is now ${choice === "system" ? "following your device" : choice}.` };
         }
-        // Calm and vivid are the glass, not the theme: less light or more.
-        const current = readStoredGlass();
-        const next = normaliseGlass(
-          choice === "calm"
-            ? { ...current, blur: 32, opacity: 0.74, saturation: 0.95, edge: 0.35 }
-            : { ...current, blur: 16, opacity: 0.22, saturation: 1.5, edge: 0.9 },
-        );
-        writeStoredGlass(next);
-        // The surfaces read this on mount, so the change needs a reload to be
-        // seen everywhere. Saying so is better than a half-changed room.
+        /* "calm" and "vivid" used to retune a stored per-device glass setting.
+           That setting is gone — the material belongs to the theme now — so
+           REN says what it can do instead of silently doing nothing and
+           reporting success. */
         return {
-          ok: true,
-          said: choice === "calm"
-            ? "Quietened NN's glass. Reopen a surface to see it everywhere."
-            : "Brightened NN's glass. Reopen a surface to see it everywhere.",
+          ok: false,
+          said: "I can set NN to dark, light, or follow your device. I cannot tune the glass beyond that.",
         };
       }
 

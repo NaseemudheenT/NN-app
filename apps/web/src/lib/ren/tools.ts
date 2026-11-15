@@ -90,14 +90,12 @@ export const REN_TOOLS: readonly RenTool[] = [
   },
   {
     name: "set_appearance",
-    description:
-      "Change how NN looks. 'dark', 'light' and 'system' set the theme; 'calm' and 'vivid' set " +
-      "how much the material moves.",
+    description: "Change how NN looks: dark, light, or follow the founder's device.",
     schema: object(
       {
         appearance: {
           type: "string",
-          enum: ["dark", "light", "system", "calm", "vivid"],
+          enum: ["dark", "light", "system"],
           description: "The appearance to apply.",
         },
       },
@@ -163,7 +161,7 @@ export function planFromToolCall(
   }
 
   if (capability === "appearance") {
-    const allowed = ["dark", "light", "system", "calm", "vivid"] as const;
+    const allowed = ["dark", "light", "system"] as const;
     const match = allowed.find((value) => value === appearance);
     if (!match) return { ok: false, why: `NN has no appearance called "${appearance ?? ""}".` };
     resolved.appearance = match;

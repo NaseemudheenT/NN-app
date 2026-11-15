@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
 import { Switch } from "@/components/ui/Switch";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAuth } from "@/lib/auth";
@@ -43,17 +44,15 @@ function Group({ title, footer, children }: {
   );
 }
 
-function Tile({ icon, tone }: { icon: IconName; tone: string }) {
-  return (
-    <span className={styles.tile} style={{ background: tone }} aria-hidden="true">
-      <Icon name={icon} size={16} />
-    </span>
-  );
+/* Every row's glyph sits in glass. A flat gradient chip was the last place
+   in NN where an icon had a painted background rather than a material. */
+function Tile({ icon, tone }: { icon: IconName; tone: GlassIconTone }) {
+  return <GlassIcon name={icon} tone={tone} size={30} />;
 }
 
 /** A row that holds a switch. The whole row is the control's label. */
 function SwitchRow({ icon, tone, label, hint, checked, onChange, disabled }: {
-  icon: IconName; tone: string; label: string; hint?: string;
+  icon: IconName; tone: GlassIconTone; label: string; hint?: string;
   checked: boolean; onChange: (next: boolean) => void; disabled?: boolean;
 }) {
   return (
@@ -70,7 +69,7 @@ function SwitchRow({ icon, tone, label, hint, checked, onChange, disabled }: {
 
 /** A row of mutually exclusive choices. */
 function ChoiceRow<T extends string>({ icon, tone, label, value, choices, onChange }: {
-  icon: IconName; tone: string; label: string; value: T;
+  icon: IconName; tone: GlassIconTone; label: string; value: T;
   choices: readonly { id: T; label: string }[];
   onChange: (next: T) => void;
 }) {
@@ -97,7 +96,7 @@ function ChoiceRow<T extends string>({ icon, tone, label, value, choices, onChan
 
 /** A row that reports something NN knows but cannot change. */
 function FactRow({ icon, tone, label, value }: {
-  icon: IconName; tone: string; label: string; value: string;
+  icon: IconName; tone: GlassIconTone; label: string; value: string;
 }) {
   return (
     <div className={styles.row} data-static>
@@ -109,14 +108,9 @@ function FactRow({ icon, tone, label, value }: {
 }
 
 const TONE = {
-  blue: "linear-gradient(160deg, #2a6cff, #1b44c4)",
-  cyan: "linear-gradient(160deg, #29b0ff, #1878c8)",
-  violet: "linear-gradient(160deg, #a06cff, #6a46d8)",
-  slate: "linear-gradient(160deg, #46557d, #2c3858)",
-  green: "linear-gradient(160deg, #3fbf8a, #1f8a63)",
-  amber: "linear-gradient(160deg, #e0a44a, #b57a24)",
-  red: "linear-gradient(160deg, #e06a6a, #b23c3c)",
-} as const;
+  blue: "blue", cyan: "cyan", violet: "violet", slate: "slate",
+  green: "green", amber: "amber", red: "red",
+} as const satisfies Record<string, GlassIconTone>;
 
 /* ---------------------------------------------------------------- surface -- */
 
@@ -197,7 +191,7 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
 
       <Group
         title="REN"
-        footer="REN has three capabilities by design: text, voice and appearance. Voice is not built yet, and REN says so rather than implying more."
+        footer="REN reads, reasons, writes and operates NN with your permission. Voice is the one thing not built yet, and REN says so rather than implying more."
       >
         <SwitchRow
           icon="mic" tone={TONE.blue} label="Voice"

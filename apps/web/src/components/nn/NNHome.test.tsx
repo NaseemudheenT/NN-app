@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { APPLICATIONS, GROUPS, applicationsInFamily } from "@/lib/apps/registry";
+import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
 
 const { push, open } = vi.hoisted(() => ({ push: vi.fn(), open: vi.fn() }));
 
@@ -38,7 +38,7 @@ describe("NN dashboard", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Today" })).toBeInTheDocument();
   });
 
-  it("offers its four views, and the nav is one tab stop rather than four", () => {
+  it("offers its views and REN, and the nav is one tab stop rather than five", () => {
     render(<NNHomePreview />);
     // Rendered three times — rail, mobile nav and dock — so scope to one.
     const nav = screen.getAllByRole("navigation", { name: "Dashboard views" })[0]!;
@@ -46,11 +46,28 @@ describe("NN dashboard", () => {
     expect(buttons.map((b) => b.getAttribute("aria-label"))).toEqual([
       "Today — What NN has for you",
       "Applications — All thirty-four",
+      "REN — Your intelligence",
       "Activity — Everything recorded",
       "System — The environment itself",
     ]);
     // Roving tab index: arrows move within the dock, Tab moves past it.
     expect(buttons.filter((b) => b.tabIndex === 0)).toHaveLength(1);
+  });
+
+  it("leaves the dashboard for REN, and stays on it for a view", async () => {
+    // REN sits in the dock but is not a view: it is the only item that
+    // navigates, and choosing it must not quietly reset the open view.
+    render(<NNHomePreview />);
+    const nav = screen.getAllByRole("navigation", { name: "Dashboard views" })[0]!;
+    await userEvent.click(within(nav).getByRole("button", { name: "REN — Your intelligence" }));
+    expect(push).toHaveBeenCalledWith("/ren");
+
+    push.mockClear();
+    await userEvent.click(
+      within(nav).getByRole("button", { name: "Activity — Everything recorded" }),
+    );
+    expect(push).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { level: 1, name: "Activity" })).toBeInTheDocument();
   });
 
   it("shows an em dash, never a zero, for a count it could not read", () => {
@@ -89,31 +106,20 @@ describe("NN dashboard", () => {
     expect(APPLICATIONS).toHaveLength(34);
   });
 
-  // Seven clicks, each re-rendering a tree that mounts a thirty-four card
-  // carousel. That is genuinely slow in jsdom — it passes in under a second
-  // alone and overran vitest's five-second default only under full-suite
-  // load. The budget is raised to match the work, not to hide a hang.
-  it("opens each family at a route that exists", { timeout: 25_000 }, async () => {
+  it("no longer stacks a second launcher under the carousel", async () => {
+    // The Applications view used to repeat all six families as a list below
+    // the carousel — the same thirty-four applications, reached a second way.
+    // The founder asked for it gone: the carousel is the launcher.
     render(<NNHomePreview />);
     await userEvent.click(
       screen.getAllByRole("button", { name: "Applications — All thirty-four" })[0]!,
     );
-
-    for (const family of GROUPS) {
-      open.mockClear();
-      const apps = applicationsInFamily(family.name);
-      const ready = apps.filter((app) => app.href !== undefined).length;
-      await userEvent.click(
-        screen.getByRole("button", {
-          name: `${family.name} ${apps.length} applications · ${ready} ready`,
-        }),
-      );
-      expect(open, family.name).toHaveBeenCalledWith(`/family/${family.slug}`, family.name);
-    }
+    // Matched on the family row's own shape — "Education 6 applications ·
+    // 3 ready" — rather than the family name, because "System" is also a
+    // dashboard view and would match the dock.
+    expect(screen.queryAllByRole("button", { name: /\d+ applications · \d+ ready/ })).toEqual([]);
+    expect(GROUPS.length).toBeGreaterThan(0);
   });
-
-
-
 
   it("puts the founder's own things in the top bar, and no material control", () => {
     render(<NNHomePreview />);
