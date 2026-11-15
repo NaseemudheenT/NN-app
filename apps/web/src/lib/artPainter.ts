@@ -19,7 +19,17 @@ const queue: { job: ArtJob; priority: number; done: (c: HTMLCanvasElement) => vo
 let pumping = false;
 
 /** Milliseconds of each frame the painter is allowed to spend. */
-const BUDGET_MS = 6;
+const BUDGET_MS = 8;
+
+/**
+ * Rows painted between clock checks.
+ *
+ * The budget above is the real guard; this only decides how often the loop
+ * stops to look at it. At four rows a card took far longer than it needed to
+ * — most of the budget went on `performance.now()` rather than on pixels —
+ * and a stack of thirty-four applications sat half-blank for seconds.
+ */
+const ROWS_PER_SLICE = 14;
 
 function pump() {
   if (pumping) return;
@@ -28,7 +38,7 @@ function pump() {
     const until = performance.now() + BUDGET_MS;
     while (queue.length && performance.now() < until) {
       const head = queue[0]!;
-      if (head.job.step(4)) {
+      if (head.job.step(ROWS_PER_SLICE)) {
         queue.shift();
         const canvas = document.createElement("canvas");
         canvas.width = head.job.width;

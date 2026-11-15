@@ -98,26 +98,99 @@ export function springStep(
  */
 export const TAP_SLOP = 6;
 
-/** Card size for a stage of w × h: portrait, a smaller share of a wide stage. */
+/** How many cards either side of the centre belong to the stack. */
+export const VISIBLE = 4;
+
+/** Card size for a stage of w × h: portrait, and large, because they stack. */
 export function cardSize(w: number, h: number): [number, number] {
-  const width = Math.min(w < 640 ? w * 0.56 : w * 0.22, h * 0.34);
-  return [Math.round(width), Math.round(width * 1.25)];
+  const width = Math.min(w < 640 ? w * 0.62 : w * 0.28, h * 0.46);
+  return [Math.round(width), Math.round(width * 1.32)];
+}
+
+/**
+ * How far a card travels per step, and how hard it leans.
+ *
+ * The founder supplied a stacked-card slider and asked for its motion and
+ * nothing else — the wave, the glyph in glass, the tap-to-centre and the
+ * absence of arrows all stay. What changes is the arrangement: instead of a
+ * row where each card clears the last, the cards sit on top of one another
+ * and fan. `shift` is deliberately far smaller than a card's width, which is
+ * what makes a stack rather than a row.
+ *
+ * Three sizes rather than a formula, because the right fan on a phone is not
+ * a scaled-down version of the right fan on a desk: the small one has to keep
+ * the second card reachable by thumb.
+ */
+export interface StackConfig {
+  shift: number;
+  drop: number;
+  lean: number;
+  shrink: number;
+}
+
+export function stackConfig(width: number): StackConfig {
+  if (width < 640) return { shift: 90, drop: 20, lean: 8, shrink: 0.06 };
+  if (width < 1024) return { shift: 130, drop: 30, lean: 10, shrink: 0.09 };
+  return { shift: 170, drop: 40, lean: 12, shrink: 0.12 };
+}
+
+export interface StackTransform {
+  x: number;
+  y: number;
+  /** Radians. Positive leans the card's top to the right. */
+  rotation: number;
+  scale: number;
+  /** 0 behind the stack, 1 in it. */
+  fade: number;
+}
+
+/**
+ * Where a card sits, given its signed distance from the centre.
+ *
+ * `fade` exists because a ring of thirty-four has no far edge: without it the
+ * card arriving from behind would pop into the stack at full strength. The
+ * last one and a half steps are a fade, which is also why the stack has no
+ * visible seam when it loops.
+ */
+export function stackTransform(
+  offset: number, config: StackConfig, visible = 4,
+): StackTransform {
+  const away = Math.abs(offset);
+  // Below this the card is the one you are looking at: no lean, no drop, or
+  // the centre of the stack would wobble as the spring settles.
+  const settled = away < 0.05;
+  return {
+    x: offset * config.shift,
+    y: settled ? 0 : away * config.drop,
+    rotation: settled ? 0 : (offset * config.lean * Math.PI) / 180,
+    scale: Math.max(0.2, 1 - away * config.shrink),
+    fade: Math.max(0, Math.min(1, (visible - away) / 1.5)),
+  };
 }
 
 /* ---------------------------------------------------------------- shader -- */
 
 const VERT =
   "attribute vec2 aPos;" +
-  "uniform vec2 uRes;uniform vec2 uSize;uniform float uX;uniform float uBend;uniform float uVel;uniform float uIntro;uniform float uLift;" +
+  "uniform vec2 uRes;uniform vec2 uSize;uniform float uX;uniform float uY;" +
+  "uniform float uRot;uniform float uScale;uniform float uBend;uniform float uVel;" +
+  "uniform float uIntro;uniform float uLift;" +
   "varying vec2 vUv;varying float vX;" +
   "void main(){" +
-  "vec2 p=vec2(uX+(aPos.x-.5)*uSize.x,(aPos.y-.5)*uSize.y);" +
+  // the card in its own space, scaled about its centre
+  "vec2 q=(aPos-.5)*uSize*uScale;" +
+  // the lean
+  "float c=cos(uRot),s=sin(uRot);" +
+  "q=vec2(c*q.x - s*q.y, s*q.x + c*q.y);" +
+  // into the stage: +uY is down the screen
+  "vec2 p=vec2(uX+q.x, q.y-uY);" +
   "p.y-=(1.-uIntro)*uSize.y*.9;" +
   "vec2 n=p/(uRes*.5);" +
-  "float x=clamp(n.x,-1.4,1.4);" +
-  "n.y*=1.+uBend*x*x;" +
+  "float x=clamp((uX)/(uRes.x*.5),-1.4,1.4);" +
+  // the lens is kept, gently: the stack still sits on a curved surface
+  "n.y*=1.+uBend*x*x*.35;" +
   "n.y+=uVel*.05*sin(aPos.x*3.14159)*(aPos.y-.5);" +
-  "n.x*=1.-.06*uBend*x*x;n.y+=uLift;" +
+  "n.y+=uLift;" +
   "vUv=aPos;vX=x;" +
   "gl_Position=vec4(n,0.,1.);}";
 
@@ -234,7 +307,7 @@ export function CurvedCarousel({
 
     const u: Record<string, WebGLUniformLocation | null> = {};
     for (const name of [
-      "uRes", "uSize", "uX", "uBend", "uVel", "uIntro",
+      "uRes", "uSize", "uX", "uY", "uRot", "uScale", "uBend", "uVel", "uIntro",
       "uTex", "uAspect", "uShift", "uReady", "uLift",
     ]) {
       u[name] = gl.getUniformLocation(program, name);
@@ -245,9 +318,13 @@ export function CurvedCarousel({
 
     let disposed = false;
 
-    // One texture per slide, starting as a single deep-navy pixel so a card
-    // that has not been painted yet reads as an empty card rather than noise.
-    const textures = slidesRef.current.map((slide) => {
+    /* One texture per slide, starting as a single deep-navy pixel so a card
+       that has not been painted yet reads as an empty card rather than noise.
+       Queued nearest-the-centre first, both directions: thirty-four cards at
+       six milliseconds a frame take a noticeable moment, and painting them in
+       index order meant the whole left-hand side of the stack — the end of
+       the ring — stayed blank while the right was finished. */
+    const textures = slidesRef.current.map((slide, slideIndex) => {
       const texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(
@@ -271,7 +348,8 @@ export function CurvedCarousel({
             ? ART_PRESETS[slide.art]
             : slide.art;
 
-      void paintArt(recipe, seedFor(slide.title), 256, 320, 0).then((source) => {
+      const nearness = Math.abs(offsetOf(slideIndex, 0, slidesRef.current.length));
+      void paintArt(recipe, seedFor(slide.title), 224, 296, nearness).then((source) => {
         if (disposed) return;
         // The painted wave is shared and cached; the face is this card's own.
         const face = slide.icon
@@ -291,7 +369,7 @@ export function CurvedCarousel({
     let stageH = 1;
     let cardW = 1;
     let cardH = 1;
-    let gap = 1;
+    let stack = stackConfig(1);
     let position = 0;
     let velocity = 0;
     let target = 0;
@@ -316,10 +394,13 @@ export function CurvedCarousel({
       canvas.width = Math.round(stageW * dpr);
       canvas.height = Math.round(stageH * dpr);
       [cardW, cardH] = cardSize(stageW, stageH);
-      gap = cardW * 0.14;
+      stack = stackConfig(stageW);
       gl.viewport(0, 0, canvas.width, canvas.height);
       kick();
     };
+
+    /** Reused each frame so a 34-card stack allocates nothing while it moves. */
+    const order: { index: number; away: number }[] = [];
 
     const draw = () => {
       gl.clearColor(0, 0, 0, 0);
@@ -329,20 +410,30 @@ export function CurvedCarousel({
       gl.uniform1f(u.uBend!, bend);
       gl.uniform1f(u.uVel!, reduced.matches ? 0 : Math.max(-1, Math.min(1, velocity * 0.12)));
       gl.uniform1f(u.uLift!, 0);
-      const step = cardW + gap;
 
+      /* Painter's algorithm. The cards overlap now, so the order they are
+         drawn in *is* their depth — there is no z-buffer on a transparent
+         pass. Furthest first, so the card you are looking at ends on top. */
+      order.length = 0;
       for (let i = 0; i < count; i += 1) {
-        const distance = offsetOf(i, position, count);
-        const x = distance * step;
-        // Skip anything the lens cannot reach: at 34 applications most of the
-        // ring is behind the viewer on any given frame.
-        if (Math.abs(x) > stageW * 0.5 + step * 1.5) continue;
-        const order = Math.abs(distance);
-        const t = Math.max(0, Math.min(1, (intro - order * 0.12) / 0.6));
-        const eased = 1 - Math.pow(1 - t, 3);
-        const entry = textures[i]!;
+        const away = Math.abs(offsetOf(i, position, count));
+        if (away > VISIBLE) continue;   // the rest of the ring is behind you
+        order.push({ index: i, away });
+      }
+      order.sort((a, b) => b.away - a.away);
+
+      for (const { index } of order) {
+        const distance = offsetOf(index, position, count);
+        const place = stackTransform(distance, stack, VISIBLE);
+        const away = Math.abs(distance);
+        const t = Math.max(0, Math.min(1, (intro - away * 0.12) / 0.6));
+        const eased = (1 - Math.pow(1 - t, 3)) * place.fade;
+        const entry = textures[index]!;
         gl.bindTexture(gl.TEXTURE_2D, entry.texture);
-        gl.uniform1f(u.uX!, x);
+        gl.uniform1f(u.uX!, place.x);
+        gl.uniform1f(u.uY!, place.y);
+        gl.uniform1f(u.uRot!, place.rotation);
+        gl.uniform1f(u.uScale!, place.scale);
         gl.uniform1f(u.uIntro!, eased);
         gl.uniform1f(u.uAspect!, entry.aspect);
         gl.uniform1f(u.uReady!, entry.ready ? 1 : 0);
@@ -412,7 +503,7 @@ export function CurvedCarousel({
     };
     const onMove = (event: PointerEvent) => {
       if (!dragging) return;
-      const step = cardW + gap;
+      const step = stack.shift;
       const dts = Math.max(1, event.timeStamp - lastTime) / 1000;
       flick = flick * 0.6 + (-(event.clientX - lastX) / step / dts) * 0.4;
       velocity = flick;
@@ -437,7 +528,7 @@ export function CurvedCarousel({
       if (travelled <= TAP_SLOP) {
         const box = stage.getBoundingClientRect();
         const delta = Math.round(
-          (event.clientX - (box.left + box.width / 2)) / (cardW + gap),
+          (event.clientX - (box.left + box.width / 2)) / stack.shift,
         );
         if (delta === 0) onTapCentre.current();
         else { target = Math.round(target) + delta; kick(); }

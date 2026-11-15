@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  cardSize, offsetOf, restFor, springStep, wrapIndex,
+  cardSize, offsetOf, restFor, springStep, stackConfig, stackTransform, wrapIndex,
 } from "./CurvedCarousel";
 
 /**
@@ -95,5 +95,60 @@ describe("cardSize", () => {
       expect(cw).toBeLessThan(w);
       expect(ch).toBeLessThan(h);
     }
+  });
+});
+
+describe("the stack", () => {
+  it("fans a card out, down and over as it leaves the centre", () => {
+    const config = stackConfig(1200);
+    const centre = stackTransform(0, config);
+    expect(centre).toMatchObject({ x: 0, y: 0, rotation: 0, scale: 1 });
+
+    const next = stackTransform(1, config);
+    expect(next.x).toBe(config.shift);
+    expect(next.y).toBe(config.drop);
+    expect(next.rotation).toBeCloseTo((config.lean * Math.PI) / 180, 6);
+    expect(next.scale).toBeCloseTo(1 - config.shrink, 6);
+  });
+
+  it("drops and shrinks the same on either side, but leans opposite ways", () => {
+    const config = stackConfig(1200);
+    const left = stackTransform(-2, config);
+    const right = stackTransform(2, config);
+    expect(left.y).toBe(right.y);
+    expect(left.scale).toBe(right.scale);
+    expect(left.rotation).toBeCloseTo(-right.rotation, 6);
+    expect(left.x).toBeCloseTo(-right.x, 6);
+  });
+
+  it("holds the centre card still while the spring settles", () => {
+    // Without this the card you are looking at wobbles for the last few
+    // hundredths of a step, which reads as the stack never quite arriving.
+    const config = stackConfig(1200);
+    const settling = stackTransform(0.04, config);
+    expect(settling.y).toBe(0);
+    expect(settling.rotation).toBe(0);
+  });
+
+  it("fades a card in over the last step and a half, so none pops in", () => {
+    const config = stackConfig(1200);
+    expect(stackTransform(0, config).fade).toBe(1);
+    expect(stackTransform(4, config).fade).toBe(0);
+    const edge = stackTransform(3.25, config).fade;
+    expect(edge).toBeGreaterThan(0);
+    expect(edge).toBeLessThan(1);
+  });
+
+  it("stacks rather than rows: a step is far less than a card", () => {
+    // This is the whole difference between the old row and the new stack. If
+    // a step ever reached a card's width the cards would stop overlapping.
+    for (const width of [375, 820, 1440]) {
+      const [cardW] = cardSize(width, width * 0.8);
+      expect(stackConfig(width).shift, String(width)).toBeLessThan(cardW * 0.9);
+    }
+  });
+
+  it("keeps the second card within a thumb's reach on a phone", () => {
+    expect(stackConfig(375).shift).toBeLessThan(stackConfig(1440).shift);
   });
 });
