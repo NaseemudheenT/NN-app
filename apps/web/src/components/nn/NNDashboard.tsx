@@ -4,6 +4,7 @@ import {
   useCallback, useEffect, useMemo, useState,
   type CSSProperties, type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
@@ -366,6 +367,7 @@ function ApplicationsView() {
         title: app.name,
         kicker: app.group,
         caption: app.description,
+        icon: app.icon,
         ready: app.href !== undefined,
       })),
     [],
@@ -579,7 +581,11 @@ export function NNDashboard({
   onSignOutEverywhere,
   initialView = "today",
 }: NNDashboardProps) {
-  const travel = useAppTransition();
+  // Settings is not somewhere you travel to — it is the panel behind the
+  // screen you are already on — so it opens plainly, with no corridor.
+  // Applications are a different matter and still fly; that is the one place
+  // the movement means something.
+  const router = useRouter();
   const [view, setView] = useState<ViewId>(initialView);
   const [glass, setGlass] = useState<GlassSettings>(DEFAULT_GLASS);
 
@@ -604,7 +610,7 @@ export function NNDashboard({
             className={styles.iconButton}
             aria-label="Settings"
             title="Settings"
-            onClick={() => travel.open("/settings" as Route, "Settings")}
+            onClick={() => router.push("/settings" as Route)}
           >
             <Icon name="settings" size={17} />
           </button>
@@ -614,7 +620,7 @@ export function NNDashboard({
             className={styles.avatar}
             aria-label={`${firstName} — profile and settings`}
             title={`${firstName} — profile and settings`}
-            onClick={() => travel.open("/settings" as Route, "Settings")}
+            onClick={() => router.push("/settings" as Route)}
           >
             {firstName.slice(0, 1).toUpperCase()}
           </button>

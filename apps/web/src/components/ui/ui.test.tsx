@@ -9,14 +9,15 @@ import {
 /* ------------------------------------------------------- brand lock ------ */
 
 describe("NN mark", () => {
-  // The founder supplied this exact geometry. If this test fails, the brand
-  // was changed — which requires founder approval, not a code review.
+  // The founder approved this exact geometry on 2026-11-14, replacing the
+  // hollow double-stroke mark. If this test fails, the brand was changed —
+  // which requires founder approval, not a code review.
   const APPROVED =
-    "M0 0 H22 V108 H0 Z M7 7 H15 V101 H7 Z " +
-    "M78 0 H100 V108 H78 Z M85 7 H93 V101 H85 Z " +
-    "M22 0 H42 L78 108 H58 Z M29 7 H35 L71 101 H65 Z";
+    "M0 14 L14 0 H22 V108 H0 Z " +
+    "M20 0 H46 L100 108 H74 Z " +
+    "M98 0 H120 V94 L106 108 H98 Z";
 
-  it("geometry is unchanged from the mark the founder supplied", () => {
+  it("geometry is unchanged from the mark the founder approved", () => {
     expect(NN_MARK_PATH).toBe(APPROVED);
   });
 
@@ -31,22 +32,24 @@ describe("NN mark", () => {
     expect(container.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("renders at the requested height and keeps the 100:108 ratio", () => {
+  it("renders at the requested height and keeps the 120:108 ratio", () => {
     const { container } = render(<NNLogo size={108} decorative />);
     const svg = container.querySelector("svg");
     expect(svg).toHaveAttribute("height", "108");
-    expect(svg).toHaveAttribute("width", "100");
+    expect(svg).toHaveAttribute("width", "120");
   });
 
-  it("is taller than it is wide, and never assumed square", () => {
+  it("is wider than it is tall, and never assumed square", () => {
     const { container } = render(<NNLogo decorative />);
-    expect(container.querySelector("svg")).toHaveAttribute("viewBox", "0 0 100 108");
+    expect(container.querySelector("svg")).toHaveAttribute("viewBox", "0 0 120 108");
   });
 
-  it("is drawn evenodd everywhere, in code and in the brand files", async () => {
-    // One of the three strokes filling in is not a subtle bug: the mark
-    // becomes a black rectangle. This checks every place it is rasterised,
-    // not only the component, because the icons and the SDF draw it too.
+  it("is never filled evenodd, in code or in the brand files", async () => {
+    // The diagonal overlaps each stem by 2px so no hairline seam can open at
+    // the joints. Under evenodd those two overlaps are punched out instead
+    // and the letter comes apart exactly where it should be strongest. This
+    // checks every place the mark is rasterised, not only the component,
+    // because the icons and the SDF draw it too.
     const { readFileSync, readdirSync } = await import("node:fs");
     const { join } = await import("node:path");
     const roots = [
@@ -60,24 +63,17 @@ describe("NN mark", () => {
     // Declarations only. The word also appears in the comments that explain
     // why it must not be used, and failing on prose would teach the next
     // person to delete the explanation.
-    const declaresNonzero = /(fillRule|fill-rule)\s*=\s*["'{]\s*["']?nonzero|,\s*["']nonzero["']/;
+    const declaresEvenodd = /(fillRule|fill-rule)\s*=\s*["'{]\s*["']?evenodd|,\s*["']evenodd["']/;
     for (const file of roots) {
-      expect(declaresNonzero.test(readFileSync(file, "utf8")), file).toBe(false);
+      expect(declaresEvenodd.test(readFileSync(file, "utf8")), file).toBe(false);
     }
     const brand = "public/brand/nn";
     for (const name of readdirSync(brand)) {
       if (!name.endsWith(".svg")) continue;
       const body = readFileSync(join(brand, name), "utf8");
-      expect(body.includes("evenodd"), name).toBe(true);
-      expect(declaresNonzero.test(body), name).toBe(false);
+      expect(body.includes("evenodd"), name).toBe(false);
+      expect(body.includes(APPROVED), name).toBe(true);
     }
-  });
-
-  it("is filled evenodd, or the hollow strokes close up into a blob", () => {
-    // Each of the three strokes is an outline. With the nonzero rule the
-    // counters fill in and the mark becomes a solid rectangle at small sizes.
-    const { container } = render(<NNLogo decorative />);
-    expect(container.querySelector("path")).toHaveAttribute("fill-rule", "evenodd");
   });
 });
 

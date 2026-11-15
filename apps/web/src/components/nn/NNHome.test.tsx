@@ -124,10 +124,14 @@ describe("NN dashboard", () => {
     expect(screen.getByRole("button", { name: /profile and settings/ })).toBeInTheDocument();
   });
 
-  it("opens Settings from either control", async () => {
+  it("opens Settings plainly, without flying down the corridor", async () => {
+    // Settings is the panel behind the screen you are already on. Travelling
+    // to it was theatre for a page of switches, and the founder asked for it
+    // to stop. Applications still fly; that movement means something.
     render(<NNHomePreview />);
     await userEvent.click(screen.getByRole("button", { name: "Settings" }));
-    expect(open).toHaveBeenCalledWith("/settings", "Settings");
+    expect(push).toHaveBeenCalledWith("/settings");
+    expect(open).not.toHaveBeenCalled();
   });
 
   it("reports the session honestly when nobody is signed in", async () => {

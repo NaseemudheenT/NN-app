@@ -1,17 +1,31 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { RenLauncher } from "./RenLauncher";
-import { RenConsole } from "./RenConsole";
 
-/** REN is intentionally absent from the cinematic entry and authentication door. */
+/**
+ * Where REN appears, and where it deliberately does not.
+ *
+ * Absent from the cinematic entry and the authentication door, because
+ * neither is NN yet — and absent from REN's own screen, where the mark has
+ * moved into the header. One identity on screen, never two.
+ */
 export function RenChrome() {
   const pathname = usePathname();
-  if (pathname === "/" || pathname === "/sign-in") return null;
-  return (
-    <>
-      <RenLauncher />
-      <RenConsole />
-    </>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        router.push("/ren");
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [router]);
+
+  if (pathname === "/" || pathname === "/sign-in" || pathname === "/ren") return null;
+  return <RenLauncher />;
 }

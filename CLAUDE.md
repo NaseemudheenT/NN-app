@@ -167,11 +167,25 @@ Palette (fixed): `#07111F` `#0B1930` `#10223B` `#172B45` `#F7F9FC` `#E7EDF6`
   opaque tier. This single rule is what keeps glassmorphism readable.
 - `.nn-holo` adds the prismatic chamfer; the rim is painted only in a 1 px
   border band via a mask.
-- The logo is the founder's own mark: **a single N drawn as a double stroke**,
-  100 × 108, each of its three strokes an outline. Declared once as
-  `NN_MARK_PATH`, filled **evenodd** (with nonzero the hollow strokes close up
-  into a blob), and guarded by a test. It replaced the earlier two-N lockup on
-  2026-11-13. Every file in `/public/brand/nn/` is generated from that one path.
+- The logo is **a single solid N, cut on the diagonal**: 120 × 108, two
+  upright stems carrying a full-width diagonal, chamfered top-left and
+  bottom-right so the silhouette leans the way the diagonal does. Declared
+  once as `NN_MARK_PATH`, filled **nonzero** — the diagonal overlaps each stem
+  by 2px so no hairline seam can open at the joints, and evenodd would punch
+  those two overlaps out — and guarded by a test. It replaced the hollow
+  double-stroke mark on 2026-11-14 at the founder's instruction: the outline
+  version went wiry below ~28px and read as a wireframe rather than a logo.
+  Every file in `/public/brand/nn/` is generated from that one path.
+- **Every control is liquid glass.** `.nn-liquid` in `global.css` is the one
+  material — edge, refraction, press — and modules take it with
+  `composes: nn-liquid from global`. `composes` only works on a single local
+  class, so a control styled by a descendant selector needs its own class
+  first. `.nn-liquid-primary` is the same slab lit from inside, for the one
+  control on a screen that carries the decision.
+- **34 applications, 34 distinct icons.** Seven used to share `sparkle`; a
+  launcher where a fifth of the glyphs are identical reads as a placeholder.
+  `ICON_PATHS` is exported so the card painter rasterises the same geometry
+  rather than keeping a second family.
 
 Forbidden: permanent left sidebar · widget walls · neon · cyberpunk · cartoon ·
 gaming aesthetics · robot mascots · glow for its own sake.
@@ -268,12 +282,47 @@ The launcher hides while the panel is open: one identity on screen, never two.
 **Not built:** voice (phase 4), model intelligence (5), module actions beyond
 navigation (6). The panel states this in one line rather than implying more.
 
-## 9. REN architecture (designed, not yet built)
+## 8d. REN's language (built 2026-11-15)
 
-Provider-independent by design — OpenAI, Anthropic, Google and open-weight
-models behind one gateway, with intelligent routing on quality, cost, latency
-and privacy. Never hardcode a single vendor. Do not call every provider for
-every message.
+REN has a real model behind it, and its own full screen at `/ren`. The panel
+is gone: the founder asked for a page, and the difference is not size — a
+panel is something you consult beside your work, a page is somewhere you
+work. ⌘K and the corner mark both go there.
+
+```
+browser  →  POST /api/ren/chat   (owner session required)
+         →  src/server/ren/providers.ts   one shape in, one shape out
+         →  Anthropic | OpenAI | Google   plain fetch, no vendor SDKs
+         →  SSE back to the browser
+```
+
+- **Keys are server-only.** `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+  `GOOGLE_API_KEY`; the model is overridable with `*_MODEL`. Nothing in the
+  browser ever sees one, and no error message or log carries a prefix of one.
+  `availableProviders()` returns labels and model names, never a key.
+- **No vendor SDKs.** Three SDKs would be three supply chains for what is, in
+  each case, one POST and a stream of lines. Adding a provider is one entry
+  in `PROVIDERS`.
+- **With no key configured REN says so**, on its own screen, with the exact
+  variable names. It does not accept a message it cannot answer.
+- **Tools run in the browser, as the founder.** The model proposes a tool;
+  `planFromToolCall` checks it against what exists and refuses anything else;
+  `useRenOperator` runs it with the founder's own session. Nothing runs on the
+  server with privileges the founder does not have, so the Firestore rules are
+  still the only authorisation boundary. Anything with a consequence waits for
+  a button.
+- **Tool results go back as plain text.** One account of what happened, which
+  every provider understands and which is also what the founder reads.
+- **Markdown is parsed to a tree, never to HTML.** `lib/ren/markdown.ts`
+  returns plain values and the renderer builds React elements from them, so
+  there is no `dangerouslySetInnerHTML` anywhere in the path a model's output
+  takes. `javascript:` and `data:` links render as their own text.
+
+## 9. REN architecture (the rest, still designed)
+
+Provider-independent by design — the gateway above is the first half. Still
+to come: routing on quality, cost, latency and privacy rather than first
+configured; long-term memory with RAG; voice; background workflows.
 
 Planned: skills (software-engineer, business-strategist, financial-analyst,
 research-specialist, teacher, mathematician, designer, writer, project-manager,
@@ -300,7 +349,8 @@ emulator suite, `@nn/firebase`, `@nn/security`, `@nn/auth`, WebAuthn passkey
 registration and sign-in, first-owner bootstrap, session policy with idle and
 absolute limits, sign-out everywhere, route guard.
 
-**216 unit/integration tests + 10 real-browser e2e tests passing.** Typecheck
+**382 unit/integration tests + 90 rules tests + 10 real-browser e2e tests
+passing.** Typecheck
 clean on 5 packages. Lint clean. Build succeeds.
 
 Passkey sign-in is **verified end to end in Chrome 150** via a Playwright CDP

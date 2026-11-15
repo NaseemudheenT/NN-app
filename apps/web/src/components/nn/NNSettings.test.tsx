@@ -36,7 +36,7 @@ beforeEach(() => {
 describe("Settings", () => {
   it("is a grouped list, the way a phone's settings are", () => {
     render(<NNSettings />);
-    for (const name of ["Appearance", "REN", "Privacy and security", "Applications"]) {
+    for (const name of ["Appearance", "REN", "Privacy and security"]) {
       expect(screen.getByRole("heading", { level: 2, name }), name).toBeInTheDocument();
     }
   });
@@ -49,20 +49,17 @@ describe("Settings", () => {
     expect(theme.setMotion).toHaveBeenCalledWith("reduced");
   });
 
-  it("keeps the glass on this device, because the room is", async () => {
-    const { unmount } = render(<NNSettings />);
-    await userEvent.click(screen.getByRole("button", { name: "Solid" }));
-    expect(window.localStorage.getItem("nn.glass")).toContain('"blur":32');
-
-    unmount();
+  it("keeps nothing here that is not a setting", () => {
+    // An application is not a preference, and a link to one from Settings is
+    // a second front door that has to be kept in step with the first. The
+    // glass sliders went the same way: four sliders and a colour picker is a
+    // workshop, not a settings page.
     render(<NNSettings />);
-    expect(screen.getByText("32 px")).toBeInTheDocument();
-  });
-
-  it("offers the four values NN's surfaces actually read", () => {
-    render(<NNSettings />);
-    expect(screen.getAllByRole("slider")).toHaveLength(4);
-    expect(screen.getByLabelText("Glass tint")).toBeInTheDocument();
+    expect(screen.queryByRole("slider")).toBeNull();
+    expect(screen.queryByLabelText("Glass tint")).toBeNull();
+    expect(screen.queryByRole("heading", { level: 2, name: "Applications" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Files/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Life/ })).toBeNull();
   });
 
   it("does not offer a switch for something NN cannot do", () => {

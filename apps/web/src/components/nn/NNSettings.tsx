@@ -1,18 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-import type { Route } from "next";
+import { useState, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Switch } from "@/components/ui/Switch";
 import { NNLogo } from "@/components/ui/NNLogo";
-import { useAppTransition } from "@/components/nn/AppTransition";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
-import {
-  DEFAULT_GLASS, GLASS_PRESETS, normaliseGlass,
-  readStoredGlass, writeStoredGlass, type GlassSettings,
-} from "@/lib/glass";
-import { APPLICATIONS } from "@/lib/apps/registry";
 import styles from "./NNSettings.module.css";
 
 /**
@@ -26,6 +19,14 @@ import styles from "./NNSettings.module.css";
  * Every switch here changes something real. There is no row for a feature NN
  * does not have — when something is not built, it says so in its own row
  * rather than offering a control that does nothing.
+ *
+ * Deliberately short. On 2026-11-14 the founder asked why the applications
+ * were listed in Settings, and the honest answer was that they should not
+ * be: an application is not a setting, and a link to one here is a second
+ * front door that has to be kept in step with the first. The glass sliders
+ * went with them — four sliders and a colour picker is a workshop, not a
+ * preference. What is left is what a phone keeps: who you are, how it looks,
+ * what it may do, and the way out.
  */
 
 /* ------------------------------------------------------------- primitives -- */
@@ -47,20 +48,6 @@ function Tile({ icon, tone }: { icon: IconName; tone: string }) {
     <span className={styles.tile} style={{ background: tone }} aria-hidden="true">
       <Icon name={icon} size={16} />
     </span>
-  );
-}
-
-/** A row that goes somewhere. */
-function LinkRow({ icon, tone, label, value, onClick }: {
-  icon: IconName; tone: string; label: string; value?: string; onClick: () => void;
-}) {
-  return (
-    <button type="button" className={styles.row} onClick={onClick}>
-      <Tile icon={icon} tone={tone} />
-      <span className={styles.label}>{label}</span>
-      {value ? <span className={styles.value}>{value}</span> : null}
-      <Icon name="expand" size={15} className={styles.chevron} />
-    </button>
   );
 }
 
@@ -96,6 +83,7 @@ function ChoiceRow<T extends string>({ icon, tone, label, value, choices, onChan
           <button
             key={choice.id}
             type="button"
+            className={styles.choice}
             aria-pressed={value === choice.id}
             onClick={() => onChange(choice.id)}
           >
@@ -140,31 +128,10 @@ export interface NNSettingsProps {
 export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) {
   const { user } = useAuth();
   const { theme, setTheme, motion, setMotion } = useTheme();
-  const travel = useAppTransition();
 
   const [profileOpen, setProfileOpen] = useState(false);
-  const [glass, setGlass] = useState<GlassSettings>(DEFAULT_GLASS);
-  // Read after mount: there is no localStorage on the server, and reading it
-  // during render would make the first client paint disagree with the HTML.
-  useEffect(() => { setGlass(readStoredGlass()); }, []);
-
-  const applyGlass = useCallback((patch: Partial<GlassSettings>) => {
-    setGlass((previous) => {
-      const next = normaliseGlass({ ...previous, ...patch });
-      writeStoredGlass(next);
-      return next;
-    });
-  }, []);
 
   const firstName = user?.displayName?.trim().split(/\s+/)[0] ?? "Founder";
-  const ready = APPLICATIONS.filter((app) => app.href !== undefined).length;
-
-  const sliders = [
-    { key: "blur", label: "Blur", min: 0, max: 40, step: 1, show: `${Math.round(glass.blur)} px` },
-    { key: "opacity", label: "Opacity", min: 0.08, max: 0.9, step: 0.01, show: `${Math.round(glass.opacity * 100)}%` },
-    { key: "saturation", label: "Saturation", min: 0.5, max: 2, step: 0.05, show: `${Math.round(glass.saturation * 100)}%` },
-    { key: "edge", label: "Edge light", min: 0, max: 1, step: 0.05, show: `${Math.round(glass.edge * 100)}%` },
-  ] as const;
 
   return (
     <div className={styles.root}>
@@ -206,7 +173,7 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
 
       <Group
         title="Appearance"
-        footer="How much glass is right depends on your room and your screen, so NN keeps this on this device rather than on your account."
+        footer="Kept on this device rather than on your account: the right answer depends on the screen you are looking at, not on who you are."
       >
         <ChoiceRow
           icon="sparkle" tone={TONE.violet} label="Theme" value={theme}
@@ -226,44 +193,6 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
           ]}
           onChange={setMotion}
         />
-        <div className={styles.row} data-static data-column>
-          <div className={styles.rowHead}>
-            <Tile icon="grid" tone={TONE.cyan} />
-            <span className={styles.label}>Glass</span>
-            <div className={styles.presets}>
-              {GLASS_PRESETS.map((preset) => (
-                <button
-                  key={preset.name}
-                  type="button"
-                  title={preset.hint}
-                  onClick={() => applyGlass(preset.value)}
-                >
-                  {preset.name}
-                </button>
-              ))}
-            </div>
-          </div>
-          {sliders.map((slider) => (
-            <label className={styles.slider} key={slider.key}>
-              <span>{slider.label}<output>{slider.show}</output></span>
-              <input
-                type="range"
-                min={slider.min} max={slider.max} step={slider.step}
-                value={glass[slider.key]}
-                onChange={(event) => applyGlass({ [slider.key]: Number(event.target.value) })}
-              />
-            </label>
-          ))}
-          <label className={styles.tint}>
-            <span>Tint</span>
-            <input
-              type="color"
-              value={glass.tint}
-              onChange={(event) => applyGlass({ tint: event.target.value })}
-              aria-label="Glass tint"
-            />
-          </label>
-        </div>
       </Group>
 
       <Group
@@ -286,26 +215,6 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
           value={user ? "Passkey on this device" : "Not signed in"}
         />
         <FactRow icon="file" tone={TONE.slate} label="Records" value="Owner-scoped" />
-        <LinkRow
-          icon="search" tone={TONE.cyan} label="What NN can search"
-          value={`${ready} applications`}
-          onClick={() => travel.open("/search" as Route, "Search")}
-        />
-      </Group>
-
-      <Group title="Applications">
-        <FactRow
-          icon="grid" tone={TONE.blue} label="Installed"
-          value={`${APPLICATIONS.length} applications`}
-        />
-        <LinkRow
-          icon="folder" tone={TONE.amber} label="Files"
-          onClick={() => travel.open("/files" as Route, "Files")}
-        />
-        <LinkRow
-          icon="calendar" tone={TONE.green} label="Life"
-          onClick={() => travel.open("/life" as Route, "Life")}
-        />
       </Group>
 
       {onSignOut || onSignOutEverywhere ? (

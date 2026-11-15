@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useRen } from "./RenProvider";
 import { RenOrb } from "./RenOrb";
 import styles from "./RenLauncher.module.css";
@@ -7,23 +8,24 @@ import styles from "./RenLauncher.module.css";
 /**
  * REN's resting presence.
  *
- * A small animated mark, fixed in the corner of every page. Tapping it
- * summons REN; it reports the keyboard shortcut for anyone who would rather
- * not reach for it. It hides while REN is open, because by then the mark has
- * moved to the centre of the panel — the same identity, not a second one.
+ * A small animated mark, fixed in the corner of every page. Touching it goes
+ * to REN's own screen, and so does ⌘K.
+ *
+ * It used to open a panel beside the page. The founder asked for that to
+ * stop: REN writes code, reads documents and holds long conversations, and
+ * none of that fits in a drawer. A panel also quietly reframed REN as
+ * something you consult beside your work rather than somewhere you work.
  */
 export function RenLauncher() {
-  const { machine, open, summon } = useRen();
+  const router = useRouter();
+  const { machine } = useRen();
 
   return (
     <button
       type="button"
       className={styles.launcher}
-      data-open={open}
-      onClick={() => summon("touch")}
+      onClick={() => router.push("/ren")}
       aria-label="Open REN"
-      aria-expanded={open}
-      {...(open ? { tabIndex: -1, "aria-hidden": true as const } : {})}
     >
       <RenOrb state={machine.state} size={34} />
       <span className={styles.hint} aria-hidden="true">

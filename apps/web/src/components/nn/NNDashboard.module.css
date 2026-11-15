@@ -102,38 +102,26 @@
 .adjust[aria-expanded="true"] { background: var(--glass-active); color: var(--text-primary); }
 
 .iconButton {
+  composes: nn-liquid from global;
   width: 36px;
   height: 36px;
   display: grid;
   place-items: center;
-  border: 0;
   border-radius: var(--radius-full);
-  background: none;
   color: var(--text-secondary);
-  cursor: pointer;
-  transition: background var(--dur-base) var(--ease-standard);
 }
 
-.iconButton:hover { background: var(--glass-hover); color: var(--text-primary); }
-
 .avatar {
+  composes: nn-liquid from global;
   width: 32px;
   height: 32px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--border-normal);
   border-radius: var(--radius-full);
-  background: linear-gradient(160deg, rgb(var(--nn-spectrum-blue) / 46%), rgb(var(--nn-spectrum-violet) / 36%));
-  color: var(--text-primary);
   font: inherit;
   font-size: var(--text-caption-size);
   font-weight: var(--weight-semibold);
-  cursor: pointer;
 }
-
-.adjust:focus-visible,
-.iconButton:focus-visible,
-.avatar:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 /* ------------------------------------------------------------------ stage -- */
 
@@ -421,25 +409,16 @@
 }
 
 .family {
+  composes: nn-liquid from global;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 4px 12px;
   padding: 15px 16px;
-  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  background: rgb(232 244 255 / 4%);
-  color: var(--text-primary);
   font: inherit;
   text-align: left;
-  cursor: pointer;
-  transition:
-    background var(--dur-base) var(--ease-standard),
-    transform var(--dur-base) var(--ease-standard);
 }
-
-.family:hover { background: var(--glass-hover); transform: translateY(-2px); }
-.family:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 .familyName { grid-column: 1; font-size: var(--text-label-size); font-weight: var(--weight-medium); }
 

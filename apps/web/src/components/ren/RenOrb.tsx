@@ -252,7 +252,6 @@ const LABEL: Record<RenOrbState, string> = {
 
 export function RenOrb({ state = "idle", size = 120, level = 0, className }: RenOrbProps) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fallback, setFallback] = useState(false);
 
   // Live values the frame loop reads, so changing state never restarts the
@@ -261,31 +260,56 @@ export function RenOrb({ state = "idle", size = 120, level = 0, className }: Ren
   live.current = { state, level };
 
   useEffect(() => {
-    const canvas = canvasRef.current;
     const host = hostRef.current;
-    if (!canvas || !host) return;
+    if (!host) return;
+
+    /* A canvas per run of this effect, created here rather than rendered by
+       React.
+     *
+     * Cleanup calls `loseContext()`, and a lost context is permanent: ask the
+     * same canvas element for `webgl2` afterwards and the browser hands back
+     * the dead one, whose every shader then fails to compile with no error
+     * text to explain it. React keeps the DOM node across effect re-runs, so
+     * with a rendered canvas the orb died on its second mount and silently
+     * became its flat twin — which is what happened under StrictMode on
+     * every screen in development. A fresh element cannot inherit a corpse. */
+    const canvas = document.createElement("canvas");
+    canvas.className = styles.canvas ?? "";
+    canvas.setAttribute("aria-hidden", "true");
+    host.appendChild(canvas);
+    const drop = () => { canvas.remove(); };
 
     const gl = canvas.getContext("webgl2", {
       alpha: true, premultipliedAlpha: true, antialias: false,
       powerPreference: "low-power",
     });
-    if (!gl) { setFallback(true); return; }
+    if (!gl) { drop(); setFallback(true); return; }
 
     const compile = (type: number, src: string) => {
       const shader = gl.createShader(type);
       if (!shader) return null;
       gl.shaderSource(shader, src);
       gl.compileShader(shader);
-      return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null;
+      if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) return shader;
+      // Silence here cost an afternoon: the orb fell back to its flat twin
+      // on every screen and looked, correctly but unhelpfully, like a design
+      // choice. A shader that will not compile is a bug, so it says so.
+      console.error("REN orb: shader did not compile.\n", gl.getShaderInfoLog(shader));
+      return null;
     };
     const vs = compile(gl.VERTEX_SHADER, VERT);
     const fs = compile(gl.FRAGMENT_SHADER, FRAG);
     const program = gl.createProgram();
-    if (!vs || !fs || !program) { setFallback(true); return; }
+    if (!vs || !fs || !program) { drop(); setFallback(true); return; }
     gl.attachShader(program, vs);
     gl.attachShader(program, fs);
     gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) { setFallback(true); return; }
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error("REN orb: program did not link.\n", gl.getProgramInfoLog(program));
+      drop();
+      setFallback(true);
+      return;
+    }
     gl.useProgram(program);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
@@ -447,6 +471,7 @@ export function RenOrb({ state = "idle", size = 120, level = 0, className }: Ren
       document.removeEventListener("visibilitychange", onVisibility);
       reduced.removeEventListener("change", onMotion);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
+      drop();
     };
   }, []);
 
@@ -460,9 +485,9 @@ export function RenOrb({ state = "idle", size = 120, level = 0, className }: Ren
       aria-label={LABEL[state]}
     >
       {/* Without WebGL the orb is still an orb: the same spectrum as a
-          conic gradient, breathing on the compositor. */}
+          conic gradient, breathing on the compositor. The real canvas is
+          appended by the effect, not rendered here — see the note there. */}
       {fallback ? <span className={styles.flat} aria-hidden="true" /> : null}
-      <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
     </div>
   );
 }

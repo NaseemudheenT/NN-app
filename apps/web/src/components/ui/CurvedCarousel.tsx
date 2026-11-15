@@ -6,6 +6,8 @@ import {
 } from "react";
 import { ART_PRESETS, presetFor, seedFor, type ArtPreset, type ArtRecipe } from "@/lib/folderArt";
 import { paintArt } from "@/lib/artPainter";
+import { paintCardFace } from "@/lib/cardFace";
+import type { IconName } from "@/components/ui/Icon";
 import styles from "./CurvedCarousel.module.css";
 
 /**
@@ -14,8 +16,8 @@ import styles from "./CurvedCarousel.module.css";
  * The cards sit on one WebGL canvas. The middle one reads flat; the further a
  * card travels from the centre the taller and more bent it grows, with a
  * fringe of chromatic split at the rim — so the row has depth without any
- * card being hidden. Drag it, flick it, use the arrow keys or the buttons; it
- * settles on a spring and loops.
+ * card being hidden. Drag it, flick it, tap the card next to the middle, or
+ * use the arrow keys; it settles on a spring and loops.
  *
  * Two NN-specific decisions:
  *
@@ -23,10 +25,12 @@ import styles from "./CurvedCarousel.module.css";
  *   cards are painted on the device from the approved palette, by the same
  *   painter the folders use and sharing its frame budget, so the carousel adds
  *   no network request and no asset to ship.
- * - **The canvas is decoration.** Every control it offers also exists as a
- *   real button: previous, next, open, and a list of every slide. Without
- *   WebGL the canvas simply does not appear and that list becomes the
- *   carousel — which is why there is no separate fallback to maintain.
+ * - **The canvas is decoration.** There are no arrow buttons — the founder
+ *   asked for the cards themselves to be the control — but nothing is only
+ *   reachable by gesture: arrow keys move the row, and every slide has a
+ *   real button in the list beneath it. Without WebGL the canvas simply does
+ *   not appear and that list becomes the carousel, which is why there is no
+ *   separate fallback to maintain.
  *
  * Adapted from the founder's supplied curved-lens reference.
  */
@@ -40,6 +44,8 @@ export interface CarouselSlide {
   caption?: string;
   /** Overrides the artwork chosen from the title. */
   art?: ArtPreset | ArtRecipe;
+  /** Set into the glass tile on the card's face. */
+  icon?: IconName;
   /** Whether choosing this slide leads anywhere yet. */
   ready?: boolean;
 }
@@ -83,6 +89,14 @@ export function springStep(
   const next = velocity + acceleration * dt;
   return [position + next * dt, next];
 }
+
+/**
+ * How far a finger may travel and still count as a tap, in CSS pixels.
+ *
+ * Nobody holds a finger perfectly still. Below this the gesture was meant as
+ * a tap; above it, it was a drag and the spring decides where the row lands.
+ */
+export const TAP_SLOP = 6;
 
 /** Card size for a stage of w × h: portrait, a smaller share of a wide stage. */
 export function cardSize(w: number, h: number): [number, number] {
@@ -179,6 +193,13 @@ export function CurvedCarousel({
   onChangeRef.current = onChange;
   const slidesRef = useRef(slides);
   slidesRef.current = slides;
+  const indexRef = useRef(index);
+  indexRef.current = index;
+  const onTapCentre = useRef(() => {});
+  onTapCentre.current = () => {
+    const slide = slidesRef.current[indexRef.current];
+    if (slide) onOpen?.(slide, indexRef.current);
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -252,9 +273,13 @@ export function CurvedCarousel({
 
       void paintArt(recipe, seedFor(slide.title), 256, 320, 0).then((source) => {
         if (disposed) return;
+        // The painted wave is shared and cached; the face is this card's own.
+        const face = slide.icon
+          ? paintCardFace(source, slide.icon, slide.ready === false)
+          : source;
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
-        entry.aspect = source.width / source.height;
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, face);
+        entry.aspect = face.width / face.height;
         entry.ready = true;
         kick();
       });
@@ -273,6 +298,7 @@ export function CurvedCarousel({
     let intro = reduced.matches ? 1 : 0;
     let introStart = -1;
     let dragging = false;
+    let travelled = 0;
     let dragX = 0;
     let dragPosition = 0;
     let lastX = 0;
@@ -375,6 +401,7 @@ export function CurvedCarousel({
     const onDown = (event: PointerEvent) => {
       if (event.button !== 0) return;
       dragging = true;
+      travelled = 0;
       dragX = event.clientX;
       lastX = event.clientX;
       lastTime = event.timeStamp;
@@ -392,11 +419,30 @@ export function CurvedCarousel({
       lastX = event.clientX;
       lastTime = event.timeStamp;
       position = dragPosition - (event.clientX - dragX) / step;
+      travelled = Math.max(travelled, Math.abs(event.clientX - dragX));
       kick();
     };
-    const onUp = () => {
+    /**
+     * A tap, rather than a drag, brings the card that was touched to the
+     * centre — one card per tap, because the only card within reach of a
+     * thumb is the one beside the middle. Tapping the centre card opens it.
+     *
+     * This is why the carousel has no arrows: the cards themselves are the
+     * control, which is what the founder asked for and what every touch
+     * interface already teaches.
+     */
+    const onUp = (event: PointerEvent) => {
       if (!dragging) return;
       dragging = false;
+      if (travelled <= TAP_SLOP) {
+        const box = stage.getBoundingClientRect();
+        const delta = Math.round(
+          (event.clientX - (box.left + box.width / 2)) / (cardW + gap),
+        );
+        if (delta === 0) onTapCentre.current();
+        else { target = Math.round(target) + delta; kick(); }
+        return;
+      }
       target = restFor(position, flick);
       velocity = flick;
       kick();
@@ -458,6 +504,8 @@ export function CurvedCarousel({
       role="group"
       aria-roledescription="carousel"
       aria-label={label}
+      tabIndex={0}
+      onKeyDown={onKeyDown}
     >
       {/* The lens gets its own band. The reference overlays its copy on the
           cards because it shows nine of them with dead space either side; NN
@@ -488,26 +536,16 @@ export function CurvedCarousel({
         </button>
       </div>
 
-      {/* The real controls. The canvas above is decoration; everything the
-          carousel can do is reachable from here, with or without WebGL. */}
-      <div className={styles.controls} onKeyDown={onKeyDown}>
-        <p className={styles.count} aria-live="polite">
-          <span>{String(index + 1).padStart(2, "0")}</span>
-          <i> / {String(count).padStart(2, "0")}</i>
-          <span className={styles.srOnly}> — {slide.title}</span>
-        </p>
-        <span className={styles.bar} aria-hidden="true">
-          <span style={{ transform: `scaleX(${count ? (index + 1) / count : 0})` }} />
-        </span>
-        <div className={styles.buttons}>
-          <button type="button" aria-label="Previous application" onClick={() => go(-1)}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
-          </button>
-          <button type="button" aria-label="Next application" onClick={() => go(1)}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
-          </button>
-        </div>
-      </div>
+      {/* Where you are in the row, and nothing else. There are deliberately
+          no arrows: the cards are the control — drag the row, or tap the card
+          beside the middle to bring it in. Keyboard users move with the arrow
+          keys, which the group below listens for, and every slide also has a
+          real button in the list underneath. */}
+      <p className={styles.count} aria-live="polite">
+        <span>{String(index + 1).padStart(2, "0")}</span>
+        <i> / {String(count).padStart(2, "0")}</i>
+        <span className={styles.srOnly}> — {slide.title}</span>
+      </p>
       </div>
 
       <ul className={styles.list} aria-label={`All ${label.toLowerCase()}`}>

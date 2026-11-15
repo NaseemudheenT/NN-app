@@ -20,8 +20,8 @@ export function GET() {
           background: "#07111F",
         }}
       >
-        <svg width="250" height="202" viewBox="0 0 94 76">
-          <path d={NN_MARK_PATH} fill="#F7F9FC" fillRule="evenodd" />
+        <svg width="240" height="216" viewBox="0 0 120 108">
+          <path d={NN_MARK_PATH} fill="#F7F9FC" />
         </svg>
       </div>
     ),

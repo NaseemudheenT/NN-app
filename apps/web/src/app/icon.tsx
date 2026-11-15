@@ -20,8 +20,8 @@ export default function Icon() {
           background: "linear-gradient(155deg, #16304F 0%, #07111F 70%)",
         }}
       >
-        <svg width="300" height="243" viewBox="0 0 94 76">
-          <path d={NN_MARK_PATH} fill="#F7F9FC" fillRule="evenodd" />
+        <svg width="300" height="270" viewBox="0 0 120 108">
+          <path d={NN_MARK_PATH} fill="#F7F9FC" />
         </svg>
       </div>
     ),

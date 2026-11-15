@@ -3,6 +3,15 @@
 .card {
   position: relative;
   isolation: isolate;
+  /* The wave is always a dark ground — that is the material, in both themes.
+     So the card carries its own light-on-dark ramp rather than inheriting
+     the page's. Without this, light mode put navy text on navy water and the
+     founder's name disappeared into the card. */
+  --text-primary: #F7F9FC;
+  --text-secondary: #DCE6F7;
+  --text-muted: #AFBED8;
+  --text-accent: #9CC8FF;
+  color: var(--text-primary);
   overflow: hidden;
   border-radius: var(--radius-xl);
   background:
