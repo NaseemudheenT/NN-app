@@ -148,6 +148,51 @@ Hosting NN does **not** unlock:
   stays unavailable.
 - **Push notifications** — need FCM and a service worker push subscription;
   not built.
-- **REN** — has no model provider credentials and is switched off by design.
+- **REN's language** — the gateway is built and live; it has no key yet. See
+  §8. Everything else about REN works without one.
 
 None of these block installing NN on your phone.
+
+---
+
+## 8. Giving REN its language
+
+REN's screen, its tools and its personality are deployed. What it does not
+have is a model to think with, and that is one environment variable.
+
+Set **one** of these in Vercel → Settings → Environment Variables →
+Production, then redeploy:
+
+| Variable | Gets you | Where the key comes from |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Claude | console.anthropic.com |
+| `OPENAI_API_KEY` | ChatGPT | platform.openai.com |
+| `GOOGLE_API_KEY` | Gemini | aistudio.google.com |
+
+Set more than one and REN offers a picker in its header; the first configured
+one answers by default.
+
+Optional, if you want a specific model rather than NN's default:
+`ANTHROPIC_MODEL` (default `claude-opus-5`), `OPENAI_MODEL` (default
+`gpt-4o`), `GOOGLE_MODEL` (default `gemini-2.0-flash`).
+
+```bash
+vercel env add ANTHROPIC_API_KEY production
+vercel --prod
+```
+
+**These keys are billed by the provider per message.** NN does not and cannot
+create the account for you — that is yours, with your card on it.
+
+Three things NN guarantees about the key once it is set:
+
+1. It is read on the server only. `src/server/ren/*` is never imported by the
+   browser, and `/api/ren/chat` returns provider *labels* and model names —
+   never a key, and never a prefix of one.
+2. It is never logged. A failed request logs its status, not its body, because
+   a provider's error body can carry the account it was made against.
+3. It is never in the repository. `.env.local` is gitignored and the key lives
+   in Vercel's environment, not in a file anyone can read.
+
+Until a key is set, REN's own screen says so by variable name and refuses to
+accept a message it cannot answer. It does not pretend to think.
