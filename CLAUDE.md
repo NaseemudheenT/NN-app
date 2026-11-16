@@ -192,6 +192,33 @@ Palette (fixed): `#07111F` `#0B1930` `#10223B` `#172B45` `#F7F9FC` `#E7EDF6`
   upload only the glyph as an alpha mask.
 - **No corridor.** Moving between screens is one 320ms band of spectrum. The
   sixteen-ring canvas it replaced was theatre in front of work.
+- **The theme is always stamped.** `ThemeProvider` writes the *resolved*
+  theme to `data-theme`, never the choice, and the default choice is
+  `system`. It used to remove the attribute for "system", so a founder on a
+  light screen got the light token ramp — `tokens.css` carries a
+  `prefers-color-scheme` twin for every token — on top of dark glass, a dark
+  dock and dark cards, because none of the forty-odd `[data-theme="light"]`
+  *material* rules had a twin of their own. One answer written once is what
+  makes the environment follow the screen.
+- **A conic rim belongs in the rim.** `--nn-prism-edge` was the last
+  background layer of every glass surface, clipped to the border box, under
+  four partly transparent layers — so it came through the whole face as a
+  bright X from the centre to the corners. Glass gets a real `border-color`
+  (`--nn-prism-rim`); the spectral cut is carried by the inset laminate.
+- **Icons are lit solids, not strokes.** `IconDefs` mounts one light for the
+  page — a height field off the alpha, a point light above and left, the
+  specular clipped back inside the silhouette — and `Icon`'s `solid` prop
+  stacks a contact shadow, four darkening body copies, the lit face and a
+  rim. `GlassIcon` sets one in a key of glass with NN's water drifting in it.
+- **REN's mark is SVG, not the orb.** The real orb is a ray-marched WebGL2
+  sphere; the navigation renders three times over, so putting it in the item
+  list would open three more contexts to draw a 20px circle. `RenMark`
+  restates the same four things — body, rim, terminator, specular — on the
+  same spectrum, with two orbital rings.
+- **One way into Settings.** The founder's own avatar. There were three —
+  a gear beside it, the avatar, and a "System" item in both navigation
+  panels that opened a fourth surface overlapping Settings. The System view
+  is gone and its facts are rows in Settings.
 - **34 applications, 34 distinct icons.** Seven used to share `sparkle`; a
   launcher where a fifth of the glyphs are identical reads as a placeholder.
   `ICON_PATHS` is exported so the card painter rasterises the same geometry
