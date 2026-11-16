@@ -55,10 +55,16 @@
   to { opacity: 1; transform: none; }
 }
 
+/* The reveal is a WebGL pass that refracts a ground, so its canvas is opaque
+   by necessity — and an opaque rectangle inside a pane of glass reads as a
+   framed picture hung on it. The edges are dissolved into the card instead,
+   so the mark forms *in* the glass rather than on a plate of its own. */
 .mark {
   display: flex;
   justify-content: center;
   width: 100%;
+  mask-image: radial-gradient(ellipse 58% 60% at 50% 50%, #000 42%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 58% 60% at 50% 50%, #000 42%, transparent 78%);
 }
 
 /* The mark says the name to everyone who can see it. This is for everything

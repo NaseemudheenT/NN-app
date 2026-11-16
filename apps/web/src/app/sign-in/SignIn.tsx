@@ -88,7 +88,7 @@ export function SignIn() {
 
       <div className={s.card}>
         <div className={s.mark}>
-          <LogoReveal size={96} duration={2400} />
+          <LogoReveal size={132} duration={2400} />
         </div>
 
         {/* The environment's name, for anything that reads rather than looks.
