@@ -746,3 +746,82 @@ body {
   .nn-liquid { transition-duration: 1ms; }
   .nn-liquid:hover:not(:disabled) { transform: none; }
 }
+
+/* ==========================================================================
+   THE LIVE WAVE
+   Every card in NN carries moving water, not a painted gradient. The founder
+   asked for it everywhere and the reason it works is that it is the same
+   light as the room: three blobs of the brand spectrum, blurred into each
+   other, drifting behind the card's own glass.
+
+   Cheap on purpose. One pseudo-element, one transform, no paint per frame —
+   it runs on the compositor, so thirty cards cost what one costs. The band
+   is drawn twice across the element and travels exactly half its width, so
+   the loop has no seam.
+   ========================================================================== */
+.nn-live-wave {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.nn-live-wave::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -20%;
+  width: 200%;
+  height: 140%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--wave-strength, 0.34);
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  background-image:
+    radial-gradient(42% 70% at 14% 62%, rgb(var(--nn-spectrum-cyan) / 42%), transparent 68%),
+    radial-gradient(40% 66% at 34% 84%, rgb(var(--nn-spectrum-indigo) / 34%), transparent 68%),
+    radial-gradient(44% 72% at 56% 58%, rgb(var(--nn-spectrum-violet) / 32%), transparent 68%),
+    radial-gradient(38% 64% at 80% 80%, rgb(var(--nn-spectrum-aqua) / 38%), transparent 68%);
+  /* Blurred far past the point where any single blob is legible. The water
+     has to be light under glass, not a pattern on top of it: at 16px of blur
+     the cyan read as a graphic and a 13px label on top of it lost most of its
+     contrast. */
+  filter: blur(26px) saturate(1.1);
+  animation: nn-wave-drift 26s linear infinite;
+}
+
+@keyframes nn-wave-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* On a light ground the same water has to be stronger to be water at all —
+   a 55% veil of cyan over white is a smudge. */
+:root[data-theme="light"] .nn-live-wave::after { --wave-strength: 0.4; filter: blur(30px) saturate(1.05); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .nn-live-wave::after { --wave-strength: 0.4; filter: blur(30px) saturate(1.05); }
+}
+
+/* The reading surface. The wave paints over the card's own background — a
+   negative-z child still lands above it — so the card needs a second layer
+   of its own glass between the water and the words. Without it a 13px label
+   on a moving cyan crest loses most of its contrast twice a minute. */
+.nn-live-wave::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--surface-raised) 58%, transparent),
+    color-mix(in srgb, var(--surface-raised) 78%, transparent)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Stopped, not removed: a still crest is the same card without the motion. */
+  .nn-live-wave::after { animation-play-state: paused; }
+}
+:root[data-motion="reduced"] .nn-live-wave::after { animation-play-state: paused; }

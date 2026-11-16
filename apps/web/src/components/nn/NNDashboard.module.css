@@ -50,16 +50,6 @@
   min-width: 0;
 }
 
-.mark {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  flex: none;
-  border-radius: var(--radius-sm);
-  background: linear-gradient(150deg, rgb(var(--nn-spectrum-cyan) / 34%), rgb(var(--nn-spectrum-violet) / 30%));
-  color: var(--text-primary);
-}
 
 .brand strong {
   font-size: var(--text-label-size);
@@ -67,19 +57,7 @@
   letter-spacing: 0.14em;
 }
 
-.divider {
-  width: 1px;
-  height: 16px;
-  background: var(--border-normal);
-}
 
-.brandLine {
-  font-size: var(--text-caption-size);
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 .toolbar { display: flex; align-items: center; gap: 8px; flex: none; }
 
@@ -242,6 +220,7 @@
 }
 
 .counter {
+  composes: nn-live-wave from global;
   padding: var(--card-pad);
   border: var(--card-edge) solid var(--glass-2-border);
   border-radius: var(--radius-lg);
@@ -296,6 +275,7 @@
 }
 
 .panel {
+  composes: nn-live-wave from global;
   padding: var(--card-pad);
   border: var(--card-edge) solid var(--glass-2-border);
   border-radius: var(--radius-lg);

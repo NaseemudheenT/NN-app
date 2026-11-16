@@ -1,76 +1,61 @@
-.corridor {
+/* One sweep of light, and the new surface is there. */
+
+.sweep {
   position: fixed;
   inset: 0;
-  z-index: 900;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  background: var(--surface-base);
-  animation: corridor-in var(--dur-fast) var(--ease-entrance) both;
+  z-index: var(--z-toast);
+  pointer-events: none;
+  overflow: hidden;
+  /* A breath of the room's own light, so the screen does not simply cut. */
+  background: radial-gradient(
+    120% 70% at 50% 50%,
+    rgb(var(--nn-spectrum-cyan) / 7%),
+    transparent 70%
+  );
+  animation: veil 320ms var(--ease-standard) both;
 }
 
-@keyframes corridor-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.canvas {
+/* The light itself: a thin spectrum band crossing the screen once. */
+.line {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: -30%;
+  width: 30%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgb(var(--nn-spectrum-cyan) / 34%) 32%,
+    rgb(255 255 255 / 44%) 50%,
+    rgb(var(--nn-spectrum-violet) / 30%) 68%,
+    transparent
+  );
+  filter: blur(14px);
+  animation: cross 420ms var(--ease-entrance) both;
 }
 
-.destination {
-  position: relative;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  text-align: center;
-  padding: 0 var(--space-8);
-  animation: destination-in var(--dur-slow) var(--ease-entrance) 120ms both;
+@keyframes veil {
+  0%   { opacity: 0; }
+  35%  { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-@keyframes destination-in {
-  from { opacity: 0; transform: scale(0.94); filter: blur(6px); }
-  to   { opacity: 1; transform: scale(1);    filter: blur(0); }
+@keyframes cross {
+  from { transform: translateX(0) skewX(-8deg); }
+  to   { transform: translateX(440%) skewX(-8deg); }
 }
 
-.opening {
-  font-size: var(--text-micro-size);
-  line-height: var(--text-micro-lh);
-  letter-spacing: var(--text-micro-ls);
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-.destination strong {
-  font-size: var(--text-t1-size);
-  line-height: var(--text-t1-lh);
-  letter-spacing: var(--text-t1-ls);
-  font-weight: var(--weight-medium);
-  color: var(--text-primary);
-}
-
-.skip {
+.announce {
   position: absolute;
-  bottom: max(var(--space-10), env(safe-area-inset-bottom, 0px));
-  margin: 0;
-  font-size: var(--text-micro-size);
-  letter-spacing: var(--text-micro-ls);
-  text-transform: uppercase;
-  color: var(--text-muted);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-/* The corridor is never built under reduced motion — the provider navigates
-   straight to the destination. This is belt and braces for a preference that
-   changes while a flight is already in the air. */
+/* Reduced motion never reaches this — `open` navigates plainly — but a
+   stylesheet should not depend on a caller remembering that. */
 @media (prefers-reduced-motion: reduce) {
-  .corridor,
-  .destination {
-    animation-duration: 1ms;
-    animation-delay: 0ms;
-  }
+  .sweep, .line { animation-duration: 1ms; }
 }

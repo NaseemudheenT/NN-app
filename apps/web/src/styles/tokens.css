@@ -233,8 +233,8 @@
   /* Darkened on 2026-11-15. The old pair passed AA and still read as faint:
      at 13px over glass, "technically legible" and "looks finished" are not
      the same measurement. Now 8.9:1 and 6.4:1 against --surface-base. */
-  --text-secondary: #39465A;
-  --text-muted:     #505E74;
+  --text-secondary: #2C394D;
+  --text-muted:     #44526A;
   --text-accent:    #1F5FAD;
   --text-on-accent: var(--nn-white);
 
@@ -248,7 +248,8 @@
   /* Far more opaque than the dark theme's. A 34% white veil over a pale room
      is not glass, it is fog: the shell and the page behind it were the same
      colour and nothing had an edge. */
-  --nn-glass-opacity: 0.82;
+  --card-edge: 2px;
+  --nn-glass-opacity: 0.86;
   --nn-glass-blur: 28px;
   --nn-glass-saturation: 1.15;
   --nn-glass-edge: 0.34;
@@ -263,11 +264,11 @@
   --border-strong: rgb(7 17 31 / 24%);
   --focus-ring:    #1F5FAD;
   --card-lift:
-    inset 0 1.5px 0 rgb(255 255 255 / 94%),
-    inset 0 -1px 0 rgb(7 17 31 / 7%),
-    0 1px 0 rgb(7 17 31 / 5%),
-    0 18px 38px -16px rgb(7 17 31 / 20%),
-    0 44px 80px -44px rgb(7 17 31 / 16%);
+    inset 0 2px 0 rgb(255 255 255 / 96%),
+    inset 0 -1.5px 0 rgb(7 17 31 / 10%),
+    0 1px 0 rgb(7 17 31 / 8%),
+    0 22px 44px -16px rgb(7 17 31 / 26%),
+    0 52px 92px -44px rgb(7 17 31 / 22%);
   --nn-spectrum-rim: conic-gradient(from 212deg, rgb(47 111 189 / 0%) 0deg, rgb(47 111 189 / 42%) 56deg, rgb(140 110 220 / 28%) 130deg, rgb(47 111 189 / 5%) 196deg, rgb(60 170 220 / 36%) 292deg, rgb(47 111 189 / 0%) 360deg);
   --nn-wave-ribbon-primary: linear-gradient(100deg, transparent, rgb(47 111 189 / 20%), rgb(60 170 220 / 24%), rgb(140 110 220 / 18%), transparent);
   --nn-wave-ribbon-secondary: linear-gradient(100deg, transparent, rgb(47 111 189 / 16%), rgb(140 110 220 / 14%), transparent);

@@ -4,10 +4,8 @@ import {
   useCallback, useEffect, useRef, useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import { ART_PRESETS, presetFor, seedFor, type ArtPreset, type ArtRecipe } from "@/lib/folderArt";
-import { paintArt } from "@/lib/artPainter";
-import { paintCardFace } from "@/lib/cardFace";
-import type { IconName } from "@/components/ui/Icon";
+import { hashString } from "@/lib/folderArt";
+import { ICON_PATHS, type IconName } from "@/components/ui/Icon";
 import styles from "./CurvedCarousel.module.css";
 
 /**
@@ -42,8 +40,6 @@ export interface CarouselSlide {
   kicker?: string;
   /** One short line under it. */
   caption?: string;
-  /** Overrides the artwork chosen from the title. */
-  art?: ArtPreset | ArtRecipe;
   /** Set into the glass tile on the card's face. */
   icon?: IconName;
   /** Whether choosing this slide leads anywhere yet. */
@@ -168,6 +164,69 @@ export function stackTransform(
   };
 }
 
+
+/* ----------------------------------------------------------------- face -- */
+
+/**
+ * The application's glyph, as an alpha mask.
+ *
+ * The only thing uploaded per card. Everything else about the face — the
+ * water, the glass, the rim, the tile the glyph sits in — is drawn by the
+ * shader, so a card costs one small canvas rather than a generated noise
+ * field, and it is on screen in the frame it mounts.
+ *
+ * Cached by name for the life of the page: thirty-four applications share a
+ * handful of sizes and nothing here depends on the card's size, because the
+ * mask is sampled, not blitted.
+ */
+const MASK = 128;
+const masks = new Map<IconName, HTMLCanvasElement | null>();
+
+export function glyphMask(icon: IconName): HTMLCanvasElement | null {
+  const made = masks.get(icon);
+  if (made !== undefined) return made;
+  if (typeof document === "undefined") return null;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = MASK;
+  canvas.height = MASK;
+  const c = canvas.getContext("2d");
+  if (!c) { masks.set(icon, null); return null; }
+
+  // The icon family is drawn on a 24 grid; the stroke is scaled with it so a
+  // glyph on a card has the same weight as the same glyph in a button.
+  const scale = MASK / 24;
+  c.scale(scale, scale);
+  c.strokeStyle = "#ffffff";
+  c.lineWidth = 1.6;
+  c.lineCap = "round";
+  c.lineJoin = "round";
+  c.stroke(new Path2D(ICON_PATHS[icon]));
+
+  masks.set(icon, canvas);
+  return canvas;
+}
+
+/**
+ * The colour the water runs in, for one application.
+ *
+ * Five hues from NN's own spectrum, chosen by the application's name so a
+ * card never changes colour under the founder. They are the material's
+ * colours rather than arbitrary ones, which is what keeps thirty-four
+ * different cards reading as one set.
+ */
+const HUES: readonly (readonly [number, number, number])[] = [
+  [0.16, 0.69, 1.00],   // cyan
+  [0.32, 0.81, 1.00],   // aqua
+  [0.14, 0.40, 1.00],   // blue
+  [0.42, 0.44, 1.00],   // indigo
+  [0.72, 0.44, 1.00],   // violet
+];
+
+export function hueFor(name: string): readonly [number, number, number] {
+  return HUES[hashString(name) % HUES.length] ?? HUES[0]!;
+}
+
 /* ---------------------------------------------------------------- shader -- */
 
 const VERT =
@@ -196,22 +255,50 @@ const VERT =
 
 const FRAG =
   "precision highp float;" +
-  "uniform sampler2D uTex;uniform vec2 uSize;uniform float uAspect;uniform float uVel;uniform float uIntro;uniform float uShift;uniform float uReady;" +
+  // the glyph, as an alpha mask. Nothing else is uploaded.
+  "uniform sampler2D uTex;" +
+  "uniform vec2 uSize;uniform float uVel;uniform float uIntro;uniform float uTime;" +
+  "uniform vec3 uHue;uniform vec3 uLift;uniform float uLight;" +
   "varying vec2 vUv;varying float vX;" +
   "float box(vec2 q,vec2 b,float r){vec2 d=abs(q)-b+r;return length(max(d,0.))+min(max(d.x,d.y),0.)-r;}" +
+  // one ribbon of light: a sine sum, soft on both edges, travelling
+  "float band(vec2 p,float base,float amp,float f1,float f2,float sp,float th){" +
+  "float y=base+amp*sin(p.x*f1+uTime*sp)+amp*.55*sin(p.x*f2-uTime*sp*.72+1.7);" +
+  "return smoothstep(th,0.,abs(p.y-y));}" +
   "void main(){" +
-  "float a=uSize.x/uSize.y;vec2 uv=vUv-.5;" +
-  "if(uAspect>a)uv.x*=a/uAspect;else uv.y*=uAspect/a;" +
-  "uv=uv/1.12+.5;uv.x+=uShift;" +
-  "float ca=(.0012+.0045*vX*vX)*(1.+abs(uVel)*1.2);" +
-  "vec3 c=vec3(texture2D(uTex,uv+vec2(ca,0.)).r,texture2D(uTex,uv).g,texture2D(uTex,uv-vec2(ca,0.)).b);" +
-  "c=mix(vec3(.05,.08,.18),c,uReady);" +
-  "c*=1.-.42*min(1.,vX*vX);" +
-  "float d=box((vUv-.5)*uSize,uSize*.5,14.);" +
-  "float rim=smoothstep(-5.,0.,d);" +
-  "c+=rim*.10;" +
-  "c+=.07*smoothstep(.55,1.,vUv.y)*(1.-abs(vX));" +
-  "float al=smoothstep(.75,-.75,d)*uIntro;" +
+  "vec2 p=vUv;" +
+  // --- the slab -----------------------------------------------------------
+  "float d=box((vUv-.5)*uSize,uSize*.5,uSize.x*.085);" +
+  "float card=smoothstep(.75,-.75,d);" +
+  // --- the water ----------------------------------------------------------
+  // three ribbons at different depths, each its own speed, so the surface
+  // never repeats inside the time anyone looks at it
+  "float w1=band(p,.62,.085,7.1,13.3,.55,.26);" +
+  "float w2=band(p,.46,.065,9.4,5.7,-.42,.20);" +
+  "float w3=band(p,.74,.055,5.2,11.1,.33,.17);" +
+  "vec3 c=uLift;" +
+  "c=mix(c,uHue,clamp(w1*.92+w2*.55,0.,1.));" +
+  "c=mix(c,vec3(1.),w3*.34*uLight);" +
+  "c=mix(c,uHue*1.25,w2*.3);" +
+  // depth: the bottom of the card sits further from the light
+  "c*=.82+.3*(1.-p.y);" +
+  // --- the glass ----------------------------------------------------------
+  // a top sheen and a bright rim, which is what makes it a slab of material
+  "c+=.16*smoothstep(.42,0.,p.y)*uLight;" +
+  "float rim=smoothstep(-2.5,0.,d);" +
+  "c+=rim*.26*uLight;" +
+  // the cards away from the centre fall into the room
+  "c*=1.-.34*min(1.,vX*vX);" +
+  // --- the glyph ----------------------------------------------------------
+  // in its own tile of brighter glass, set into the face
+  "vec2 g=(p-vec2(.5,.42))*vec2(uSize.x/uSize.y,1.)*2.9;" +
+  "float tile=smoothstep(.04,-.04,box(g,vec2(.46),.16));" +
+  "c+=tile*.13*uLight;" +
+  "float mark=texture2D(uTex,clamp(g*.78+.5,0.,1.)).a*step(abs(g.x),.5)*step(abs(g.y),.5);" +
+  "c=mix(c,vec3(1.),mark*.92);" +
+  // a hair of chromatic split at the rim, strongest while the stack moves
+  "c.r+=(.004+.02*vX*vX)*(1.+abs(uVel))*rim;" +
+  "float al=card*uIntro;" +
   "gl_FragColor=vec4(c*al,al);}";
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
@@ -287,6 +374,22 @@ export function CurvedCarousel({
     if (!gl) { setHasGL(false); return; }
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const readTheme = () => {
+      const style = getComputedStyle(document.documentElement);
+      const deep = style.getPropertyValue("--surface-deep").trim();
+      const hex = /^#([0-9a-f]{6})$/i.exec(deep);
+      if (hex) {
+        const n = parseInt(hex[1]!, 16);
+        lift = [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+      }
+      // On a light ground the water needs less added light, or every highlight
+      // blows out to white and the glyph stops reading.
+      light = (lift[0] + lift[1] + lift[2]) / 3 > 0.5 ? 0.42 : 1;
+    };
+    readTheme();
+    const themeWatch = new MutationObserver(readTheme);
+    themeWatch.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     const program = gl.createProgram();
     const vs = compile(gl, gl.VERTEX_SHADER, VERT);
     const fs = compile(gl, gl.FRAGMENT_SHADER, FRAG);
@@ -308,7 +411,7 @@ export function CurvedCarousel({
     const u: Record<string, WebGLUniformLocation | null> = {};
     for (const name of [
       "uRes", "uSize", "uX", "uY", "uRot", "uScale", "uBend", "uVel", "uIntro",
-      "uTex", "uAspect", "uShift", "uReady", "uLift",
+      "uTex", "uTime", "uHue", "uLift", "uLight",
     ]) {
       u[name] = gl.getUniformLocation(program, name);
     }
@@ -318,55 +421,53 @@ export function CurvedCarousel({
 
     let disposed = false;
 
-    /* One texture per slide, starting as a single deep-navy pixel so a card
-       that has not been painted yet reads as an empty card rather than noise.
-       Queued nearest-the-centre first, both directions: thirty-four cards at
-       six milliseconds a frame take a noticeable moment, and painting them in
-       index order meant the whole left-hand side of the stack — the end of
-       the ring — stayed blank while the right was finished. */
-    const textures = slidesRef.current.map((slide, slideIndex) => {
+    /* One glyph per card, and nothing else.
+     *
+     * The cards used to carry a painted wave uploaded as a texture: a noise
+     * field, generated on the device, thirty-four times, at a few
+     * milliseconds a frame. It was a still picture of water, it cost seconds
+     * of blank cards on first open, and it was a background — which is the
+     * one thing the founder asked these cards not to have.
+     *
+     * The water is in the shader now. It moves, it is lit by NN's own
+     * spectrum, and it costs nothing to start. All that is uploaded is the
+     * application's glyph as an alpha mask, which is instant. */
+    const textures = slidesRef.current.map((slide) => {
       const texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(
-        gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-        new Uint8Array([13, 20, 46, 255]),
-      );
-      for (const [p, v] of [
+      const mask = slide.icon ? glyphMask(slide.icon) : null;
+      if (mask) {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask);
+      } else {
+        gl.texImage2D(
+          gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+          new Uint8Array([0, 0, 0, 0]),
+        );
+      }
+      for (const [k, v] of [
         [gl.TEXTURE_MIN_FILTER, gl.LINEAR],
         [gl.TEXTURE_MAG_FILTER, gl.LINEAR],
         [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE],
         [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE],
       ] as const) {
-        gl.texParameteri(gl.TEXTURE_2D, p, v);
+        gl.texParameteri(gl.TEXTURE_2D, k, v);
       }
-
-      const entry = { texture, aspect: 0.8, ready: false };
-      const recipe: ArtRecipe =
-        slide.art === undefined
-          ? ART_PRESETS[presetFor(slide.title)]
-          : typeof slide.art === "string"
-            ? ART_PRESETS[slide.art]
-            : slide.art;
-
-      const nearness = Math.abs(offsetOf(slideIndex, 0, slidesRef.current.length));
-      void paintArt(recipe, seedFor(slide.title), 224, 296, nearness).then((source) => {
-        if (disposed) return;
-        // The painted wave is shared and cached; the face is this card's own.
-        const face = slide.icon
-          ? paintCardFace(source, slide.icon, slide.ready === false)
-          : source;
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, face);
-        entry.aspect = face.width / face.height;
-        entry.ready = true;
-        kick();
-      });
-      return entry;
+      return { texture, hue: hueFor(slide.title) };
     });
 
     // Stage geometry, measured on resize only; the frame loop just reads it.
     let stageW = 1;
     let stageH = 1;
+    /* The water's own clock. Accumulated from frame deltas rather than read
+       off the wall, so a stack that was scrolled away does not come back to
+       water that moved on without it. */
+    let clock = 0;
+    /* The ground the water sits on, and how much light is in the room, both
+       read from the theme. The founder asked for the cards to match the whole
+       of NN, and matching means following the theme rather than being painted
+       in one of them. */
+    let lift: [number, number, number] = [0.03, 0.05, 0.14];
+    let light = 1;
     let cardW = 1;
     let cardH = 1;
     let stack = stackConfig(1);
@@ -409,7 +510,9 @@ export function CurvedCarousel({
       gl.uniform2f(u.uSize!, cardW, cardH);
       gl.uniform1f(u.uBend!, bend);
       gl.uniform1f(u.uVel!, reduced.matches ? 0 : Math.max(-1, Math.min(1, velocity * 0.12)));
-      gl.uniform1f(u.uLift!, 0);
+      gl.uniform1f(u.uTime!, clock);
+      gl.uniform3f(u.uLift!, lift[0], lift[1], lift[2]);
+      gl.uniform1f(u.uLight!, light);
 
       /* Painter's algorithm. The cards overlap now, so the order they are
          drawn in *is* their depth — there is no z-buffer on a transparent
@@ -435,9 +538,7 @@ export function CurvedCarousel({
         gl.uniform1f(u.uRot!, place.rotation);
         gl.uniform1f(u.uScale!, place.scale);
         gl.uniform1f(u.uIntro!, eased);
-        gl.uniform1f(u.uAspect!, entry.aspect);
-        gl.uniform1f(u.uReady!, entry.ready ? 1 : 0);
-        gl.uniform1f(u.uShift!, Math.max(-0.05, Math.min(0.05, -distance * 0.035)));
+        gl.uniform3f(u.uHue!, entry.hue[0], entry.hue[1], entry.hue[2]);
         gl.drawArrays(gl.TRIANGLES, 0, mesh.length / 2);
       }
     };
@@ -447,6 +548,7 @@ export function CurvedCarousel({
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
       last = now;
 
+      clock += reduced.matches ? 0 : dt;
       if (intro < 1) {
         if (introStart < 0) introStart = now;
         intro = Math.min(1.5, (now - introStart) / 1100);
@@ -468,11 +570,17 @@ export function CurvedCarousel({
 
       draw();
 
-      const settled =
+      /* The water never settles — it is live, which is the whole point of
+         generating it rather than painting it. Only reduced motion stops the
+         loop, and then only once the stack itself has come to rest. The
+         IntersectionObserver still parks it the moment it scrolls away, so an
+         off-screen carousel costs nothing either way. */
+      const still =
         !dragging &&
         Math.abs(target - position) < 0.0005 &&
         Math.abs(velocity) < 0.001 &&
-        (intro >= 1 || reduced.matches);
+        intro >= 1;
+      const settled = still && reduced.matches;
 
       if (settled) { position = target; draw(); last = 0; }
       else if (visible) raf = requestAnimationFrame(frame);
@@ -562,6 +670,7 @@ export function CurvedCarousel({
       disposed = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      themeWatch.disconnect();
       io.disconnect();
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointermove", onMove);

@@ -71,40 +71,6 @@ export const ART_PRESETS: Record<ArtPreset, ArtRecipe> = {
   },
 };
 
-/**
- * The application cards: one wave each, no marbling.
- *
- * The five presets above include `marble`, which folds colour through itself
- * at high warp. On a folder that reads as ink in water; on thirty-four
- * application cards it read as noise, and the founder said so — "unwanted
- * colour" in the application cards. Every recipe here is `streak`: the same
- * field, squeezed along one axis so the folds become a long exposure of
- * moving water. Low warp, shallow gloss, no veins. Colour, flow, and nothing
- * fighting the glyph set into the glass on top of it.
- */
-export const CARD_WAVES: readonly ArtRecipe[] = [
-  // deep water under electric blue
-  { style: "streak", colors: ["#080D24", "#101A3A", "#2366FF", "#52CEFF", "#A9D9FF"],
-    scale: 0.66, warp: 1.5, angle: -0.58, gloss: 0.22, veins: 0 },
-  // cyan running over midnight
-  { style: "streak", colors: ["#080D24", "#19264D", "#29B0FF", "#7FE2FF", "#E7EDF6"],
-    scale: 0.7, warp: 1.4, angle: -0.46, gloss: 0.2, veins: 0 },
-  // indigo into violet
-  { style: "streak", colors: ["#080D24", "#19264D", "#6A70FF", "#B770FF", "#D9DCFF"],
-    scale: 0.72, warp: 1.6, angle: -0.66, gloss: 0.24, veins: 0 },
-  // aqua and cool light
-  { style: "streak", colors: ["#0A1130", "#17407A", "#52CEFF", "#A9D9FF", "#F7F9FC"],
-    scale: 0.68, warp: 1.45, angle: -0.5, gloss: 0.18, veins: 0 },
-  // the quiet one: navy to icy, almost monochrome
-  { style: "streak", colors: ["#080D24", "#172B45", "#253565", "#7A9CFF", "#C3CBE2"],
-    scale: 0.64, warp: 1.35, angle: -0.62, gloss: 0.16, veins: 0 },
-];
-
-/** A stable wave for a name, so an application's card never changes under it. */
-export function waveFor(name: string): ArtRecipe {
-  return CARD_WAVES[hashString(name) % CARD_WAVES.length] ?? CARD_WAVES[0]!;
-}
-
 export const ART_PRESET_NAMES = Object.keys(ART_PRESETS) as readonly ArtPreset[];
 
 /** `#rgb` or `#rrggbb` to a triple. Anything unreadable comes back mid-grey. */

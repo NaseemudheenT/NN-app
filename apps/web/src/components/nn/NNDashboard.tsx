@@ -8,13 +8,11 @@ import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
-import { NNLogo } from "@/components/ui/NNLogo";
 import { LiquidNav, type LiquidNavItem } from "@/components/ui/LiquidNav";
 import { CurvedCarousel, type CarouselSlide } from "@/components/ui/CurvedCarousel";
 import { WaveCard, WaveChip } from "@/components/ui/WaveCard";
 import { useAppTransition } from "@/components/nn/AppTransition";
 import { APPLICATIONS } from "@/lib/apps/registry";
-import { waveFor } from "@/lib/folderArt";
 import { useRecords, type RecordFault, type RecordState } from "@/lib/nn/records";
 import { relativeTime, useClock } from "@/lib/clock";
 import styles from "./NNDashboard.module.css";
@@ -383,7 +381,6 @@ function ApplicationsView() {
         kicker: app.group,
         caption: app.description,
         icon: app.icon,
-        art: waveFor(app.name),
         ready: app.href !== undefined,
       })),
     [],
@@ -593,10 +590,11 @@ export function NNDashboard({
     <div className={styles.root}>
       <header className={styles.topbar}>
         <div className={styles.brand}>
-          <span className={styles.mark}><NNLogo size={20} decorative /></span>
+          {/* The wordmark alone. The mark is on the tab, the home screen and
+              the door — repeating it here, beside the word it spells, was the
+              same name said twice. The tagline went with it: the founder does
+              not need to be told what NN is on the screen they are using. */}
           <strong>NN</strong>
-          <span className={styles.divider} aria-hidden="true" />
-          <span className={styles.brandLine}>Personal operating environment</span>
         </div>
 
         <div className={styles.toolbar}>

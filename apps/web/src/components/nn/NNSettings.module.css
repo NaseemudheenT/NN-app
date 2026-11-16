@@ -36,6 +36,7 @@
 
 .account {
   composes: nn-liquid from global;
+  composes: nn-live-wave from global;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -78,6 +79,7 @@
 }
 
 .rows {
+  composes: nn-live-wave from global;
   border: var(--card-edge) solid var(--glass-2-border);
   border-radius: var(--radius-lg);
   background: var(--glass-3-bg);
