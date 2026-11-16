@@ -405,6 +405,14 @@ clean on 5 packages. Lint clean. Build succeeds.
 Passkey sign-in is **verified end to end in Chrome 150** via a Playwright CDP
 virtual authenticator against real emulators — not mocked.
 
+**Production can verify passkeys since 2026-11-17.** A key for
+`firebase-adminsdk-fbsvc@nn-os-dev` is the `FIREBASE_SERVICE_ACCOUNT` secret
+in Vercel production, and `NN_BOOTSTRAP_SECRET` there matches
+`apps/web/.env.local`. The environment is unclaimed until the founder claims
+it once; after that the bootstrap secret is dead and the public preview door
+closes. **Never claim production from a test** — a virtual authenticator
+would take ownership with a credential that exists only in that browser.
+
 **Not built** — the NN OS workspace, all 34 applications, REN, Cloud
 Functions (Blaze), notifications, automation, backup/restore, PWA install.
 
