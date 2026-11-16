@@ -375,6 +375,21 @@ export function CurvedCarousel({
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+    /* The water's own clock. Accumulated from frame deltas rather than read
+       off the wall, so a stack that was scrolled away does not come back to
+       water that moved on without it. */
+    let clock = 0;
+    /* The ground the water sits on, and how much light is in the room, both
+       read from the theme. The founder asked for the cards to match the whole
+       of NN, and matching means following the theme rather than being painted
+       in one of them. */
+    let lift: [number, number, number] = [0.03, 0.05, 0.14];
+    let light = 1;
+
+    /* Declared above, not below: `readTheme` writes `lift` and `light`, and a
+       `let` is in its temporal dead zone until its declaration runs. With the
+       declarations further down the effect, the first call threw on mount and
+       React took the whole Applications view with it. */
     const readTheme = () => {
       const style = getComputedStyle(document.documentElement);
       const deep = style.getPropertyValue("--surface-deep").trim();
@@ -458,16 +473,6 @@ export function CurvedCarousel({
     // Stage geometry, measured on resize only; the frame loop just reads it.
     let stageW = 1;
     let stageH = 1;
-    /* The water's own clock. Accumulated from frame deltas rather than read
-       off the wall, so a stack that was scrolled away does not come back to
-       water that moved on without it. */
-    let clock = 0;
-    /* The ground the water sits on, and how much light is in the room, both
-       read from the theme. The founder asked for the cards to match the whole
-       of NN, and matching means following the theme rather than being painted
-       in one of them. */
-    let lift: [number, number, number] = [0.03, 0.05, 0.14];
-    let light = 1;
     let cardW = 1;
     let cardH = 1;
     let stack = stackConfig(1);
