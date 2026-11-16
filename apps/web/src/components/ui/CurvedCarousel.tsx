@@ -99,7 +99,7 @@ export const VISIBLE = 4;
 
 /** Card size for a stage of w × h: portrait, and large, because they stack. */
 export function cardSize(w: number, h: number): [number, number] {
-  const width = Math.min(w < 640 ? w * 0.62 : w * 0.28, h * 0.46);
+  const width = Math.min(w < 640 ? w * 0.7 : w * 0.34, h * 0.56);
   return [Math.round(width), Math.round(width * 1.32)];
 }
 
@@ -125,9 +125,9 @@ export interface StackConfig {
 }
 
 export function stackConfig(width: number): StackConfig {
-  if (width < 640) return { shift: 90, drop: 20, lean: 8, shrink: 0.06 };
-  if (width < 1024) return { shift: 130, drop: 30, lean: 10, shrink: 0.09 };
-  return { shift: 170, drop: 40, lean: 12, shrink: 0.12 };
+  if (width < 640) return { shift: 90, drop: 13, lean: 8, shrink: 0.06 };
+  if (width < 1024) return { shift: 130, drop: 19, lean: 10, shrink: 0.09 };
+  return { shift: 170, drop: 25, lean: 12, shrink: 0.12 };
 }
 
 export interface StackTransform {
@@ -157,10 +157,16 @@ export function stackTransform(
   const settled = away < 0.05;
   return {
     x: offset * config.shift,
-    y: settled ? 0 : away * config.drop,
+    // The drop stops after a couple of steps. Left unbounded, the cards at
+    // the back of a bigger stack fell past the bottom of the canvas and were
+    // cut off square — two flat purple wedges at the edges of the fan.
+    y: settled ? 0 : Math.min(away, 1.8) * config.drop,
     rotation: settled ? 0 : (offset * config.lean * Math.PI) / 180,
     scale: Math.max(0.2, 1 - away * config.shrink),
-    fade: Math.max(0, Math.min(1, (visible - away) / 1.5)),
+    // Over two and a half steps rather than one and a half: the card that is
+    // about to leave should already be nearly gone by the time it reaches
+    // the edge of the lens.
+    fade: Math.max(0, Math.min(1, (visible - away) / 2.5)),
   };
 }
 
@@ -187,21 +193,44 @@ export function glyphMask(icon: IconName): HTMLCanvasElement | null {
   if (made !== undefined) return made;
   if (typeof document === "undefined") return null;
 
+  // Drawn sharp here, then blurred into the mask below.
+  const sharp = document.createElement("canvas");
+  sharp.width = MASK;
+  sharp.height = MASK;
+  const s = sharp.getContext("2d");
+  if (!s) { masks.set(icon, null); return null; }
+
+  // The icon family is drawn on a 24 grid; the stroke is scaled with it so a
+  // glyph on a card has the same weight as the same glyph in a button.
+  const scale = MASK / 24;
+  s.scale(scale, scale);
+  s.strokeStyle = "#ffffff";
+  s.lineWidth = 1.85;
+  s.lineCap = "round";
+  s.lineJoin = "round";
+  s.stroke(new Path2D(ICON_PATHS[icon]));
+
   const canvas = document.createElement("canvas");
   canvas.width = MASK;
   canvas.height = MASK;
   const c = canvas.getContext("2d");
   if (!c) { masks.set(icon, null); return null; }
 
-  // The icon family is drawn on a 24 grid; the stroke is scaled with it so a
-  // glyph on a card has the same weight as the same glyph in a button.
-  const scale = MASK / 24;
-  c.scale(scale, scale);
-  c.strokeStyle = "#ffffff";
-  c.lineWidth = 1.6;
-  c.lineCap = "round";
-  c.lineJoin = "round";
-  c.stroke(new Path2D(ICON_PATHS[icon]));
+  /**
+   * The mask is a height field, not a stencil.
+   *
+   * A hard-edged alpha has no slope to light: its gradient is one texel
+   * wide, so a shader reading it can only produce a hairline bevel and the
+   * glyph stays a flat white cut-out. Blurring it gives the stroke a ramp
+   * several texels deep on every side — the shader reads that slope as a
+   * surface normal, and the 0.5 contour is still exactly where the sharp
+   * stroke's edge was, so the body comes back the same width it was drawn.
+   *
+   * `filter` is ignored by browsers that do not support it, and the glyph
+   * falls back to the flat mask rather than disappearing.
+   */
+  c.filter = `blur(${(MASK / 128) * 2.6}px)`;
+  c.drawImage(sharp, 0, 0);
 
   masks.set(icon, canvas);
   return canvas;
@@ -257,13 +286,14 @@ export const FRAG =
   // the glyph, as an alpha mask. Nothing else is uploaded.
   "uniform sampler2D uTex;" +
   "uniform vec2 uSize;uniform float uVel;uniform float uIntro;uniform float uTime;" +
-  "uniform vec3 uHue;uniform vec3 uGround;uniform float uLight;" +
+  "uniform vec3 uHue;uniform vec3 uGround;uniform float uLight;uniform float uTexel;" +
   "varying vec2 vUv;varying float vX;" +
   "float box(vec2 q,vec2 b,float r){vec2 d=abs(q)-b+r;return length(max(d,0.))+min(max(d.x,d.y),0.)-r;}" +
   // one ribbon of light: a sine sum, soft on both edges, travelling
   "float band(vec2 p,float base,float amp,float f1,float f2,float sp,float th){" +
   "float y=base+amp*sin(p.x*f1+uTime*sp)+amp*.55*sin(p.x*f2-uTime*sp*.72+1.7);" +
   "return smoothstep(th,0.,abs(p.y-y));}" +
+  "float glyph(vec2 t){return texture2D(uTex,clamp(t,0.,1.)).a;}" +
   "void main(){" +
   "vec2 p=vUv;" +
   // --- the slab -----------------------------------------------------------
@@ -272,33 +302,70 @@ export const FRAG =
   // --- the water ----------------------------------------------------------
   // three ribbons at different depths, each its own speed, so the surface
   // never repeats inside the time anyone looks at it
+  "float w0=band(p,.17,.085,6.3,10.7,-.31,.42);" +
   "float w1=band(p,.62,.085,7.1,13.3,.55,.26);" +
-  "float w2=band(p,.46,.065,9.4,5.7,-.42,.20);" +
+  "float w2=band(p,.46,.065,9.4,5.7,-.42,.2);" +
   "float w3=band(p,.74,.055,5.2,11.1,.33,.17);" +
-  "vec3 c=uGround;" +
-  "c=mix(c,uHue,clamp(w1*.92+w2*.55,0.,1.));" +
-  "c=mix(c,vec3(1.),w3*.34*uLight);" +
-  "c=mix(c,uHue*1.25,w2*.3);" +
-  // depth: the bottom of the card sits further from the light
-  "c*=.82+.3*(1.-p.y);" +
-  // --- the glass ----------------------------------------------------------
-  // a top sheen and a bright rim, which is what makes it a slab of material
-  "c+=.16*smoothstep(.42,0.,p.y)*uLight;" +
-  "float rim=smoothstep(-2.5,0.,d);" +
-  "c+=rim*.26*uLight;" +
-  // the cards away from the centre fall into the room
-  "c*=1.-.34*min(1.,vX*vX);" +
+  // --- compositing --------------------------------------------------------
+  // Built premultiplied, layer over layer, starting from nothing.
+  //
+  // It used to start from `uGround` across the whole card and write an alpha
+  // of 1: a painted panel, not a pane. On a stack of five that read as five
+  // dark slabs with a coloured smear near the top — "remove the cards
+  // background fully, make that liquid glass with the wave live". So the
+  // glass is now a veil the room comes through, and everything above it is
+  // light *added* to that veil rather than paint covering it.
+  "vec3 c=vec3(0.);float a=0.;" +
+  // The glass: one even veil. Weighting it toward the top left the upper
+  // third of every card a dark cloud with the light trapped underneath it.
+  "float veil=card*.085;" +
+  "c+=uGround*veil;a+=veil;" +
+  // A wash of the card's own colour over the whole face, so the water is
+  // everywhere and the ribbons are its crests rather than its only light.
+  "c+=uHue*card*.13;a+=card*.1;" +
+  // the water, lit from inside the glass
+  "float water=clamp(w0*.72+w1*.95+w2*.6,0.,1.)*card;" +
+  "c+=uHue*water*.9;a+=water*.36;" +
+  "float deep=w2*.34*card;c+=uHue*1.3*deep;a+=deep*.22;" +
+  "float crest=w3*.46*uLight*card;c+=vec3(1.)*crest;a+=crest*.62;" +
+  // the glass itself: a sheen off the top and a bright cut rim
+  "float sheen=smoothstep(.45,0.,p.y)*.2*uLight*card;c+=vec3(1.)*sheen;a+=sheen*.7;" +
+  "float rim=smoothstep(-2.5,0.,d)*card;" +
+  "c+=vec3(1.)*rim*.3*uLight;a+=rim*.34;" +
   // --- the glyph ----------------------------------------------------------
-  // in its own tile of brighter glass, set into the face
+  // A real object set into the face: its own tile of brighter glass, a
+  // shadow cast onto that tile, a lit body and a specular along the top-left.
   "vec2 g=(p-vec2(.5,.42))*vec2(uSize.x/uSize.y,1.)*2.9;" +
-  "float tile=smoothstep(.04,-.04,box(g,vec2(.46),.16));" +
-  "c+=tile*.13*uLight;" +
-  "float mark=texture2D(uTex,clamp(g*.78+.5,0.,1.)).a*step(abs(g.x),.5)*step(abs(g.y),.5);" +
-  "c=mix(c,vec3(1.),mark*.92);" +
+  "float tile=smoothstep(.04,-.04,box(g,vec2(.46),.16))*card;" +
+  "c+=vec3(1.)*tile*.1*uLight;a+=tile*.13;" +
+  "vec2 gt=g*.78+.5;" +
+  "float inside=step(abs(g.x),.5)*step(abs(g.y),.5)*card;" +
+  // The mask is a blurred height field: its 0.5 contour is the stroke the
+  // icon was drawn with, and the ramp either side of it is the bevel.
+  "float e=uTexel*1.5;" +
+  "float hgt=glyph(gt);" +
+  "float m=smoothstep(.4,.6,hgt)*inside;" +
+  "float gx=glyph(gt+vec2(e,0.))-glyph(gt-vec2(e,0.));" +
+  "float gy=glyph(gt+vec2(0.,e))-glyph(gt-vec2(0.,e));" +
+  "vec3 n=normalize(vec3(-gx*5.5,-gy*5.5,.75));" +
+  "vec3 L=normalize(vec3(-.42,-.58,.7));" +
+  "float lam=max(dot(n,L),0.);" +
+  "float spec=pow(max(dot(reflect(-L,n),vec3(0.,0.,1.)),0.),26.);" +
+  // the shadow it drops onto the tile, which is what gives it height
+  "float sh=smoothstep(.35,.62,glyph(gt+vec2(0.,-.028)))*inside*(1.-m);" +
+  "c*=1.-sh*.45;" +
+  "vec3 face=mix(uHue,vec3(1.),.62);" +
+  "vec3 lit=face*(.34+.8*lam)+vec3(1.)*spec*1.1;" +
+  "c=mix(c,lit,m);a=mix(a,.97,m);" +
   // a hair of chromatic split at the rim, strongest while the stack moves
   "c.r+=(.004+.02*vX*vX)*(1.+abs(uVel))*rim;" +
-  "float al=card*uIntro;" +
-  "gl_FragColor=vec4(c*al,al);}";
+  // the cards away from the centre fall into the room
+  "float fall=1.-.34*min(1.,vX*vX);c*=fall;a*=fall;" +
+  // Premultiplied alpha cannot carry more colour than coverage. Letting the
+  // light set its own floor is what keeps a crest emissive instead of
+  // clipping it flat.
+  "a=clamp(max(a,max(c.r,max(c.g,c.b))),0.,1.)*uIntro;" +
+  "gl_FragColor=vec4(c*uIntro,a);}";
 
 function compile(gl: WebGLRenderingContext, type: number, src: string) {
   const shader = gl.createShader(type);
@@ -425,7 +492,7 @@ export function CurvedCarousel({
     const u: Record<string, WebGLUniformLocation | null> = {};
     for (const name of [
       "uRes", "uSize", "uX", "uY", "uRot", "uScale", "uBend", "uVel", "uIntro",
-      "uTex", "uTime", "uHue", "uGround", "uLight",
+      "uTex", "uTime", "uHue", "uGround", "uLight", "uTexel",
     ]) {
       u[name] = gl.getUniformLocation(program, name);
     }
@@ -517,6 +584,9 @@ export function CurvedCarousel({
       gl.uniform1f(u.uTime!, clock);
       gl.uniform3f(u.uGround!, ground[0], ground[1], ground[2]);
       gl.uniform1f(u.uLight!, light);
+      // One texel of the glyph mask, so the shader can read its own slope and
+      // light the stroke as a solid rather than stencilling it flat.
+      gl.uniform1f(u.uTexel!, 1 / MASK);
 
       /* Painter's algorithm. The cards overlap now, so the order they are
          drawn in *is* their depth — there is no z-buffer on a transparent

@@ -111,7 +111,17 @@
   margin: 0 auto;
 }
 
-.rail { flex: none; margin-top: 46px; }
+/* The rail stays with you. It is the one piece of chrome that is about
+   where you are rather than what you are reading, so scrolling a long view
+   should not take it off the screen. */
+.rail {
+  flex: none;
+  position: sticky;
+  top: 18px;
+  align-self: flex-start;
+  margin-top: 46px;
+  z-index: 2;
+}
 
 .main {
   composes: sheet;

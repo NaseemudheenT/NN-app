@@ -588,7 +588,7 @@ export function NNWorkspace({
       <div className={styles.workspace}>
         <header className={[styles.topbar, styles.glass].join(" ")}>
           <div className={styles.brand}>
-            <NNLogo size={20} />
+            <NNLogo size={20} glow />
             <span className={styles.brandDivider} />
             <span className={styles.personal}>Private workspace</span>
           </div>

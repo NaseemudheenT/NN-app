@@ -6,6 +6,7 @@ import { Room } from "@/components/nn/Room";
 import { RenProvider } from "@/components/ren/RenProvider";
 import { RenChrome } from "@/components/ren/RenChrome";
 import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
+import { IconDefs } from "@/components/ui/IconDefs";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
 import "@/styles/global.css";
@@ -58,6 +59,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="nn-atmosphere" aria-hidden="true" />
           {/* One displacement map, shared by every liquid surface in NN. */}
           <LiquidGlassDefs />
+          {/* One light, shared by every icon. Mounted once rather than per
+              glyph: NN draws several hundred of them on some screens. */}
+          <IconDefs />
           {/* REN is a property of NN, not a page you navigate to: one
               instance, mounted once, present on every screen. */}
           <AuthProvider>

@@ -46,7 +46,7 @@ export function RequireOwner({ children }: { children: ReactNode }) {
     return (
       <div style={{ minHeight: "100dvh", display: "grid", placeItems: "center" }}>
         <div style={{ textAlign: "center", color: "var(--text-muted)" }}>
-          <NNLogo size={28} decorative />
+          <NNLogo size={28} glow decorative />
           <p style={{ marginTop: "var(--space-6)", fontSize: "var(--text-caption-size)" }}>
             {phase === "loading" ? "Opening NN…" : "Redirecting to sign in…"}
           </p>

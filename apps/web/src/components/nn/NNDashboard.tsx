@@ -42,7 +42,7 @@ import styles from "./NNDashboard.module.css";
 const VIEWS = [
   { id: "today", label: "Today", icon: "calendar", hint: "What NN has for you" },
   { id: "apps", label: "Applications", icon: "grid", hint: "All thirty-four" },
-  { id: "ren", label: "REN", icon: "sparkle", hint: "Your intelligence" },
+  { id: "ren", label: "REN", icon: "sparkle", hint: "Your intelligence", mark: "ren" },
   { id: "activity", label: "Activity", icon: "clock", hint: "Everything recorded" },
   { id: "system", label: "System", icon: "settings", hint: "The environment itself" },
 ] as const satisfies readonly (LiquidNavItem & { id: string })[];

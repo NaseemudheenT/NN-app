@@ -6,6 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { RenMark } from "@/components/ui/RenMark";
 import styles from "./LiquidNav.module.css";
 
 /**
@@ -41,6 +42,11 @@ export interface LiquidNavItem {
   icon: IconName;
   /** A short second line, shown only in the expanded dock. */
   hint?: string;
+  /**
+   * Draw REN's own mark instead of an icon. REN is not a view and does not
+   * get a glyph: it is the one thing in the navigation that is a presence.
+   */
+  mark?: "ren";
 }
 
 export interface LiquidNavProps {
@@ -68,21 +74,23 @@ const VERT = "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
  * together with a smooth minimum — which is what makes a splitting drop read
  * as one body of water rather than several circles.
  */
-const FRAG = `precision highp float;
+export const NAV_FRAG = `precision highp float;
 uniform vec2 uRes;uniform float uDpr;uniform float uTime;uniform vec4 uPill;
 uniform vec4 uBlob[6];uniform float uSy[6];uniform vec4 uRip[6];uniform vec3 uMouse;uniform float uAmb;
+uniform float uAxis;uniform float uMinor;
 uniform vec3 uTint;uniform vec3 uCore;
 float sdRB(vec2 p,vec2 b,float r){vec2 q=abs(p)-b+r;return length(max(q,0.))+min(max(q.x,q.y),0.)-r;}
-float sdCap(vec2 p,vec4 B,float sy){p-=B.xy;p.y/=sy;p.x=max(abs(p.x)-B.z,0.);return(length(p)-B.w)*min(1.,sy);}
+float sdCap(vec2 p,vec4 B,float sy){p-=B.xy;if(uAxis>.5){p=p.yx;}p.y/=sy;p.x=max(abs(p.x)-B.z,0.);return(length(p)-B.w)*min(1.,sy);}
 float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}
 float dropD(vec2 p){float d=1e4;for(int i=0;i<6;i++){if(uBlob[i].w>.5){d=smin(d,sdCap(p,uBlob[i],uSy[i]),13.);}}return d;}
-float pillD(vec2 p){vec2 h=uPill.zw*.5;return sdRB(p-uPill.xy-h,h,h.y);}
+float pillD(vec2 p){vec2 h=uPill.zw*.5;return sdRB(p-uPill.xy-h,h,min(h.x,h.y));}
 float lens(float d,float w){float t=clamp(-d/w,0.,1.);return sqrt(1.-(1.-t)*(1.-t));}
 float waves(vec2 p){float w=0.;
  for(int i=0;i<6;i++){vec4 R=uRip[i];if(R.w>0.){float x=length(p-R.xy)-R.z*240.;w+=R.w*exp(-R.z*1.7)*sin(x*.3)*exp(-x*x/700.);}}
  vec2 m=p-uMouse.xy;w+=uMouse.z*3.6*exp(-dot(m,m)/1000.);
- w+=uAmb*(sin(p.x*.05+uTime*1.2)*.45+sin(p.x*.13-uTime*.85+p.y*.2)*.25);return w;}
-float H(vec2 p){float dp=pillD(p);return lens(dp,uPill.w*.36)*2.4+lens(dropD(p),11.)*7.5+waves(p)*smoothstep(0.,7.,-dp);}
+ vec2 q=(uAxis>.5)?p.yx:p;
+ w+=uAmb*(sin(q.x*.05+uTime*1.2)*.45+sin(q.x*.13-uTime*.85+q.y*.2)*.25);return w;}
+float H(vec2 p){float dp=pillD(p);return lens(dp,uMinor*.36)*2.4+lens(dropD(p),11.)*7.5+waves(p)*smoothstep(0.,7.,-dp);}
 float caus(vec2 p,float t){vec2 q=p;float c=0.;for(int i=0;i<3;i++){q+=vec2(sin(q.y*1.1+t),cos(q.x*1.3-t*.7))*.6;c+=1./(1.+16.*abs(sin(q.x)*sin(q.y)));}return c/3.;}
 void main(){
  vec2 p=vec2(gl_FragCoord.x,uRes.y*uDpr-gl_FragCoord.y)/uDpr;
@@ -112,6 +120,21 @@ void main(){
  gl_FragColor=vec4(c,a);
 }`;
 
+/**
+ * The dock runs along one axis and the rail runs along the other, but the
+ * water only knows how to flow one way.
+ *
+ * Every number in the physics is therefore kept in *main/cross* space — how
+ * far along the nav, and how far across it — and turned into screen space
+ * here, once, at the point it is handed to the shader. Before this the rail
+ * was given the dock's maths unchanged: every item in a vertical nav has the
+ * same `offsetLeft`, so the drop's target never moved, and the selection
+ * teleported between items with no water following it at all.
+ */
+export function place(axis: 0 | 1, main: number, cross: number): [number, number] {
+  return axis ? [cross, main] : [main, cross];
+}
+
 type Body = { x: number; v: number };
 type Satellite = { x: number; y: number; vx: number; vy: number; r: number; k: number };
 type Ripple = { x: number; y: number; age: number; amp: number };
@@ -137,7 +160,7 @@ function initGL(canvas: HTMLCanvasElement): GL | null {
   };
 
   const vs = compile(gl.VERTEX_SHADER, VERT);
-  const fs = compile(gl.FRAGMENT_SHADER, FRAG);
+  const fs = compile(gl.FRAGMENT_SHADER, NAV_FRAG);
   if (!vs || !fs) return null;
 
   const program = gl.createProgram();
@@ -157,7 +180,7 @@ function initGL(canvas: HTMLCanvasElement): GL | null {
   const u: GL["u"] = {};
   for (const name of [
     "uRes", "uDpr", "uTime", "uPill", "uBlob", "uSy",
-    "uRip", "uMouse", "uAmb", "uTint", "uCore",
+    "uRip", "uMouse", "uAmb", "uTint", "uCore", "uAxis", "uMinor",
   ]) {
     u[name] = gl.getUniformLocation(program, name);
   }
@@ -198,6 +221,7 @@ export function LiquidNav({
     satellites: [] as Satellite[],
     ripples: [] as Ripple[],
     target: { x: 0, cy: 0, q: 0, r: 21 },
+    axis: 0 as 0 | 1,
     q: 0,
     mouse: { x: 0, y: 0, s: 0, on: false },
     moving: false,
@@ -230,19 +254,28 @@ export function LiquidNav({
       gl.uniform1f(u.uDpr!, dpr);
       gl.uniform1f(u.uTime!, s.time);
       gl.uniform4f(u.uPill!, PAD, PAD, s.w, s.h);
+      gl.uniform1f(u.uAxis!, s.axis);
+      // The pill's short side. It sets both the corner radius and how wide a
+      // band the surface refracts in — given the long side, a vertical rail
+      // pinches into a lens and floods its whole width with edge light.
+      gl.uniform1f(u.uMinor!, Math.min(s.w, s.h));
 
       const blobs = new Float32Array(24);
       const squash = new Float32Array(6).fill(1);
       const head = s.lead === 0 ? s.a : s.b;
       const tail = s.lead === 0 ? s.b : s.a;
       blobs.set([
-        head.x, target.cy, s.q * (1 - 0.25 * thin), target.r * (1 - 0.12 * thin),
-        tail.x, target.cy, s.q * (1 - 0.8 * thin), target.r * (1 - 0.5 * thin),
+        ...place(s.axis, head.x, target.cy),
+        s.q * (1 - 0.25 * thin), target.r * (1 - 0.12 * thin),
       ], 0);
+      blobs.set([
+        ...place(s.axis, tail.x, target.cy),
+        s.q * (1 - 0.8 * thin), target.r * (1 - 0.5 * thin),
+      ], 4);
       squash[0] = s.sy.s;
       squash[1] = s.sy.s;
       s.satellites.slice(0, 4).forEach((drop, i) => {
-        blobs.set([drop.x, drop.y, 0, drop.r], 8 + i * 4);
+        blobs.set([...place(s.axis, drop.x, drop.y), 0, drop.r], 8 + i * 4);
       });
       gl.uniform4fv(u.uBlob!, blobs);
       gl.uniform1fv(u.uSy!, squash);
@@ -265,15 +298,23 @@ export function LiquidNav({
 
     // No WebGL: the same numbers drive a plain CSS drop.
     if (dropRef.current) {
-      const left = Math.min(s.a.x, s.b.x) - s.q - radius - PAD;
-      dropRef.current.style.width = `${separation + 2 * (s.q + radius)}px`;
-      dropRef.current.style.transform = `translateX(${left}px) scaleY(${s.sy.s})`;
+      const { style } = dropRef.current;
+      const length = separation + 2 * (s.q + radius);
+      const offset = Math.min(s.a.x, s.b.x) - s.q - radius - PAD;
+      if (s.axis) {
+        style.height = `${length}px`;
+        style.transform = `translateY(${offset}px) scaleX(${s.sy.s})`;
+      } else {
+        style.width = `${length}px`;
+        style.transform = `translateX(${offset}px) scaleY(${s.sy.s})`;
+      }
     }
   }, []);
 
   const step = useCallback((dt: number, now: number) => {
     const s = state.current;
     const target = s.target;
+    const span = s.axis ? s.h : s.w;
     s.time += dt;
     s.q += (target.q - s.q) * Math.min(1, dt * 12);
 
@@ -296,7 +337,7 @@ export function LiquidNav({
         body.x += body.v * dt;
 
         const low = PAD + 6 + s.q + target.r - 3;
-        const high = PAD + s.w - 6 - s.q - target.r + 3;
+        const high = PAD + span - 6 - s.q - target.r + 3;
         if (body.x < low || body.x > high) {
           s.sy.v -= Math.min(Math.abs(body.v), 900) * 0.0016;
           body.x = Math.max(low, Math.min(high, body.x));
@@ -338,7 +379,7 @@ export function LiquidNav({
         drop.vy += (90 * (target.cy - drop.y) - 7 * drop.vy) * dt;
         drop.x += drop.vx * dt;
         drop.y += drop.vy * dt;
-        drop.x = Math.max(PAD + 8 + drop.r, Math.min(PAD + s.w - 8 - drop.r, drop.x));
+        drop.x = Math.max(PAD + 8 + drop.r, Math.min(PAD + span - 8 - drop.r, drop.x));
         drop.y = Math.max(target.cy - target.r + drop.r, Math.min(target.cy + target.r - drop.r, drop.y));
         // Absorbed once it reaches the main body.
         if (Math.abs(target.x - drop.x) < s.q + target.r * 0.5) drop.r -= dt * 26;
@@ -350,7 +391,8 @@ export function LiquidNav({
     if (s.moving && still) {
       s.moving = false;
       if (!s.reduce) {
-        s.ripples.push({ x: target.x, y: target.cy, age: 0, amp: s.split ? 1.2 : 0.7 });
+        const [rx, ry] = place(s.axis, target.x, target.cy);
+        s.ripples.push({ x: rx, y: ry, age: 0, amp: s.split ? 1.2 : 0.7 });
       }
     }
 
@@ -387,11 +429,20 @@ export function LiquidNav({
     s.w = nav.offsetWidth;
     s.h = nav.offsetHeight;
 
+    const vertical = orientation === "vertical";
+    s.axis = vertical ? 1 : 0;
+
     const target = s.target;
-    target.r = element.offsetHeight / 2;
-    target.q = Math.max(0, element.offsetWidth / 2 - target.r);
-    target.cy = PAD + element.offsetTop + element.offsetHeight / 2;
-    const next = PAD + element.offsetLeft + element.offsetWidth / 2;
+    const along = vertical ? element.offsetHeight : element.offsetWidth;
+    const across = vertical ? element.offsetWidth : element.offsetHeight;
+    target.r = across / 2;
+    target.q = Math.max(0, along / 2 - target.r);
+    target.cy = PAD + (vertical
+      ? element.offsetLeft + element.offsetWidth / 2
+      : element.offsetTop + element.offsetHeight / 2);
+    const next = PAD + (vertical
+      ? element.offsetTop + element.offsetHeight / 2
+      : element.offsetLeft + element.offsetWidth / 2);
 
     if (!s.ready) {
       s.a.x = next; s.b.x = next; s.q = target.q; s.ready = true;
@@ -417,7 +468,7 @@ export function LiquidNav({
       }
     }
     loop();
-  }, [current, loop]);
+  }, [current, loop, orientation]);
 
   useEffect(() => {
     const s = state.current;
@@ -468,11 +519,12 @@ export function LiquidNav({
   const measureRef = useRef(measure);
   measureRef.current = measure;
   useEffect(() => {
-    let lastWidth = -1;
+    let lastSpan = -1;
     const ro = new ResizeObserver(() => {
-      const width = navRef.current?.offsetWidth ?? 0;
-      if (width !== lastWidth) {
-        lastWidth = width;
+      const nav = navRef.current;
+      const span = (state.current.axis ? nav?.offsetHeight : nav?.offsetWidth) ?? 0;
+      if (span !== lastSpan) {
+        lastSpan = span;
         state.current.ready = false;   // re-seat rather than slide across a reflow
         measureRef.current();
       }
@@ -560,7 +612,9 @@ export function LiquidNav({
           onClick={() => onSelect(item, index)}
         >
           <span className={styles.glyph}>
-            <Icon name={item.icon} size={18} />
+            {item.mark === "ren"
+              ? <RenMark size={22} active={index === current} />
+              : <Icon name={item.icon} size={20} solid />}
           </span>
           <span className={styles.label} aria-hidden="true">{item.label}</span>
         </button>

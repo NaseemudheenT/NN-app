@@ -428,14 +428,19 @@ button, input, textarea, select { font: inherit; color: inherit; }
   --nn-prism-blue: 72 132 255;
   --nn-prism-violet: 153 111 255;
   --nn-prism-ice: 222 248 255;
-  --nn-prism-edge:
-    conic-gradient(from 205deg at 50% 50%,
-      rgb(100 235 255 / 88%) 0deg,
-      rgb(103 167 255 / 60%) 64deg,
-      rgb(183 125 255 / 54%) 145deg,
-      rgb(103 130 255 / 20%) 218deg,
-      rgb(75 223 255 / 64%) 300deg,
-      rgb(100 235 255 / 88%) 360deg);
+  /* The rim, as a colour.
+   *
+   * `--nn-prism-edge` below is a conic cut, and it was being painted as the
+   * last background layer of every glass surface with `background-clip:
+   * border-box`. Every layer above it is partly transparent, so it did not
+   * stay in the 1px band it was drawn for — it came through the whole face
+   * as a bright X from the centre to the four corners. On a dock tile that
+   * reads as a smudge; on a 380px card it reads as a crease in the glass.
+   * The band gets a real border colour instead. The spectral cut has not
+   * been lost: it is still carried by the inset laminate below, which lights
+   * the top edge white, the left cool and the right violet — the part of the
+   * prism anyone could actually see. */
+  --nn-prism-rim: rgb(203 234 255 / 40%);
   --nn-prism-shadow:
     inset 0 1.5px 0 rgb(255 255 255 / 72%),
     inset 1.5px 0 0 rgb(222 247 255 / 24%),
@@ -471,16 +476,15 @@ body {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid transparent !important;
+  border: 1px solid var(--nn-prism-rim) !important;
   background-color: rgb(9 19 52 / 30%) !important;
   background-image:
     radial-gradient(ellipse 92% 56% at 8% -8%, rgb(255 255 255 / 24%), transparent 68%),
     radial-gradient(ellipse 78% 70% at 100% 100%, rgb(91 77 255 / 17%), transparent 74%),
     linear-gradient(126deg, rgb(255 255 255 / 15%) 0%, rgb(114 218 255 / 8%) 20%, transparent 43%, rgb(141 117 255 / 8%) 78%, rgb(255 255 255 / 7%) 100%),
-    linear-gradient(155deg, rgb(24 65 132 / 40%), rgb(8 18 51 / 48%) 52%, rgb(19 25 75 / 44%)),
-    var(--nn-prism-edge) !important;
-  background-origin: border-box !important;
-  background-clip: padding-box, padding-box, padding-box, padding-box, border-box !important;
+    linear-gradient(155deg, rgb(24 65 132 / 40%), rgb(8 18 51 / 48%) 52%, rgb(19 25 75 / 44%)) !important;
+  background-origin: padding-box !important;
+  background-clip: padding-box !important;
   -webkit-backdrop-filter: blur(32px) saturate(190%) brightness(1.12) contrast(1.08) !important;
   backdrop-filter: blur(32px) saturate(190%) brightness(1.12) contrast(1.08) !important;
   box-shadow: var(--nn-prism-shadow) !important;
@@ -564,9 +568,8 @@ body {
 .nn-glass-reading {
   background-image:
     radial-gradient(ellipse 90% 44% at 12% 0%, rgb(255 255 255 / 17%), transparent 72%),
-    linear-gradient(145deg, rgb(14 31 76 / 94%), rgb(6 13 39 / 96%) 68%, rgb(23 19 70 / 94%)),
-    var(--nn-prism-edge) !important;
-  background-clip: padding-box, padding-box, border-box !important;
+    linear-gradient(145deg, rgb(14 31 76 / 94%), rgb(6 13 39 / 96%) 68%, rgb(23 19 70 / 94%)) !important;
+  background-clip: padding-box !important;
 }
 /* The light theme is still glass: frosted ice with cyan and amethyst dispersion. */
 :root[data-theme="light"] body {
@@ -575,6 +578,10 @@ body {
     radial-gradient(ellipse 70% 46% at 12% 4%, rgb(70 168 255 / 23%), transparent 72%),
     radial-gradient(ellipse 60% 40% at 90% 14%, rgb(174 123 255 / 19%), transparent 74%),
     var(--ambient);
+}
+:root[data-theme="light"] {
+  /* A rim has to be darker than the glass it edges, not lighter. */
+  --nn-prism-rim: rgb(118 158 208 / 34%);
 }
 :root[data-theme="light"] .nn-glass-card,
 :root[data-theme="light"] .nn-glass,
@@ -586,8 +593,7 @@ body {
     radial-gradient(ellipse 92% 56% at 8% -8%, rgb(255 255 255 / 92%), transparent 68%),
     radial-gradient(ellipse 78% 70% at 100% 100%, rgb(164 135 255 / 12%), transparent 74%),
     linear-gradient(126deg, rgb(255 255 255 / 82%) 0%, rgb(103 204 255 / 17%) 30%, transparent 52%, rgb(162 134 255 / 14%) 82%, rgb(255 255 255 / 64%) 100%),
-    linear-gradient(155deg, rgb(247 252 255 / 72%), rgb(220 238 255 / 56%) 52%, rgb(237 231 255 / 62%)),
-    conic-gradient(from 205deg, rgb(255 255 255 / 96%), rgb(83 175 235 / 48%), rgb(167 139 235 / 42%), rgb(255 255 255 / 96%)) !important;
+    linear-gradient(155deg, rgb(247 252 255 / 72%), rgb(220 238 255 / 56%) 52%, rgb(237 231 255 / 62%)) !important;
   -webkit-backdrop-filter: blur(32px) saturate(175%) brightness(1.04) !important;
   backdrop-filter: blur(32px) saturate(175%) brightness(1.04) !important;
   box-shadow:
@@ -603,8 +609,7 @@ body {
 :root[data-theme="light"] .nn-glass-reading {
   background-image:
     radial-gradient(ellipse 90% 44% at 12% 0%, rgb(255 255 255 / 98%), transparent 72%),
-    linear-gradient(145deg, rgb(250 253 255 / 98%), rgb(231 242 255 / 98%) 68%, rgb(242 237 255 / 98%)),
-    conic-gradient(from 205deg, rgb(255 255 255 / 96%), rgb(83 175 235 / 48%), rgb(167 139 235 / 42%), rgb(255 255 255 / 96%)) !important;
+    linear-gradient(145deg, rgb(250 253 255 / 98%), rgb(231 242 255 / 98%) 68%, rgb(242 237 255 / 98%)) !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .nn-glass-card,.nn-glass,.nn-glass-primary,.nn-glass-reading,.nn-holo,

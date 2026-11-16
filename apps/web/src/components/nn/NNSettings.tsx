@@ -229,7 +229,7 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
       ) : null}
 
       <footer className={styles.about}>
-        <NNLogo size={26} decorative />
+        <NNLogo size={26} glow decorative />
         <p>NN · a personal operating environment</p>
       </footer>
     </div>

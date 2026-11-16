@@ -706,3 +706,112 @@
   .cardInner { transform: none; }
   .cardInner::after { display: none; }
 }
+
+
+/* ------------------------------------------------------------------------
+   NN INTRO — the corridor cards say what is behind them.
+
+   This file has been layered several times, and each pass restyled the card
+   without reading the one before it: by the end the title was switched off
+   (`.cardTitle { display: none }` in the arrival block), the hint had never
+   been rendered at all, and the first thing NN showed anyone was five empty
+   panes of glass flying past. This block is last and it is the one that
+   decides — the card is a real card again: a mark, a name, a sentence, and
+   NN's own water moving under all three.
+   ------------------------------------------------------------------------ */
+
+.cardInner {
+  justify-content: flex-end;
+  gap: 9px;
+  padding: clamp(20px, 2.2vw, 30px);
+}
+
+/* The live water. The global `.nn-live-wave` cannot be used here: the card
+   already owns both of its pseudo-elements, and that helper's reading surface
+   would flood glass that is doing its own refraction. Same colours, same
+   drift, its own layer. */
+.cardWave {
+  position: absolute;
+  /* Hanging well outside the card on every side. A 26px blur has a visible
+     falloff at the blurred element's own edge, and with that edge sitting on
+     the card's edge the water ended in a hard line down the glass. */
+  left: -50%;
+  top: -50%;
+  z-index: 0;
+  width: 300%;
+  height: 200%;
+  pointer-events: none;
+  opacity: 0.66;
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  background-image:
+    radial-gradient(42% 70% at 14% 62%, rgb(var(--nn-spectrum-cyan) / 46%), transparent 68%),
+    radial-gradient(40% 66% at 34% 84%, rgb(var(--nn-spectrum-indigo) / 38%), transparent 68%),
+    radial-gradient(44% 72% at 56% 58%, rgb(var(--nn-spectrum-violet) / 36%), transparent 68%),
+    radial-gradient(38% 64% at 80% 80%, rgb(var(--nn-spectrum-aqua) / 42%), transparent 68%);
+  filter: blur(24px) saturate(1.3);
+  animation: nn-intro-wave 24s linear infinite;
+}
+
+@keyframes nn-intro-wave {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* The mark sits in its own key of glass, and it is big enough to be an
+   object rather than a pictogram. */
+.cardIcon {
+  z-index: 1;
+  width: clamp(58px, 5.4vw, 74px);
+  height: clamp(58px, 5.4vw, 74px);
+  border-radius: clamp(19px, 1.8vw, 24px);
+  margin-bottom: auto;
+}
+
+.cardTitle {
+  display: block;
+  z-index: 1;
+  font-size: clamp(19px, 1.8vw, 25px);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.032em;
+  line-height: 1.12;
+  color: var(--nn-white);
+  text-shadow: 0 2px 14px rgb(0 0 0 / 46%);
+}
+
+/* Three lines, clamped. A card is a fixed 4:5 box and the sentences are not
+   all the same length — left to run, the longest one pushed its own title
+   out of the card on a narrow phone. */
+.cardHint {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  z-index: 1;
+  max-width: 26ch;
+  font-size: clamp(12.5px, 1.05vw, 14.5px);
+  line-height: 1.45;
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.006em;
+  color: rgb(222 234 250 / 86%);
+  text-shadow: 0 1px 10px rgb(0 0 0 / 52%);
+}
+
+@media (max-width: 767px) {
+  .cardInner { padding: 17px; gap: 7px; }
+  .cardIcon { width: 50px; height: 50px; border-radius: 16px; }
+  .cardTitle { font-size: 17px; }
+  /* Kept, not hidden: on a phone the intro is the whole screen, and the
+     sentence is the only thing on it that says what NN holds. */
+  .cardHint {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardWave { animation: none; }
+}

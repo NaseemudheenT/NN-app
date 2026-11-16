@@ -65,10 +65,23 @@ export interface IconProps {
   size?: number;
   /** Supply when the icon is the only content of a control. */
   title?: string;
+  /**
+   * Draw the glyph as a lit solid rather than a flat stroke.
+   *
+   * The stroke is extruded — a dark copy below it for depth, a cast shadow
+   * under that, and a point light reflected off the top-left — so it reads as
+   * a bar of material rather than a line. Costs one SVG filter, which is why
+   * it is opt-in: a dense list of twenty rows does not need twenty of them,
+   * but the keys in the dock and on the cards do.
+   *
+   * Needs {@link IconDefs} mounted, which the root layout does once.
+   */
+  solid?: boolean;
   className?: string | undefined;
 }
 
-export function Icon({ name, size = 20, title, className }: IconProps) {
+export function Icon({ name, size = 20, title, solid, className }: IconProps) {
+  const d = ICON_PATHS[name];
   return (
     <svg
       width={size}
@@ -81,12 +94,39 @@ export function Icon({ name, size = 20, title, className }: IconProps) {
       strokeLinejoin="round"
       className={className}
       data-nn-icon={name}
+      data-solid={solid || undefined}
       {...(title !== undefined
         ? { role: "img" as const }
         : { "aria-hidden": true as const, role: "presentation" as const })}
     >
       {title !== undefined ? <title>{title}</title> : null}
-      <path d={ICON_PATHS[name]} />
+      {solid ? (
+        <>
+          {/* The shadow the object casts on whatever it is sitting on. */}
+          <path d={d} stroke="#040B1E" filter="url(#nn-icon-contact)" />
+          {/* The side of the bar, seen from slightly above. Four copies a
+              third of a unit apart rather than one: a single offset reads as
+              a drop shadow, and a continuous side is what the eye accepts as
+              thickness. They darken with depth, because the further down the
+              side you look the less of the key light reaches it. */}
+          <path d={d} stroke="var(--nn-icon-body, #050C22)" transform="translate(0 1.5)" />
+          <path d={d} stroke="var(--nn-icon-body, #050C22)" transform="translate(0 1.1)" opacity="0.92" />
+          <path d={d} stroke="var(--nn-icon-body, #09142E)" transform="translate(0 0.75)" opacity="0.86" />
+          <path d={d} stroke="var(--nn-icon-body, #0D1A3A)" transform="translate(0 0.4)" opacity="0.8" />
+          {/* The lit face. */}
+          <path d={d} stroke="var(--nn-icon-face, url(#nn-icon-face))" filter="url(#nn-icon-lit)" />
+          {/* The hairline where the face meets the air. One lit edge is what
+              separates a thick object from a thick smudge. */}
+          <path
+            d={d}
+            stroke="var(--nn-icon-rim, rgb(255 255 255 / 62%))"
+            strokeWidth={0.5}
+            transform="translate(0 -0.34)"
+          />
+        </>
+      ) : (
+        <path d={d} />
+      )}
     </svg>
   );
 }

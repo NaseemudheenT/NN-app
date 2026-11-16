@@ -45,6 +45,11 @@
 
 .tile svg { position: relative; z-index: 1; }
 
+/* The body of the extruded glyph, and the material of its lit face. Both are
+   properties rather than constants so the light theme can swap them without
+   the icon knowing which theme it is in. */
+.tile { --nn-icon-body: #050C22; --nn-icon-face: url(#nn-icon-face); --nn-icon-rim: rgb(255 255 255 / 62%); }
+
 .tile[data-tone="blue"]   { --glass-icon-hue: var(--nn-spectrum-blue); }
 .tile[data-tone="cyan"]   { --glass-icon-hue: var(--nn-spectrum-cyan); }
 .tile[data-tone="aqua"]   { --glass-icon-hue: var(--nn-spectrum-aqua); }
@@ -59,6 +64,11 @@
 :root[data-theme="light"] .tile,
 :root:not([data-theme]) .tile {
   --glass-icon-ink: #0B1730;
+  /* On a pale ground the face has to be the dark half of the spectrum, or a
+     white-lit glyph on white glass loses its silhouette entirely. */
+  --nn-icon-body: #8FA9D4;
+  --nn-icon-face: url(#nn-icon-face-light);
+  --nn-icon-rim: rgb(255 255 255 / 86%);
   background:
     linear-gradient(168deg, rgb(255 255 255 / 85%), transparent 52%),
     linear-gradient(
@@ -76,6 +86,9 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .tile {
     --glass-icon-ink: var(--text-primary);
+    --nn-icon-body: #050C22;
+    --nn-icon-face: url(#nn-icon-face);
+    --nn-icon-rim: rgb(255 255 255 / 62%);
     background:
       linear-gradient(168deg, var(--glass-sheen), transparent 46%),
       linear-gradient(

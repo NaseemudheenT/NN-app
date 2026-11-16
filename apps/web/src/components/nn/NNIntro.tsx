@@ -4,6 +4,7 @@ import { useEffect, useRef, type ComponentProps } from "react";
 import type Link from "next/link";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { RenMark } from "@/components/ui/RenMark";
 import { LiquidButton } from "@/components/ui/LiquidButton";
 import {
   clamp,
@@ -36,14 +37,27 @@ interface IntroCard {
   icon: IconName;
   title: string;
   hint: string;
+  /** REN is a presence, not a glyph: its own mark goes in the tile. */
+  mark?: "ren";
 }
 
+/**
+ * What is actually in NN.
+ *
+ * These are six of the thirty-four applications, named as they are named in
+ * the registry and described by what they really hold. The corridor used to
+ * fly five cards carrying a verb and nothing else — "Life", "Learn",
+ * "Create" — with the title hidden by a later stylesheet on top of that, so
+ * the first thing NN ever showed anyone was five empty panes of glass. The
+ * door to a personal operating environment should say what is behind it.
+ */
 const CARDS: readonly IntroCard[] = [
-  { icon: "calendar", title: "Life", hint: "" },
-  { icon: "book", title: "Learn", hint: "" },
-  { icon: "grid", title: "Create", hint: "" },
-  { icon: "wallet", title: "Build", hint: "" },
-  { icon: "sparkle", title: "Remember", hint: "" },
+  { icon: "calendar", title: "Life", hint: "Your calendar, tasks, notes and reminders, in one day." },
+  { icon: "cap", title: "College", hint: "SMVEC — semesters, attendance, marks and material." },
+  { icon: "wallet", title: "Finance", hint: "Accounts, spending, what is owed and what is coming." },
+  { icon: "pen", title: "Creator Studio", hint: "Write, design, record and publish your own work." },
+  { icon: "vault", title: "Memory", hint: "Everything you have kept, searchable for a lifetime." },
+  { icon: "sparkle", title: "REN", hint: "Your intelligence, running through all of it.", mark: "ren" },
 ];
 
 /** Placement is fixed per card, so it is computed once at module load. */
@@ -226,9 +240,11 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       const farZ = stage.isMobile ? -1200 : -1700;
       const nearZ = stage.isMobile ? 350 : 500;
       const panStrength = stage.isMobile ? 20 : 45;
+      // Bigger than they were. A card now carries a name and a sentence as
+      // well as its mark, and at the old 230 the sentence set to four lines.
       const cardWidth = stage.isMobile
-        ? Math.max(150, Math.min(230, stage.width * 0.52))
-        : Math.max(230, Math.min(340, stage.width * 0.25));
+        ? Math.max(176, Math.min(258, stage.width * 0.58))
+        : Math.max(268, Math.min(384, stage.width * 0.27));
       const px = panX.value;
       const py = panY.value;
 
@@ -323,7 +339,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
         </div>
       </div>
       <div ref={titleRef} className={styles.title} aria-hidden="true">
-        <NNLogo size={82} className={styles.mark} />
+        <NNLogo size={82} glow className={styles.mark} />
       </div>
 
       <div ref={enterRef} className={styles.enter} aria-hidden="true" inert>
@@ -345,10 +361,14 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
           >
             <div className={`${styles.cardInner} nn-glass-card`}>
               <span className={styles.cardSheen} />
+              <span className={styles.cardWave} aria-hidden="true" />
               <span className={styles.cardIcon}>
-                <Icon name={placement.card.icon} size={26} />
+                {placement.card.mark === "ren"
+                  ? <RenMark size={44} active />
+                  : <Icon name={placement.card.icon} size={38} solid />}
               </span>
               <span className={styles.cardTitle}>{placement.card.title}</span>
+              <span className={styles.cardHint}>{placement.card.hint}</span>
             </div>
           </div>
         ))}

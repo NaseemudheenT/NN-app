@@ -35,10 +35,25 @@ export interface NNLogoProps {
   size?: number;
   /** Decorative marks are hidden from assistive technology. */
   decorative?: boolean;
+  /**
+   * Light the mark instead of filling it flat.
+   *
+   * The geometry is untouched — this is material, not shape. The same path
+   * is painted three times: a bloom beneath it so it throws light onto the
+   * surface it sits on, the spectrum across its faces so it is made of the
+   * same light as the rest of NN, and a bright edge along the top-left where
+   * the light actually falls.
+   */
+  glow?: boolean;
   className?: string | undefined;
 }
 
-export function NNLogo({ size = 32, decorative = false, className }: NNLogoProps) {
+/** Shared ids. Two identical definitions are harmless; two different ones
+ *  would not be, so the mark never generates per-instance names. */
+const GLOW_FACE = "nn-mark-face";
+const GLOW_BLOOM = "nn-mark-bloom";
+
+export function NNLogo({ size = 32, decorative = false, glow = false, className }: NNLogoProps) {
   return (
     <svg
       width={Math.round(size * NN_MARK_RATIO)}
@@ -46,11 +61,52 @@ export function NNLogo({ size = 32, decorative = false, className }: NNLogoProps
       viewBox={`0 0 ${NN_MARK_W} ${NN_MARK_H}`}
       fill="currentColor"
       className={className}
+      // The bloom is wider than the mark, and the mark touches all four
+      // edges of its own box. Without this the light is cut off square.
+      {...(glow ? { style: { overflow: "visible" } } : {})}
       {...(decorative
         ? { "aria-hidden": true as const, role: "presentation" as const }
         : { role: "img" as const, "aria-label": "NN" })}
     >
-      <path d={NN_MARK_PATH} />
+      {glow ? (
+        <>
+          <defs>
+            <linearGradient id={GLOW_FACE} x1="0" y1="0" x2="0.82" y2="1">
+              <stop offset="0" stopColor="#F4FBFF" />
+              <stop offset="0.3" stopColor="#A9DCFF" />
+              <stop offset="0.62" stopColor="#7AA6FF" />
+              <stop offset="1" stopColor="#B07CFF" />
+            </linearGradient>
+            <filter
+              id={GLOW_BLOOM}
+              x="-55%"
+              y="-55%"
+              width="210%"
+              height="210%"
+              colorInterpolationFilters="sRGB"
+            >
+              <feGaussianBlur stdDeviation="7.5" />
+            </filter>
+          </defs>
+          <path
+            d={NN_MARK_PATH}
+            fill="#6FB6FF"
+            filter={`url(#${GLOW_BLOOM})`}
+            opacity="0.62"
+          />
+          <path d={NN_MARK_PATH} fill={`url(#${GLOW_FACE})`} />
+          <path
+            d={NN_MARK_PATH}
+            fill="none"
+            stroke="#FFFFFF"
+            strokeOpacity="0.55"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+        </>
+      ) : (
+        <path d={NN_MARK_PATH} />
+      )}
     </svg>
   );
 }

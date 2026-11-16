@@ -56,7 +56,7 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
           onClick={() => travel.open("/home" as Route, "NN Home")}
           aria-label="Open NN Home"
         >
-          <NNLogo size={24} decorative />
+          <NNLogo size={24} glow decorative />
           <span>
             NN <i>/</i> <strong>{title.toUpperCase()}</strong>
           </span>
