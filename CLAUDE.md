@@ -205,11 +205,23 @@ Palette (fixed): `#07111F` `#0B1930` `#10223B` `#172B45` `#F7F9FC` `#E7EDF6`
   four partly transparent layers — so it came through the whole face as a
   bright X from the centre to the corners. Glass gets a real `border-color`
   (`--nn-prism-rim`); the spectral cut is carried by the inset laminate.
-- **Icons are lit solids, not strokes.** `IconDefs` mounts one light for the
-  page — a height field off the alpha, a point light above and left, the
-  specular clipped back inside the silhouette — and `Icon`'s `solid` prop
-  stacks a contact shadow, four darkening body copies, the lit face and a
-  rim. `GlassIcon` sets one in a key of glass with NN's water drifting in it.
+- **Icons are rendered, not drawn.** `lib/icons/render.ts` turns a glyph into
+  a signed distance field, the field into a half-round height map, and shades
+  that surface per pixel — key light, the room reflected by the normal, a
+  specular, a Fresnel rim, dispersion through the edges, and the shadow it
+  casts. The output is a PNG. On the CPU, not WebGL: a browser allows about
+  sixteen live contexts and NN already spends five, so forty-three icons
+  could never have one each. Two size buckets (76 and 160), because a 160px
+  lit object shown at 18 is averaged into a grey smudge by the downscale.
+  Renders are queued with a 5ms frame budget. The vector is what the server
+  renders, what the first client frame renders so the markup matches, and
+  what stays wherever the canvas read is refused. `GlassIcon` sets one in a
+  key of glass with NN's water drifting in it.
+- **Every control carries the water.** `.nn-liquid` draws two layers in one
+  pseudo-element — the fixed top-edge highlight and a spectrum drifting under
+  it on its own `background-position` — plus a real side before any blur.
+  `--liquid-tide` is how much water a control holds; a chosen segment holds
+  more than the rest.
 - **REN's mark is SVG, not the orb.** The real orb is a ray-marched WebGL2
   sphere; the navigation renders three times over, so putting it in the item
   list would open three more contexts to draw a 20px circle. `RenMark`
