@@ -139,7 +139,7 @@ export function renderIconPixels(
   dc.translate(inset, inset);
   dc.scale(scale, scale);
   dc.strokeStyle = "#ffffff";
-  dc.lineWidth = 2.1;
+  dc.lineWidth = 2.35;
   dc.lineCap = "round";
   dc.lineJoin = "round";
   dc.stroke(new Path2D(ICON_PATHS[name]));
@@ -152,7 +152,7 @@ export function renderIconPixels(
   const sdf = signedDistance(alpha, px);
 
   // Half the stroke's width in pixels: the radius of the tube.
-  const radius = (2.1 / 2) * scale;
+  const radius = (2.35 / 2) * scale;
 
   // The height field. A half-round profile across the stroke, which is the
   // whole reason this reads as a bar of material rather than a flat shape.
@@ -224,7 +224,7 @@ export function renderIconPixels(
 
       const diff = Math.max(0, nx * lx + ny * ly + nz * lz);
       const specDot = Math.max(0, nx * hnx + ny * hny + nz * hnz);
-      const spec = specDot ** 42;
+      const spec = specDot ** 30;
       // Fresnel: a real material gets brighter where it turns away from you.
       const fres = (1 - nz) ** 1.9;
 
@@ -238,9 +238,12 @@ export function renderIconPixels(
       // surface is steepest and signed by which way it leans.
       const chroma = fres * nx * 0.16;
 
-      let r = br * (0.2 + 0.86 * diff) + er * fres * 0.62 + spec * 0.95 + chroma;
-      let g = bg * (0.2 + 0.86 * diff) + eg * fres * 0.62 + spec * 0.95;
-      let b = bb * (0.2 + 0.86 * diff) + eb * fres * 0.62 + spec * 0.95 - chroma;
+      // Ambient, key, the room's reflection, the highlight. The ambient term
+      // is what keeps an 18px icon from reading as a grey smudge: a real
+      // object this small is mostly its own colour, not its lighting.
+      let r = br * (0.46 + 0.7 * diff) + er * fres * 0.5 + spec * 1.05 + chroma;
+      let g = bg * (0.46 + 0.7 * diff) + eg * fres * 0.5 + spec * 1.05;
+      let b = bb * (0.46 + 0.7 * diff) + eb * fres * 0.5 + spec * 1.05 - chroma;
 
       // Ambient occlusion in the crease where the tube meets the ground.
       const crease = clamp01(1 + d / (radius * 0.5));
@@ -284,6 +287,10 @@ const TONE_FIXED: Record<string, [number, number, number]> = {
   green: [0.25, 0.83, 0.65],
   amber: [0.91, 0.76, 0.48],
   red: [0.91, 0.52, 0.52],
+  /* The navigation. At 18px against deep navy a tinted object is a smudge,
+     so the dock's icons are made of something nearer to polished ice: the
+     colour is in the water under them, not in the glyph. */
+  ice: [0.86, 0.93, 1],
 };
 
 /** The material an icon is made of, in this theme and this tone. */
@@ -296,8 +303,8 @@ export function materialFor(tone: string, dark: boolean): IconMaterial {
   // Lifted toward white so the object has somewhere to go under the key
   // light: a fully saturated body has no highlight, only a brighter stain.
   const body: [number, number, number] = dark
-    ? [hue[0] * 0.55 + 0.42, hue[1] * 0.55 + 0.45, hue[2] * 0.55 + 0.5]
-    : [hue[0] * 0.72 + 0.1, hue[1] * 0.72 + 0.13, hue[2] * 0.72 + 0.22];
+    ? [hue[0] * 0.66 + 0.33, hue[1] * 0.66 + 0.37, hue[2] * 0.66 + 0.42]
+    : [hue[0] * 0.8 + 0.05, hue[1] * 0.8 + 0.08, hue[2] * 0.8 + 0.16];
 
   return dark
     ? {
