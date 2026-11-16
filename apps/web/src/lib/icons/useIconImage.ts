@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { IconName } from "@/components/ui/Icon";
+import type { IconName } from "./paths";
 import { clearIconImages, iconImage } from "./render";
 
 /**
@@ -20,6 +20,35 @@ export const ICON_RENDER_LARGE = 160;
 /** The bucket an icon of this display size belongs in. */
 export function renderSizeFor(size: number): number {
   return size <= 24 ? ICON_RENDER_SMALL : ICON_RENDER_LARGE;
+}
+
+/**
+ * A render queue with a frame budget.
+ *
+ * A page can carry thirty icons, and thirty renders in one frame is a
+ * visible stall on the kind of machine NN has to run well on. Jobs are
+ * drained a few milliseconds at a time, so the work spreads across however
+ * many frames it needs and never holds one.
+ */
+const queue: Array<() => void> = [];
+let draining = 0;
+
+function drain(): void {
+  draining = 0;
+  const until = performance.now() + 5;
+  while (queue.length > 0 && performance.now() < until) {
+    queue.shift()!();
+  }
+  if (queue.length > 0) draining = window.requestAnimationFrame(drain);
+}
+
+function enqueue(job: () => void): () => void {
+  queue.push(job);
+  if (!draining) draining = window.requestAnimationFrame(drain);
+  return () => {
+    const at = queue.indexOf(job);
+    if (at >= 0) queue.splice(at, 1);
+  };
 }
 
 function isDark(): boolean {
@@ -47,14 +76,15 @@ export function useIconImage(name: IconName, tone: string, size: number): string
       if (live) setUrl(next);
     };
 
-    // After paint rather than during it: a first view with several icons on
-    // it should show them all as vectors immediately and swap, not block the
-    // frame rendering forty objects.
-    const handle = window.requestAnimationFrame(paint);
+    // After paint rather than during it, and budgeted: a first view shows
+    // every icon as a vector immediately, and the objects arrive over the
+    // next frames rather than holding one.
+    let cancel = enqueue(paint);
 
     const observer = new MutationObserver(() => {
       clearIconImages();
-      paint();
+      cancel();
+      cancel = enqueue(paint);
     });
     observer.observe(document.documentElement, {
       attributes: true,
@@ -63,7 +93,7 @@ export function useIconImage(name: IconName, tone: string, size: number): string
 
     return () => {
       live = false;
-      window.cancelAnimationFrame(handle);
+      cancel();
       observer.disconnect();
     };
   }, [name, tone, px]);

@@ -3,8 +3,7 @@
 import { useEffect, useRef, type ComponentProps } from "react";
 import type Link from "next/link";
 import { NNLogo } from "@/components/ui/NNLogo";
-import type { IconName } from "@/components/ui/Icon";
-import { RealIcon } from "@/components/ui/RealIcon";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { RenMark } from "@/components/ui/RenMark";
 import { LiquidButton } from "@/components/ui/LiquidButton";
 import {
@@ -366,7 +365,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
               <span className={styles.cardIcon}>
                 {placement.card.mark === "ren"
                   ? <RenMark size={38} active />
-                  : <RealIcon name={placement.card.icon} size={32} tone="cyan" />}
+                  : <Icon name={placement.card.icon} size={32} tone="cyan" />}
               </span>
               <span className={styles.cardTitle}>{placement.card.title}</span>
               <span className={styles.cardHint}>{placement.card.hint}</span>

@@ -1,3 +1,5 @@
+"use client";
+
 import type { ButtonHTMLAttributes } from "react";
 import { Icon, type IconName } from "./Icon";
 import styles from "./AppTile.module.css";

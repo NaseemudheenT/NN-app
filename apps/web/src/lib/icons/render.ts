@@ -1,4 +1,4 @@
-import { ICON_PATHS, type IconName } from "@/components/ui/Icon";
+import { ICON_PATHS, type IconName } from "./paths";
 
 /**
  * NN's icons, rendered as real objects.
@@ -302,9 +302,14 @@ export function materialFor(tone: string, dark: boolean): IconMaterial {
 
   // Lifted toward white so the object has somewhere to go under the key
   // light: a fully saturated body has no highlight, only a brighter stain.
-  const body: [number, number, number] = dark
-    ? [hue[0] * 0.66 + 0.33, hue[1] * 0.66 + 0.37, hue[2] * 0.66 + 0.42]
-    : [hue[0] * 0.8 + 0.05, hue[1] * 0.8 + 0.08, hue[2] * 0.8 + 0.16];
+  //
+  // Lifted *toward* white rather than scaled and offset, because the offset
+  // form pushed an already-pale tone past 1 and clipped it — `ice` came out
+  // flat white with its cool tint gone. This form cannot leave the range and
+  // keeps the hue's own balance whatever it starts at.
+  const k = dark ? 0.33 : 0.08;
+  const lift = (c: number) => c + (1 - c) * k;
+  const body: [number, number, number] = [lift(hue[0]), lift(hue[1]), lift(hue[2])];
 
   return dark
     ? {

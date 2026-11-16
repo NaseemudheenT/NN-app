@@ -1,5 +1,4 @@
-import type { IconName } from "./Icon";
-import { RealIcon } from "./RealIcon";
+import { Icon, type IconName } from "./Icon";
 import styles from "./GlassIcon.module.css";
 
 /**
@@ -42,7 +41,7 @@ export function GlassIcon({ name, size = 32, tone = "blue", title, className }: 
       data-tone={tone}
       style={{ width: size, height: size, borderRadius: Math.round(size * 0.3) }}
     >
-      <RealIcon
+      <Icon
         name={name}
         size={Math.round(size * 0.56)}
         tone={tone}

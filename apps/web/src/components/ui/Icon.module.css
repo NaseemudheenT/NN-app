@@ -1,11 +1,11 @@
-/* The rendered object. See RealIcon.tsx. */
+/* The rendered object. See Icon.tsx. */
 
 .object {
   display: block;
   flex: none;
   /* The render carries its own shadow and rim inside the image, so the box
      must not clamp it — the global `img { max-width: 100% }` reset would
-     squash an icon that sits in a narrower flex track. */
+     squash an icon sitting in a narrower flex track. */
   max-width: none;
   object-fit: contain;
   user-select: none;
