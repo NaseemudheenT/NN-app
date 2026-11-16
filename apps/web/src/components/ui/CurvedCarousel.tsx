@@ -229,11 +229,11 @@ export function hueFor(name: string): readonly [number, number, number] {
 
 /* ---------------------------------------------------------------- shader -- */
 
-const VERT =
+export const VERT =
   "attribute vec2 aPos;" +
   "uniform vec2 uRes;uniform vec2 uSize;uniform float uX;uniform float uY;" +
   "uniform float uRot;uniform float uScale;uniform float uBend;uniform float uVel;" +
-  "uniform float uIntro;uniform float uLift;" +
+  "uniform float uIntro;" +
   "varying vec2 vUv;varying float vX;" +
   "void main(){" +
   // the card in its own space, scaled about its centre
@@ -249,16 +249,15 @@ const VERT =
   // the lens is kept, gently: the stack still sits on a curved surface
   "n.y*=1.+uBend*x*x*.35;" +
   "n.y+=uVel*.05*sin(aPos.x*3.14159)*(aPos.y-.5);" +
-  "n.y+=uLift;" +
   "vUv=aPos;vX=x;" +
   "gl_Position=vec4(n,0.,1.);}";
 
-const FRAG =
+export const FRAG =
   "precision highp float;" +
   // the glyph, as an alpha mask. Nothing else is uploaded.
   "uniform sampler2D uTex;" +
   "uniform vec2 uSize;uniform float uVel;uniform float uIntro;uniform float uTime;" +
-  "uniform vec3 uHue;uniform vec3 uLift;uniform float uLight;" +
+  "uniform vec3 uHue;uniform vec3 uGround;uniform float uLight;" +
   "varying vec2 vUv;varying float vX;" +
   "float box(vec2 q,vec2 b,float r){vec2 d=abs(q)-b+r;return length(max(d,0.))+min(max(d.x,d.y),0.)-r;}" +
   // one ribbon of light: a sine sum, soft on both edges, travelling
@@ -276,7 +275,7 @@ const FRAG =
   "float w1=band(p,.62,.085,7.1,13.3,.55,.26);" +
   "float w2=band(p,.46,.065,9.4,5.7,-.42,.20);" +
   "float w3=band(p,.74,.055,5.2,11.1,.33,.17);" +
-  "vec3 c=uLift;" +
+  "vec3 c=uGround;" +
   "c=mix(c,uHue,clamp(w1*.92+w2*.55,0.,1.));" +
   "c=mix(c,vec3(1.),w3*.34*uLight);" +
   "c=mix(c,uHue*1.25,w2*.3);" +
@@ -383,7 +382,7 @@ export function CurvedCarousel({
        read from the theme. The founder asked for the cards to match the whole
        of NN, and matching means following the theme rather than being painted
        in one of them. */
-    let lift: [number, number, number] = [0.03, 0.05, 0.14];
+    let ground: [number, number, number] = [0.03, 0.05, 0.14];
     let light = 1;
 
     /* Declared above, not below: `readTheme` writes `lift` and `light`, and a
@@ -396,11 +395,11 @@ export function CurvedCarousel({
       const hex = /^#([0-9a-f]{6})$/i.exec(deep);
       if (hex) {
         const n = parseInt(hex[1]!, 16);
-        lift = [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+        ground = [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
       }
       // On a light ground the water needs less added light, or every highlight
       // blows out to white and the glyph stops reading.
-      light = (lift[0] + lift[1] + lift[2]) / 3 > 0.5 ? 0.42 : 1;
+      light = (ground[0] + ground[1] + ground[2]) / 3 > 0.5 ? 0.42 : 1;
     };
     readTheme();
     const themeWatch = new MutationObserver(readTheme);
@@ -426,7 +425,7 @@ export function CurvedCarousel({
     const u: Record<string, WebGLUniformLocation | null> = {};
     for (const name of [
       "uRes", "uSize", "uX", "uY", "uRot", "uScale", "uBend", "uVel", "uIntro",
-      "uTex", "uTime", "uHue", "uLift", "uLight",
+      "uTex", "uTime", "uHue", "uGround", "uLight",
     ]) {
       u[name] = gl.getUniformLocation(program, name);
     }
@@ -516,7 +515,7 @@ export function CurvedCarousel({
       gl.uniform1f(u.uBend!, bend);
       gl.uniform1f(u.uVel!, reduced.matches ? 0 : Math.max(-1, Math.min(1, velocity * 0.12)));
       gl.uniform1f(u.uTime!, clock);
-      gl.uniform3f(u.uLift!, lift[0], lift[1], lift[2]);
+      gl.uniform3f(u.uGround!, ground[0], ground[1], ground[2]);
       gl.uniform1f(u.uLight!, light);
 
       /* Painter's algorithm. The cards overlap now, so the order they are

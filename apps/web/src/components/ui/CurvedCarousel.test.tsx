@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  FRAG, VERT,
   cardSize, offsetOf, restFor, springStep, stackConfig, stackTransform, wrapIndex,
 } from "./CurvedCarousel";
 
@@ -150,5 +151,55 @@ describe("the stack", () => {
 
   it("keeps the second card within a thumb's reach on a phone", () => {
     expect(stackConfig(375).shift).toBeLessThan(stackConfig(1440).shift);
+  });
+});
+
+describe("the shaders", () => {
+  /**
+   * A uniform of the same name must have the same type in both stages.
+   *
+   * GLSL links the two shaders into one program, so a name declared `float`
+   * in the vertex stage and `vec3` in the fragment stage is a link error —
+   * and NN's carousel answers a link error by silently falling back to a flat
+   * list. It shipped exactly that: `uLift` had been a float in the vertex
+   * shader since the row layout, the new fragment's ground colour took the
+   * same name, and the Applications view quietly stopped drawing.
+   *
+   * This is string analysis rather than a real compile, because jsdom has no
+   * WebGL. It cannot catch a syntax error — but it catches the one failure
+   * that is invisible in review, because the two declarations are four
+   * hundred lines apart and each is correct on its own.
+   */
+  const declarations = (source: string) => {
+    const found = new Map<string, string>();
+    for (const match of source.matchAll(
+      /uniform\s+(float|int|vec2|vec3|vec4|mat2|mat3|mat4|sampler2D)\s+([^;]+);/g,
+    )) {
+      const type = match[1] ?? "";
+      for (const name of (match[2] ?? "").split(",")) found.set(name.trim(), type);
+    }
+    return found;
+  };
+
+  it("declares every shared uniform with the same type in both stages", () => {
+    const vertex = declarations(VERT);
+    const fragment = declarations(FRAG);
+    const shared = [...vertex.keys()].filter((name) => fragment.has(name));
+    for (const name of shared) {
+      expect(fragment.get(name), `${name} differs between the two stages`)
+        .toBe(vertex.get(name));
+    }
+  });
+
+  it("declares no uniform it never reads", () => {
+    // An unused uniform is a name waiting to collide — which is how the last
+    // one got in. Checked per stage: a uniform may legitimately be read in
+    // only one of them.
+    for (const [stage, source] of [["vertex", VERT], ["fragment", FRAG]] as const) {
+      for (const name of declarations(source).keys()) {
+        const uses = source.split(name).length - 1;
+        expect(uses, `${stage} declares ${name} and never reads it`).toBeGreaterThan(1);
+      }
+    }
   });
 });
