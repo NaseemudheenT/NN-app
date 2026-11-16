@@ -5,7 +5,8 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { Icon, type IconName } from "@/components/ui/Icon";
+import type { IconName } from "@/components/ui/Icon";
+import { RealIcon } from "@/components/ui/RealIcon";
 import { RenMark } from "@/components/ui/RenMark";
 import styles from "./LiquidNav.module.css";
 
@@ -614,7 +615,7 @@ export function LiquidNav({
           <span className={styles.glyph}>
             {item.mark === "ren"
               ? <RenMark size={20} active={index === current} />
-              : <Icon name={item.icon} size={18} solid />}
+              : <RealIcon name={item.icon} size={18} tone={index === current ? "cyan" : "blue"} />}
           </span>
           <span className={styles.label} aria-hidden="true">{item.label}</span>
         </button>

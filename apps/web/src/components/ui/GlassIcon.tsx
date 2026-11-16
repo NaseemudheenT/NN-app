@@ -1,4 +1,5 @@
-import { Icon, type IconName } from "./Icon";
+import type { IconName } from "./Icon";
+import { RealIcon } from "./RealIcon";
 import styles from "./GlassIcon.module.css";
 
 /**
@@ -15,10 +16,11 @@ import styles from "./GlassIcon.module.css";
  * edge and the lift all come from tokens, so it is correct in both themes
  * without knowing which one it is in.
  *
- * The glyph inside is a lit solid, not a stroke: extruded, shadowed and
- * caught by the same point light the whole icon family shares. A flat line
- * on a thick piece of glass is the one combination that reads as unfinished,
- * because the tile has depth and the thing in it does not.
+ * The glyph inside is a rendered object, not a stroke: a bar of material
+ * with a round profile, lit, reflecting the room, with dispersion through
+ * its edges and a shadow under it. A flat line on a thick piece of glass is
+ * the one combination that reads as unfinished, because the tile has depth
+ * and the thing in it does not.
  */
 
 export type GlassIconTone = "blue" | "cyan" | "violet" | "aqua" | "slate" | "green" | "amber" | "red";
@@ -40,10 +42,10 @@ export function GlassIcon({ name, size = 32, tone = "blue", title, className }: 
       data-tone={tone}
       style={{ width: size, height: size, borderRadius: Math.round(size * 0.3) }}
     >
-      <Icon
+      <RealIcon
         name={name}
         size={Math.round(size * 0.56)}
-        solid
+        tone={tone}
         {...(title !== undefined ? { title } : {})}
       />
     </span>
