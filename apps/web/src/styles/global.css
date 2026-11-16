@@ -682,7 +682,12 @@ body {
   background: var(--glass-2-bg);
   -webkit-backdrop-filter: blur(16px) saturate(1.5);
   backdrop-filter: blur(16px) saturate(1.5);
-  box-shadow: var(--liquid-edge-shadow);
+  /* The control's own thickness under the glass edge. A button in NN is an
+     object you press, so there is a side to it before any blur. */
+  box-shadow:
+    var(--liquid-edge-shadow),
+    0 2px 0 var(--liquid-thickness),
+    0 5px 12px -3px var(--liquid-thickness-cast);
   color: var(--text-primary);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -702,14 +707,44 @@ body {
   z-index: -1;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(
-    168deg,
-    var(--glass-sheen) 0%,
-    transparent 38%,
-    transparent 72%,
-    rgb(var(--nn-spectrum-blue) / 7%) 100%
-  );
+  overflow: hidden;
+  /* Two layers in one pseudo-element, because a control only has two and the
+     other is spoken for elsewhere: the fixed top-edge highlight, and NN's own
+     water drifting under it. Per-layer `background-position` is what lets the
+     second move while the first stays still. */
+  background-image:
+    linear-gradient(
+      168deg,
+      var(--glass-sheen) 0%,
+      transparent 38%,
+      transparent 72%,
+      rgb(var(--nn-spectrum-blue) / 7%) 100%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 0%,
+      rgb(var(--nn-spectrum-cyan) / var(--liquid-tide, 20%)) 16%,
+      rgb(var(--nn-spectrum-blue) / var(--liquid-tide, 20%)) 38%,
+      rgb(var(--nn-spectrum-violet) / var(--liquid-tide, 20%)) 62%,
+      rgb(var(--nn-spectrum-aqua) / var(--liquid-tide, 20%)) 84%,
+      transparent 100%
+    );
+  background-size: 100% 100%, 220% 100%;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 0 0, 0 0;
+  animation: nn-liquid-tide 17s linear infinite;
 }
+
+@keyframes nn-liquid-tide {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 0, -220% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nn-liquid::before { animation: none; }
+}
+
+:root[data-motion="reduced"] .nn-liquid::before { animation: none; }
 
 .nn-liquid:hover:not(:disabled):not([aria-disabled="true"]) {
   background: var(--glass-3-bg);
@@ -717,7 +752,12 @@ body {
   transform: translateY(-1px);
 }
 
-.nn-liquid:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(0.975); }
+/* Pressed means pressed in: it loses its own height rather than only
+   shrinking, which is what a key does. */
+.nn-liquid:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: var(--liquid-edge-shadow), 0 0 0 var(--liquid-thickness);
+}
 .nn-liquid:disabled, .nn-liquid[aria-disabled="true"] { opacity: 0.42; cursor: not-allowed; }
 .nn-liquid:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 
@@ -739,6 +779,11 @@ body {
 }
 
 /* A control that is pressed in, not out: the selected segment of a picker. */
+/* The chosen one holds more water than the rest. */
+.nn-liquid[aria-pressed="true"]::before,
+.nn-liquid[aria-current="page"]::before,
+.nn-liquid[aria-current="true"]::before { --liquid-tide: 44%; }
+
 .nn-liquid[aria-pressed="true"],
 .nn-liquid[aria-current="page"],
 .nn-liquid[aria-current="true"] {

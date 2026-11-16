@@ -44,8 +44,17 @@ const VIEWS = [
   { id: "apps", label: "Applications", icon: "grid", hint: "All thirty-four" },
   { id: "ren", label: "REN", icon: "sparkle", hint: "Your intelligence", mark: "ren" },
   { id: "activity", label: "Activity", icon: "clock", hint: "Everything recorded" },
-  { id: "system", label: "System", icon: "settings", hint: "The environment itself" },
 ] as const satisfies readonly (LiquidNavItem & { id: string })[];
+
+/*
+ * There is one way into settings, and it is the founder's own face.
+ *
+ * There were three: a gear beside the profile, the profile itself, and a
+ * "System" item in both navigation panels — and the System item did not even
+ * lead to the same place, it opened a fourth surface that said some of what
+ * Settings says and some of what Settings did not. The gear is gone, the
+ * System view is gone, and everything it reported is a row in Settings now.
+ */
 
 /**
  * REN sits in the dock with the views, but it is not one.
@@ -64,7 +73,6 @@ const VIEW_TITLE: Record<ViewId, string> = {
   today: "Today",
   apps: "Applications",
   activity: "Activity",
-  system: "System",
 };
 
 /* ------------------------------------------------------- record accessors -- */
@@ -488,90 +496,16 @@ function ActivityView() {
   );
 }
 
-function SystemView({ ownerUid, onSignOut, onSignOutEverywhere }: {
-  ownerUid?: string | undefined;
-  onSignOut?: (() => void) | undefined;
-  onSignOutEverywhere?: (() => void) | undefined;
-}) {
-  const ready = APPLICATIONS.filter((app) => app.href !== undefined);
-
-  const facts: ReadonlyArray<{ label: string; value: string; hint?: string | undefined }> = [
-    {
-      label: "Session",
-      value: ownerUid ? `owner · ${ownerUid.slice(0, 10)}…` : "Not signed in",
-      hint: ownerUid ? "Authorised by your passkey." : undefined,
-    },
-    {
-      label: "Applications",
-      value: `${ready.length} of ${APPLICATIONS.length} with a work surface`,
-      hint: "The rest show an honest overview of what they will hold.",
-    },
-    {
-      label: "Authorisation",
-      value: "Firestore rules, owner-scoped",
-      hint: "Nothing in the browser decides what you may read.",
-    },
-    {
-      label: "Assistant",
-      value: "REN · text and appearance",
-      hint: "Voice is not built. REN says so rather than implying more.",
-    },
-  ];
-
-  return (
-    <>
-      <div className={styles.facts}>
-        {facts.map((fact) => (
-          <section className={styles.fact} key={fact.label}>
-            <p>{fact.label}</p>
-            <strong>{fact.value}</strong>
-            {fact.hint ? <span>{fact.hint}</span> : null}
-          </section>
-        ))}
-      </div>
-
-      <section className={styles.panel}>
-        <header className={styles.panelTop}>
-          <h3>This session</h3>
-        </header>
-        <div className={styles.actions}>
-          <button type="button" onClick={onSignOut} disabled={!onSignOut}>
-            Sign out here
-          </button>
-          <button
-            type="button"
-            className={styles.danger}
-            onClick={onSignOutEverywhere}
-            disabled={!onSignOutEverywhere}
-          >
-            Sign out everywhere
-          </button>
-        </div>
-        <p className={styles.note}>
-          Signing out everywhere revokes every passkey session on every device.
-          You will need your passkey again to come back.
-        </p>
-      </section>
-    </>
-  );
-}
-
 /* --------------------------------------------------------------- the shell -- */
 
 export interface NNDashboardProps {
   firstName?: string;
-  ownerUid?: string | undefined;
-  onSignOut?: (() => void) | undefined;
-  onSignOutEverywhere?: (() => void) | undefined;
   /** Opens on this view. The design route uses it to show a specific surface. */
   initialView?: ViewId;
 }
 
 export function NNDashboard({
   firstName = "Founder",
-  ownerUid,
-  onSignOut,
-  onSignOutEverywhere,
   initialView = "today",
 }: NNDashboardProps) {
   // Settings is not somewhere you travel to — it is the panel behind the
@@ -598,16 +532,6 @@ export function NNDashboard({
         </div>
 
         <div className={styles.toolbar}>
-          <button
-            type="button"
-            className={styles.iconButton}
-            aria-label="Settings"
-            title="Settings"
-            onClick={() => router.push("/settings" as Route)}
-          >
-            <Icon name="settings" size={17} />
-          </button>
-
           <button
             type="button"
             className={styles.avatar}
@@ -659,13 +583,6 @@ export function NNDashboard({
             {view === "today" ? <TodayView firstName={firstName} /> : null}
             {view === "apps" ? <ApplicationsView /> : null}
             {view === "activity" ? <ActivityView /> : null}
-            {view === "system" ? (
-              <SystemView
-                ownerUid={ownerUid}
-                onSignOut={onSignOut}
-                onSignOutEverywhere={onSignOutEverywhere}
-              />
-            ) : null}
           </div>
 
           <div className={styles.dock}>

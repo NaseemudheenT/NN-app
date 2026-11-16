@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/Switch";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
+import { APPLICATIONS } from "@/lib/apps/registry";
 import styles from "./NNSettings.module.css";
 
 /**
@@ -47,7 +48,7 @@ function Group({ title, footer, children }: {
 /* Every row's glyph sits in glass. A flat gradient chip was the last place
    in NN where an icon had a painted background rather than a material. */
 function Tile({ icon, tone }: { icon: IconName; tone: GlassIconTone }) {
-  return <GlassIcon name={icon} tone={tone} size={30} />;
+  return <GlassIcon name={icon} tone={tone} size={28} />;
 }
 
 /** A row that holds a switch. The whole row is the control's label. */
@@ -106,6 +107,9 @@ function FactRow({ icon, tone, label, value }: {
     </div>
   );
 }
+
+/** How many of the thirty-four have a real work surface today. */
+const READY = APPLICATIONS.filter((app) => app.href !== undefined).length;
 
 const TONE = {
   blue: "blue", cyan: "cyan", violet: "violet", slate: "slate",
@@ -198,6 +202,25 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
           hint="Not built yet" checked={false} onChange={() => {}} disabled
         />
         <FactRow icon="sparkle" tone={TONE.violet} label="Summon" value="⌘K" />
+      </Group>
+
+      {/* What used to be the dashboard's "System" view. There were three
+          ways into settings from the dashboard — a gear beside the profile,
+          the profile itself, and a System item in both navigation panels —
+          and two of them led somewhere different from the third. One way in
+          now, and everything it used to say is said here. */}
+      <Group
+        title="System"
+        footer="The rest of the thirty-four show an honest overview of what they will hold rather than pretending to work."
+      >
+        <FactRow
+          icon="grid" tone={TONE.cyan} label="Applications"
+          value={`${READY} of ${APPLICATIONS.length} with a work surface`}
+        />
+        <FactRow
+          icon="shield" tone={TONE.blue} label="Authorisation"
+          value="Firestore rules, owner-scoped"
+        />
       </Group>
 
       <Group

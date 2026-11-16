@@ -25,6 +25,41 @@
     box-shadow var(--dur-base) var(--ease-standard);
 }
 
+/* The same water that is in the cards and the buttons, inside the key the
+   icon stands on. It is what makes an icon an object sitting in NN's own
+   light rather than a glyph on a tinted square. */
+.tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--glass-icon-tide, 0.62);
+  background-image: linear-gradient(
+    104deg,
+    transparent 0%,
+    rgb(var(--nn-spectrum-cyan) / 42%) 14%,
+    rgb(var(--nn-spectrum-blue) / 38%) 36%,
+    rgb(var(--nn-spectrum-violet) / 40%) 60%,
+    rgb(var(--nn-spectrum-aqua) / 44%) 82%,
+    transparent 100%
+  );
+  background-size: 230% 100%;
+  background-repeat: repeat-x;
+  animation: nn-icon-tide 19s linear infinite;
+}
+
+@keyframes nn-icon-tide {
+  from { background-position: 0 0; }
+  to { background-position: -230% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile::before { animation: none; }
+}
+
 /* The chamfer: a hairline of spectrum around the top-left corner, which is
    what separates a glass key from a rounded rectangle at 30px. */
 .tile::after {
@@ -64,6 +99,7 @@
 :root[data-theme="light"] .tile,
 :root:not([data-theme]) .tile {
   --glass-icon-ink: #0B1730;
+  --glass-icon-tide: 0.5;
   /* On a pale ground the face has to be the dark half of the spectrum, or a
      white-lit glyph on white glass loses its silhouette entirely. */
   --nn-icon-body: #8FA9D4;

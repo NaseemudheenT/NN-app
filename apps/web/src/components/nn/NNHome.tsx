@@ -14,17 +14,13 @@ import { useAuth } from "@/lib/auth";
  * system itself. That is what this now opens on.
  */
 function HomeSurface() {
-  const { user, signOutHere, signOutEverywhere } = useAuth();
+  const { user } = useAuth();
   const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
 
+  // Signing out lives in Settings, with everything else about this session.
   return (
     <RequireOwner>
-      <NNDashboard
-        firstName={firstName}
-        ownerUid={user?.uid}
-        onSignOut={() => void signOutHere()}
-        onSignOutEverywhere={() => void signOutEverywhere()}
-      />
+      <NNDashboard firstName={firstName} />
     </RequireOwner>
   );
 }

@@ -613,8 +613,8 @@ export function LiquidNav({
         >
           <span className={styles.glyph}>
             {item.mark === "ren"
-              ? <RenMark size={22} active={index === current} />
-              : <Icon name={item.icon} size={20} solid />}
+              ? <RenMark size={20} active={index === current} />
+              : <Icon name={item.icon} size={18} solid />}
           </span>
           <span className={styles.label} aria-hidden="true">{item.label}</span>
         </button>

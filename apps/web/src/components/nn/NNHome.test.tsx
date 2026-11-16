@@ -43,12 +43,13 @@ describe("NN dashboard", () => {
     // Rendered three times — rail, mobile nav and dock — so scope to one.
     const nav = screen.getAllByRole("navigation", { name: "Dashboard views" })[0]!;
     const buttons = within(nav).getAllByRole("button");
+    // No "System": it opened a fourth surface that overlapped Settings and
+    // gave the dashboard a third way in. Settings carries it now.
     expect(buttons.map((b) => b.getAttribute("aria-label"))).toEqual([
       "Today — What NN has for you",
       "Applications — All thirty-four",
       "REN — Your intelligence",
       "Activity — Everything recorded",
-      "System — The environment itself",
     ]);
     // Roving tab index: arrows move within the dock, Tab moves past it.
     expect(buttons.filter((b) => b.tabIndex === 0)).toHaveLength(1);
@@ -115,8 +116,7 @@ describe("NN dashboard", () => {
       screen.getAllByRole("button", { name: "Applications — All thirty-four" })[0]!,
     );
     // Matched on the family row's own shape — "Education 6 applications ·
-    // 3 ready" — rather than the family name, because "System" is also a
-    // dashboard view and would match the dock.
+    // 3 ready" — rather than the family name.
     expect(screen.queryAllByRole("button", { name: /\d+ applications · \d+ ready/ })).toEqual([]);
     expect(GROUPS.length).toBeGreaterThan(0);
   });
@@ -126,27 +126,22 @@ describe("NN dashboard", () => {
     // The glass belongs in Settings. A floating "Adjust glass" panel in the
     // chrome of a personal environment is a control shown for its own sake.
     expect(screen.queryByRole("button", { name: /Adjust glass/ })).toBeNull();
-    expect(screen.getByRole("button", { name: "Settings" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /profile and settings/ })).toBeInTheDocument();
   });
 
-  it("opens Settings plainly, without flying down the corridor", async () => {
-    // Settings is the panel behind the screen you are already on. Travelling
-    // to it was theatre for a page of switches, and the founder asked for it
-    // to stop. Applications still fly; that movement means something.
+  it("offers exactly one way into Settings", async () => {
+    // Three, before: a gear beside the profile, the profile itself, and a
+    // "System" item in both navigation panels that went somewhere else
+    // entirely. The founder counted them and asked for two of them gone.
     render(<NNHomePreview />);
-    await userEvent.click(screen.getByRole("button", { name: "Settings" }));
-    expect(push).toHaveBeenCalledWith("/settings");
-    expect(open).not.toHaveBeenCalled();
-  });
+    expect(screen.queryByRole("button", { name: "Settings" })).toBeNull();
+    const ways = screen.getAllByRole("button", { name: /settings/i });
+    expect(ways).toHaveLength(1);
 
-  it("reports the session honestly when nobody is signed in", async () => {
-    render(<NNHomePreview />);
-    await userEvent.click(
-      screen.getAllByRole("button", { name: "System — The environment itself" })[0]!,
-    );
-    expect(screen.getByText("Not signed in")).toBeInTheDocument();
-    // Sign-out must not be offered when there is no session to end.
-    expect(screen.getByRole("button", { name: "Sign out here" })).toBeDisabled();
+    await userEvent.click(ways[0]!);
+    expect(push).toHaveBeenCalledWith("/settings");
+    // Settings is the panel behind the screen you are already on. Travelling
+    // to it was theatre for a page of switches. Applications still fly.
+    expect(open).not.toHaveBeenCalled();
   });
 });
