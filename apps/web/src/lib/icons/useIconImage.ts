@@ -5,15 +5,22 @@ import type { IconName } from "@/components/ui/Icon";
 import { clearIconImages, iconImage } from "./render";
 
 /**
- * One size for every rendered icon.
+ * Two sizes, not one, and not one per caller.
  *
- * The render is expensive once and free forever after, so it is done at a
- * resolution that still holds at the largest place an icon appears and
- * scaled down everywhere else — rather than once per size, which would be
- * the same picture cached five times. 160px covers a 74px intro tile on a
- * retina screen with room to spare.
+ * A render is expensive once and free forever, so it would be tempting to
+ * do it once at 160 and scale down everywhere. That is wrong at dock size:
+ * downscaling a lit object by nine loses exactly the micro-contrast that
+ * makes it look lit, and an 18px icon came out a grey smudge. Two buckets —
+ * one for chrome, one for everything an icon is big in — keep the downscale
+ * near 2x in both cases, which a browser resamples cleanly.
  */
-export const ICON_RENDER_PX = 160;
+export const ICON_RENDER_SMALL = 76;
+export const ICON_RENDER_LARGE = 160;
+
+/** The bucket an icon of this display size belongs in. */
+export function renderSizeFor(size: number): number {
+  return size <= 24 ? ICON_RENDER_SMALL : ICON_RENDER_LARGE;
+}
 
 function isDark(): boolean {
   if (typeof document === "undefined") return true;
@@ -29,13 +36,14 @@ function isDark(): boolean {
  *
  * Re-renders when the theme changes, because the light changed with it.
  */
-export function useIconImage(name: IconName, tone: string): string | null {
+export function useIconImage(name: IconName, tone: string, size: number): string | null {
   const [url, setUrl] = useState<string | null>(null);
+  const px = renderSizeFor(size);
 
   useEffect(() => {
     let live = true;
     const paint = () => {
-      const next = iconImage(name, tone, isDark(), ICON_RENDER_PX);
+      const next = iconImage(name, tone, isDark(), px);
       if (live) setUrl(next);
     };
 
@@ -58,7 +66,7 @@ export function useIconImage(name: IconName, tone: string): string | null {
       window.cancelAnimationFrame(handle);
       observer.disconnect();
     };
-  }, [name, tone]);
+  }, [name, tone, px]);
 
   return url;
 }

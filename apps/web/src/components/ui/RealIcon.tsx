@@ -30,7 +30,7 @@ export interface RealIconProps {
 }
 
 export function RealIcon({ name, size = 20, tone = "blue", title, className }: RealIconProps) {
-  const url = useIconImage(name, tone);
+  const url = useIconImage(name, tone, size);
 
   if (url === null) {
     return (
