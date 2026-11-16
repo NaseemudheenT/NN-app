@@ -95,7 +95,7 @@ export function springStep(
 export const TAP_SLOP = 6;
 
 /** How many cards either side of the centre belong to the stack. */
-export const VISIBLE = 4;
+export const VISIBLE = 3;
 
 /** Card size for a stage of w × h: portrait, and large, because they stack. */
 export function cardSize(w: number, h: number): [number, number] {
@@ -126,8 +126,8 @@ export interface StackConfig {
 
 export function stackConfig(width: number): StackConfig {
   if (width < 640) return { shift: 90, drop: 13, lean: 8, shrink: 0.06 };
-  if (width < 1024) return { shift: 130, drop: 19, lean: 10, shrink: 0.09 };
-  return { shift: 170, drop: 25, lean: 12, shrink: 0.12 };
+  if (width < 1024) return { shift: 130, drop: 15, lean: 10, shrink: 0.09 };
+  return { shift: 170, drop: 18, lean: 12, shrink: 0.12 };
 }
 
 export interface StackTransform {
@@ -149,7 +149,7 @@ export interface StackTransform {
  * visible seam when it loops.
  */
 export function stackTransform(
-  offset: number, config: StackConfig, visible = 4,
+  offset: number, config: StackConfig, visible = VISIBLE,
 ): StackTransform {
   const away = Math.abs(offset);
   // Below this the card is the one you are looking at: no lean, no drop, or
@@ -163,10 +163,11 @@ export function stackTransform(
     y: settled ? 0 : Math.min(away, 1.8) * config.drop,
     rotation: settled ? 0 : (offset * config.lean * Math.PI) / 180,
     scale: Math.max(0.2, 1 - away * config.shrink),
-    // Over two and a half steps rather than one and a half: the card that is
-    // about to leave should already be nearly gone by the time it reaches
-    // the edge of the lens.
-    fade: Math.max(0, Math.min(1, (visible - away) / 2.5)),
+    // Over a step and a half, ending at `visible`. The cards further back
+    // than that are not depth, they are two flat wedges: the lens stretches
+    // them outward and the canvas cuts their bottoms off square. They have
+    // to be gone before they get there, not faint.
+    fade: Math.max(0, Math.min(1, (visible - away) / 1.5)),
   };
 }
 
@@ -276,7 +277,7 @@ export const VERT =
   "vec2 n=p/(uRes*.5);" +
   "float x=clamp((uX)/(uRes.x*.5),-1.4,1.4);" +
   // the lens is kept, gently: the stack still sits on a curved surface
-  "n.y*=1.+uBend*x*x*.35;" +
+  "n.y*=1.+uBend*x*x*.2;" +
   "n.y+=uVel*.05*sin(aPos.x*3.14159)*(aPos.y-.5);" +
   "vUv=aPos;vX=x;" +
   "gl_Position=vec4(n,0.,1.);}";

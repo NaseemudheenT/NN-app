@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  FRAG, VERT,
+  FRAG, VERT, VISIBLE,
   cardSize, offsetOf, restFor, springStep, stackConfig, stackTransform, wrapIndex,
 } from "./CurvedCarousel";
 
@@ -134,10 +134,18 @@ describe("the stack", () => {
   it("fades a card in over the last step and a half, so none pops in", () => {
     const config = stackConfig(1200);
     expect(stackTransform(0, config).fade).toBe(1);
-    expect(stackTransform(4, config).fade).toBe(0);
-    const edge = stackTransform(3.25, config).fade;
+    expect(stackTransform(VISIBLE, config).fade).toBe(0);
+    const edge = stackTransform(VISIBLE - 0.75, config).fade;
     expect(edge).toBeGreaterThan(0);
     expect(edge).toBeLessThan(1);
+  });
+
+  it("is gone before the lens stretches it off the canvas", () => {
+    // Past about two and a half steps the perspective term pushes a card's
+    // bottom below the stage and it is cut off square — two flat wedges at
+    // the edges of the fan. Nothing may still be solid out there.
+    const config = stackConfig(1200);
+    expect(stackTransform(2.6, config).fade).toBeLessThan(0.3);
   });
 
   it("stacks rather than rows: a step is far less than a card", () => {

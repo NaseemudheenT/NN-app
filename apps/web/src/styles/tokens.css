@@ -114,8 +114,12 @@
   --card-pad: var(--space-7);
   --card-lift:
     inset 0 1.5px 0 var(--glass-sheen),
-    inset 0 -1px 0 rgb(4 10 28 / 24%),
-    0 1px 0 rgb(190 220 255 / 10%),
+    inset 0 -2px 0 rgb(4 10 28 / 34%),
+    0 1px 0 rgb(190 220 255 / 14%),
+    /* The card's own thickness: three hard stacked edges before any blur.
+       A blur alone is a drop shadow; these are the side of the slab. */
+    0 3px 0 rgb(2 8 24 / 58%),
+    0 6px 0 rgb(2 8 24 / 34%),
     0 18px 38px -14px rgb(0 4 22 / 52%),
     0 44px 80px -40px rgb(0 4 22 / 42%);
   --glass-hover:    rgb(187 212 255 / 12%);
@@ -265,8 +269,10 @@
   --focus-ring:    #1F5FAD;
   --card-lift:
     inset 0 2px 0 rgb(255 255 255 / 96%),
-    inset 0 -1.5px 0 rgb(7 17 31 / 10%),
-    0 1px 0 rgb(7 17 31 / 8%),
+    inset 0 -2px 0 rgb(7 17 31 / 13%),
+    0 1px 0 rgb(91 137 192 / 26%),
+    0 3px 0 rgb(91 137 192 / 15%),
+    0 6px 0 rgb(91 137 192 / 8%),
     0 22px 44px -16px rgb(7 17 31 / 26%),
     0 52px 92px -44px rgb(7 17 31 / 22%);
   --nn-spectrum-rim: conic-gradient(from 212deg, rgb(47 111 189 / 0%) 0deg, rgb(47 111 189 / 42%) 56deg, rgb(140 110 220 / 28%) 130deg, rgb(47 111 189 / 5%) 196deg, rgb(60 170 220 / 36%) 292deg, rgb(47 111 189 / 0%) 360deg);

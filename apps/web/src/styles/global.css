@@ -779,7 +779,7 @@ body {
   height: 140%;
   z-index: -1;
   pointer-events: none;
-  opacity: var(--wave-strength, 0.34);
+  opacity: var(--wave-strength, 0.5);
   background-repeat: repeat-x;
   background-size: 50% 100%;
   background-image:
@@ -791,7 +791,7 @@ body {
      has to be light under glass, not a pattern on top of it: at 16px of blur
      the cyan read as a graphic and a 13px label on top of it lost most of its
      contrast. */
-  filter: blur(26px) saturate(1.1);
+  filter: blur(26px) saturate(1.35);
   animation: nn-wave-drift 26s linear infinite;
 }
 
@@ -802,9 +802,9 @@ body {
 
 /* On a light ground the same water has to be stronger to be water at all —
    a 55% veil of cyan over white is a smudge. */
-:root[data-theme="light"] .nn-live-wave::after { --wave-strength: 0.4; filter: blur(30px) saturate(1.05); }
+:root[data-theme="light"] .nn-live-wave::after { --wave-strength: 0.56; filter: blur(30px) saturate(1.25); }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .nn-live-wave::after { --wave-strength: 0.4; filter: blur(30px) saturate(1.05); }
+  :root:not([data-theme="dark"]) .nn-live-wave::after { --wave-strength: 0.56; filter: blur(30px) saturate(1.25); }
 }
 
 /* The reading surface. The wave paints over the card's own background — a
