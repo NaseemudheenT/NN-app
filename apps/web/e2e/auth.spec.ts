@@ -32,8 +32,10 @@ test.describe.configure({ mode: "serial" });
 
 test.describe("passkey authentication", () => {
   test("an unclaimed NN offers to be claimed, not signed into", async ({ page }) => {
+    // The door is the mark and one button now, so the state it is in is
+    // read off the control rather than a headline.
     await page.goto("/sign-in");
-    await expect(page.getByRole("heading", { name: "Claim NN" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Claim NN/ })).toBeVisible();
     await expect(page.getByLabel("Bootstrap secret")).toBeVisible();
   });
 
@@ -45,7 +47,7 @@ test.describe("passkey authentication", () => {
     await expect(page.getByTestId("signin-error")).toContainText(/Invalid bootstrap secret/i);
     // Still unclaimed.
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Claim NN" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Claim NN/ })).toBeVisible();
   });
 
   test("an unauthenticated visitor cannot reach the workspace", async ({ page }) => {
@@ -62,24 +64,25 @@ test.describe("passkey authentication", () => {
 
     // The browser performs a genuine WebAuthn create() against the virtual
     // authenticator, then NN exchanges the assertion for a Firebase session.
-    await page.waitForURL("**/workspace", { timeout: 30_000 });
+    // It lands on the dashboard: that is where NN opens now.
+    await page.waitForURL("**/home", { timeout: 30_000 });
 
-    /* Arriving at /workspace already means the ceremony completed. What is
-       asserted here is that a *real* session exists, not the guest preview:
-       the workspace prints the owner's Firebase uid only when it has one, and
-       drops the guest notice. Asserting the uid is stronger than asserting a
-       heading, which is what this used to do before /workspace became the
-       actual work surface. */
-    await expect(page.getByText(/owner · \S+/)).toBeVisible();
-    await expect(page.getByText(/TEMPORARY GUEST PREVIEW/)).toHaveCount(0);
-    await expect(page.getByText("Good evening, Founder.")
-      .or(page.getByText(/Good (morning|afternoon), Founder\./))).toBeVisible();
+    /* Arriving already means the ceremony completed. What is asserted here is
+       that a *real* session exists rather than the preview — the preview says
+       so on every surface it is on, and the owner's own controls only appear
+       when there is an owner. */
+    await expect(page.getByText(/Exploring NN/)).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /profile and settings/ })).toBeVisible();
+    await expect(page.getByText(/Welcome back, /)).toBeVisible();
   });
 
   test("NN is now claimed, so the sign-in screen changes", async ({ page }) => {
     await page.goto("/sign-in");
-    await expect(page.getByRole("heading", { name: "Welcome back, Founder." })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in with passkey" })).toBeVisible();
     await expect(page.getByLabel("Bootstrap secret")).toBeHidden();
+    // And the public door closes with it: a preview grants no session, but a
+    // way into the founder's own surfaces should not outlive the claim.
+    await expect(page.getByRole("button", { name: /Explore NN/ })).toHaveCount(0);
   });
 
   test("the bootstrap secret stops working once NN is claimed", async ({ request }) => {

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, GlassPanel, NNGlassMark, TextField } from "@/components/ui";
+import { LogoReveal } from "@/components/ui/LogoReveal";
+import { TextField } from "@/components/ui";
 import {
   fetchAuthStatus, passkeysSupported, registerPasskey, signInWithPasskey,
   useAuth, type AuthStatus,
@@ -13,10 +14,24 @@ import s from "./signin.module.css";
 /**
  * The door to NN.
  *
- * Two states, decided by the server: claim an unowned environment, or sign in
- * to a claimed one. The fingerprint below is a symbol — the actual biometric
- * check happens inside the device's own authenticator, and NN never receives
- * or stores biometric data.
+ * One card, the mark arriving through glass, and one button. The founder
+ * asked for nothing else on it and they are right: this screen has exactly
+ * one thing to do, the device performs the check itself, and every sentence
+ * that used to be here was explaining a mechanism nobody needs explained
+ * twice. What is left is the environment's own name and the way in.
+ *
+ * Two states, decided by the server rather than guessed at:
+ *
+ * - **Unclaimed.** Nobody owns this environment yet. The claim needs the
+ *   bootstrap secret as well as a passkey, because the site is public and
+ *   the first visitor would otherwise become the owner. One field, one
+ *   button, and it happens once in the life of the environment.
+ * - **Claimed.** The passkey button, alone.
+ *
+ * Nothing that could be untrue is on screen: the browser's passkey support
+ * is unknown until the client has actually asked, errors appear only when
+ * something has actually failed, and the preview door is offered only while
+ * the environment has no owner to protect.
  */
 export function SignIn() {
   const router = useRouter();
@@ -31,12 +46,6 @@ export function SignIn() {
   // hydration when the browser disagreed. Unknown is the honest third state.
   const [supported, setSupported] = useState<boolean | null>(null);
   useEffect(() => { setSupported(passkeysSupported()); }, []);
-
-  const enterTemporaryGuestMode = () => {
-    enterPreview();
-    // Home, not the workspace: the dashboard is where exploring NN starts.
-    router.replace("/home");
-  };
 
   useEffect(() => {
     if (phase === "signed-in") {
@@ -67,92 +76,33 @@ export function SignIn() {
     }
   };
 
-  if (phase === "unconfigured") {
-    return (
-      <main className={s.page}>
-        <GlassPanel tier={3} padding="lg" className={s.card}>
-          <div className={s.mark}><NNGlassMark size={64} /></div>
-          <h1 className={s.title}>NN is not configured</h1>
-          <p className={s.lede}>
-            Firebase credentials are missing. Copy <code>.env.example</code> to{" "}
-            <code>.env.local</code> and fill it in, then reload.
-          </p>
-          {previewOffered() ? (
-            <>
-              <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
-                Explore NN without an account
-              </button>
-              <p className={s.guestNote}>
-                Nothing is signed in and no records are loaded. Every surface will say so.
-              </p>
-            </>
-          ) : null}
-        </GlassPanel>
-      </main>
-    );
-  }
-
-  /* A deployment whose server has no credentials cannot sign anyone in, and
-     should say so rather than offering a button that will always fail. */
-  if (status !== null && !status.configured) {
-    return (
-      <main className={s.page}>
-        <GlassPanel tier={3} padding="lg" className={s.card}>
-          <div className={s.mark}><NNGlassMark size={64} /></div>
-          <h1 className={s.title}>Sign-in is not available here</h1>
-          <p className={s.lede}>
-            This deployment of NN has no server credentials, so it cannot verify a
-            passkey. Everything you can see without signing in still works. See{" "}
-            <code>docs/DEPLOY_VERCEL.md</code> for the variables this environment
-            still needs.
-          </p>
-          {previewOffered() ? (
-            <>
-              <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
-                Explore NN without an account
-              </button>
-              <p className={s.guestNote}>
-                Nothing is signed in and no records are loaded. Every surface will
-                say so.
-              </p>
-            </>
-          ) : null}
-        </GlassPanel>
-      </main>
-    );
-  }
-
-  const claiming = status !== null && !status.claimed;
+  /* A deployment whose server has no credentials cannot verify a passkey, and
+     must say so rather than offering a button that will always fail. */
+  const unconfigured = phase === "unconfigured" || (status !== null && !status.configured);
+  const claiming = status !== null && status.configured && !status.claimed;
+  const ready = status !== null && status.configured && status.claimed;
 
   return (
     <main className={s.page}>
-      <GlassPanel tier={3} padding="lg" className={s.card}>
-        <div className={s.mark}><NNGlassMark size={64} /></div>
+      <div className={s.aurora} aria-hidden="true" />
 
-        <h1 className={s.title}>
-          {status === null ? "NN" : claiming ? "Claim NN" : "Welcome back, Founder."}
-        </h1>
-
-        <p className={s.lede}>
-          {status === null
-            ? "Checking this environment…"
-            : claiming
-              ? "This environment has no owner yet. Claim it with your bootstrap secret and the passkey on this device."
-              : "Sign in with the passkey on this device."}
-        </p>
-
-        <div className={s.fingerprint} aria-hidden="true">
-          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               strokeWidth="1.3" strokeLinecap="round">
-            <path d="M12 10a2 2 0 0 1 2 2c0 2.6-.4 5.1-1.2 7.5" />
-            <path d="M8.6 19.8A14 14 0 0 0 10 12a2 2 0 0 1 3.9-.6" />
-            <path d="M5.5 17.5A17 17 0 0 0 6.5 12a5.5 5.5 0 0 1 9.9-3.3" />
-            <path d="M17.5 11.5a21 21 0 0 1-.8 6.3" />
-            <path d="M3.5 13.5A20 20 0 0 1 4 10a8 8 0 0 1 14.6-3" />
-          </svg>
+      <div className={s.card}>
+        <div className={s.mark}>
+          <LogoReveal size={96} duration={2400} />
         </div>
 
-        {status !== null && claiming ? (
+        {/* The environment's name, for anything that reads rather than looks.
+            The mark above says it to everyone else. */}
+        <h1 className={s.name}>NN</h1>
+
+        {unconfigured ? (
+          <p className={s.error} role="alert">
+            This deployment has no server credentials, so it cannot verify a
+            passkey. See <code>docs/DEPLOY_VERCEL.md</code>.
+          </p>
+        ) : null}
+
+        {claiming ? (
           <div className={s.secret}>
             <TextField
               label="Bootstrap secret"
@@ -160,40 +110,38 @@ export function SignIn() {
               autoComplete="off"
               value={secret}
               onChange={(e) => setSecret(e.currentTarget.value)}
-              hint={
-                status.bootstrapReady
-                  ? "From NN_BOOTSTRAP_SECRET in your .env.local."
-                  : "NN_BOOTSTRAP_SECRET is not set or is too short. See docs/AUTHENTICATION.md."
-              }
             />
           </div>
         ) : null}
 
-        <div className={s.actions}>
-          {status !== null && claiming ? (
-            <Button
-              variant="primary" size="lg" loading={busy}
-              disabled={supported !== true || !status.bootstrapReady || secret.length === 0}
-              onClick={() => void run(async () => {
+        {!unconfigured ? (
+          <button
+            type="button"
+            className={s.enter}
+            data-busy={busy || undefined}
+            disabled={
+              busy || supported !== true || status === null ||
+              (claiming && (!status.bootstrapReady || secret.length === 0))
+            }
+            onClick={() => void run(async () => {
+              if (claiming) {
                 await registerPasskey({ bootstrapSecret: secret, label: "First device" });
-                await signInWithPasskey();
-              })}
-            >
-              Claim NN with a passkey
-            </Button>
-          ) : (
-            <Button
-              variant="primary" size="lg" loading={busy} disabled={supported !== true || status === null}
-              onClick={() => void run(signInWithPasskey)}
-            >
-              Sign in with passkey
-            </Button>
-          )}
-        </div>
+              }
+              await signInWithPasskey();
+            })}
+          >
+            <span className={s.enterScan} aria-hidden="true" />
+            <span className={s.enterLabel}>
+              {claiming ? "Claim NN with a passkey" : "Sign in with passkey"}
+            </span>
+          </button>
+        ) : null}
 
         {endedReason !== null ? <p className={s.note}>{endedReason}</p> : null}
 
-        {error !== null ? <p className={s.error} role="alert" data-testid="signin-error">{error}</p> : null}
+        {error !== null ? (
+          <p className={s.error} role="alert" data-testid="signin-error">{error}</p>
+        ) : null}
 
         {supported === false ? (
           <p className={s.error} role="alert" data-testid="signin-unsupported">
@@ -201,21 +149,20 @@ export function SignIn() {
           </p>
         ) : null}
 
-        <p className={s.note}>
-          The fingerprint above is a symbol. Your device performs the biometric check
-          itself — NN never receives or stores biometric data, only a public key.
-        </p>
-        {previewOffered() ? (
-          <>
-            <button type="button" className={s.guestButton} onClick={enterTemporaryGuestMode}>
-              Explore NN without an account
-            </button>
-            <p className={s.guestNote}>
-              Nothing is signed in and no records are loaded. Every surface will say so.
-            </p>
-          </>
+        {/* Offered only while nobody owns this environment. Once the founder
+            has claimed it, a public door into their own surfaces — even one
+            that grants no session and can read nothing — is a door that
+            should not be there. */}
+        {!ready && !unconfigured && previewOffered() ? (
+          <button
+            type="button"
+            className={s.guestButton}
+            onClick={() => { enterPreview(); router.replace("/home"); }}
+          >
+            Explore NN without an account
+          </button>
         ) : null}
-      </GlassPanel>
+      </div>
     </main>
   );
 }
