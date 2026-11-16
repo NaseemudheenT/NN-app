@@ -67,6 +67,8 @@ disconnected pages. It is not finished because a page exists.
 | **The assistant is REN.** Renamed from ORIN on 2026-11-08 | founder decision |
 | **REN has three capabilities and no more:** text, voice, appearance | founder decision |
 | **Never claim something works without running it** | the founder's hardest rule |
+| **A WebGL surface is not proven by `pnpm test`** | jsdom has no WebGL, so every GL path takes its fallback and the suite passes. Two shipped bugs came from this. Check the real page in a real browser before saying it works |
+| **A shader that fails must say so** | silent fallback to a flat list, a flat gradient or a still SVG looks like a design choice. Log the compile and link errors |
 | **No dead buttons, no fake data, no simulated integrations** | |
 | **Never reset git history or discard uncommitted work** | |
 
@@ -182,6 +184,14 @@ Palette (fixed): `#07111F` `#0B1930` `#10223B` `#172B45` `#F7F9FC` `#E7EDF6`
   class, so a control styled by a descendant selector needs its own class
   first. `.nn-liquid-primary` is the same slab lit from inside, for the one
   control on a screen that carries the decision.
+- **Cards carry live water, not painted water.** `.nn-live-wave` in
+  `global.css` is one pseudo-element and one transform, drifting behind a
+  reading surface — a negative-z child still paints above its parent's
+  background, so without that surface a 13px label sits directly on a moving
+  crest. The application cards generate theirs in the fragment shader and
+  upload only the glyph as an alpha mask.
+- **No corridor.** Moving between screens is one 320ms band of spectrum. The
+  sixteen-ring canvas it replaced was theatre in front of work.
 - **34 applications, 34 distinct icons.** Seven used to share `sparkle`; a
   launcher where a fifth of the glyphs are identical reads as a placeholder.
   `ICON_PATHS` is exported so the card painter rasterises the same geometry
