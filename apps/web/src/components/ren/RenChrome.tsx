@@ -26,8 +26,16 @@ export function RenChrome() {
     return () => document.removeEventListener("keydown", onKey);
   }, [router]);
 
-  // The launcher is how you reach REN from somewhere else, so it hides on
-  // REN's own surfaces — both of them. One identity on screen, never two.
-  if (pathname === "/" || pathname === "/sign-in" || pathname.startsWith("/ren")) return null;
+  /*
+   * The launcher is how you reach REN from somewhere else.
+   *
+   * So it hides on REN's own surfaces — both of them — and on the dashboard,
+   * where the navigation already carries REN as one of its four items. A
+   * floating orb over a tab bar that holds the same orb is two identities on
+   * one screen, and on a phone it lands on the content as well.
+   */
+  const carried = pathname === "/" || pathname === "/sign-in"
+    || pathname === "/home" || pathname.startsWith("/ren");
+  if (carried) return null;
   return <RenLauncher />;
 }

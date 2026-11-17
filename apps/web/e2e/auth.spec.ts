@@ -69,7 +69,9 @@ test.describe("passkey authentication", () => {
     // The browser performs a genuine WebAuthn create() against the virtual
     // authenticator, then NN exchanges the assertion for a Firebase session.
     // It lands on the dashboard: that is where NN opens now.
-    await page.waitForURL("**/home", { timeout: 30_000 });
+    // `commit` rather than `load`: the dashboard keeps WebGL surfaces
+    // painting, so "load" can outlast the navigation it is waiting for.
+    await page.waitForURL("**/home", { timeout: 60_000, waitUntil: "commit" });
 
     /* Arriving already means the ceremony completed. What is asserted here is
        that a *real* session exists rather than the preview — the preview says
@@ -146,6 +148,24 @@ test.describe("passkey authentication", () => {
       }
       await page.screenshot({ path: `test-results/ren-${size.width}x${size.height}.png` });
     }
+    /* ---- the phone, everywhere ------------------------------------------
+     * Screenshots of every surface at 393x852, kept, so the phone experience
+     * is looked at rather than inferred from "nothing overflows".
+     */
+    await page.setViewportSize({ width: 393, height: 852 });
+    for (const [name, url] of [
+      ["today", "/home"], ["ren", "/ren"], ["settings", "/settings"],
+    ] as const) {
+      await page.goto(url);
+      await page.waitForTimeout(1600);
+      await page.screenshot({ path: `test-results/phone-${name}.png`, fullPage: false });
+    }
+    await page.goto("/home");
+    await page.waitForTimeout(1200);
+    await page.getByRole("button", { name: /^Applications/ }).first().click();
+    await page.waitForTimeout(2000);
+    await page.screenshot({ path: "test-results/phone-apps.png" });
+
     await page.setViewportSize({ width: 1280, height: 800 });
   });
 

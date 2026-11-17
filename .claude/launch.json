@@ -4,8 +4,23 @@
     {
       "name": "nn-web",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@nn/web", "dev"],
+      "runtimeArgs": [
+        "--filter",
+        "@nn/web",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "nn-web-built",
+      "runtimeExecutable": "./node_modules/.bin/next",
+      "runtimeArgs": [
+        "start",
+        "-p",
+        "3100"
+      ],
+      "port": 3100,
+      "cwd": "apps/web"
     }
   ]
 }

@@ -57,7 +57,21 @@
 .banner button:hover { background: var(--glass-hover); }
 .banner button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
+/* On a phone it stops floating altogether.
+ *
+ * A pill centred over the top of the screen lands on the wordmark and the
+ * profile control; moved below the bar it lands on the page heading instead.
+ * There is no free space to float into at this width, so it takes its own
+ * row in the flow — above everything, covering nothing. */
 @media (max-width: 719px) {
-  .banner { padding: 8px 8px 8px 12px; gap: 9px; }
+  .banner {
+    position: static;
+    max-width: none;
+    transform: none;
+    margin: max(8px, env(safe-area-inset-top, 0px)) 10px 0;
+    padding: 8px 8px 8px 12px;
+    gap: 9px;
+    border-radius: var(--radius-lg);
+  }
   .banner span { display: none; }
 }

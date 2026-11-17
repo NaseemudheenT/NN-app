@@ -99,8 +99,20 @@ export const VISIBLE = 3;
 
 /** Card size for a stage of w × h: portrait, and large, because they stack. */
 export function cardSize(w: number, h: number): [number, number] {
-  const width = Math.min(w < 640 ? w * 0.7 : w * 0.34, h * 0.56);
+  const width = Math.min(w < 640 ? w * 0.52 : w * 0.34, h * 0.52);
   return [Math.round(width), Math.round(width * 1.32)];
+}
+
+/**
+ * How many cards deep the stack goes.
+ *
+ * Fewer on a phone, and not as a nicety. At 390px the canvas is about 345
+ * wide, so a fan of five at the desktop step runs off both edges and the
+ * outer cards are cut into flat rectangles by the canvas. Two deep is a
+ * stack you can read; five is a mess with corners missing.
+ */
+export function visibleFor(width: number): number {
+  return width < 640 ? 2 : VISIBLE;
 }
 
 /**
@@ -125,7 +137,11 @@ export interface StackConfig {
 }
 
 export function stackConfig(width: number): StackConfig {
-  if (width < 640) return { shift: 90, drop: 13, lean: 8, shrink: 0.06 };
+  // No drop at all on a phone: the stage is short, and a card that falls
+  // even ten pixels is a card whose bottom the canvas cuts off.
+  // Lean is cheap on a wide screen and expensive here: rotating a card
+  // grows its bounding box, and the stage has no spare height to grow into.
+  if (width < 640) return { shift: 68, drop: 0, lean: 4, shrink: 0.12 };
   if (width < 1024) return { shift: 130, drop: 15, lean: 10, shrink: 0.09 };
   return { shift: 170, drop: 18, lean: 12, shrink: 0.12 };
 }
@@ -543,6 +559,7 @@ export function CurvedCarousel({
     let cardW = 1;
     let cardH = 1;
     let stack = stackConfig(1);
+    let depth = VISIBLE;
     let position = 0;
     let velocity = 0;
     let target = 0;
@@ -568,6 +585,7 @@ export function CurvedCarousel({
       canvas.height = Math.round(stageH * dpr);
       [cardW, cardH] = cardSize(stageW, stageH);
       stack = stackConfig(stageW);
+      depth = visibleFor(stageW);
       gl.viewport(0, 0, canvas.width, canvas.height);
       kick();
     };
@@ -595,14 +613,14 @@ export function CurvedCarousel({
       order.length = 0;
       for (let i = 0; i < count; i += 1) {
         const away = Math.abs(offsetOf(i, position, count));
-        if (away > VISIBLE) continue;   // the rest of the ring is behind you
+        if (away > depth) continue;   // the rest of the ring is behind you
         order.push({ index: i, away });
       }
       order.sort((a, b) => b.away - a.away);
 
       for (const { index } of order) {
         const distance = offsetOf(index, position, count);
-        const place = stackTransform(distance, stack, VISIBLE);
+        const place = stackTransform(distance, stack, depth);
         const away = Math.abs(distance);
         const t = Math.max(0, Math.min(1, (intro - away * 0.12) / 0.6));
         const eased = (1 - Math.pow(1 - t, 3)) * place.fade;

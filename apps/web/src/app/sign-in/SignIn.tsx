@@ -235,11 +235,13 @@ export function SignIn() {
           </button>
         ) : null}
 
-        {/* Offered only while nobody owns this environment. Once the founder
-            has claimed it, a public door into their own surfaces — even one
-            that grants no session and can read nothing — is a door that
-            should not be there. */}
-        {!ready && !unconfigured && previewOffered() ? (
+        {/* Offered until this environment has an owner to protect — which
+            includes a deployment with no server credentials, where it is the
+            only thing that works and where local development lives. Once the
+            founder has claimed NN, a public door into their own surfaces —
+            even one granting no session and able to read nothing — is a door
+            that should not be there, and it closes. */}
+        {!ready && previewOffered() ? (
           <button
             type="button"
             className={s.guestButton}

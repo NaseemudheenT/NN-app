@@ -156,8 +156,16 @@
 /* Below this the dock cannot hold five labels without wrapping, so it
    becomes icons. The names stay available to assistive technology. */
 @media (max-width: 719px) {
-  .nav:not(.vertical) .item { padding: 0 13px; }
-  .nav:not(.vertical) .label {
+  .nav:not(.vertical):not(.labelled) .item { padding: 0 13px; }
+  /* A labelled bar stacks the glyph over its name, the way a tab bar does. */
+  .labelled .item {
+    flex-direction: column;
+    gap: 3px;
+    height: 52px;
+    padding: 0 6px;
+  }
+  .labelled .label { font-size: var(--text-micro-size); letter-spacing: 0; }
+  .nav:not(.vertical):not(.labelled) .label {
     position: absolute;
     width: 1px;
     height: 1px;

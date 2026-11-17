@@ -56,6 +56,15 @@ export interface LiquidNavProps {
   onSelect: (item: LiquidNavItem, index: number) => void;
   /** Icons only, no labels. The rail uses this; the dock does not. */
   compact?: boolean;
+  /**
+   * Keep the labels at every width.
+   *
+   * The dock drops them under 720px because five labelled items will not fit
+   * a narrow pill. A full-width bottom bar is a different shape: four items
+   * across the whole screen have room, and an icon-only tab bar is a
+   * guessing game.
+   */
+  labels?: "auto" | "always";
   /** Stack vertically. The desktop rail is vertical, the dock horizontal. */
   orientation?: "horizontal" | "vertical";
   "aria-label"?: string;
@@ -200,6 +209,7 @@ export function LiquidNav({
   activeId,
   onSelect,
   compact = false,
+  labels = "auto",
   orientation = "horizontal",
   "aria-label": ariaLabel = "NN navigation",
   className,
@@ -579,6 +589,7 @@ export function LiquidNav({
       className={[
         styles.nav,
         compact ? styles.compact : "",
+        labels === "always" ? styles.labelled : "",
         orientation === "vertical" ? styles.vertical : "",
         className ?? "",
       ].filter(Boolean).join(" ")}

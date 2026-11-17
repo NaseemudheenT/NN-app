@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  FRAG, VERT, VISIBLE,
+  FRAG, VERT, VISIBLE, visibleFor,
   cardSize, offsetOf, restFor, springStep, stackConfig, stackTransform, wrapIndex,
 } from "./CurvedCarousel";
 
@@ -138,6 +138,30 @@ describe("the stack", () => {
     const edge = stackTransform(VISIBLE - 0.75, config).fade;
     expect(edge).toBeGreaterThan(0);
     expect(edge).toBeLessThan(1);
+  });
+
+  it("goes only two deep on a phone", () => {
+    // At 390px the canvas is about 345 wide. A fan of five at the desktop
+    // step runs off both edges and the canvas cuts the outer cards into flat
+    // rectangles — which is exactly what the founder saw.
+    expect(visibleFor(345)).toBe(2);
+    expect(visibleFor(1200)).toBe(VISIBLE);
+  });
+
+  it("never drops a card below a short phone stage", () => {
+    // The stage is barely 320px tall on a phone. A card that falls even ten
+    // pixels is a card whose bottom edge the canvas removes.
+    expect(stackConfig(345).drop).toBe(0);
+  });
+
+  it("keeps the fan inside the canvas it is drawn on", () => {
+    const stage = 345;
+    const config = stackConfig(stage);
+    const [cardW] = cardSize(stage, 322);
+    const outer = stackTransform(1, config, visibleFor(stage));
+    const reach = Math.abs(outer.x) + (cardW * outer.scale) / 2;
+    expect(reach, "the first card either side runs off the edge")
+      .toBeLessThanOrEqual(stage / 2);
   });
 
   it("is gone before the lens stretches it off the canvas", () => {

@@ -568,15 +568,6 @@ export function NNDashboard({
             </div>
           </div>
 
-          <div className={styles.mobileNav}>
-            <LiquidNav
-              items={VIEWS}
-              activeId={view}
-              onSelect={choose}
-              aria-label="Dashboard views"
-            />
-          </div>
-
           {/* Keyed on the view so each one mounts fresh: a stale subscription
               from the previous view would keep painting into this one. */}
           <div className={styles.view} key={view}>
@@ -596,6 +587,22 @@ export function NNDashboard({
         </main>
       </div>
 
+      {/* The phone's navigation lives here, outside the glass panel, and the
+          reason is subtle enough to be worth writing down: `.main` carries a
+          `backdrop-filter`, and a filtered element becomes the containing
+          block for any `position: fixed` descendant. Nested inside it, the
+          bar was pinned to the bottom of the panel rather than the bottom of
+          the screen — which looked fine on a short page and disappeared off
+          the end of a long one. */}
+      <div className={styles.mobileNav}>
+        <LiquidNav
+          items={VIEWS}
+          activeId={view}
+          onSelect={choose}
+          labels="always"
+          aria-label="Dashboard views"
+        />
+      </div>
     </div>
   );
 }

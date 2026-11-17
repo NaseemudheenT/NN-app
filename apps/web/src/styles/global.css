@@ -97,20 +97,29 @@ button, input, textarea, select { font: inherit; color: inherit; }
 /* A restrained arrival transition shared by every NN route. The environment
    remains mounted behind the shell; only the page content settles into place.
    No route-specific timers, JavaScript animation loop, or extra dependency. */
+/*
+ * The arrival. Opacity only, and that is not a style preference.
+ *
+ * This used to lift and scale the shell as well, with `fill-mode: both` — so
+ * the final frame's `transform` stayed on the element forever, computing to
+ * `matrix(1, 0, 0, 1, 0, 0)` rather than `none`. A transformed ancestor
+ * becomes the containing block for every `position: fixed` descendant inside
+ * it, so NN's shell quietly captured all of them: the phone's navigation bar
+ * was pinned to the bottom of a 991px document instead of the 819px viewport
+ * and sat 172px below the fold, invisible.
+ *
+ * It would have done the same to any fixed element anywhere in the app. A
+ * nine-pixel rise is not worth that, so the rise is gone and the fade stays.
+ * `opacity` makes a stacking context, which is harmless here, and never a
+ * containing block.
+ */
 .nn-page-arrive {
-  transform-origin: 50% 0;
   animation: nn-page-arrive 520ms cubic-bezier(0.2, 0.72, 0.24, 1) both;
 }
 
 @keyframes nn-page-arrive {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 9px, 0) scale(0.996);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
