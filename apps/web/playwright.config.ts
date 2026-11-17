@@ -26,7 +26,7 @@ export default defineConfig({
   reporter: [["list"]],
   // Generous: the dev server compiles each route on first hit, which can take
   // ten seconds or more on this machine. Production builds are far faster.
-  timeout: 120_000,
+  timeout: 300_000,
   expect: { timeout: 30_000 },
   use: {
     baseURL: ORIGIN,

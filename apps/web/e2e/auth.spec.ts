@@ -74,6 +74,75 @@ test.describe("passkey authentication", () => {
     await expect(page.getByText(/Exploring NN/)).toHaveCount(0);
     await expect(page.getByRole("button", { name: /profile and settings/ })).toBeVisible();
     await expect(page.getByText(/Welcome back, /)).toBeVisible();
+
+    /* ---- REN's console, on the session that now exists ------------------
+     *
+     * The expansion brief's TEST A and TEST I. They run here, inside the
+     * claim, rather than in a file of their own for a plain reason: a
+     * virtual authenticator belongs to one page, so a second spec gets a
+     * fresh one with no credential and cannot sign in to a claimed NN. This
+     * is the only place a real owner session exists.
+     */
+    await page.goto("/ren");
+
+    // TEST A — an operating surface, not a chat.
+    await expect(page.getByRole("button", { name: /speak|microphone/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Chat/ })).toBeVisible();
+    await expect(page.getByLabel("Type to REN")).toBeVisible();
+    // REN says what it cannot do rather than implying a mind that is absent.
+    await expect(page.getByText(/No language model is connected/)).toBeVisible();
+
+    // TEST B — the chat is reached only because the founder asked.
+    await page.getByRole("button", { name: /Chat/ }).click();
+    await page.waitForURL("**/ren/chat", { timeout: 20_000 });
+
+    // TEST I — every size the founder actually uses.
+    for (const size of [
+      { name: "iPhone SE", width: 375, height: 667 },
+      { name: "iPhone 15", width: 393, height: 852 },
+      { name: "Android", width: 412, height: 915 },
+      { name: "iPad", width: 768, height: 1024 },
+      { name: "iPad landscape", width: 1024, height: 768 },
+      { name: "laptop", width: 1440, height: 900 },
+      { name: "desktop", width: 1920, height: 1080 },
+    ]) {
+      await page.setViewportSize({ width: size.width, height: size.height });
+      await page.goto("/ren");
+      await page.waitForTimeout(900);
+
+      // A horizontal scrollbar on a phone is the commonest way a responsive
+      // layout is actually broken, and the easiest to miss by eye.
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow, `${size.name} scrolls sideways by ${overflow}px`).toBeLessThanOrEqual(1);
+
+      const controls = await page.evaluate(() => {
+        const out: { label: string; h: number; right: number }[] = [];
+        for (const element of document.querySelectorAll("button, input")) {
+          const box = element.getBoundingClientRect();
+          if (box.width === 0 || box.height === 0) continue;
+          out.push({
+            label: (element.getAttribute("aria-label") ?? element.textContent ?? "")
+              .trim().slice(0, 30),
+            h: Math.round(box.height),
+            right: Math.round(box.right),
+          });
+        }
+        return out;
+      });
+
+      expect(controls.length, `${size.name} lost its controls`).toBeGreaterThan(2);
+      for (const control of controls) {
+        expect(control.h, `"${control.label}" is ${control.h}px tall on ${size.name}`)
+          .toBeGreaterThanOrEqual(32);
+        expect(control.right, `"${control.label}" runs past the right edge on ${size.name}`)
+          .toBeLessThanOrEqual(size.width + 1);
+      }
+      await page.screenshot({ path: `test-results/ren-${size.width}x${size.height}.png` });
+    }
+    await page.setViewportSize({ width: 1280, height: 800 });
   });
 
   test("NN is now claimed, so the sign-in screen changes", async ({ page }) => {
