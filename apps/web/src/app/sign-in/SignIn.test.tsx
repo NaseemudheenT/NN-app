@@ -5,13 +5,17 @@ import userEvent from "@testing-library/user-event";
 
 const supported = vi.hoisted(() => ({ value: true }));
 const claimed = vi.hoisted(() => ({ value: true }));
+const hasPassword = vi.hoisted(() => ({ value: true }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn() }) }));
 vi.mock("@/lib/auth", () => ({
   useAuth: () => ({ phase: "anonymous", endedReason: null }),
   // `configured` matters: without server credentials SignIn returns early
   // with "Sign-in is not available here", which is a different page entirely.
-  fetchAuthStatus: vi.fn(async () => ({ claimed: claimed.value, bootstrapReady: true, configured: true })),
+  fetchAuthStatus: vi.fn(async () => ({
+    claimed: claimed.value, bootstrapReady: true, configured: true,
+    hasPassword: hasPassword.value,
+  })),
   registerPasskey: vi.fn(),
   signInWithPasskey: vi.fn(),
   passkeysSupported: () => supported.value,
@@ -25,7 +29,7 @@ const { SignIn } = await import("./SignIn");
 afterEach(cleanup);
 // Reset between tests: a leaked `claimed` would silently change which door
 // the next test is looking at.
-beforeEach(() => { claimed.value = true; supported.value = true; });
+beforeEach(() => { claimed.value = true; supported.value = true; hasPassword.value = true; });
 
 describe("the door to NN", () => {
   it("never ships a claim about the browser the server has not met", () => {
@@ -52,15 +56,17 @@ describe("the door to NN", () => {
     expect(screen.queryByTestId("signin-unsupported")).toBeNull();
   });
 
-  it("is the mark and one button, and nothing else", async () => {
-    // The founder asked for exactly this. Every sentence that used to be on
-    // this screen explained a mechanism — that the device does the check,
-    // that biometrics never leave it — which is true, worth saying once in
-    // the documentation, and not worth saying on the door every time.
+  it("is the mark, the way in, and the other way in — nothing else", async () => {
+    // Every sentence that used to be on this screen explained a mechanism:
+    // that the device does the check, that biometrics never leave it. True,
+    // worth saying once in the documentation, not on the door every time.
+    // What is left is the passkey and the password, because an environment
+    // reachable from only one device is one you lose with that device.
     supported.value = true;
     const { container } = render(<SignIn />);
     await screen.findByRole("button", { name: "Sign in with passkey" });
-    expect(screen.getAllByRole("button")).toHaveLength(1);
+    expect(screen.getAllByRole("button")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Use my password" })).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/biometric/i);
     expect(container.textContent).not.toMatch(/Welcome back/i);
   });
@@ -81,28 +87,39 @@ describe("the door to NN", () => {
     expect(screen.queryByRole("button", { name: /recovery password/i })).toBeNull();
   });
 
-  it("offers it once the browser cannot do passkeys at all", async () => {
+  it("tells a browser with no passkey support to use the password", async () => {
     supported.value = false;
     render(<SignIn />);
-    expect(await screen.findByTestId("signin-unsupported")).toBeInTheDocument();
-    const offer = await screen.findByRole("button", { name: /Use my recovery password/ });
-    await userEvent.click(offer);
-    expect(screen.getByLabelText("Recovery password")).toBeInTheDocument();
+    expect(await screen.findByTestId("signin-unsupported")).toHaveTextContent(/password/i);
+    await userEvent.click(await screen.findByRole("button", { name: "Use my password" }));
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Unlock NN" })).toBeDisabled();
   });
 
-  it("unlocks with the recovery password, and can go back to the passkey", async () => {
+  it("unlocks with the password, and can go back to the passkey", async () => {
     supported.value = false;
     render(<SignIn />);
-    await userEvent.click(await screen.findByRole("button", { name: /Use my recovery password/ }));
-    await userEvent.type(screen.getByLabelText("Recovery password"), "harbour-lantern-thistle-49!");
+    await userEvent.click(await screen.findByRole("button", { name: "Use my password" }));
+    await userEvent.type(screen.getByLabelText("Password"), "harbour-lantern-thistle-49!");
     const unlock = screen.getByRole("button", { name: "Unlock NN" });
     expect(unlock).toBeEnabled();
     await userEvent.click(unlock);
     expect(signInWithRecoveryPassword).toHaveBeenCalledWith("harbour-lantern-thistle-49!");
 
-    await userEvent.click(screen.getByRole("button", { name: /Back to the passkey/ }));
-    expect(screen.queryByLabelText("Recovery password")).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: "Use my passkey" }));
+    expect(screen.queryByLabelText("Password")).toBeNull();
+  });
+
+  it("offers a way out of the trap when no password was ever stored", async () => {
+    // Claimed with a passkey that will not work, and no password: without
+    // this, NN has reached a state it can never leave, because setting the
+    // password needs the session the founder cannot get.
+    hasPassword.value = false;
+    render(<SignIn />);
+    await userEvent.click(await screen.findByRole("button", { name: "Set a password" }));
+    expect(screen.getByLabelText("Bootstrap secret")).toBeInTheDocument();
+    expect(screen.getByLabelText("Choose a password")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save this password" })).toBeDisabled();
   });
 
   it("will not claim NN without a way back in", async () => {
@@ -117,11 +134,11 @@ describe("the door to NN", () => {
     await userEvent.type(screen.getByLabelText("Bootstrap secret"), "a-long-enough-bootstrap-secret-value");
     expect(claim).toBeDisabled();
 
-    await userEvent.type(screen.getByLabelText("Recovery password"), "short");
+    await userEvent.type(screen.getByLabelText("Choose a password"), "short");
     expect(claim).toBeDisabled();
 
-    await userEvent.clear(screen.getByLabelText("Recovery password"));
-    await userEvent.type(screen.getByLabelText("Recovery password"), "harbour-lantern-thistle-49!");
+    await userEvent.clear(screen.getByLabelText("Choose a password"));
+    await userEvent.type(screen.getByLabelText("Choose a password"), "harbour-lantern-thistle-49!");
     expect(claim).toBeEnabled();
   });
 

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { enforceRateLimit } from "@/server/auth/ratelimit";
 import { requireServerCredentials } from "@/server/auth/credentials";
-import { assessRecoveryPassword } from "@nn/auth";
+import { assessRecoveryPassword, secretsMatch } from "@nn/auth";
 import { createRecoveryRecord } from "@nn/auth/recovery";
 import { callerUid } from "@/server/auth/session";
 import {
@@ -49,20 +49,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const limited = await enforceRateLimit(request, "recovery-set");
   if (limited !== null) return limited;
 
-  const [owner, uid] = await Promise.all([readOwner(), callerUid(request)]);
-  if (owner === null) {
-    return NextResponse.json({ error: "NN has no owner yet." }, { status: 409 });
-  }
-  if (uid === null || uid !== owner.uid) {
-    // Deliberately the same answer for "not signed in" and "signed in as
-    // somebody else": neither caller is owed the difference.
-    return NextResponse.json(
-      { error: "Sign in with your passkey first." },
-      { status: 401 },
-    );
-  }
-
-  let body: { password?: unknown };
+  let body: { password?: unknown; bootstrapSecret?: unknown };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -74,6 +61,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Expected a password." }, { status: 400 });
   }
 
+  const [owner, uid, existing] = await Promise.all([
+    readOwner(), callerUid(request), readRecovery(),
+  ]);
+  if (owner === null) {
+    return NextResponse.json({ error: "NN has no owner yet." }, { status: 409 });
+  }
+
+  /*
+   * Two ways to set this, and the second one closes behind itself.
+   *
+   * Normally: the owner, signed in with their passkey. The only person who
+   * may cut a second key is somebody holding the first.
+   *
+   * Once, with the bootstrap secret, **only while no password exists yet**.
+   * Without this there is a state NN can reach and never leave: an
+   * environment claimed with a passkey that will not work on the founder's
+   * device, and no way to set the credential that exists for exactly that
+   * case, because setting it needs the session they cannot get. The window
+   * shuts permanently the moment a password is stored, so this is a way out
+   * of that trap and not a standing back door.
+   */
+  const presented = typeof body.bootstrapSecret === "string" ? body.bootstrapSecret : null;
+  const configured = process.env.NN_BOOTSTRAP_SECRET ?? null;
+  const asOwner = uid !== null && uid === owner.uid;
+  const asFirstSetup = existing === null
+    && presented !== null && configured !== null
+    && secretsMatch(presented, configured);
+
+  if (!asOwner && !asFirstSetup) {
+    // The same answer for "not signed in", "signed in as somebody else" and
+    // "wrong secret": none of those callers is owed the difference.
+    return NextResponse.json(
+      { error: "Sign in with your passkey, or use the bootstrap secret." },
+      { status: 401 },
+    );
+  }
+
   const strength = assessRecoveryPassword(password);
   if (!strength.ok) {
     // The reason is about the password's shape, never its content.
@@ -83,8 +107,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const record = await createRecoveryRecord(password, new Date());
   await writeRecovery(record);
   await recordSecurityEvent(owner.uid, "recovery_password_set", {
-    // The strength, not the password. Useful in an audit, worthless to a thief.
+    // The strength and the route, not the password. Useful in an audit,
+    // worthless to a thief.
     bits: strength.bits,
+    via: asOwner ? "session" : "bootstrap",
   });
 
   return NextResponse.json({ ok: true, bits: strength.bits });

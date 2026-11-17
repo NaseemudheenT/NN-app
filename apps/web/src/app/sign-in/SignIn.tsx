@@ -15,52 +15,42 @@ import s from "./signin.module.css";
 /**
  * The door to NN.
  *
- * One card, the mark arriving through glass, and one button. The founder
- * asked for nothing else on it and they are right: this screen has exactly
- * one thing to do, the device performs the check itself, and every sentence
- * that used to be here was explaining a mechanism nobody needs explained
- * twice. What is left is the environment's own name and the way in.
+ * One card, the mark arriving through glass, and one button. Everything that
+ * used to be on this screen explained a mechanism nobody needs explained
+ * twice.
  *
- * Two states, decided by the server rather than guessed at:
+ * Four states, decided by the server rather than guessed at:
  *
- * - **Unclaimed.** Nobody owns this environment yet. The claim needs the
- *   bootstrap secret as well as a passkey, because the site is public and
- *   the first visitor would otherwise become the owner. One field, one
- *   button, and it happens once in the life of the environment.
- * - **Claimed.** The passkey button, alone.
+ * - **claim** — nobody owns this environment. Needs the bootstrap secret as
+ *   well as a passkey, because the site is public and the first visitor
+ *   would otherwise become the owner. A password is set in the same
+ *   ceremony, so the way back exists from the first minute.
+ * - **passkey** — the ordinary way in.
+ * - **password** — the *other* ordinary way in, offered plainly rather than
+ *   hidden behind a failure. A passkey lives on one device, and an
+ *   environment reachable only from one device is one you lose with it.
+ * - **arm** — claimed, but no password was ever stored. Offered with the
+ *   bootstrap secret, once; the offer disappears the moment it is taken.
  *
- * Nothing that could be untrue is on screen: the browser's passkey support
- * is unknown until the client has actually asked, errors appear only when
- * something has actually failed, and the preview door is offered only while
- * the environment has no owner to protect.
+ * A password is weaker than a passkey and this does not pretend otherwise —
+ * it is scrypt-hashed, rate-limited twice and locked out globally after five
+ * wrong guesses. But a passkey the founder cannot use is worth nothing at
+ * all, and that is the comparison that actually matters.
  */
+
+type Mode = "claim" | "passkey" | "password" | "arm";
+
 export function SignIn() {
   const router = useRouter();
   const { phase, endedReason } = useAuth();
   const [status, setStatus] = useState<AuthStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const [secret, setSecret] = useState("");
-  /**
-   * The way back in, offered only after the passkey has actually failed.
-   *
-   * The door is the mark and one button, and it stays that way: a recovery
-   * path shown before anything has gone wrong is an invitation to use the
-   * weaker credential by default, which is how a passkey environment quietly
-   * becomes a password one.
-   */
-  const [recovering, setRecovering] = useState(false);
-  const [recovery, setRecovery] = useState("");
-  /**
-   * The recovery password, set during the claim.
-   *
-   * It used to be settable only from Settings, which needs a session — so a
-   * founder whose passkey would not work could not set the thing that exists
-   * for exactly that case. A trap, and one NN walked into. Both credentials
-   * are created in one ceremony now: the passkey, then immediately the way
-   * back, while the session the claim just minted is still in hand.
-   */
-  const [backup, setBackup] = useState("");
+  const [password, setPassword] = useState("");
+  const [chosen, setChosen] = useState<Mode | null>(null);
+
   // Null until mounted. Asked during render, this is false on the server —
   // which made every visitor's sign-in page ship with "This browser does not
   // support passkeys" already in it, and React threw the page away on
@@ -97,15 +87,64 @@ export function SignIn() {
     }
   };
 
-  const failed = error !== null || supported === false;
-  const strength = backup.length > 0 ? assessRecoveryPassword(backup) : null;
-  const strongEnough = strength !== null && strength.ok;
-
-  /* A deployment whose server has no credentials cannot verify a passkey, and
+  /* A deployment whose server has no credentials cannot verify anything, and
      must say so rather than offering a button that will always fail. */
   const unconfigured = phase === "unconfigured" || (status !== null && !status.configured);
-  const claiming = status !== null && status.configured && !status.claimed;
-  const ready = status !== null && status.configured && status.claimed;
+  const claimed = status !== null && status.configured && status.claimed;
+  const hasPassword = status?.hasPassword === true;
+
+  const mode: Mode = chosen ?? (status === null ? "passkey" : claimed ? "passkey" : "claim");
+  const strength = password.length > 0 ? assessRecoveryPassword(password) : null;
+  const strong = strength !== null && strength.ok;
+
+  const label =
+    mode === "claim" ? "Claim NN"
+      : mode === "password" ? "Unlock NN"
+        : mode === "arm" ? "Save this password"
+          : "Sign in with passkey";
+
+  const blocked =
+    busy || status === null || unconfigured
+    || (mode === "claim"
+      && (supported !== true || !status.bootstrapReady || secret.length === 0 || !strong))
+    || (mode === "passkey" && supported !== true)
+    || (mode === "password" && password.length === 0)
+    || (mode === "arm" && (secret.length === 0 || !strong));
+
+  const act = () => void run(async () => {
+    if (mode === "password") {
+      await signInWithRecoveryPassword(password);
+      return;
+    }
+    if (mode === "arm") {
+      await setRecoveryPassword(password, { bootstrapSecret: secret });
+      setPassword("");
+      setSecret("");
+      setChosen("password");
+      setNote("Saved. Sign in with it now.");
+      setStatus((was) => (was === null ? was : { ...was, hasPassword: true }));
+      return;
+    }
+    if (mode === "claim") {
+      await registerPasskey({ bootstrapSecret: secret, label: "First device" });
+      await signInWithPasskey();
+      // Second, and only once the session exists.
+      await setRecoveryPassword(password, {});
+      return;
+    }
+    await signInWithPasskey();
+  });
+
+  const wantsSecret = mode === "claim" || mode === "arm";
+  const wantsPassword = mode !== "passkey";
+
+  const reset = (next: Mode) => {
+    setChosen(next);
+    setError(null);
+    setNote(null);
+    setPassword("");
+    setSecret("");
+  };
 
   return (
     <main className={s.page}>
@@ -116,8 +155,7 @@ export function SignIn() {
           <LogoReveal size={132} duration={2400} />
         </div>
 
-        {/* The environment's name, for anything that reads rather than looks.
-            The mark above says it to everyone else. */}
+        {/* The environment's name, for anything that reads rather than looks. */}
         <h1 className={s.name}>NN</h1>
 
         {unconfigured ? (
@@ -127,39 +165,31 @@ export function SignIn() {
           </p>
         ) : null}
 
-        {claiming ? (
+        {!unconfigured && (wantsSecret || wantsPassword) ? (
           <div className={s.secret}>
-            <TextField
-              label="Bootstrap secret"
-              type="password"
-              autoComplete="off"
-              value={secret}
-              onChange={(e) => setSecret(e.currentTarget.value)}
-            />
-            <TextField
-              label="Recovery password"
-              type="password"
-              autoComplete="new-password"
-              value={backup}
-              onChange={(e) => setBackup(e.currentTarget.value)}
-              hint={
-                strength !== null && !strength.ok
-                  ? strength.reason
-                  : "Your way back if the passkey ever cannot be used. Sixteen characters or more — write it down somewhere only you can reach."
-              }
-            />
-          </div>
-        ) : null}
-
-        {!unconfigured && recovering ? (
-          <div className={s.secret}>
-            <TextField
-              label="Recovery password"
-              type="password"
-              autoComplete="current-password"
-              value={recovery}
-              onChange={(e) => setRecovery(e.currentTarget.value)}
-            />
+            {wantsSecret ? (
+              <TextField
+                label="Bootstrap secret"
+                type="password"
+                autoComplete="off"
+                value={secret}
+                onChange={(e) => setSecret(e.currentTarget.value)}
+              />
+            ) : null}
+            {wantsPassword ? (
+              <TextField
+                label={mode === "password" ? "Password" : "Choose a password"}
+                type="password"
+                autoComplete={mode === "password" ? "current-password" : "new-password"}
+                value={password}
+                onChange={(e) => setPassword(e.currentTarget.value)}
+                {...(mode === "password"
+                  ? {}
+                  : strength !== null && !strength.ok
+                    ? { hint: strength.reason }
+                    : { hint: "Sixteen characters or more. Write it down somewhere only you can reach." })}
+              />
+            ) : null}
           </div>
         ) : null}
 
@@ -168,80 +198,52 @@ export function SignIn() {
             type="button"
             className={s.enter}
             data-busy={busy || undefined}
-            disabled={
-              busy ||
-              (recovering
-                ? recovery.length === 0
-                : supported !== true || status === null ||
-                  (claiming && (!status.bootstrapReady || secret.length === 0 || !strongEnough)))
-            }
-            onClick={() => void run(async () => {
-              if (recovering) {
-                await signInWithRecoveryPassword(recovery);
-                return;
-              }
-              if (claiming) {
-                await registerPasskey({ bootstrapSecret: secret, label: "First device" });
-                await signInWithPasskey();
-                // Second, and only once the session exists. If this throws,
-                // the founder is still signed in and can set it in Settings —
-                // so the failure is reported, not swallowed.
-                await setRecoveryPassword(backup);
-                return;
-              }
-              await signInWithPasskey();
-            })}
+            disabled={blocked}
+            onClick={act}
           >
             <span className={s.enterScan} aria-hidden="true" />
-            <span className={s.enterLabel}>
-              {recovering
-                ? "Unlock NN"
-                : claiming ? "Claim NN with a passkey" : "Sign in with passkey"}
-            </span>
+            <span className={s.enterLabel}>{label}</span>
           </button>
         ) : null}
 
         {endedReason !== null ? <p className={s.note}>{endedReason}</p> : null}
+        {note !== null ? <p className={s.note}>{note}</p> : null}
 
         {error !== null ? (
           <p className={s.error} role="alert" data-testid="signin-error">{error}</p>
         ) : null}
 
-        {supported === false ? (
+        {supported === false && mode === "passkey" ? (
           <p className={s.error} role="alert" data-testid="signin-unsupported">
-            This browser does not support passkeys. Use a recent Safari, Chrome or Edge.
+            This browser does not support passkeys. Use the password instead.
           </p>
         ) : null}
 
-        {/* Only after the passkey has actually failed. Until then there is
-            nothing here, which is the whole design of this screen. */}
-        {ready && failed && !recovering ? (
-          <button
-            type="button"
-            className={s.guestButton}
-            onClick={() => { setRecovering(true); setError(null); }}
-          >
-            Use my recovery password
+        {/* The other way in, offered plainly. A founder who has just lost a
+            device should not have to fail twice to discover NN has a door
+            for them. */}
+        {claimed && mode !== "passkey" ? (
+          <button type="button" className={s.guestButton} onClick={() => reset("passkey")}>
+            Use my passkey
           </button>
         ) : null}
 
-        {recovering ? (
-          <button
-            type="button"
-            className={s.guestButton}
-            onClick={() => { setRecovering(false); setRecovery(""); setError(null); }}
-          >
-            Back to the passkey
+        {claimed && mode === "passkey" && hasPassword ? (
+          <button type="button" className={s.guestButton} onClick={() => reset("password")}>
+            Use my password
+          </button>
+        ) : null}
+
+        {claimed && mode === "passkey" && !hasPassword ? (
+          <button type="button" className={s.guestButton} onClick={() => reset("arm")}>
+            Set a password
           </button>
         ) : null}
 
         {/* Offered until this environment has an owner to protect — which
             includes a deployment with no server credentials, where it is the
-            only thing that works and where local development lives. Once the
-            founder has claimed NN, a public door into their own surfaces —
-            even one granting no session and able to read nothing — is a door
-            that should not be there, and it closes. */}
-        {!ready && previewOffered() ? (
+            only thing that works and where local development lives. */}
+        {!claimed && previewOffered() ? (
           <button
             type="button"
             className={s.guestButton}

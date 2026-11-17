@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { enforceRateLimit } from "@/server/auth/ratelimit";
 import { MIN_BOOTSTRAP_SECRET_LENGTH } from "@nn/auth";
 import { adminConfigured, AdminConfigError } from "@/server/admin";
-import { readOwner } from "@/server/auth/store";
+import { readOwner, recoveryConfigured } from "@/server/auth/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -51,9 +51,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     throw error;
   }
 
+  /* Whether a password exists, never anything about it. The door needs to
+     know which way in to offer; nobody needs to know more than that. */
+  const hasPassword = owner === null ? false : await recoveryConfigured();
+
   return NextResponse.json({
     claimed: owner !== null,
     bootstrapReady: secret.length >= MIN_BOOTSTRAP_SECRET_LENGTH,
     configured: true,
+    hasPassword,
   });
 }

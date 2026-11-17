@@ -4,7 +4,6 @@ import {
   useCallback, useEffect, useRef, useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import { hashString } from "@/lib/folderArt";
 import { ICON_PATHS, type IconName } from "@/components/ui/Icon";
 import styles from "./CurvedCarousel.module.css";
 
@@ -99,7 +98,7 @@ export const VISIBLE = 3;
 
 /** Card size for a stage of w × h: portrait, and large, because they stack. */
 export function cardSize(w: number, h: number): [number, number] {
-  const width = Math.min(w < 640 ? w * 0.52 : w * 0.34, h * 0.52);
+  const width = Math.min(w < 640 ? w * 0.46 : w * 0.26, h * 0.46);
   return [Math.round(width), Math.round(width * 1.32)];
 }
 
@@ -254,23 +253,26 @@ export function glyphMask(icon: IconName): HTMLCanvasElement | null {
 }
 
 /**
- * The colour the water runs in, for one application.
+ * The light inside the glass.
  *
- * Five hues from NN's own spectrum, chosen by the application's name so a
- * card never changes colour under the founder. They are the material's
- * colours rather than arbitrary ones, which is what keeps thirty-four
- * different cards reading as one set.
+ * One tone for every application, not five.
+ *
+ * Each card used to take a hue from its own name — cyan, aqua, blue, indigo,
+ * violet — so a row of them was a row of different colours, and the founder
+ * read that as paint rather than material. Thirty-four applications are one
+ * set, and a set is held together by being made of the same thing. The
+ * colour now comes from the room the cards are in; the cards themselves are
+ * glass with a cool light moving in them.
+ *
+ * The signature still takes a name, so that if a card ever earns its own
+ * colour — a status, a warning, something true about that application rather
+ * than its spelling — this is the one place it would come from.
  */
-const HUES: readonly (readonly [number, number, number])[] = [
-  [0.16, 0.69, 1.00],   // cyan
-  [0.32, 0.81, 1.00],   // aqua
-  [0.14, 0.40, 1.00],   // blue
-  [0.42, 0.44, 1.00],   // indigo
-  [0.72, 0.44, 1.00],   // violet
-];
+const GLASS: readonly [number, number, number] = [0.46, 0.74, 1.0];
 
 export function hueFor(name: string): readonly [number, number, number] {
-  return HUES[hashString(name) % HUES.length] ?? HUES[0]!;
+  void name;
+  return GLASS;
 }
 
 /* ---------------------------------------------------------------- shader -- */
@@ -339,12 +341,12 @@ export const FRAG =
   "c+=uGround*veil;a+=veil;" +
   // A wash of the card's own colour over the whole face, so the water is
   // everywhere and the ribbons are its crests rather than its only light.
-  "c+=uHue*card*.13;a+=card*.1;" +
+  "c+=uHue*card*.07;a+=card*.07;" +
   // the water, lit from inside the glass
   "float water=clamp(w0*.72+w1*.95+w2*.6,0.,1.)*card;" +
-  "c+=uHue*water*.9;a+=water*.36;" +
-  "float deep=w2*.34*card;c+=uHue*1.3*deep;a+=deep*.22;" +
-  "float crest=w3*.46*uLight*card;c+=vec3(1.)*crest;a+=crest*.62;" +
+  "c+=uHue*water*.5;a+=water*.2;" +
+  "float deep=w2*.34*card;c+=uHue*1.1*deep;a+=deep*.13;" +
+  "float crest=w3*.5*uLight*card;c+=vec3(1.)*crest;a+=crest*.6;" +
   // the glass itself: a sheen off the top and a bright cut rim
   "float sheen=smoothstep(.45,0.,p.y)*.2*uLight*card;c+=vec3(1.)*sheen;a+=sheen*.7;" +
   "float rim=smoothstep(-2.5,0.,d)*card;" +

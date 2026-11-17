@@ -50,6 +50,8 @@ async function post<T>(url: string, body: unknown, idToken?: string): Promise<T>
 export interface AuthStatus {
   claimed: boolean;
   bootstrapReady: boolean;
+  /** A password sign-in exists. */
+  hasPassword?: boolean;
   /** False when the deployment has no server credentials at all. */
   configured: boolean;
 }
@@ -176,9 +178,17 @@ export async function fetchRecoveryState(
  * session against the owner record, and the only person who may cut a second
  * key is somebody holding the first.
  */
-export async function setRecoveryPassword(password: string, idToken?: string): Promise<number> {
+export async function setRecoveryPassword(
+  password: string, options: { idToken?: string; bootstrapSecret?: string } = {},
+): Promise<number> {
   const { bits } = await post<{ ok: true; bits: number }>(
-    "/api/auth/recovery/set", { password }, idToken,
+    "/api/auth/recovery/set",
+    {
+      password,
+      ...(options.bootstrapSecret !== undefined
+        ? { bootstrapSecret: options.bootstrapSecret } : {}),
+    },
+    options.idToken,
   );
   return bits;
 }
