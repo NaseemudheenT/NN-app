@@ -1,6 +1,8 @@
 import "server-only";
 
-import type { ChallengeRecord, ChallengeStore, OwnerRecord, StoredCredential } from "@nn/auth";
+import type {
+  ChallengeRecord, ChallengeStore, OwnerRecord, RecoveryRecord, StoredCredential,
+} from "@nn/auth";
 import { getAdmin } from "../admin";
 
 /**
@@ -176,4 +178,32 @@ export async function recordSecurityEvent(
   await getAdmin().db.collection("users").doc(uid).collection("security_events").add({
     type, ...detail, createdAt: now, updatedAt: now, schemaVersion: 1,
   });
+}
+
+/* ------------------------------------------------------------- recovery -- */
+
+const RECOVERY_DOC = "recovery";
+
+/**
+ * The founder's recovery password, as stored.
+ *
+ * It lives beside the owner record in `system/`, which the Firestore rules
+ * refuse every client read and write on — so this document is reachable only
+ * through the Admin SDK, inside a route handler, on the server. The founder's
+ * own signed-in browser cannot read it either, which is the point: a stolen
+ * session must not be able to exfiltrate the credential that outlives it.
+ */
+export async function readRecovery(): Promise<RecoveryRecord | null> {
+  const snap = await getAdmin().db.collection(SYSTEM).doc(RECOVERY_DOC).get();
+  if (!snap.exists) return null;
+  return snap.data() as RecoveryRecord;
+}
+
+export async function writeRecovery(record: RecoveryRecord): Promise<void> {
+  await getAdmin().db.collection(SYSTEM).doc(RECOVERY_DOC).set(record);
+}
+
+/** Whether a recovery password has been set, without revealing anything else. */
+export async function recoveryConfigured(): Promise<boolean> {
+  return (await readRecovery()) !== null;
 }

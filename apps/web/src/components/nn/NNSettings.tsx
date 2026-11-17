@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
 import { Switch } from "@/components/ui/Switch";
+import { TextField } from "@/components/ui/TextField";
 import { NNLogo } from "@/components/ui/NNLogo";
-import { useAuth } from "@/lib/auth";
+import { fetchRecoveryState, setRecoveryPassword, useAuth } from "@/lib/auth";
+// The policy only — `@nn/auth` itself pulls in `node:crypto` and cannot be
+// bundled for a browser.
+import { assessRecoveryPassword } from "@nn/auth/recovery-policy";
 import { useTheme } from "@/lib/theme";
 import styles from "./NNSettings.module.css";
 
@@ -49,6 +53,11 @@ function Group({ title, footer, children }: {
 function Tile({ icon, tone }: { icon: IconName; tone: GlassIconTone }) {
   return <GlassIcon name={icon} tone={tone} size={28} />;
 }
+
+const TONE = {
+  blue: "blue", cyan: "cyan", violet: "violet", slate: "slate",
+  green: "green", amber: "amber", red: "red",
+} as const satisfies Record<string, GlassIconTone>;
 
 /** A row that holds a switch. The whole row is the control's label. */
 function SwitchRow({ icon, tone, label, hint, checked, onChange, disabled }: {
@@ -94,6 +103,101 @@ function ChoiceRow<T extends string>({ icon, tone, label, value, choices, onChan
   );
 }
 
+/**
+ * The recovery password.
+ *
+ * One passkey on one device, and NN refuses to delete the last one — so a
+ * lost phone is a permanent lockout from a lifetime of records. This is the
+ * way back, and it is deliberately held to a far higher bar than a login
+ * password: sixteen characters and real variety, hashed with scrypt, never
+ * stored in any recoverable form, and locked out globally after five wrong
+ * guesses no matter where they come from.
+ */
+function RecoveryRow({ signedIn }: { signedIn: boolean }) {
+  const [state, setState] = useState<{ configured: boolean; updatedAt: string | null } | null>(null);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!signedIn) return;
+    let live = true;
+    fetchRecoveryState()
+      .then((next) => { if (live) setState(next); })
+      .catch(() => { if (live) setState(null); });
+    return () => { live = false; };
+  }, [signedIn]);
+
+  const strength = value.length > 0 ? assessRecoveryPassword(value) : null;
+
+  const save = async () => {
+    setBusy(true);
+    setNote(null);
+    try {
+      await setRecoveryPassword(value);
+      setState({ configured: true, updatedAt: new Date().toISOString() });
+      setValue("");
+      setOpen(false);
+      setNote("Saved. Keep it somewhere only you can reach.");
+    } catch (error) {
+      setNote(error instanceof Error ? error.message : "Could not save it.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.row}
+        aria-expanded={open}
+        disabled={!signedIn}
+        onClick={() => setOpen((was) => !was)}
+      >
+        <Tile icon="vault" tone={TONE.amber} />
+        <span className={styles.label}>
+          Recovery password
+          <small>
+            {!signedIn
+              ? "Sign in to set it"
+              : state === null ? "…"
+                : state.configured ? "Set — the way back if your passkey cannot be used"
+                  : "Not set — a lost device would lock you out permanently"}
+          </small>
+        </span>
+        <Icon name="expand" size={16} className={styles.chevron} data-open={open || undefined} />
+      </button>
+
+      {open && signedIn ? (
+        <div className={styles.row} data-static>
+          <span className={styles.recovery}>
+            <TextField
+              label={state?.configured ? "New recovery password" : "Recovery password"}
+              type="password"
+              autoComplete="new-password"
+              value={value}
+              onChange={(e) => setValue(e.currentTarget.value)}
+              {...(strength !== null && !strength.ok ? { hint: strength.reason } : {})}
+            />
+            <button
+              type="button"
+              className={styles.choice}
+              disabled={busy || strength === null || !strength.ok}
+              onClick={() => void save()}
+            >
+              {busy ? "Saving…" : "Save"}
+            </button>
+          </span>
+        </div>
+      ) : null}
+
+      {note !== null ? <p className={styles.groupFooter}>{note}</p> : null}
+    </>
+  );
+}
+
 /** A row that reports something NN knows but cannot change. */
 function FactRow({ icon, tone, label, value }: {
   icon: IconName; tone: GlassIconTone; label: string; value: string;
@@ -106,11 +210,6 @@ function FactRow({ icon, tone, label, value }: {
     </div>
   );
 }
-
-const TONE = {
-  blue: "blue", cyan: "cyan", violet: "violet", slate: "slate",
-  green: "green", amber: "amber", red: "red",
-} as const satisfies Record<string, GlassIconTone>;
 
 /* ---------------------------------------------------------------- surface -- */
 
@@ -209,6 +308,7 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
           value={user ? "Passkey on this device" : "Not signed in"}
         />
         <FactRow icon="file" tone={TONE.slate} label="Records" value="Owner-scoped" />
+        <RecoveryRow signedIn={user !== null} />
       </Group>
 
       {onSignOut || onSignOutEverywhere ? (

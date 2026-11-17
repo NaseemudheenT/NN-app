@@ -6,7 +6,7 @@ import { LogoReveal } from "@/components/ui/LogoReveal";
 import { TextField } from "@/components/ui";
 import {
   fetchAuthStatus, passkeysSupported, registerPasskey, signInWithPasskey,
-  useAuth, type AuthStatus,
+  signInWithRecoveryPassword, useAuth, type AuthStatus,
 } from "@/lib/auth";
 import { enterPreview, leavePreview, previewOffered } from "@/lib/preview";
 import s from "./signin.module.css";
@@ -40,6 +40,16 @@ export function SignIn() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [secret, setSecret] = useState("");
+  /**
+   * The way back in, offered only after the passkey has actually failed.
+   *
+   * The door is the mark and one button, and it stays that way: a recovery
+   * path shown before anything has gone wrong is an invitation to use the
+   * weaker credential by default, which is how a passkey environment quietly
+   * becomes a password one.
+   */
+  const [recovering, setRecovering] = useState(false);
+  const [recovery, setRecovery] = useState("");
   // Null until mounted. Asked during render, this is false on the server —
   // which made every visitor's sign-in page ship with "This browser does not
   // support passkeys" already in it, and React threw the page away on
@@ -75,6 +85,8 @@ export function SignIn() {
       setBusy(false);
     }
   };
+
+  const failed = error !== null || supported === false;
 
   /* A deployment whose server has no credentials cannot verify a passkey, and
      must say so rather than offering a button that will always fail. */
@@ -114,16 +126,35 @@ export function SignIn() {
           </div>
         ) : null}
 
+        {!unconfigured && recovering ? (
+          <div className={s.secret}>
+            <TextField
+              label="Recovery password"
+              type="password"
+              autoComplete="current-password"
+              value={recovery}
+              onChange={(e) => setRecovery(e.currentTarget.value)}
+            />
+          </div>
+        ) : null}
+
         {!unconfigured ? (
           <button
             type="button"
             className={s.enter}
             data-busy={busy || undefined}
             disabled={
-              busy || supported !== true || status === null ||
-              (claiming && (!status.bootstrapReady || secret.length === 0))
+              busy ||
+              (recovering
+                ? recovery.length === 0
+                : supported !== true || status === null ||
+                  (claiming && (!status.bootstrapReady || secret.length === 0)))
             }
             onClick={() => void run(async () => {
+              if (recovering) {
+                await signInWithRecoveryPassword(recovery);
+                return;
+              }
               if (claiming) {
                 await registerPasskey({ bootstrapSecret: secret, label: "First device" });
               }
@@ -132,7 +163,9 @@ export function SignIn() {
           >
             <span className={s.enterScan} aria-hidden="true" />
             <span className={s.enterLabel}>
-              {claiming ? "Claim NN with a passkey" : "Sign in with passkey"}
+              {recovering
+                ? "Unlock NN"
+                : claiming ? "Claim NN with a passkey" : "Sign in with passkey"}
             </span>
           </button>
         ) : null}
@@ -147,6 +180,28 @@ export function SignIn() {
           <p className={s.error} role="alert" data-testid="signin-unsupported">
             This browser does not support passkeys. Use a recent Safari, Chrome or Edge.
           </p>
+        ) : null}
+
+        {/* Only after the passkey has actually failed. Until then there is
+            nothing here, which is the whole design of this screen. */}
+        {ready && failed && !recovering ? (
+          <button
+            type="button"
+            className={s.guestButton}
+            onClick={() => { setRecovering(true); setError(null); }}
+          >
+            Use my recovery password
+          </button>
+        ) : null}
+
+        {recovering ? (
+          <button
+            type="button"
+            className={s.guestButton}
+            onClick={() => { setRecovering(false); setRecovery(""); setError(null); }}
+          >
+            Back to the passkey
+          </button>
         ) : null}
 
         {/* Offered only while nobody owns this environment. Once the founder

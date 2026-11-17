@@ -278,10 +278,30 @@ export function LogoReveal({
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    /*
+     * Rows, reversed — and this is why the mark arrived upside down.
+     *
+     * The field is drawn on a 2D canvas, where row 0 is the top. A GL texture
+     * addresses row 0 at t = 0, which this shader maps to the *bottom* of the
+     * screen. So the canvas's top row was being drawn at the bottom and the N
+     * came out inverted, on the door and on the entrance both.
+     *
+     * `UNPACK_FLIP_Y_WEBGL` cannot fix it: that flag applies only to uploads
+     * from an image, canvas or video element, and this is a plain byte array.
+     * Flipping the bytes once here keeps every sample site — the slab, the
+     * normal, the refraction — reading the same way, which flipping the
+     * lookup in the shader would not.
+     */
+    const rows = new Uint8Array(field.data.length);
+    for (let y = 0; y < field.height; y += 1) {
+      const from = y * field.width;
+      const to = (field.height - 1 - y) * field.width;
+      rows.set(field.data.subarray(from, from + field.width), to);
+    }
     gl.texImage2D(
       gl.TEXTURE_2D, 0, gl.R8,
       field.width, field.height, 0,
-      gl.RED, gl.UNSIGNED_BYTE, field.data,
+      gl.RED, gl.UNSIGNED_BYTE, rows,
     );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

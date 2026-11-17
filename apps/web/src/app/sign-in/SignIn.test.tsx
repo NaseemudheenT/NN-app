@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
+import userEvent from "@testing-library/user-event";
 
 const supported = vi.hoisted(() => ({ value: true }));
 
@@ -13,8 +14,10 @@ vi.mock("@/lib/auth", () => ({
   registerPasskey: vi.fn(),
   signInWithPasskey: vi.fn(),
   passkeysSupported: () => supported.value,
+  signInWithRecoveryPassword: vi.fn(async () => "Add a passkey on this device now."),
 }));
 
+const { signInWithRecoveryPassword } = await import("@/lib/auth");
 const { SignIn } = await import("./SignIn");
 
 afterEach(cleanup);
@@ -61,6 +64,40 @@ describe("the door to NN", () => {
     supported.value = true;
     render(<SignIn />);
     expect(await screen.findByRole("heading", { level: 1, name: "NN" })).toBeInTheDocument();
+  });
+
+  it("offers no recovery path until the passkey has actually failed", async () => {
+    // A recovery password shown before anything has gone wrong is an
+    // invitation to use the weaker credential by default, which is how a
+    // passkey environment quietly becomes a password one.
+    supported.value = true;
+    render(<SignIn />);
+    await screen.findByRole("button", { name: "Sign in with passkey" });
+    expect(screen.queryByRole("button", { name: /recovery password/i })).toBeNull();
+  });
+
+  it("offers it once the browser cannot do passkeys at all", async () => {
+    supported.value = false;
+    render(<SignIn />);
+    expect(await screen.findByTestId("signin-unsupported")).toBeInTheDocument();
+    const offer = await screen.findByRole("button", { name: /Use my recovery password/ });
+    await userEvent.click(offer);
+    expect(screen.getByLabelText("Recovery password")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Unlock NN" })).toBeDisabled();
+  });
+
+  it("unlocks with the recovery password, and can go back to the passkey", async () => {
+    supported.value = false;
+    render(<SignIn />);
+    await userEvent.click(await screen.findByRole("button", { name: /Use my recovery password/ }));
+    await userEvent.type(screen.getByLabelText("Recovery password"), "harbour-lantern-thistle-49!");
+    const unlock = screen.getByRole("button", { name: "Unlock NN" });
+    expect(unlock).toBeEnabled();
+    await userEvent.click(unlock);
+    expect(signInWithRecoveryPassword).toHaveBeenCalledWith("harbour-lantern-thistle-49!");
+
+    await userEvent.click(screen.getByRole("button", { name: /Back to the passkey/ }));
+    expect(screen.queryByLabelText("Recovery password")).toBeNull();
   });
 
   it("closes the public door once the environment has an owner", async () => {

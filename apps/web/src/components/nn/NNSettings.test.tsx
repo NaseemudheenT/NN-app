@@ -13,7 +13,11 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), usePat
 vi.mock("@/components/nn/AppTransition", () => ({
   useAppTransition: () => ({ open, close: vi.fn(), request: null }),
 }));
-vi.mock("@/lib/auth", () => ({ useAuth: () => ({ user: session.user }) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: () => ({ user: session.user }),
+  fetchRecoveryState: vi.fn(async () => ({ configured: false, updatedAt: null })),
+  setRecoveryPassword: vi.fn(async () => 84),
+}));
 vi.mock("@/lib/theme", () => ({
   useTheme: () => ({
     theme: theme.theme, setTheme: theme.setTheme,
@@ -89,7 +93,10 @@ describe("Settings", () => {
   it("opens the profile in place rather than navigating to a page of four lines", async () => {
     session.user = { uid: "owner-abcdef123456", displayName: "Naseemudheen T" };
     render(<NNSettings />);
-    const account = screen.getByRole("button", { expanded: false });
+    // Named, not just "the collapsed one": the recovery password row opens in
+    // place too, so there is more than one disclosure in this list now.
+    const account = screen.getByRole("button", { name: /Naseemudheen T/ });
+    expect(account).toHaveAttribute("aria-expanded", "false");
     await userEvent.click(account);
     expect(screen.getByRole("heading", { level: 2, name: "Profile" })).toBeInTheDocument();
     expect(screen.getByText("owner-abcdef…")).toBeInTheDocument();

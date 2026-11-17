@@ -213,3 +213,17 @@
   .segment button { padding: 6px 9px; }
   .rowHead { flex-wrap: wrap; }
 }
+
+/* The recovery password's own row: a field and its save control, side by side
+   inside the list rather than on a page of their own. */
+.recovery {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--space-5);
+  width: 100%;
+}
+
+@media (max-width: 719px) {
+  .recovery { grid-template-columns: 1fr; align-items: stretch; }
+}

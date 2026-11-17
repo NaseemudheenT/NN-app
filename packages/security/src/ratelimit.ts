@@ -39,6 +39,11 @@ export const AUTH_LIMITS = {
   // hopeless against a 24+ character secret.
   "register-options": { windowMs: 60_000, max: 5 },
   "register-verify": { windowMs: 60_000, max: 10 },
+  // Recovery is the one credential a guess can be made against offline-style,
+  // so the per-caller window is tight. The real defence is the lockout stored
+  // with the record itself, which no amount of IP rotation gets past.
+  "recovery-verify": { windowMs: 60_000, max: 3 },
+  "recovery-set": { windowMs: 60_000, max: 5 },
   status: { windowMs: 60_000, max: 60 },
   signout: { windowMs: 60_000, max: 30 },
 } as const satisfies Record<string, RateLimitRule>;

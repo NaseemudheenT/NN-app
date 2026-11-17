@@ -134,3 +134,51 @@ export async function signInWithPasskey(): Promise<void> {
   // owner-scoped security rule from Phase 2 applies.
   await signInWithCustomToken(getFirebase().auth, customToken);
 }
+
+/* ------------------------------------------------------------- recovery -- */
+
+/**
+ * Signs in with the recovery password.
+ *
+ * The way back in when the passkey cannot be used — a lost device, a wiped
+ * phone, an authenticator that will not answer. It ends in the same place a
+ * passkey does: a Firebase custom token exchanged for a real session, with
+ * the same owner-scoped rules. It grants nothing extra.
+ *
+ * The server answers every failure identically, so nothing here can tell the
+ * founder *why* it failed beyond "it did" — that is deliberate, and the
+ * reason the error text is the same for a wrong password and a lockout.
+ */
+export async function signInWithRecoveryPassword(password: string): Promise<string> {
+  const { customToken, advice } = await post<{ customToken: string; advice: string }>(
+    "/api/auth/recovery/verify", { password },
+  );
+  await signInWithCustomToken(getFirebase().auth, customToken);
+  return advice;
+}
+
+/** Whether a recovery password exists, and when it last changed. */
+export async function fetchRecoveryState(
+  idToken?: string,
+): Promise<{ configured: boolean; updatedAt: string | null }> {
+  const response = await fetch("/api/auth/recovery/set", {
+    headers: idToken !== undefined ? { authorization: `Bearer ${idToken}` } : {},
+    cache: "no-store",
+  });
+  if (!response.ok) throw new PasskeyError("Could not read the recovery state.");
+  return (await response.json()) as { configured: boolean; updatedAt: string | null };
+}
+
+/**
+ * Sets or replaces the recovery password.
+ *
+ * Only works while already signed in with a passkey: the server checks the
+ * session against the owner record, and the only person who may cut a second
+ * key is somebody holding the first.
+ */
+export async function setRecoveryPassword(password: string, idToken?: string): Promise<number> {
+  const { bits } = await post<{ ok: true; bits: number }>(
+    "/api/auth/recovery/set", { password }, idToken,
+  );
+  return bits;
+}

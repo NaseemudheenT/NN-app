@@ -250,6 +250,44 @@ describe("the owner record", () => {
   });
 });
 
+/* ─────────────────────────── the system space ─────────────────────────── */
+
+describe("the system space", () => {
+  /**
+   * `system/` holds the two credentials that outlive everything else: which
+   * uid owns NN, and the scrypt hash of the recovery password. Both are
+   * written only by the Admin SDK inside a route handler. No client — not an
+   * intruder, not the founder's own signed-in browser — may read or write
+   * either, because a stolen session must not be able to carry off the
+   * credential that would survive revoking it.
+   */
+  it("hides the owner record from every client, including the owner", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "system/owner"), { uid: OWNER, credentialCount: 1 });
+    });
+    await assertFails(getDoc(doc(asOwner(), "system/owner")));
+    await assertFails(getDoc(doc(asIntruder(), "system/owner")));
+  });
+
+  it("hides the recovery password hash from every client", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "system/recovery"), {
+        algorithm: "scrypt", salt: "x", hash: "y", failures: 0,
+      });
+    });
+    await assertFails(getDoc(doc(asOwner(), "system/recovery")));
+    await assertFails(getDoc(doc(asIntruder(), "system/recovery")));
+  });
+
+  it("lets nobody write the recovery record — not even to reset the lockout", async () => {
+    // The lockout lives in this document. A client that could clear it could
+    // brute-force the recovery password at whatever rate it liked.
+    await assertFails(setDoc(doc(asOwner(), "system/recovery"), { failures: 0 }));
+    await assertFails(setDoc(doc(asIntruder(), "system/recovery"), { failures: 0 }));
+    await assertFails(setDoc(doc(asOwner(), "system/owner"), { uid: INTRUDER }));
+  });
+});
+
 /* ───────────────────────── shared reference data ──────────────────────── */
 
 describe("reference library", () => {
