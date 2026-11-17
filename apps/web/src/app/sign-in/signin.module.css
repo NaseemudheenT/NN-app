@@ -127,7 +127,15 @@
 
 /* ------------------------------------------------------------------ rest -- */
 
-.secret { width: 100%; text-align: left; }
+/* The claim asks for two things now — the bootstrap secret and the recovery
+   password — because setting the second later needs a session, and a founder
+   whose passkey will not work does not have one. */
+.secret {
+  width: 100%;
+  display: grid;
+  gap: var(--space-6);
+  text-align: left;
+}
 
 .note {
   margin: 0;

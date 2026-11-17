@@ -10,6 +10,8 @@ import { expect, test, type CDPSession, type Page } from "@playwright/test";
  */
 
 const BOOTSTRAP = "e2e-only-bootstrap-secret-not-a-real-one";
+/* The claim sets both credentials in one ceremony now. */
+const RECOVERY = "harbour-lantern-thistle-49!";
 
 /** Attaches a platform authenticator that reports successful user verification. */
 async function attachAuthenticator(page: Page): Promise<{ client: CDPSession; id: string }> {
@@ -43,6 +45,7 @@ test.describe("passkey authentication", () => {
     await attachAuthenticator(page);
     await page.goto("/sign-in");
     await page.getByLabel("Bootstrap secret").fill("definitely-the-wrong-secret-value");
+    await page.getByLabel("Recovery password").fill(RECOVERY);
     await page.getByRole("button", { name: /Claim NN/ }).click();
     await expect(page.getByTestId("signin-error")).toContainText(/Invalid bootstrap secret/i);
     // Still unclaimed.
@@ -60,6 +63,7 @@ test.describe("passkey authentication", () => {
     await attachAuthenticator(page);
     await page.goto("/sign-in");
     await page.getByLabel("Bootstrap secret").fill(BOOTSTRAP);
+    await page.getByLabel("Recovery password").fill(RECOVERY);
     await page.getByRole("button", { name: /Claim NN/ }).click();
 
     // The browser performs a genuine WebAuthn create() against the virtual

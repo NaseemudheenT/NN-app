@@ -1,26 +1,31 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import userEvent from "@testing-library/user-event";
 
 const supported = vi.hoisted(() => ({ value: true }));
+const claimed = vi.hoisted(() => ({ value: true }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn() }) }));
 vi.mock("@/lib/auth", () => ({
   useAuth: () => ({ phase: "anonymous", endedReason: null }),
   // `configured` matters: without server credentials SignIn returns early
   // with "Sign-in is not available here", which is a different page entirely.
-  fetchAuthStatus: vi.fn(async () => ({ claimed: true, bootstrapReady: true, configured: true })),
+  fetchAuthStatus: vi.fn(async () => ({ claimed: claimed.value, bootstrapReady: true, configured: true })),
   registerPasskey: vi.fn(),
   signInWithPasskey: vi.fn(),
   passkeysSupported: () => supported.value,
   signInWithRecoveryPassword: vi.fn(async () => "Add a passkey on this device now."),
+  setRecoveryPassword: vi.fn(async () => 84),
 }));
 
 const { signInWithRecoveryPassword } = await import("@/lib/auth");
 const { SignIn } = await import("./SignIn");
 
 afterEach(cleanup);
+// Reset between tests: a leaked `claimed` would silently change which door
+// the next test is looking at.
+beforeEach(() => { claimed.value = true; supported.value = true; });
 
 describe("the door to NN", () => {
   it("never ships a claim about the browser the server has not met", () => {
@@ -98,6 +103,26 @@ describe("the door to NN", () => {
 
     await userEvent.click(screen.getByRole("button", { name: /Back to the passkey/ }));
     expect(screen.queryByLabelText("Recovery password")).toBeNull();
+  });
+
+  it("will not claim NN without a way back in", async () => {
+    // The trap this closes: the recovery password used to be settable only
+    // from Settings, which needs a session — so a founder whose passkey would
+    // not work could not set the thing that exists for exactly that case.
+    // Both credentials are made in one ceremony now.
+    claimed.value = false;
+    supported.value = true;
+    render(<SignIn />);
+    const claim = await screen.findByRole("button", { name: /Claim NN/ });
+    await userEvent.type(screen.getByLabelText("Bootstrap secret"), "a-long-enough-bootstrap-secret-value");
+    expect(claim).toBeDisabled();
+
+    await userEvent.type(screen.getByLabelText("Recovery password"), "short");
+    expect(claim).toBeDisabled();
+
+    await userEvent.clear(screen.getByLabelText("Recovery password"));
+    await userEvent.type(screen.getByLabelText("Recovery password"), "harbour-lantern-thistle-49!");
+    expect(claim).toBeEnabled();
   });
 
   it("closes the public door once the environment has an owner", async () => {

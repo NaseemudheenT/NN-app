@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { LogoReveal } from "@/components/ui/LogoReveal";
 import { TextField } from "@/components/ui";
 import {
-  fetchAuthStatus, passkeysSupported, registerPasskey, signInWithPasskey,
-  signInWithRecoveryPassword, useAuth, type AuthStatus,
+  fetchAuthStatus, passkeysSupported, registerPasskey, setRecoveryPassword,
+  signInWithPasskey, signInWithRecoveryPassword, useAuth, type AuthStatus,
 } from "@/lib/auth";
+import { assessRecoveryPassword } from "@nn/auth/recovery-policy";
 import { enterPreview, leavePreview, previewOffered } from "@/lib/preview";
 import s from "./signin.module.css";
 
@@ -50,6 +51,16 @@ export function SignIn() {
    */
   const [recovering, setRecovering] = useState(false);
   const [recovery, setRecovery] = useState("");
+  /**
+   * The recovery password, set during the claim.
+   *
+   * It used to be settable only from Settings, which needs a session — so a
+   * founder whose passkey would not work could not set the thing that exists
+   * for exactly that case. A trap, and one NN walked into. Both credentials
+   * are created in one ceremony now: the passkey, then immediately the way
+   * back, while the session the claim just minted is still in hand.
+   */
+  const [backup, setBackup] = useState("");
   // Null until mounted. Asked during render, this is false on the server —
   // which made every visitor's sign-in page ship with "This browser does not
   // support passkeys" already in it, and React threw the page away on
@@ -87,6 +98,8 @@ export function SignIn() {
   };
 
   const failed = error !== null || supported === false;
+  const strength = backup.length > 0 ? assessRecoveryPassword(backup) : null;
+  const strongEnough = strength !== null && strength.ok;
 
   /* A deployment whose server has no credentials cannot verify a passkey, and
      must say so rather than offering a button that will always fail. */
@@ -123,6 +136,18 @@ export function SignIn() {
               value={secret}
               onChange={(e) => setSecret(e.currentTarget.value)}
             />
+            <TextField
+              label="Recovery password"
+              type="password"
+              autoComplete="new-password"
+              value={backup}
+              onChange={(e) => setBackup(e.currentTarget.value)}
+              hint={
+                strength !== null && !strength.ok
+                  ? strength.reason
+                  : "Your way back if the passkey ever cannot be used. Sixteen characters or more — write it down somewhere only you can reach."
+              }
+            />
           </div>
         ) : null}
 
@@ -148,7 +173,7 @@ export function SignIn() {
               (recovering
                 ? recovery.length === 0
                 : supported !== true || status === null ||
-                  (claiming && (!status.bootstrapReady || secret.length === 0)))
+                  (claiming && (!status.bootstrapReady || secret.length === 0 || !strongEnough)))
             }
             onClick={() => void run(async () => {
               if (recovering) {
@@ -157,6 +182,12 @@ export function SignIn() {
               }
               if (claiming) {
                 await registerPasskey({ bootstrapSecret: secret, label: "First device" });
+                await signInWithPasskey();
+                // Second, and only once the session exists. If this throws,
+                // the founder is still signed in and can set it in Settings —
+                // so the failure is reported, not swallowed.
+                await setRecoveryPassword(backup);
+                return;
               }
               await signInWithPasskey();
             })}
