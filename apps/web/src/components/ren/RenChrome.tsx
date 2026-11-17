@@ -26,6 +26,8 @@ export function RenChrome() {
     return () => document.removeEventListener("keydown", onKey);
   }, [router]);
 
-  if (pathname === "/" || pathname === "/sign-in" || pathname === "/ren") return null;
+  // The launcher is how you reach REN from somewhere else, so it hides on
+  // REN's own surfaces — both of them. One identity on screen, never two.
+  if (pathname === "/" || pathname === "/sign-in" || pathname.startsWith("/ren")) return null;
   return <RenLauncher />;
 }
