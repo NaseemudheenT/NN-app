@@ -26,7 +26,7 @@ export type GlassIconTone = "blue" | "cyan" | "violet" | "aqua" | "slate" | "gre
 
 export interface GlassIconProps {
   name: IconName;
-  /** Tile size in px. The glyph is 56% of it, which holds down to 24. */
+  /** Tile size in px. The glyph is 54% of it, which holds down to 22. */
   size?: number;
   tone?: GlassIconTone;
   /** Supply when the icon is the only thing naming its control. */
@@ -34,7 +34,7 @@ export interface GlassIconProps {
   className?: string | undefined;
 }
 
-export function GlassIcon({ name, size = 32, tone = "blue", title, className }: GlassIconProps) {
+export function GlassIcon({ name, size = 26, tone = "blue", title, className }: GlassIconProps) {
   return (
     <span
       className={[styles.tile, className ?? ""].filter(Boolean).join(" ")}
@@ -43,7 +43,7 @@ export function GlassIcon({ name, size = 32, tone = "blue", title, className }: 
     >
       <Icon
         name={name}
-        size={Math.round(size * 0.56)}
+        size={Math.round(size * 0.54)}
         tone={tone}
         {...(title !== undefined ? { title } : {})}
       />

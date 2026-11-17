@@ -762,8 +762,8 @@
    object rather than a pictogram. */
 .cardIcon {
   z-index: 1;
-  width: clamp(50px, 4.5vw, 62px);
-  height: clamp(50px, 4.5vw, 62px);
+  width: clamp(44px, 3.9vw, 54px);
+  height: clamp(44px, 3.9vw, 54px);
   border-radius: clamp(19px, 1.8vw, 24px);
   margin-bottom: auto;
 }
@@ -800,7 +800,7 @@
 
 @media (max-width: 767px) {
   .cardInner { padding: 17px; gap: 7px; }
-  .cardIcon { width: 44px; height: 44px; border-radius: 14px; }
+  .cardIcon { width: 40px; height: 40px; border-radius: 13px; }
   .cardTitle { font-size: 17px; }
   /* Kept, not hidden: on a phone the intro is the whole screen, and the
      sentence is the only thing on it that says what NN holds. */

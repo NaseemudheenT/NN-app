@@ -364,8 +364,8 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
               <span className={styles.cardWave} aria-hidden="true" />
               <span className={styles.cardIcon}>
                 {placement.card.mark === "ren"
-                  ? <RenMark size={38} active />
-                  : <Icon name={placement.card.icon} size={32} tone="cyan" />}
+                  ? <RenMark size={32} active />
+                  : <Icon name={placement.card.icon} size={27} tone="cyan" />}
               </span>
               <span className={styles.cardTitle}>{placement.card.title}</span>
               <span className={styles.cardHint}>{placement.card.hint}</span>

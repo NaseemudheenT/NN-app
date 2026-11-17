@@ -51,7 +51,7 @@ function Group({ title, footer, children }: {
 /* Every row's glyph sits in glass. A flat gradient chip was the last place
    in NN where an icon had a painted background rather than a material. */
 function Tile({ icon, tone }: { icon: IconName; tone: GlassIconTone }) {
-  return <GlassIcon name={icon} tone={tone} size={28} />;
+  return <GlassIcon name={icon} tone={tone} size={25} />;
 }
 
 const TONE = {
