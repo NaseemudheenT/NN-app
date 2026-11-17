@@ -122,9 +122,55 @@ What this rules out, with reasons:
   are 3.0 GB free.** The smallest useful model does not fit on the disk.
 - Nothing is installed: no PyTorch, no Ollama, no llama.cpp.
 
-**Conclusion: REN's intelligence cannot run on this machine.** This is not a
-performance note. It is a hard stop, and the brief (§17, §21) requires saying
-so rather than inventing a workaround.
+**Conclusion: REN's intelligence cannot be *server-hosted* on this machine.**
+A server-side model is a hard stop here.
+
+### But the browser can — measured 2026-11-17
+
+I was wrong to stop at "no free path". Probing Chrome on this machine, on
+the live site, reports:
+
+```
+WebGPU API          present
+WebGPU adapter      granted (Intel HD 6000, via Metal)
+maxBufferSize       2,147 MB
+maxStorageBuffer    2,147 MB
+WASM SIMD           yes
+WASM threads        no  — the site is not cross-origin isolated
+hardwareConcurrency 2
+deviceMemory        8 GB
+storage quota       2.1 GB
+```
+
+That is enough to run a small open-weight model **in the founder's own
+browser**, with no server, no GPU rental and no cost. It is also the most
+private host that exists: the weights are fetched once, cached, and every
+token is generated on the device. Nothing is sent anywhere.
+
+What fits the 2.1 GB storage quota, 4-bit:
+
+| Model | On disk | Realistic here |
+|---|---|---|
+| Qwen2.5-0.5B-Instruct | ~0.4 GB | comfortable; short answers at usable speed |
+| Qwen2.5-1.5B-Instruct | ~1.0 GB | fits; slower, noticeably more capable |
+| Qwen2.5-3B-Instruct | ~2.0 GB | borderline against the quota |
+
+**Honest about what this is.** A 0.5–1.5B model is not Claude, ChatGPT or
+Gemini and will not be mistaken for one. It is real language, real reasoning
+on short problems, and real tool selection — which is what REN actually needs,
+because the capability registry is the authority on what may be done and the
+model's job is to choose from it. It will be slow on two Broadwell cores.
+
+Two free improvements worth taking: send COOP/COEP headers so
+`crossOriginIsolated` becomes true and WASM threads work (a large CPU-path
+speedup), and prefer the founder's phone when it is newer than this laptop —
+a recent iPhone or Android will outrun an HD 6000 by a wide margin.
+
+**Revised recommendation: build the in-browser backend first.** It costs
+nothing, it is the most private option available, it proves the whole
+architecture — registry, adapter, orchestration, honesty engine — against a
+real model, and renting a GPU later becomes a configuration change rather
+than a rewrite.
 
 ## 6–8. Model shortlists
 
@@ -160,9 +206,11 @@ and must be re-checked before anything is bought.
 | **C. Rented cloud GPU, always on** | REN answers instantly, any time | ~$350–800/mo |
 | **D. Own hardware** | A single 24 GB consumer GPU box under NN's control | ~$1,500–2,500 once, plus power |
 
-**Recommendation: B now, D later.** B costs tens of dollars a month, proves
-the architecture, and keeps every byte on infrastructure NN rents rather than
-a proprietary assistant. D removes the recurring cost once REN is used daily.
+**Revised recommendation: option E first — the founder's own browser.**
+Measured as viable in §5. It costs nothing, sends nothing anywhere, and
+exercises the entire architecture against a real model. B or D become worth
+paying for only when the founder wants speed or a larger model, and by then
+they are a change of endpoint rather than a change of design.
 
 Image generation needs the same GPU. **Video generation does not fit any of
 these cheaply** — open-weight video models typically want 24–80 GB of VRAM for
