@@ -126,12 +126,13 @@
 }
 
 .open {
+  composes: nn-liquid from global;
   flex: none;
   min-height: 36px;
   padding: 0 var(--space-5);
-  border: 1px solid var(--glass-2-border);
+
   border-radius: var(--radius-xs);
-  background: var(--glass-1-bg);
+
   color: var(--nn-icy);
   font-size: var(--text-caption-size);
   cursor: pointer;

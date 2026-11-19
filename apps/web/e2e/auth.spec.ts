@@ -45,7 +45,7 @@ test.describe("passkey authentication", () => {
     await attachAuthenticator(page);
     await page.goto("/sign-in");
     await page.getByLabel("Bootstrap secret").fill("definitely-the-wrong-secret-value");
-    await page.getByLabel("Recovery password").fill(RECOVERY);
+    await page.getByLabel("Choose a password").fill(RECOVERY);
     await page.getByRole("button", { name: /Claim NN/ }).click();
     await expect(page.getByTestId("signin-error")).toContainText(/Invalid bootstrap secret/i);
     // Still unclaimed.
@@ -63,7 +63,7 @@ test.describe("passkey authentication", () => {
     await attachAuthenticator(page);
     await page.goto("/sign-in");
     await page.getByLabel("Bootstrap secret").fill(BOOTSTRAP);
-    await page.getByLabel("Recovery password").fill(RECOVERY);
+    await page.getByLabel("Choose a password").fill(RECOVERY);
     await page.getByRole("button", { name: /Claim NN/ }).click();
 
     // The browser performs a genuine WebAuthn create() against the virtual
@@ -176,6 +176,31 @@ test.describe("passkey authentication", () => {
     // And the public door closes with it: a preview grants no session, but a
     // way into the founder's own surfaces should not outlive the claim.
     await expect(page.getByRole("button", { name: /Explore NN/ })).toHaveCount(0);
+  });
+
+  test("the password signs in on its own, with no authenticator at all", async ({ page }) => {
+    /*
+     * The path that matters most, and the one a passkey cannot prove: this
+     * page has no virtual authenticator attached. If the password works
+     * here, it works on a device whose passkey will not — which is the
+     * entire reason it exists.
+     */
+    await page.goto("/sign-in");
+    await page.getByRole("button", { name: "Use my password" }).click();
+    await page.getByLabel("Password").fill(RECOVERY);
+    await page.getByRole("button", { name: "Unlock NN" }).click();
+    await page.waitForURL("**/home", { timeout: 60_000, waitUntil: "commit" });
+    await expect(page.getByRole("button", { name: /profile and settings/ })).toBeVisible();
+  });
+
+  test("a wrong password is refused and says nothing useful", async ({ page }) => {
+    await page.goto("/sign-in");
+    await page.getByRole("button", { name: "Use my password" }).click();
+    await page.getByLabel("Password").fill("definitely-not-the-password-1!");
+    await page.getByRole("button", { name: "Unlock NN" }).click();
+    // One answer for every failure: a caller learns nothing from which.
+    await expect(page.getByTestId("signin-error")).toContainText(/Recovery failed/i);
+    expect(page.url()).toContain("/sign-in");
   });
 
   test("the bootstrap secret stops working once NN is claimed", async ({ request }) => {

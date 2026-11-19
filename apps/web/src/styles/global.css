@@ -747,6 +747,25 @@ body {
   background-repeat: no-repeat, repeat-x;
   background-position: 0 0, 0 0;
   animation: nn-liquid-tide 17s linear infinite;
+  /* The refraction, on the layer that already exists rather than a new one.
+     NN's displacement map pushes the backdrop around with blurred turbulence,
+     so what is behind a control is genuinely bent rather than only blurred —
+     the difference between glass and frosted plastic.
+
+     It lives here, and not in the declaration on `.nn-liquid` itself, for one
+     reason worth stating: `backdrop-filter: url(...)` is Chromium-only today.
+     Listed alongside the blur in a single declaration, an engine that cannot
+     run it drops the *whole* property and the control loses its blur too —
+     which would make Safari, and so the founder's iPhone, strictly worse.
+     On its own layer it is additive: where it works the glass refracts, and
+     where it does not `.nn-liquid`'s own blur is untouched.
+
+     A pseudo-element is also the safe place for it. `backdrop-filter` makes
+     an element the containing block for any `position: fixed` descendant,
+     which is what pinned the phone's tab bar below the fold twice. A
+     pseudo-element has no descendants to capture. */
+  -webkit-backdrop-filter: var(--liquid-refraction);
+  backdrop-filter: var(--liquid-refraction);
 }
 
 @keyframes nn-liquid-tide {

@@ -21,6 +21,12 @@
       ],
       "port": 3100,
       "cwd": "apps/web"
+    },
+    {
+      "name": "nn-web-emulated",
+      "runtimeExecutable": "firebase/scripts/emulated-build.sh",
+      "runtimeArgs": [],
+      "port": 3100
     }
   ]
 }

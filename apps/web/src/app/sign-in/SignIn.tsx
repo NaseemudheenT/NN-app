@@ -228,7 +228,15 @@ export function SignIn() {
           </button>
         ) : null}
 
-        {claimed && mode === "passkey" && hasPassword ? (
+        {/* Offered whenever NN has an owner, and deliberately *not* gated on
+            `hasPassword`. That flag is a convenience for labelling the
+            screen, and it has already been wrong once — a dropped field in
+            the status client hid this button while the password behind it
+            worked perfectly, which is a lockout caused entirely by the UI.
+            The server is the authority on whether the password opens: if
+            none is set it refuses, which costs one honest error message. A
+            hidden door costs the environment. */}
+        {claimed && mode === "passkey" ? (
           <button type="button" className={s.guestButton} onClick={() => reset("password")}>
             Use my password
           </button>

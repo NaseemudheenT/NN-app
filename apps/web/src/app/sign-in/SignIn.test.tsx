@@ -31,6 +31,42 @@ afterEach(cleanup);
 // the next test is looking at.
 beforeEach(() => { claimed.value = true; supported.value = true; hasPassword.value = true; });
 
+describe("the other way in is never hidden", () => {
+  it("offers the password even when the status says there is none", async () => {
+    // The lockout, as a test. `hasPassword` was false because a client-side
+    // field was dropped, and the screen hid the one door that worked. The
+    // server is the authority on whether the password opens — this screen
+    // only has to let the founder reach it.
+    hasPassword.value = false;
+    render(<SignIn />);
+    expect(await screen.findByRole("button", { name: "Use my password" })).toBeInTheDocument();
+  });
+
+  it("still offers to set one when none is stored", async () => {
+    hasPassword.value = false;
+    render(<SignIn />);
+    expect(await screen.findByRole("button", { name: "Set a password" })).toBeInTheDocument();
+  });
+
+  it("stops offering to set one once there is one", async () => {
+    hasPassword.value = true;
+    render(<SignIn />);
+    await screen.findByRole("button", { name: "Use my password" });
+    // Offering it would be a button the server refuses by design: the
+    // bootstrap window shuts the moment a password exists.
+    expect(screen.queryByRole("button", { name: "Set a password" })).toBeNull();
+  });
+
+  it("takes the password and signs in with it", async () => {
+    hasPassword.value = false;
+    render(<SignIn />);
+    await userEvent.click(await screen.findByRole("button", { name: "Use my password" }));
+    await userEvent.type(screen.getByLabelText("Password"), "harbour-lantern-thistle-49!");
+    await userEvent.click(screen.getByRole("button", { name: "Unlock NN" }));
+    expect(signInWithRecoveryPassword).toHaveBeenCalledWith("harbour-lantern-thistle-49!");
+  });
+});
+
 describe("the door to NN", () => {
   it("never ships a claim about the browser the server has not met", () => {
     // What the server actually does: there is no `window`, so asking whether

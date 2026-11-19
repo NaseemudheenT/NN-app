@@ -70,6 +70,13 @@ export async function fetchAuthStatus(): Promise<AuthStatus> {
     claimed: status.claimed === true,
     bootstrapReady: status.bootstrapReady === true,
     configured: status.configured !== false,
+    // Carried through, not re-derived. Rebuilding this object and forgetting
+    // this one field locked the founder out of their own environment for two
+    // days: the server said a password existed, the door never offered it,
+    // and the only button left on the screen was one the server could no
+    // longer accept. Every field the server sends is read here, and
+    // `hasPassword` is covered by a test for exactly that reason.
+    hasPassword: status.hasPassword === true,
   };
 }
 

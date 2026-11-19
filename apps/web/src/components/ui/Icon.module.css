@@ -11,3 +11,57 @@
   user-select: none;
   -webkit-user-drag: none;
 }
+
+/* ---- arrival ---------------------------------------------------------------
+   The founder asked for the glass reveal on every icon, and this is where it
+   belongs: the moment the rendered object replaces the vector is already the
+   moment the icon becomes a thing with a surface, so the reveal has something
+   true to describe rather than being decoration bolted on.
+
+   What the reference does with a ray-marched droplet, NN does with the three
+   things that actually read at 20px: the object starts a little larger and
+   out of focus — magnified by the glass still holding it — a band of light
+   crosses it as the glass lets go, and it settles to its own size and goes
+   sharp. The founder's reference calls that last stretch the glide, and it is
+   the part the eye registers.
+
+   It is CSS, not WebGL, and deliberately: a browser allows roughly sixteen
+   live GL contexts and NN already spends five, so forty-three icons could
+   never have one each. The object itself is already a real render — a signed
+   distance field shaded per pixel — so this animates the arrival of something
+   solid, not the appearance of a picture. */
+@keyframes nn-icon-reveal {
+  from {
+    opacity: 0;
+    transform: scale(1.34);
+    filter: blur(2.4px) brightness(1.5) saturate(0.7);
+  }
+  58% {
+    opacity: 1;
+    /* The light crossing the face as the glass releases it. */
+    filter: blur(0.5px) brightness(1.16) saturate(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.object {
+  /* `both` would leave a computed matrix on every icon in NN forever, and a
+     transformed ancestor becomes the containing block for any `position:
+     fixed` descendant — which is exactly what pinned the phone's tab bar
+     below the fold. `backwards` holds the opening frame before the start and
+     releases the transform at the end. */
+  animation: nn-icon-reveal 520ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* An icon arriving is information, not spectacle: where motion is unwelcome
+   it simply is there. Collapsed rather than removed, so anything listening
+   for animationend still hears it. */
+@media (prefers-reduced-motion: reduce) {
+  .object { animation-duration: 1ms; }
+}
+
+:root[data-motion="reduced"] .object { animation-duration: 1ms; }

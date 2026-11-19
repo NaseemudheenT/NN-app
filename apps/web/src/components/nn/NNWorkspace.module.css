@@ -77,15 +77,16 @@
 .toolbar { display: flex; align-items: center; gap: var(--space-4); }
 
 .iconButton {
+  composes: nn-liquid from global;
   position: relative;
   display: grid;
   place-items: center;
   flex: none;
   width: 36px;
   height: 36px;
-  border: 0;
+
   border-radius: var(--radius-full);
-  background: transparent;
+
   color: var(--text-secondary);
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease-standard),
@@ -598,14 +599,15 @@
 /* The microphone. Present, shaped and plainly disabled — a voice control that
    looks live but is not would be the exact dishonesty this surface avoids. */
 .renMic {
+  composes: nn-liquid from global;
   display: grid;
   place-items: center;
   flex: none;
   width: 34px;
   height: 34px;
-  border: 1px solid var(--border-normal);
+
   border-radius: var(--radius-full);
-  background: transparent;
+
   color: var(--text-muted);
   cursor: not-allowed;
 }
@@ -784,12 +786,13 @@
 }
 
 .reset {
+  composes: nn-liquid from global;
   width: 100%;
   padding: var(--space-4);
   margin-top: var(--space-8);
-  border: 1px solid var(--border-normal);
+
   border-radius: var(--radius-xs);
-  background: transparent;
+
   color: var(--text-secondary);
   font-size: var(--text-caption-size);
   cursor: pointer;
@@ -1106,7 +1109,9 @@
 .headingAction { gap: var(--space-4); flex-wrap: wrap; }
 .viewControls { display: inline-flex; align-items: center; gap: 8px; padding: 3px; border: 1px solid rgb(210 231 255 / 24%); border-radius: 999px; background: rgb(8 20 45 / 34%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), 0 3px 8px rgb(0 0 0 / 14%); }
 .viewControls > span { min-width: 42px; text-align: center; color: var(--text-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
-.viewArrow { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid rgb(210 231 255 / 26%); border-radius: 50%; background: linear-gradient(145deg,rgb(255 255 255 / 18%),rgb(91 145 220 / 12%)); color: var(--text-primary); font-size: 17px; line-height: 1; cursor: pointer; box-shadow: inset 0 1px 0 rgb(255 255 255 / 32%), 0 2px 0 rgb(3 10 27 / 52%); transition: transform 160ms ease, opacity 160ms ease, border-color 160ms ease; }
+.viewArrow {
+  composes: nn-liquid from global;
+ display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid rgb(210 231 255 / 26%); border-radius: 50%; background: linear-gradient(145deg,rgb(255 255 255 / 18%),rgb(91 145 220 / 12%)); color: var(--text-primary); font-size: 17px; line-height: 1; cursor: pointer; box-shadow: inset 0 1px 0 rgb(255 255 255 / 32%), 0 2px 0 rgb(3 10 27 / 52%); transition: transform 160ms ease, opacity 160ms ease, border-color 160ms ease; }
 .viewArrow:hover:not(:disabled) { transform: translateY(-1px); border-color: rgb(170 220 255 / 68%); }
 .viewArrow:active:not(:disabled) { transform: translateY(1px) scale(.96); }
 .viewArrow:disabled { opacity: .28; cursor: not-allowed; }
@@ -1119,12 +1124,9 @@
 .stage{display:block;align-items:stretch;gap:0}
 .main{width:100%;min-width:0}
 .panel,.focus,.nextUp,.goals,.stats,.kindList,.chartWrap,.material,.notifications,.toast,.ren,.launcher{
-  border:1px solid color-mix(in srgb,var(--gw-tint,#c2deff) calc(var(--gw-edge,.6)*54%),rgb(210 231 255 / 24%));
+
   border-radius:19px;
-  background:
-    linear-gradient(142deg,rgb(255 255 255 / 16%),transparent 36%,rgb(var(--nn-spectrum-violet) / 5%)),
-    linear-gradient(320deg,color-mix(in srgb,var(--surface-raised) calc(var(--gw-opacity,.42)*100%),transparent),color-mix(in srgb,var(--surface-elevated) calc(var(--gw-opacity,.42)*100%),transparent));
-  box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 44%),inset 1px 0 0 rgb(255 255 255 / 10%),inset 0 -2px 0 rgb(0 0 0 / 24%),0 1px 0 rgb(190 220 255 / 22%),0 3px 0 rgb(3 10 27 / 62%),0 12px 24px rgb(0 0 0 / 22%),0 26px 48px rgb(0 0 0 / 18%);
+
 }
 .entry{border-top-color:rgb(197 221 255 / 13%)}
 .entryIcon,.goalIcon,.nextIcon,.renBadge,.iconButton,.avatar{

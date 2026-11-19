@@ -129,14 +129,15 @@
 /* ------------------------------------------------------------------- form -- */
 
 .add {
+  composes: nn-liquid from global;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 18px;
   padding: 10px 16px;
-  border: 1px solid var(--border-normal);
+
   border-radius: var(--radius-full);
-  background: rgb(232 244 255 / 7%);
+
   color: var(--text-primary);
   font: inherit;
   font-size: var(--text-label-size);
@@ -250,15 +251,16 @@
 .rows li[data-done] { opacity: 0.66; }
 
 .tick {
+  composes: nn-liquid from global;
   flex: none;
   display: grid;
   place-items: center;
   width: 22px;
   height: 22px;
   margin-top: 1px;
-  border: 1.5px solid var(--border-strong);
+
   border-radius: var(--radius-xs);
-  background: none;
+
   color: var(--nn-icy);
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-standard);
@@ -294,14 +296,15 @@
 }
 
 .remove {
+  composes: nn-liquid from global;
   flex: none;
   display: grid;
   place-items: center;
   width: 26px;
   height: 26px;
-  border: 0;
+
   border-radius: var(--radius-full);
-  background: none;
+
   color: var(--text-muted);
   cursor: pointer;
 }
