@@ -29,6 +29,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   limit as fsLimit,
   onSnapshot,
   orderBy,
@@ -301,4 +302,99 @@ export function useRecordWriter(): RecordWriter {
       },
     };
   }, [uid]);
+}
+
+/* ------------------------------------------------------- reading once -- */
+
+/**
+ * One read, now, without a subscription.
+ *
+ * `useRecords` is a hook and a live subscription, which is right for a
+ * surface and useless to REN: REN needs to look something up in the middle
+ * of carrying out an instruction, from inside a callback, once. Calling a
+ * hook there is not possible, and holding a subscription open for a single
+ * question would leak one listener per request.
+ *
+ * Faults are returned rather than thrown, for the same reason they are in
+ * `useRecords`: REN has to say what went wrong in a sentence, and an
+ * exception thrown mid-answer looks to the founder like REN stopped talking.
+ */
+export async function readRecordsOnce<T extends NNRecord = NNRecord>(
+  uid: string | undefined,
+  name: string,
+  spec: RecordQuery = {},
+): Promise<{ items: readonly T[]; fault: RecordFault | null }> {
+  if (!firebaseAvailable()) {
+    return {
+      items: [],
+      fault: {
+        kind: "unconfigured",
+        message: "This environment has no Firebase configuration, so nothing was loaded.",
+      },
+    };
+  }
+  if (!uid) {
+    return { items: [], fault: { kind: "signed-out", message: "Sign in to read your records." } };
+  }
+  try {
+    const ref = collection(getFirebase().db, paths.collection(uid, name));
+    const snapshot = await getDocs(query(ref, ...constraintsFor(spec)));
+    const items = snapshot.docs
+      .map((document) => ({ id: document.id, ...document.data() }) as T)
+      .filter((item) => spec.includeDeleted === true || item["deletedAt"] == null);
+    return { items, fault: null };
+  } catch (error) {
+    return { items: [], fault: describe(error) };
+  }
+}
+
+/**
+ * Which record the founder meant.
+ *
+ * REN is told "mark the bank task as done", not a document id, so something
+ * has to turn a phrase into one record. The rules are deliberately strict
+ * about ambiguity: an exact title wins, then a title that contains the whole
+ * phrase, and **a tie is not resolved**. Guessing between two records when
+ * the next step is a delete is how an assistant destroys something the
+ * founder cared about, and "which one?" costs a sentence.
+ */
+export type RecordMatch<T extends NNRecord = NNRecord> =
+  | { kind: "one"; record: T }
+  | { kind: "none" }
+  | { kind: "many"; titles: readonly string[] };
+
+export function matchRecordByTitle<T extends NNRecord = NNRecord>(
+  items: readonly T[],
+  phrase: string,
+): RecordMatch<T> {
+  const wanted = phrase.trim().toLowerCase();
+  if (wanted.length === 0) return { kind: "none" };
+
+  const titleOf = (item: T): string =>
+    String(item["title"] ?? item["name"] ?? item["text"] ?? "").trim();
+
+  const scored = items
+    .map((item) => {
+      const title = titleOf(item).toLowerCase();
+      if (title.length === 0) return { item, score: 0 };
+      if (title === wanted) return { item, score: 3 };
+      if (title.includes(wanted)) return { item, score: 2 };
+      // Every word of the phrase appears somewhere in the title.
+      const words = wanted.split(/\s+/).filter(Boolean);
+      if (words.length > 1 && words.every((word) => title.includes(word))) {
+        return { item, score: 1 };
+      }
+      return { item, score: 0 };
+    })
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (scored.length === 0) return { kind: "none" };
+
+  const best = scored[0]!.score;
+  const leaders = scored.filter((entry) => entry.score === best);
+  if (leaders.length > 1) {
+    return { kind: "many", titles: leaders.slice(0, 5).map((entry) => titleOf(entry.item)) };
+  }
+  return { kind: "one", record: leaders[0]!.item };
 }

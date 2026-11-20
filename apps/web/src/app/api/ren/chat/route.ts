@@ -65,7 +65,8 @@ export async function POST(request: NextRequest): Promise<Response> {
       {
         error:
           "No model provider is configured on this deployment, so REN has no language yet. " +
-          "Add ANTHROPIC_API_KEY, OPENAI_API_KEY or GOOGLE_API_KEY to NN's environment.",
+          "Add GOOGLE_API_KEY, ANTHROPIC_API_KEY or OPENAI_API_KEY to NN's environment. "
+          + "A Gemini key from aistudio.google.com/apikey is free and needs no card.",
       },
       { status: 503 },
     );

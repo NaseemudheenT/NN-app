@@ -3,7 +3,7 @@
 import { useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
-import { useRecordWriter } from "@/lib/nn/records";
+import { matchRecordByTitle, readRecordsOnce, useRecordWriter } from "@/lib/nn/records";
 import { passkeysSupported, signInWithPasskey, useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
 import { routeFor, sectionName, needsReauthentication, type RenPlan } from "./capabilities";
@@ -76,6 +76,52 @@ export function useRenOperator(): RenOperator {
    * and NN receives only the assertion. Nothing else in NN is allowed to
    * assert that the founder approved something.
    */
+  /**
+   * Turns "the bank task" into a record, or says why it cannot.
+   *
+   * REN is given a phrase, never a document id, so this is the step between
+   * being told and being able to act. It refuses an ambiguous match rather
+   * than picking: the next thing that happens to this record may be a
+   * delete, and asking "which one?" costs a sentence where guessing costs
+   * the founder something they wrote.
+   */
+  const resolve = useCallback(async (
+    collectionName: string,
+    knownId: string | undefined,
+    phrase: string | undefined,
+  ): Promise<
+    { ok: true; id: string; title: string } | { ok: false; outcome: RenOutcome }
+  > => {
+    if (knownId) return { ok: true, id: knownId, title: phrase ?? "it" };
+    if (!phrase) {
+      return { ok: false, outcome: { ok: false, said: "I am not sure which record you mean." } };
+    }
+
+    const { items, fault } = await readRecordsOnce(user?.uid, collectionName, { limit: 200 });
+    if (fault !== null) return { ok: false, outcome: { ok: false, said: fault.message } };
+
+    const match = matchRecordByTitle(items, phrase);
+    if (match.kind === "none") {
+      return {
+        ok: false,
+        outcome: { ok: false, said: `I could not find anything called "${phrase}".` },
+      };
+    }
+    if (match.kind === "many") {
+      return {
+        ok: false,
+        outcome: {
+          ok: false,
+          said: `More than one of those matches: ${match.titles.join(", ")}. Which one?`,
+        },
+      };
+    }
+    const title = String(
+      match.record["title"] ?? match.record["name"] ?? match.record["text"] ?? phrase,
+    );
+    return { ok: true, id: match.record.id, title };
+  }, [user?.uid]);
+
   const proveItIsYou = useCallback(async (): Promise<RenOutcome | null> => {
     if (!passkeysSupported()) {
       return {
@@ -145,23 +191,27 @@ export function useRenOperator(): RenOperator {
       }
 
       case "complete": {
-        const { collection, recordId, title } = plan.args;
-        if (!collection || !recordId) return { ok: false, said: "I am not sure which record you mean." };
+        const { collection, title } = plan.args;
+        if (!collection) return { ok: false, said: "I am not sure where that record lives." };
+        const found = await resolve(collection, plan.args.recordId, title);
+        if (!found.ok) return found.outcome;
         try {
-          await writer.update(collection, recordId, { done: true });
-          return { ok: true, said: `Marked "${title ?? "it"}" as done.` };
+          await writer.update(collection, found.id, { done: true, completedAt: new Date().toISOString() });
+          return { ok: true, said: `Marked "${found.title}" as done.` };
         } catch (error) {
           return { ok: false, said: `I could not change it. ${describe(error)}` };
         }
       }
 
       case "discard": {
-        const { collection, recordId, title } = plan.args;
-        if (!collection || !recordId) return { ok: false, said: "I am not sure which record you mean." };
+        const { collection, title } = plan.args;
+        if (!collection) return { ok: false, said: "I am not sure where that record lives." };
+        const found = await resolve(collection, plan.args.recordId, title);
+        if (!found.ok) return found.outcome;
         try {
           // Soft delete. It goes to the trash, where you can take it back.
-          await writer.remove(collection, recordId);
-          return { ok: true, said: `Moved "${title ?? "it"}" to the trash. It can be restored.` };
+          await writer.remove(collection, found.id);
+          return { ok: true, said: `Moved "${found.title}" to the trash. It can be restored.` };
         } catch (error) {
           return { ok: false, said: `I could not delete it. ${describe(error)}` };
         }
@@ -191,7 +241,7 @@ export function useRenOperator(): RenOperator {
       default:
         return { ok: false, said: "I do not know how to do that." };
     }
-  }, [arrive, proveItIsYou, setTheme, user, writer]);
+  }, [arrive, proveItIsYou, resolve, setTheme, user, writer]);
 
   return { run, ready: Boolean(user) && writer.ready };
 }

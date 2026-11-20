@@ -262,8 +262,9 @@ export function RenConsole() {
             founder's brief refuses most explicitly. */}
         <p className={styles.honest}>
           No language model is connected, so I cannot hold a conversation yet.
-          I can open applications, capture records, search them and change how
-          NN looks — and I will tell you when I have not understood.
+          I can open applications, add records, mark them done, delete them,
+          search everything you have kept, and change how NN looks — and I
+          will tell you when I have not understood.
         </p>
       </div>
 

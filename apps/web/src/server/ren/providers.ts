@@ -64,6 +64,8 @@ interface Provider {
   label: string;
   /** The env var holding this provider's key. Its *name*, never its value. */
   keyVar: string;
+  /** Other names the same key is commonly set under. */
+  keyAliases?: readonly string[];
   modelVar: string;
   defaultModel: string;
   ask: (key: string, model: string, options: AskOptions) => Promise<Response>;
@@ -250,6 +252,14 @@ const google: Provider = {
   id: "google",
   label: "Gemini",
   keyVar: "GOOGLE_API_KEY",
+  /*
+   * Google's own documentation uses GEMINI_API_KEY in some places and
+   * GOOGLE_API_KEY in others, and NN's own `.env.example` shipped
+   * GOOGLE_AI_API_KEY — so the founder had three plausible names and only
+   * one of them worked, silently. A key pasted into any of them is the same
+   * key; refusing two of the three teaches nothing and costs an evening.
+   */
+  keyAliases: ["GOOGLE_AI_API_KEY", "GEMINI_API_KEY"],
   modelVar: "GOOGLE_MODEL",
   defaultModel: "gemini-2.0-flash",
   ask: (key, model, options) =>
@@ -369,11 +379,27 @@ export interface Available {
  * is *almost* right. The sign-in screen learned the same lesson: a caller may
  * know that a capability exists, never anything about the secret behind it.
  */
+
+/**
+ * The key for a provider, under whichever name it was set.
+ *
+ * Returns the trimmed value, or null when nothing usable is configured. The
+ * length floor catches the placeholder case — an empty string, a stray
+ * "todo" — which otherwise produces a confident request and a 401.
+ */
+function keyFor(provider: Provider, env: Env): string | null {
+  for (const name of [provider.keyVar, ...(provider.keyAliases ?? [])]) {
+    const value = env[name];
+    if (typeof value === "string" && value.trim().length >= 8) return value.trim();
+  }
+  return null;
+}
+
 export function availableProviders(env: Env = process.env): Available[] {
   const out: Available[] = [];
   for (const provider of PROVIDERS) {
-    const key = env[provider.keyVar];
-    if (typeof key !== "string" || key.trim().length < 8) continue;
+    const key = keyFor(provider, env);
+    if (key === null) continue;
     out.push({
       id: provider.id,
       label: provider.label,
@@ -404,8 +430,8 @@ export async function* ask(
     yield { type: "error", message: "No such model provider." };
     return;
   }
-  const key = env[provider.keyVar];
-  if (typeof key !== "string" || key.trim().length < 8) {
+  const key = keyFor(provider, env);
+  if (key === null) {
     yield { type: "error", message: `${provider.label} is not configured on this deployment.` };
     return;
   }

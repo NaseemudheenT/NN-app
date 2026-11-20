@@ -89,6 +89,34 @@ export const REN_TOOLS: readonly RenTool[] = [
     schema: object({}),
   },
   {
+    name: "complete_record",
+    description:
+      "Mark one of the founder's records as done — a task, a reminder, a goal. Identify it by " +
+      "the words the founder used; NN resolves those to a record and refuses if more than one " +
+      "matches. NN asks the founder to confirm before this is written.",
+    schema: object(
+      {
+        collection: { type: "string", enum: COLLECTIONS, description: "Where the record lives." },
+        title: { type: "string", description: "The record, in the founder's own words." },
+      },
+      ["collection", "title"],
+    ),
+  },
+  {
+    name: "discard_record",
+    description:
+      "Move one of the founder's records to the trash, where it can be restored. Identify it by " +
+      "the words the founder used. This is a sensitive action: NN asks the device to prove the " +
+      "founder is present before it runs.",
+    schema: object(
+      {
+        collection: { type: "string", enum: COLLECTIONS, description: "Where the record lives." },
+        title: { type: "string", description: "The record, in the founder's own words." },
+      },
+      ["collection", "title"],
+    ),
+  },
+  {
     name: "set_appearance",
     description: "Change how NN looks: dark, light, or follow the founder's device.",
     schema: object(
@@ -109,6 +137,8 @@ const CAPABILITY_OF: Readonly<Record<string, CapabilityId>> = {
   open_application: "open",
   capture_record: "capture",
   search_records: "find",
+  complete_record: "complete",
+  discard_record: "discard",
   report_state: "report",
   set_appearance: "appearance",
 };
@@ -143,6 +173,15 @@ export function planFromToolCall(
       return { ok: false, why: `NN has no application with the id "${appId ?? ""}".` };
     }
     resolved.appId = appId;
+  }
+
+  if (capability === "complete" || capability === "discard") {
+    if (!collection || !COLLECTIONS.includes(collection)) {
+      return { ok: false, why: `Nothing in NN stores "${collection ?? ""}".` };
+    }
+    if (!title) return { ok: false, why: "NN needs to know which record you mean." };
+    resolved.collection = collection;
+    resolved.title = title;
   }
 
   if (capability === "capture") {

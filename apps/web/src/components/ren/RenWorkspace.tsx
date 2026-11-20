@@ -206,10 +206,23 @@ export function RenWorkspace() {
                     variables rather than companies: this is a deployment step,
                     not REN's identity. */}
                 <p>
-                  <strong>To connect it:</strong> set <code>ANTHROPIC_API_KEY</code>,{" "}
-                  <code>OPENAI_API_KEY</code> or <code>GOOGLE_API_KEY</code> in NN&apos;s
+                  <strong>To connect it:</strong> set <code>GOOGLE_API_KEY</code>,{" "}
+                  <code>ANTHROPIC_API_KEY</code> or <code>OPENAI_API_KEY</code> in NN&apos;s
                   environment and redeploy. The key is read on the server only — it never reaches
                   this page, and it is never logged.
+                </p>
+                {/* Named because "add an API key" is not actionable advice to
+                    someone who has decided not to spend money on this. Google
+                    AI Studio issues a Gemini key on a free tier with no card,
+                    which is enough for one person's assistant. */}
+                <p>
+                  <strong>Free option:</strong> a Gemini key from{" "}
+                  <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+                    aistudio.google.com/apikey
+                  </a>{" "}
+                  costs nothing and needs no card. NN accepts it under{" "}
+                  <code>GOOGLE_API_KEY</code>, <code>GEMINI_API_KEY</code> or{" "}
+                  <code>GOOGLE_AI_API_KEY</code> — whichever you paste it into.
                 </p>
               </div>
             )}

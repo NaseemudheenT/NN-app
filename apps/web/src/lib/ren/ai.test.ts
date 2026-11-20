@@ -4,6 +4,7 @@ import { REN_TOOLS, planFromToolCall } from "./tools";
 import { availableProviders } from "@/server/ren/providers";
 import { systemPrompt } from "@/server/ren/prompt";
 import { APPLICATIONS } from "@/lib/apps/registry";
+import { CAPABILITIES } from "./capabilities";
 
 describe("REN's Markdown", () => {
   it("keeps a fenced block whole, with its language", () => {
@@ -61,9 +62,43 @@ describe("REN's Markdown", () => {
 
 describe("REN's tools", () => {
   it("offers only capabilities NN can actually run", () => {
-    expect(REN_TOOLS.map((t) => t.name).sort()).toEqual([
-      "capture_record", "open_application", "report_state", "search_records", "set_appearance",
-    ]);
+    // Every tool resolves to a real plan. A name here that NN cannot run is a
+    // model confidently reaching for a hand that is not there.
+    for (const tool of REN_TOOLS) {
+      const required = (tool.schema["required"] as string[]) ?? [];
+      const args: Record<string, unknown> = {};
+      // Fill each required argument with the first value the schema allows,
+      // so the call is well-formed and only the *name* is under test.
+      const properties = tool.schema["properties"] as Record<string, { enum?: string[] }>;
+      for (const key of required) {
+        const choices = properties[key]?.enum;
+        args[key] = choices ? choices[0] : "something";
+      }
+      const result = planFromToolCall(tool.name, args);
+      expect(result.ok, `${tool.name} is offered but does not resolve to a plan`).toBe(true);
+    }
+  });
+
+  it("offers every capability NN can run, so none is unreachable", () => {
+    // The inverse, and the one that was failing silently: `complete` and
+    // `discard` were implemented, confirmed and executed — and exposed
+    // nowhere, so no model could ever call them. A capability with no tool
+    // is dead code that looks like a feature.
+    const reachable = new Set(
+      REN_TOOLS.flatMap((tool) => {
+        const properties = tool.schema["properties"] as Record<string, { enum?: string[] }>;
+        const args: Record<string, unknown> = {};
+        for (const key of (tool.schema["required"] as string[]) ?? []) {
+          const choices = properties[key]?.enum;
+          args[key] = choices ? choices[0] : "something";
+        }
+        const result = planFromToolCall(tool.name, args);
+        return result.ok ? [result.plan.capability] : [];
+      }),
+    );
+    for (const id of Object.keys(CAPABILITIES)) {
+      expect(reachable.has(id as never), `no tool reaches the "${id}" capability`).toBe(true);
+    }
   });
 
   it("names every real application, so a model cannot invent a destination", () => {
@@ -126,6 +161,22 @@ describe("REN's model gateway", () => {
     });
     expect(found).toEqual([{ id: "anthropic", label: "Claude", model: "claude-opus-5" }]);
     expect(JSON.stringify(found)).not.toContain("sk-ant");
+  });
+
+  it("takes the Gemini key under any of the names Google uses for it", () => {
+    // Google's docs say GEMINI_API_KEY in some places and GOOGLE_API_KEY in
+    // others, and NN's own .env.example shipped GOOGLE_AI_API_KEY. Three
+    // plausible names, one of which worked, and no error from the other two
+    // — just a REN that stayed dead.
+    for (const name of ["GOOGLE_API_KEY", "GOOGLE_AI_API_KEY", "GEMINI_API_KEY"]) {
+      const found = availableProviders({ [name]: "AIza-not-a-real-key-000000" });
+      expect(found.map((p) => p.id), name).toEqual(["google"]);
+    }
+  });
+
+  it("still ignores a placeholder set under an alias", () => {
+    expect(availableProviders({ GOOGLE_AI_API_KEY: "todo" })).toEqual([]);
+    expect(availableProviders({ GEMINI_API_KEY: "   " })).toEqual([]);
   });
 
   it("lets the deployment choose the model without a code change", () => {

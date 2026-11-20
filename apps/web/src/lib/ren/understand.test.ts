@@ -126,3 +126,67 @@ describe("what REN will not pretend", () => {
     }
   });
 });
+
+/* -------------------------------------------- completing and discarding -- */
+
+describe("finishing and removing things", () => {
+  /**
+   * `complete` and `discard` were implemented, confirmed, executed — and
+   * unreachable. No tool exposed them to a model and no phrase reached them
+   * from speech, so two of REN's seven capabilities were dead code that
+   * looked like features. These are the words a founder would actually use.
+   */
+
+  it("marks something as done", () => {
+    const result = understand("mark the bank task as done");
+    expect(result.kind).toBe("plan");
+    if (result.kind !== "plan") return;
+    expect(result.plan.capability).toBe("complete");
+    // The article and the trailing "as done" are grammar, not the title.
+    // Capitalised by `titleFrom`; the resolver lowercases both sides, so the
+    // case here is presentation, not matching.
+    expect(result.plan.args.title).toBe("Bank");
+  });
+
+  it("takes the other ways of saying it", () => {
+    for (const phrase of ["complete the bank task", "finish the bank task", "tick off the bank task"]) {
+      const result = understand(phrase);
+      expect(result.kind, phrase).toBe("plan");
+      if (result.kind === "plan") expect(result.plan.capability, phrase).toBe("complete");
+    }
+  });
+
+  it("deletes something, and calls it sensitive", () => {
+    const result = understand("delete the bank task");
+    expect(result.kind).toBe("plan");
+    if (result.kind !== "plan") return;
+    expect(result.plan.capability).toBe("discard");
+    // A delete is re-authenticated by the device, not merely confirmed.
+    expect(result.plan.consequence).toBe("sensitive");
+  });
+
+  it("takes the other ways of saying that too", () => {
+    for (const phrase of ["remove the bank task", "get rid of the bank task", "throw away the bank task"]) {
+      const result = understand(phrase);
+      expect(result.kind, phrase).toBe("plan");
+      if (result.kind === "plan") expect(result.plan.capability, phrase).toBe("discard");
+    }
+  });
+
+  it("asks which one rather than guessing when nothing is named", () => {
+    const result = understand("delete");
+    expect(result.kind).toBe("question");
+  });
+
+  it("assumes tasks, because that is what this is nearly always about", () => {
+    const result = understand("complete call the bank");
+    if (result.kind !== "plan") throw new Error("expected a plan");
+    expect(result.plan.args.collection).toBe("tasks");
+  });
+
+  it("still adds a note rather than reading 'note' as something to finish", () => {
+    // "note" is both a capture verb and a word for the thing being completed.
+    const result = understand("note buy milk");
+    if (result.kind === "plan") expect(result.plan.capability).toBe("capture");
+  });
+});

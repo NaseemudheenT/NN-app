@@ -48,6 +48,24 @@ function after(text: string, verbs: readonly string[]): string | null {
 const OPEN_VERBS = ["open", "go to", "take me to", "show me", "show", "launch", "switch to"];
 const ADD_VERBS = ["add", "capture", "note", "remember", "create", "new", "jot", "log", "record"];
 const FIND_VERBS = ["find", "search", "search for", "look for", "where is", "do i have"];
+const DONE_VERBS = ["complete", "finish", "tick off", "check off", "mark"];
+const DELETE_VERBS = ["delete", "remove", "discard", "throw away", "bin", "trash", "get rid of"];
+
+/**
+ * Strips the grammar around a record's name.
+ *
+ * The founder says "mark the bank task as done", not "complete bank". The
+ * leading article and the trailing "as done" are grammar, not title, and
+ * leaving them in means the resolver looks for a record literally called
+ * "the bank task as done" and finds nothing.
+ */
+function recordPhrase(rest: string): string {
+  return rest
+    .replace(/^(the|my|that|this|a|an)\s+/i, "")
+    .replace(/\s+(as\s+)?(done|complete|completed|finished)\s*$/i, "")
+    .replace(/\s+(task|note|reminder|goal|event|item|record)\s*$/i, "")
+    .trim();
+}
 
 /** Phrases that name an appearance rather than a destination. */
 const APPEARANCE: ReadonlyArray<[RegExp, NonNullable<CapabilityArgs["appearance"]>]> = [
@@ -74,6 +92,43 @@ export function understand(raw: string): Understanding {
 
   /* ---- report ---------------------------------------------------------- */
   if (REPORT.test(text)) return { kind: "plan", plan: plan("report", {}) };
+
+  /* ---- complete and delete ----------------------------------------------
+     Before capture, because "mark the bank task as done" starts with a verb
+     capture does not claim but "note" and "record" both appear in the words
+     a founder uses for the thing being completed. */
+  for (const [verbs, capability] of [
+    [DONE_VERBS, "complete"], [DELETE_VERBS, "discard"],
+  ] as const) {
+    const rest = after(text, verbs);
+    if (rest === null) continue;
+    if (!rest) {
+      return {
+        kind: "question",
+        ask: capability === "complete" ? "Which one should I mark as done?" : "Which one should I delete?",
+        hint: "Name it the way you wrote it — \u201cthe bank task\u201d.",
+      };
+    }
+    const destination = resolveDestination(rest);
+    const phrase = recordPhrase(titleFrom(rest, destination?.label ?? null) || rest);
+    if (!phrase) {
+      return {
+        kind: "question",
+        ask: capability === "complete" ? "Which one should I mark as done?" : "Which one should I delete?",
+      };
+    }
+    // Tasks are what this is nearly always about, and naming the collection
+    // is the one thing the founder should not have to do.
+    const collection = destination?.collection ?? "tasks";
+    return {
+      kind: "plan",
+      plan: plan(capability, {
+        collection,
+        title: phrase,
+        ...(destination?.appId !== undefined ? { appId: destination.appId } : {}),
+      }),
+    };
+  }
 
   /* ---- capture --------------------------------------------------------- */
   const captured = after(text, ADD_VERBS);
