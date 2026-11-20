@@ -183,3 +183,38 @@
 :root[data-motion="reduced"] .enter[data-busy] .enterScan {
   animation: none;
 }
+
+
+/* ---- the phone -------------------------------------------------------------
+   The welcome screen is the first thing NN shows and the phone is where it is
+   actually opened, so it is sized for the phone first rather than scaled down
+   from a desktop card. The card stops being a floating panel and becomes the
+   screen: full width inside a comfortable margin, the mark small enough to
+   leave both doors above the fold, and the controls big enough to hit without
+   looking. */
+@media (max-width: 520px) {
+  .page { padding: 0 18px; align-content: center; }
+
+  .card {
+    width: 100%;
+    gap: var(--space-5);
+    padding: clamp(26px, 7vw, 34px) clamp(20px, 5vw, 26px);
+    border-radius: var(--radius-xl);
+  }
+
+  /* The mark keeps its presence without taking the screen. */
+  .mark > * { min-height: 148px; }
+
+  /* 52px: a comfortable thumb target, and the same height for both doors so
+     neither reads as the afterthought. */
+  .enter, .guestButton { min-height: 52px; width: 100%; }
+
+  .secret { width: 100%; }
+}
+
+/* Very short phones — a small iPhone in landscape, or a phone with the
+   keyboard up while the password field has focus. */
+@media (max-height: 620px) {
+  .mark > * { min-height: 96px; }
+  .card { gap: var(--space-4); padding-block: 22px; }
+}

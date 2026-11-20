@@ -14,6 +14,7 @@ import { useAuth } from "@/lib/auth";
 import { firebaseAvailable, getFirebase } from "@/lib/firebase";
 import { useClock } from "@/lib/clock";
 import styles from "./NNLife.module.css";
+import { ownerFirstName } from "@/lib/nn/owner";
 
 type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals";
 type RecordData = Record<string, unknown> & { id: string };
@@ -243,7 +244,7 @@ function LifeSurface() {
     void save(() => updateDoc(doc(getFirebase().db, "users", uid, "tasks", item.id), { status: nextStatus, updatedAt: serverTimestamp() }), nextStatus === "done" ? "Task completed." : "Task reopened.");
   };
 
-  const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
+  const firstName = ownerFirstName(user?.displayName);
   // "Welcome back" until the browser says what time it is there — which is
   // also what the server renders, so the two always agree on first paint.
   const hour = clock === null ? null : new Date(clock).getHours();

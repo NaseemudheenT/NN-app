@@ -1173,3 +1173,23 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal { animation: none; }
 }
+
+/* ---- the stat cards, which have a back ------------------------------------
+   Both faces of a flip card are positioned out of flow, so the panel inside
+   each one has to fill its face rather than size itself — and the scene needs
+   a height of its own, which the invisible in-flow sizer gives it. */
+.statFlip { min-height: 132px; }
+
+.statFace {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.statDetail {
+  display: block;
+  font-size: var(--text-caption-size);
+  line-height: 1.45;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}

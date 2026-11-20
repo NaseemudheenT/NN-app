@@ -16,6 +16,8 @@ import { APPLICATIONS } from "@/lib/apps/registry";
 import { useRecords, type RecordFault, type RecordState } from "@/lib/nn/records";
 import { relativeTime, useClock } from "@/lib/clock";
 import styles from "./NNDashboard.module.css";
+import { ownerFirstName as _of } from "@/lib/nn/owner";
+const OWNER_FIRST = _of(null);
 
 /**
  * NN's dashboard.
@@ -505,7 +507,7 @@ export interface NNDashboardProps {
 }
 
 export function NNDashboard({
-  firstName = "Founder",
+  firstName = OWNER_FIRST,
   initialView = "today",
 }: NNDashboardProps) {
   // Settings is not somewhere you travel to — it is the panel behind the

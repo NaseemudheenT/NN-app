@@ -3,6 +3,7 @@
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { NNDashboard } from "@/components/nn/NNDashboard";
 import { useAuth } from "@/lib/auth";
+import { ownerFirstName } from "@/lib/nn/owner";
 
 /**
  * Home is NN's dashboard.
@@ -15,7 +16,7 @@ import { useAuth } from "@/lib/auth";
  */
 function HomeSurface() {
   const { user } = useAuth();
-  const firstName = user?.displayName?.trim().split(/\s+/)[0] || "Founder";
+  const firstName = ownerFirstName(user?.displayName);
 
   // Signing out lives in Settings, with everything else about this session.
   return (
@@ -34,7 +35,7 @@ function HomeSurface() {
  * founder's.
  */
 export function NNHomePreview() {
-  return <NNDashboard firstName="Founder" />;
+  return <NNDashboard firstName={ownerFirstName(null)} />;
 }
 
 export default function NNHome() {

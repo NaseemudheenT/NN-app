@@ -18,6 +18,9 @@ import {
   type WorkspacePeriod,
 } from "./workspaceContent";
 import styles from "./NNWorkspace.module.css";
+import { ownerFirstName as _of } from "@/lib/nn/owner";
+import { FlipCard, FlipLift } from "@/components/ui/FlipCard";
+const OWNER_FIRST = _of(null);
 
 /**
  * The NN workspace.
@@ -115,7 +118,7 @@ export interface NNWorkspaceProps {
 }
 
 export function NNWorkspace({
-  userName = "Founder",
+  userName = OWNER_FIRST,
   ownerUid,
   periodLabel = "November 2026",
   initialPeriodId = "month",
@@ -830,20 +833,64 @@ export function NNWorkspace({
                 <>
                   <div className={[styles.stats, styles.reveal].join(" ")} style={{ "--i": 0 } as CSSProperties}>
                     {[
-                      { label: "Spent", value: studied, icon: "clock" as const },
-                      { label: "Planned", value: planned, icon: "calendar" as const },
-                      { label: "Difference", value: Math.abs(studied - planned), icon: "graph" as const },
+                      {
+                        label: "Spent", value: studied, icon: "clock" as const,
+                        detail: planned === 0
+                          ? "Nothing was planned for this period, so there is nothing to measure this against."
+                          : `${Math.round((studied / planned) * 100)}% of the ${formatMinutes(planned)} you planned.`,
+                      },
+                      {
+                        label: "Planned", value: planned, icon: "calendar" as const,
+                        detail: planned === 0
+                          ? "No plan has been set for this period yet."
+                          : `${formatMinutes(studied)} of it is spent. ${formatMinutes(Math.max(0, planned - studied))} remains.`,
+                      },
+                      {
+                        label: "Difference", value: Math.abs(studied - planned), icon: "graph" as const,
+                        detail: studied === planned
+                          ? "Exactly on plan."
+                          : studied > planned
+                            ? `${formatMinutes(studied - planned)} more than planned.`
+                            : `${formatMinutes(planned - studied)} short of the plan.`,
+                      },
                     ].map((stat) => (
-                      <section className={[styles.panel, "nn-glass-card"].join(" ")} key={stat.label}>
-                        <div className={styles.panelTitle}>
-                          <span>{stat.label}</span>
-                          <Icon name={stat.icon} size={17} />
-                        </div>
-                        <strong>{formatMinutes(stat.value)}</strong>
-                        <span className={styles.statPeriod}>
-                          {selectedPeriod?.label ?? "No period data"}
-                        </span>
-                      </section>
+                      /* A card with a back, not a card with a hover effect.
+                         The front is the number; the back is what the number
+                         means — derived from the same two figures, never
+                         invented, so turning it over can only ever show
+                         something true. */
+                      <FlipCard
+                        key={stat.label}
+                        label={stat.label}
+                        hint="What it means"
+                        className={styles.statFlip}
+                        front={
+                          <div className={[styles.panel, "nn-glass-card", styles.statFace].join(" ")}>
+                            <div className={styles.panelTitle}>
+                              <span>{stat.label}</span>
+                              <FlipLift depth={2}><Icon name={stat.icon} size={17} /></FlipLift>
+                            </div>
+                            <FlipLift depth={3}><strong>{formatMinutes(stat.value)}</strong></FlipLift>
+                            <span className={styles.statPeriod}>
+                              {selectedPeriod?.label ?? "No period data"}
+                            </span>
+                          </div>
+                        }
+                        back={
+                          <div className={[styles.panel, "nn-glass-card", styles.statFace].join(" ")}>
+                            <div className={styles.panelTitle}>
+                              <span>{stat.label}</span>
+                              <FlipLift depth={2}><Icon name={stat.icon} size={17} /></FlipLift>
+                            </div>
+                            <FlipLift depth={2}>
+                              <span className={styles.statDetail}>{stat.detail}</span>
+                            </FlipLift>
+                            <span className={styles.statPeriod}>
+                              {selectedPeriod?.label ?? "No period data"}
+                            </span>
+                          </div>
+                        }
+                      />
                     ))}
                   </div>
                   <div className={styles.reportsGrid}>

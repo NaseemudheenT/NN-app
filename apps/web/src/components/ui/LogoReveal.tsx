@@ -142,7 +142,21 @@ void main() {
     colour += u_light * spec * 0.85 * smoothstep(0.0, 0.35, u_reveal);
   }
 
-  outColor = vec4(colour, 1.0);
+  /*
+   * Coverage: how much of this pixel is the mark.
+   *
+   * Outside the glass there is nothing to draw and the card shows through.
+   * Inside, the body carries most of it and the rim carries the rest, so the
+   * edge stays soft instead of cutting a hard silhouette out of the card.
+   * Multiplied into the colour because the context is premultiplied — handing
+   * a premultiplied compositor straight colour is what makes an edge look
+   * like it has a dark halo around it.
+   */
+  // h is already sqrt(inside) * u_reveal, so multiplying the coverage by the
+  // reveal again squared it: the mark stayed invisible for most of its own
+  // arrival and then appeared almost at once near the end.
+  float cover = clamp(h * 2.6, 0.0, 1.0);
+  outColor = vec4(colour * cover, cover);
 }`;
 
 function compile(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader | null {
@@ -232,7 +246,16 @@ export function LogoReveal({
     const drop = () => { canvas.remove(); };
 
     const gl = canvas.getContext("webgl2", {
-      alpha: false,
+      /*
+       * The mark sits *in* the glass card, so the canvas has to composite
+       * with it. Without an alpha channel a canvas is an opaque tile: every
+       * pixel the shader leaves dark is a black hole punched through the
+       * card, and the one it punched was 290px of the phone's welcome
+       * screen. It also meant the reveal could never actually be a reveal —
+       * there was nothing for the mark to arrive *out of*.
+       */
+      alpha: true,
+      premultipliedAlpha: true,
       antialias: false,
       depth: false,
       stencil: false,
@@ -389,6 +412,10 @@ export function LogoReveal({
       const eased = 1 - Math.pow(1 - t, 5);
       gl.uniform1f(u.time, elapsed / 1000);
       gl.uniform1f(u.reveal, eased);
+      // Transparent, not black: the clear colour is what every pixel the
+      // mark does not cover ends up being.
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       if (t >= 1) announce();
     });

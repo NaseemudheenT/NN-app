@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { NNWorkspace } from "@/components/nn/NNWorkspace";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { useAuth } from "@/lib/auth";
+import { GUEST_NAME, ownerFirstName } from "@/lib/nn/owner";
 
 const TEMPORARY_GUEST_KEY = "nn.temporary-guest";
 
@@ -46,7 +47,7 @@ function WorkspaceInner() {
 
   return (
     <NNWorkspace
-      userName={isGuest ? "Guest Founder" : "Founder"}
+      userName={isGuest ? GUEST_NAME : ownerFirstName(null)}
       ownerUid={user?.uid}
       {...(isGuest
         ? { footerNote: "TEMPORARY GUEST PREVIEW · sample data only; no private account is signed in." }

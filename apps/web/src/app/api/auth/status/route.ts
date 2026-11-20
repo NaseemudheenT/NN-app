@@ -3,6 +3,7 @@ import { enforceRateLimit } from "@/server/auth/ratelimit";
 import { MIN_BOOTSTRAP_SECRET_LENGTH } from "@nn/auth";
 import { adminConfigured, AdminConfigError } from "@/server/admin";
 import { readOwner, recoveryConfigured } from "@/server/auth/store";
+import { defaultRecoveryConfigured } from "@/server/auth/default-owner";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,10 +54,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   /* Whether a password exists, never anything about it. The door needs to
      know which way in to offer; nobody needs to know more than that. */
-  const hasPassword = owner === null ? false : await recoveryConfigured();
+  const hasDefaultPassword = defaultRecoveryConfigured();
+  const hasPassword = owner === null
+    // Nothing has claimed NN, but it may still have been deployed knowing a
+    // password of its own — in which case the door is real and the screen
+    // should offer it.
+    ? hasDefaultPassword
+    : (await recoveryConfigured()) || hasDefaultPassword;
 
   return NextResponse.json({
-    claimed: owner !== null,
+    claimed: owner !== null || hasDefaultPassword,
     bootstrapReady: secret.length >= MIN_BOOTSTRAP_SECRET_LENGTH,
     configured: true,
     hasPassword,

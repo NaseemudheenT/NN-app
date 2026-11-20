@@ -7,6 +7,7 @@ import {
 } from "@nn/auth";
 import { callerUid } from "@/server/auth/session";
 import { FirestoreChallengeStore, listCredentials, readOwner } from "@/server/auth/store";
+import { OWNER_NAME } from "@/lib/nn/owner";
 
 // firebase-admin needs the Node runtime; it cannot run on the edge.
 export const runtime = "nodejs";
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const options = await buildRegistrationOptions(
     rp,
-    { id: targetUid, name: "founder", displayName: "Founder" },
+    { id: targetUid, name: "owner", displayName: OWNER_NAME },
     existing,
   );
 

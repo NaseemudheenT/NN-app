@@ -14,6 +14,7 @@ import {
 } from "@/lib/ren/conversation";
 import { useAuth } from "@/lib/auth";
 import styles from "./RenWorkspace.module.css";
+import { ownerFirstName } from "@/lib/nn/owner";
 
 /**
  * REN, full screen.
@@ -43,7 +44,7 @@ const OPENERS = [
 export function RenWorkspace() {
   const router = useRouter();
   const { user } = useAuth();
-  const firstName = user?.displayName?.trim().split(/\s+/)[0] ?? "Founder";
+  const firstName = ownerFirstName(user?.displayName);
   const ren = useRenConversation(firstName);
 
   const [draft, setDraft] = useState("");

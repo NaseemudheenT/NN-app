@@ -4,6 +4,7 @@ import { requireServerCredentials } from "@/server/auth/credentials";
 import { verifyRecoveryPassword } from "@nn/auth/recovery";
 import { getAdmin } from "@/server/admin";
 import { readOwner, readRecovery, recordSecurityEvent, writeRecovery } from "@/server/auth/store";
+import { defaultOwner, defaultRecoveryRecord } from "@/server/auth/default-owner";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,7 +48,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Expected a password." }, { status: 400 });
   }
 
-  const [owner, record] = await Promise.all([readOwner(), readRecovery()]);
+  /*
+   * Firestore first, configuration second.
+   *
+   * A stored record is the live credential — it is what the founder can
+   * change, and it is the only one that counts failures. But a password that
+   * *only* works when a particular document exists has a second, invisible
+   * dependency, and that dependency is what has locked the founder out
+   * before. So NN also knows a password of its own, and falls back to it
+   * when the database holds none.
+   */
+  const [storedOwner, storedRecord] = await Promise.all([readOwner(), readRecovery()]);
+  const owner = storedOwner ?? defaultOwner();
+  const record = storedRecord ?? defaultRecoveryRecord();
+  const fromConfig = storedRecord === null && record !== null;
 
   /* One answer for "no owner", "no recovery password set" and "wrong
      password". An anonymous caller must not be able to learn which of those
@@ -71,7 +85,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Written back whatever happened: the failure count and the lockout are
   // part of the credential, and a check that does not persist its own result
   // is one an attacker can replay for free.
-  await writeRecovery(verdict.record);
+  //
+  // Not written when the record came from configuration: storing it would
+  // quietly promote the deployed default into the live credential, so the
+  // founder could no longer change it by changing the configuration. The
+  // per-caller rate limit still applies to that path.
+  if (!fromConfig) await writeRecovery(verdict.record);
 
   if (!verdict.ok) {
     await recordSecurityEvent(owner.uid, "recovery_failed", {

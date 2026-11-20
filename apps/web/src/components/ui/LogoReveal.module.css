@@ -2,7 +2,9 @@
   position: relative;
   display: block;
   width: 100%;
-  min-height: calc(var(--reveal-size) * 2.2);
+  /* Room for the glass to spread around the mark. It was 2.2, which on a
+     phone reserved a third of the welcome screen for a 132px logo. */
+  min-height: calc(var(--reveal-size) * 1.55);
   isolation: isolate;
 }
 
