@@ -48,6 +48,57 @@ function after(text: string, verbs: readonly string[]): string | null {
 const OPEN_VERBS = ["open", "go to", "take me to", "show me", "show", "launch", "switch to"];
 const ADD_VERBS = ["add", "capture", "note", "remember", "create", "new", "jot", "log", "record"];
 const FIND_VERBS = ["find", "search", "search for", "look for", "where is", "do i have"];
+/**
+ * The verb says where it goes.
+ *
+ * "note buy milk" and "remember to buy milk" both name a destination — just
+ * not with a noun. Asking "where should this go?" after being told "note"
+ * is REN being pedantic at the founder's expense, and the evaluation suite
+ * scored it as the failure it is. Defaulting is safe here specifically
+ * because the plan is shown with its destination and waits for approval:
+ * the founder reads "Add \"Buy milk\" to Life · Notes" before anything is
+ * written, so a wrong guess costs a tap, not a misplaced record.
+ */
+const VERB_DESTINATION: Readonly<Record<string, string>> = {
+  note: "notes", jot: "notes",
+  remember: "tasks", capture: "tasks", log: "tasks",
+  record: "tasks", add: "tasks", create: "tasks", new: "tasks",
+};
+
+/**
+ * Words that stand in for a title without being one.
+ *
+ * "add something" is the founder saying they have not decided yet. Storing a
+ * record called "Something" is obedience without comprehension — REN would
+ * have done as it was told and produced nothing of use.
+ */
+const PLACEHOLDERS = new Set([
+  "something", "anything", "a thing", "stuff", "things",
+  "this", "that", "it", "one",
+]);
+
+function isPlaceholder(title: string): boolean {
+  return PLACEHOLDERS.has(title.trim().toLowerCase());
+}
+
+/** Which of `verbs` the text opened with, if any. */
+function verbUsed(text: string, verbs: readonly string[]): string | null {
+  for (const verb of verbs) {
+    if (text.startsWith(`${verb} `) || text === verb) return verb;
+  }
+  return null;
+}
+
+/**
+ * Drops the possessive a person naturally uses about their own things.
+ *
+ * "show me my files" names the Files application; the word "my" is the only
+ * reason it did not resolve.
+ */
+function withoutPossessive(text: string): string {
+  return text.replace(/^(my|our|the|a|an)\s+/i, "").trim();
+}
+
 const DONE_VERBS = ["complete", "finish", "tick off", "check off", "mark"];
 const DELETE_VERBS = ["delete", "remove", "discard", "throw away", "bin", "trash", "get rid of"];
 
@@ -111,7 +162,10 @@ export function understand(raw: string): Understanding {
     }
     const destination = resolveDestination(rest);
     const phrase = recordPhrase(titleFrom(rest, destination?.label ?? null) || rest);
-    if (!phrase) {
+    // "mark it as done" names nothing. Resolving a record called "It" and
+    // then completing — or deleting — whatever came back is the failure mode
+    // worth caring about here.
+    if (!phrase || isPlaceholder(phrase)) {
       return {
         kind: "question",
         ask: capability === "complete" ? "Which one should I mark as done?" : "Which one should I delete?",
@@ -146,13 +200,23 @@ export function understand(raw: string): Understanding {
     const title = titleFrom(captured, destination?.label ?? null);
 
     if (!destination) {
+      // The verb is a destination too. Only when it says nothing — and there
+      // is no noun either — does REN have to ask.
+      const verb = verbUsed(text, ADD_VERBS);
+      const implied = verb === null ? undefined : VERB_DESTINATION[verb];
+      if (implied !== undefined && title && !isPlaceholder(title)) {
+        return {
+          kind: "plan",
+          plan: plan("capture", { collection: implied, appId: "life", title }),
+        };
+      }
       return {
         kind: "question",
         ask: `Where should "${title}" go?`,
         hint: "Name an application or a section — Life, Finance · Transactions, Files.",
       };
     }
-    if (!title) {
+    if (!title || isPlaceholder(title)) {
       return { kind: "question", ask: `What should I add to ${destination.label}?` };
     }
     return {
@@ -176,7 +240,8 @@ export function understand(raw: string): Understanding {
   const destination = after(text, OPEN_VERBS);
   if (destination !== null) {
     if (!destination) return { kind: "question", ask: "Which part of NN?" };
-    const appId = resolveApplication(destination);
+    const appId = resolveApplication(destination)
+      ?? resolveApplication(withoutPossessive(destination));
     if (appId) return { kind: "plan", plan: plan("open", { appId }) };
     return {
       kind: "question",

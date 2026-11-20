@@ -59,10 +59,44 @@ describe("capturing", () => {
     expect(p.args.collection).toBeTruthy();
   });
 
-  it("asks where, rather than filing it somewhere plausible", () => {
+  it("files it under tasks rather than interrogating the founder", () => {
+    /*
+     * This reverses an earlier decision, deliberately.
+     *
+     * REN used to ask "Where should \"Buy milk\" go?" and offer "Life,
+     * Finance · Transactions, Files" — a question that requires the founder
+     * to know NN's collection taxonomy in order to write down milk. The
+     * evaluation suite scored it as the failure it is.
+     *
+     * The old rule was there to stop REN "filing it somewhere plausible",
+     * and that fear assumed filing happens unseen. It does not: the plan is
+     * shown with its destination and waits for approval — the founder reads
+     * "Add \"Buy milk\" to Life · Tasks" and taps Do it or No. A wrong
+     * default costs one tap; the question cost every capture.
+     */
     const out = understand("add buy milk");
-    expect(out.kind).toBe("question");
-    if (out.kind === "question") expect(out.ask).toContain("Where");
+    expect(out.kind).toBe("plan");
+    if (out.kind === "plan") {
+      expect(out.plan.capability).toBe("capture");
+      expect(out.plan.args.collection).toBe("tasks");
+      // Still shown and still confirmed — which is what makes the default safe.
+      expect(out.plan.consequence).toBe("writes");
+      expect(out.plan.summary).toContain("Tasks");
+    }
+  });
+
+  it("still asks when the verb says a place but the words name nothing", () => {
+    // The default is for real titles. "add something" would store a record
+    // called "Something" — obedience without comprehension.
+    for (const phrase of ["add something", "note this", "remember it"]) {
+      expect(understand(phrase).kind, phrase).toBe("question");
+    }
+  });
+
+  it("sends a note to notes, because the verb already said where", () => {
+    const out = understand("note buy milk");
+    expect(out.kind).toBe("plan");
+    if (out.kind === "plan") expect(out.plan.args.collection).toBe("notes");
   });
 
   it("asks what, when told only where", () => {
