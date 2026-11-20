@@ -43,7 +43,7 @@ type Mode = "claim" | "passkey" | "password" | "arm";
 
 export function SignIn() {
   const router = useRouter();
-  const { phase, endedReason } = useAuth();
+  const { phase, endedReason, refresh } = useAuth();
   const [status, setStatus] = useState<AuthStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,6 +118,9 @@ export function SignIn() {
   const act = () => void run(async () => {
     if (mode === "password") {
       await signInWithRecoveryPassword(password);
+      // The session is a cookie the page cannot read, so the provider has to
+      // ask the server again before the redirect can fire.
+      await refresh();
       return;
     }
     if (mode === "arm") {
@@ -137,6 +140,7 @@ export function SignIn() {
       return;
     }
     await signInWithPasskey();
+    await refresh();
   });
 
   const wantsSecret = mode === "claim" || mode === "arm";

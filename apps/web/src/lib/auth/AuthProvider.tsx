@@ -27,6 +27,8 @@ interface AuthContextValue {
   signOutHere: () => Promise<void>;
   /** Why the last session ended, if it ended by itself. */
   endedReason: string | null;
+  /** Re-ask the server who is signed in. Called after a sign-in completes. */
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -200,8 +202,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [getIdToken, signOutHere]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ phase, user, getIdToken, signOutEverywhere, signOutHere, endedReason }),
-    [phase, user, getIdToken, signOutEverywhere, signOutHere, endedReason],
+    () => ({ phase, user, getIdToken, signOutEverywhere, signOutHere, endedReason,
+      refresh: refreshSession }),
+    [phase, user, getIdToken, signOutEverywhere, signOutHere, endedReason, refreshSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

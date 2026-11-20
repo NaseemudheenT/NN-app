@@ -20,10 +20,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@simplewebauthn/browser", () => ({
   startAuthentication: vi.fn(), startRegistration: vi.fn(),
 }));
-vi.mock("firebase/auth", () => ({ signInWithCustomToken: vi.fn() }));
+const signInWithCustomToken = vi.hoisted(() => vi.fn());
+vi.mock("firebase/auth", () => ({ signInWithCustomToken }));
 vi.mock("@/lib/firebase", () => ({ getFirebase: () => ({ auth: {} }) }));
 
-const { fetchAuthStatus, PasskeyError } = await import("./passkey");
+const { fetchAuthStatus, PasskeyError, signInWithRecoveryPassword } = await import("./passkey");
 
 const reply = (body: unknown, status = 200) => {
   vi.stubGlobal("fetch", vi.fn(async () => ({
@@ -81,5 +82,56 @@ describe("what the sign-in screen is told", () => {
   it("raises anything else, rather than guessing at a state", async () => {
     reply({}, 500);
     await expect(fetchAuthStatus()).rejects.toBeInstanceOf(PasskeyError);
+  });
+});
+
+describe("signing in when Firebase cannot take the session", () => {
+  /**
+   * The bug that cost the founder six attempts and several days.
+   *
+   * Firebase Authentication is not provisioned on this project, so
+   * `signInWithCustomToken` throws `auth/configuration-not-found`. That
+   * throw used to propagate — so NN accepted a correct password, set its own
+   * session cookie, and then discarded the whole sign-in because a service
+   * it does not own was absent.
+   */
+
+  beforeEach(() => {
+    signInWithCustomToken.mockReset();
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true, status: 200,
+      json: async () => ({ customToken: "ct", advice: "Add a passkey." }),
+    })));
+  });
+
+  it("still signs in when Firebase refuses the token", async () => {
+    signInWithCustomToken.mockRejectedValue(
+      Object.assign(new Error("Firebase: Error (auth/configuration-not-found)."),
+        { code: "auth/configuration-not-found" }),
+    );
+    await expect(signInWithRecoveryPassword("a-correct-password-x")).resolves.toContain("passkey");
+  });
+
+  it("takes the Firebase session when one is actually available", async () => {
+    signInWithCustomToken.mockResolvedValue({});
+    await signInWithRecoveryPassword("a-correct-password-x");
+    expect(signInWithCustomToken).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not try when the server minted no token at all", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: true, status: 200,
+      json: async () => ({ customToken: null, advice: "Add a passkey." }),
+    })));
+    await expect(signInWithRecoveryPassword("a-correct-password-x")).resolves.toBeTruthy();
+    expect(signInWithCustomToken).not.toHaveBeenCalled();
+  });
+
+  it("still fails when the password itself is refused", async () => {
+    // The one thing that must keep failing.
+    vi.stubGlobal("fetch", vi.fn(async () => ({
+      ok: false, status: 401, json: async () => ({ error: "Recovery failed." }),
+    })));
+    await expect(signInWithRecoveryPassword("wrong")).rejects.toBeInstanceOf(PasskeyError);
   });
 });
