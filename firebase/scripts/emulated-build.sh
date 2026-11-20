@@ -39,6 +39,12 @@ export NN_BOOTSTRAP_SECRET="local-emulated-bootstrap-secret-not-a-real-one"
 # exercised against an *empty* database — which is the only way to prove it
 # does not depend on Firestore holding anything.
 if [ -n "${NN_OWNER_RECOVERY:-}" ]; then export NN_OWNER_RECOVERY; fi
+# A model key, when one is supplied, so REN's whole gateway — provider,
+# streaming and tool calls — can be exercised locally rather than only in
+# production where the endpoint rightly refuses an unauthenticated caller.
+for v in GOOGLE_API_KEY GEMINI_API_KEY ANTHROPIC_API_KEY OPENAI_API_KEY; do
+  if [ -n "$(eval "echo \${$v:-}")" ]; then export "$v"; fi
+done
 
 inner="
   if [ -n '${seed_script}' ]; then node '${seed_script}' '${password}' || exit 1; fi

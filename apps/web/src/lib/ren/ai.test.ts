@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseInline, parseMarkdown, safeHref } from "./markdown";
 import { REN_TOOLS, planFromToolCall } from "./tools";
-import { availableProviders } from "@/server/ren/providers";
+import { availableProviders, geminiSchema } from "@/server/ren/providers";
 import { systemPrompt } from "@/server/ren/prompt";
 import { APPLICATIONS } from "@/lib/apps/registry";
 import { CAPABILITIES } from "./capabilities";
@@ -142,6 +142,64 @@ describe("REN's tools", () => {
   it("marks writing as writing, so NN knows to ask first", () => {
     const made = planFromToolCall("capture_record", { collection: "tasks", title: "Call the bank" });
     expect(made.ok && made.plan.consequence).toBe("writes");
+  });
+});
+
+describe("the shape Gemini will accept", () => {
+  it("drops additionalProperties, which Gemini rejects outright", () => {
+    // Verified against the live API on 2026-11-20: sending it produces
+    // `Unknown name "additionalProperties"` and a flat 400, so REN could
+    // talk but could not act — the worse half to lose.
+    const cleaned = geminiSchema({
+      type: "object",
+      properties: { appId: { type: "string", enum: ["finance"] } },
+      required: ["appId"],
+      additionalProperties: false,
+    }) as Record<string, unknown>;
+    expect(cleaned).not.toHaveProperty("additionalProperties");
+    expect(cleaned).toMatchObject({ type: "object", required: ["appId"] });
+  });
+
+  it("strips it at every depth, not just the top", () => {
+    const cleaned = JSON.stringify(geminiSchema({
+      type: "object",
+      properties: {
+        nested: { type: "object", properties: {}, additionalProperties: false },
+        list: { type: "array", items: { type: "object", additionalProperties: false } },
+      },
+    }));
+    expect(cleaned).not.toContain("additionalProperties");
+  });
+
+  it("keeps everything Gemini does understand", () => {
+    const cleaned = geminiSchema({
+      type: "object",
+      properties: { text: { type: "string", description: "What to search for." } },
+      required: ["text"],
+    });
+    expect(cleaned).toEqual({
+      type: "object",
+      properties: { text: { type: "string", description: "What to search for." } },
+      required: ["text"],
+    });
+  });
+
+  it("leaves NN's real tools callable after cleaning", () => {
+    for (const tool of REN_TOOLS) {
+      const cleaned = JSON.stringify(geminiSchema(tool.schema));
+      expect(cleaned, tool.name).not.toContain("additionalProperties");
+      // The enumerations are the whole reason a model cannot invent a
+      // destination; losing them to over-eager stripping would be worse.
+      const original = JSON.stringify(tool.schema);
+      if (original.includes('"enum"')) expect(cleaned, tool.name).toContain('"enum"');
+    }
+  });
+
+  it("does not strip the keyword from the other providers", () => {
+    // Anthropic and OpenAI both honour it, and it is what stops them
+    // inventing an argument NN has no field for.
+    const anthropicTool = REN_TOOLS.find((t) => t.name === "capture_record");
+    expect(JSON.stringify(anthropicTool?.schema)).toContain("additionalProperties");
   });
 });
 

@@ -248,6 +248,42 @@ const openai: Provider = {
 
 /* ---------------------------------------------------------------- google -- */
 
+/**
+ * A tool schema Gemini will actually accept.
+ *
+ * Google's function declarations take a *subset* of JSON Schema — an OpenAPI
+ * 3 flavour — and reject anything outside it outright rather than ignoring
+ * it. `additionalProperties: false` is the one NN hits: every tool schema
+ * carries it, correctly, because it is what stops Anthropic and OpenAI
+ * inventing an argument that does not exist. Sent to Gemini it produces
+ *
+ *   Invalid JSON payload received. Unknown name "additionalProperties"
+ *
+ * and a flat 400 — so REN could hold a conversation but could not do
+ * anything, which is the worse half to lose.
+ *
+ * Stripped here rather than at the tool definitions, because this is a
+ * vendor difference and this file exists to resolve those before anything
+ * leaves it. The other providers keep the keyword and keep the guarantee.
+ */
+const GEMINI_REJECTS = new Set([
+  "additionalProperties", "$schema", "$id", "$ref", "definitions",
+  "const", "examples", "default", "exclusiveMinimum", "exclusiveMaximum",
+]);
+
+export function geminiSchema(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(geminiSchema);
+  if (value === null || typeof value !== "object") return value;
+  const out: Record<string, unknown> = {};
+  for (const [key, inner] of Object.entries(value as Record<string, unknown>)) {
+    if (GEMINI_REJECTS.has(key)) continue;
+    out[key] = geminiSchema(inner);
+  }
+  return out;
+}
+
+
+
 const google: Provider = {
   id: "google",
   label: "Gemini",
@@ -287,7 +323,7 @@ const google: Provider = {
                     functionDeclarations: options.tools.map((tool) => ({
                       name: tool.name,
                       description: tool.description,
-                      parameters: tool.schema,
+                      parameters: geminiSchema(tool.schema),
                     })),
                   },
                 ],
