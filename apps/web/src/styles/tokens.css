@@ -309,8 +309,10 @@
     inset 0 0 6px 6px rgb(0 0 0 / 12%),
     inset 0 0 2px 2px rgb(0 0 0 / 6%),
     0 0 12px rgb(255 255 255 / 15%);
-  --env-pane:   #7FA8DF;
-  --env-ground: #E7EDF6;
+  --env-pane:   #9CC0EF;
+  /* The room's own ground. #E7EDF6 is a grey, and a grey room behind white
+     glass is what made the light theme look overcast rather than lit. */
+  --env-ground: #F4F8FE;
   --env-light:  #FFFFFF;
 }
 

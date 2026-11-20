@@ -261,7 +261,15 @@ const google: Provider = {
    */
   keyAliases: ["GOOGLE_AI_API_KEY", "GEMINI_API_KEY"],
   modelVar: "GOOGLE_MODEL",
-  defaultModel: "gemini-2.0-flash",
+  /*
+   * Verified against the live model list on 2026-11-20, because the previous
+   * default was not: `gemini-2.0-flash` answers 404 "no longer available",
+   * and `gemini-2.5-flash` answers 404 "no longer available to new users".
+   * REN would have failed on its first word with a key that was perfectly
+   * good. Model ids retire; this one is checked, does tool calls, and
+   * streams. `GOOGLE_MODEL` overrides it without a code change.
+   */
+  defaultModel: "gemini-3.5-flash-lite",
   ask: (key, model, options) =>
     fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`,

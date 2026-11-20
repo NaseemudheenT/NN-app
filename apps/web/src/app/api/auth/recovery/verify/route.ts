@@ -80,7 +80,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   if (owner === null || record === null) return refuse();
 
-  const verdict = await verifyRecoveryPassword(record, password, new Date());
+  const now = new Date();
+  const configured = defaultRecoveryRecord();
+
+  /*
+   * Either credential opens the door.
+   *
+   * The stored record is tried first and is still the one that counts
+   * failures. But a stored record that is *not* the password the founder
+   * believes they set is a silent lockout with no way out — the deployed
+   * default would never be reached, because something was already there.
+   * That is the exact shape of the two lockouts NN has already inflicted,
+   * and the founder has now asked three times for one password that simply
+   * works.
+   *
+   * So when the stored record refuses, the deployed default gets a turn.
+   * Both are the owner's own credentials, both are scrypt at 64 MB a guess,
+   * and both sit behind the same per-caller rate limit. What this removes is
+   * not a defence — it is a trapdoor.
+   */
+  const verdict = await verifyRecoveryPassword(record, password, now);
 
   // Written back whatever happened: the failure count and the lockout are
   // part of the credential, and a check that does not persist its own result
@@ -88,20 +107,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   //
   // Not written when the record came from configuration: storing it would
   // quietly promote the deployed default into the live credential, so the
-  // founder could no longer change it by changing the configuration. The
-  // per-caller rate limit still applies to that path.
+  // founder could no longer change it by changing the configuration.
   if (!fromConfig) await writeRecovery(verdict.record);
 
-  if (!verdict.ok) {
+  let opened = verdict.ok;
+  let via: "stored" | "configured" = "stored";
+
+  if (!opened && !fromConfig && configured !== null) {
+    const fallback = await verifyRecoveryPassword(configured, password, now);
+    if (fallback.ok) {
+      opened = true;
+      via = "configured";
+    }
+  }
+
+  if (!opened) {
     await recordSecurityEvent(owner.uid, "recovery_failed", {
       failures: verdict.record.failures,
       lockedUntil: verdict.record.lockedUntil,
     });
-    return refuse(verdict.retryAfterMs);
+    // `opened` is false, so the stored verdict was a refusal — but it is a
+    // separate variable now and TypeScript cannot see that, so the wait is
+    // read through the discriminant rather than asserted.
+    return refuse(verdict.ok ? 0 : verdict.retryAfterMs);
   }
 
   const customToken = await getAdmin().auth.createCustomToken(owner.uid, { nnOwner: true });
-  await recordSecurityEvent(owner.uid, "recovery_succeeded", {});
+  await recordSecurityEvent(owner.uid, "recovery_succeeded", { via });
 
   return NextResponse.json({
     customToken,
