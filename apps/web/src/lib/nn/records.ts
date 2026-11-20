@@ -127,12 +127,64 @@ function constraintsFor(spec: RecordQuery): QueryConstraint[] {
  * Returns state, never throws. A surface should be able to render whatever
  * comes back without a try/catch around its own JSX.
  */
+
+/* --------------------------------------------------- NN's own data path -- */
+
+/**
+ * Whether the browser can talk to Firestore at all.
+ *
+ * Firestore's rules key on a Firebase session, and this project has no
+ * Firebase Authentication to issue one — so a direct client read returns
+ * *permission denied* no matter how correctly the founder signed in. When
+ * there is no Firebase user, NN reads and writes through its own
+ * owner-scoped routes instead, which take the uid from the session cookie.
+ *
+ * Not a fallback for *errors*: a fallback that triggers on failure would
+ * mask a genuine rules problem. This asks a different question — is there a
+ * Firebase identity at all — and answers it before anything is attempted.
+ */
+function useServerPath(): boolean {
+  const { user, phase } = useAuth();
+  // Signed in as far as NN is concerned, but with no Firebase identity to
+  // satisfy the rules with. Being *signed out* is not this case: then the
+  // honest answer is "sign in", and the ordinary path already gives it.
+  return phase === "signed-in" && user === null;
+}
+
+async function serverList(
+  name: string, spec: RecordQuery,
+): Promise<{ items: NNRecord[]; fault: RecordFault | null }> {
+  const query = new URLSearchParams();
+  if (spec.limit !== undefined) query.set("limit", String(spec.limit));
+  if (spec.includeDeleted === true) query.set("includeDeleted", "true");
+  try {
+    const response = await fetch(
+      `/api/nn/records/${encodeURIComponent(name)}?${query.toString()}`,
+      { cache: "no-store" },
+    );
+    if (response.status === 401) {
+      return { items: [], fault: { kind: "signed-out", message: "Sign in to load your records." } };
+    }
+    if (!response.ok) {
+      return { items: [], fault: { kind: "failed", message: "NN could not read those records." } };
+    }
+    const body = (await response.json()) as { items?: NNRecord[] };
+    return { items: body.items ?? [], fault: null };
+  } catch {
+    return {
+      items: [],
+      fault: { kind: "unavailable", message: "NN could not reach your records just now." },
+    };
+  }
+}
+
 export function useRecords<T extends NNRecord = NNRecord>(
   name: string,
   spec: RecordQuery = {},
 ): RecordState<T> {
   const { user } = useAuth();
   const uid = user?.uid;
+  const viaServer = useServerPath();
 
   const [state, setState] = React.useState<RecordState<T>>({
     items: [],
@@ -151,6 +203,43 @@ export function useRecords<T extends NNRecord = NNRecord>(
   ]);
 
   React.useEffect(() => {
+    if (viaServer) {
+      /*
+       * NN's own route. Polled rather than subscribed: a server route cannot
+       * push, and for one founder's own records a short interval is honest
+       * and simple. A write refreshes immediately through `nn:records`
+       * below, so the interval only has to catch a change made elsewhere.
+       */
+      let alive = true;
+      const parsed = JSON.parse(specKey) as [
+        string | null, "asc" | "desc" | null, number | null,
+        Record<string, unknown> | null, boolean,
+      ];
+      const load = async () => {
+        const { items, fault } = await serverList(name, {
+          ...(parsed[2] !== null ? { limit: parsed[2] } : {}),
+          includeDeleted: parsed[4],
+        });
+        if (!alive) return;
+        setState({
+          items: items as unknown as readonly T[],
+          loading: false,
+          empty: fault === null && items.length === 0,
+          stale: false,
+          fault,
+        });
+      };
+      void load();
+      const again = () => { void load(); };
+      window.addEventListener("nn:records", again);
+      const timer = window.setInterval(again, 20_000);
+      return () => {
+        alive = false;
+        window.removeEventListener("nn:records", again);
+        window.clearInterval(timer);
+      };
+    }
+
     if (!firebaseAvailable()) {
       setState({
         items: [], loading: false, empty: false, stale: false,
@@ -214,7 +303,7 @@ export function useRecords<T extends NNRecord = NNRecord>(
     );
 
     return unsubscribe;
-  }, [uid, name, specKey]);
+  }, [uid, name, specKey, viaServer]);
 
   return state;
 }
@@ -253,8 +342,63 @@ export interface RecordWriter {
 export function useRecordWriter(): RecordWriter {
   const { user } = useAuth();
   const uid = user?.uid;
+  const viaServer = useServerPath();
 
   return React.useMemo<RecordWriter>(() => {
+    if (viaServer) {
+      /*
+       * NN's own routes, for the same reason the reader uses them: Firestore
+       * refuses a browser that has no Firebase session, and this project
+       * cannot issue one. The uid is never sent — the route takes it from
+       * the session cookie, so a browser cannot write into somebody else's
+       * records by asking nicely.
+       */
+      const changed = () => window.dispatchEvent(new Event("nn:records"));
+      const send = async (path: string, init: RequestInit): Promise<Response> => {
+        const response = await fetch(`/api/nn/records/${path}`, init);
+        if (!response.ok) {
+          const body = (await response.json().catch(() => ({}))) as { error?: string };
+          throw new Error(body.error ?? "NN could not save that.");
+        }
+        changed();
+        return response;
+      };
+      const json = { "content-type": "application/json" };
+      return {
+        ready: true,
+        create: async (name, data) => {
+          assertWritable(name);
+          const response = await send(encodeURIComponent(name), {
+            method: "POST", headers: json, body: JSON.stringify(data),
+          });
+          return ((await response.json()) as { id: string }).id;
+        },
+        update: async (name, id, data) => {
+          assertWritable(name);
+          await send(`${encodeURIComponent(name)}/${encodeURIComponent(id)}`, {
+            method: "PATCH", headers: json, body: JSON.stringify(data),
+          });
+        },
+        remove: async (name, id) => {
+          assertWritable(name);
+          await send(`${encodeURIComponent(name)}/${encodeURIComponent(id)}`, { method: "DELETE" });
+        },
+        restore: async (name, id) => {
+          assertWritable(name);
+          await send(`${encodeURIComponent(name)}/${encodeURIComponent(id)}`, {
+            method: "PATCH", headers: json, body: JSON.stringify({ deletedAt: null }),
+          });
+        },
+        destroy: async (name, id) => {
+          // Deliberately the same soft delete. NN holds one copy of the
+          // founder's life, and a hard delete reachable from a browser is a
+          // feature nobody asks for twice.
+          assertWritable(name);
+          await send(`${encodeURIComponent(name)}/${encodeURIComponent(id)}`, { method: "DELETE" });
+        },
+      };
+    }
+
     const db = () => getFirebase().db;
 
     return {
@@ -301,7 +445,7 @@ export function useRecordWriter(): RecordWriter {
         await deleteDoc(doc(db(), paths.doc(owner, name, id)));
       },
     };
-  }, [uid]);
+  }, [uid, viaServer]);
 }
 
 /* ------------------------------------------------------- reading once -- */
