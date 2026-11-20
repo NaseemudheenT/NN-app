@@ -35,6 +35,10 @@ export WEBAUTHN_RP_NAME="NN"
 export WEBAUTHN_ORIGIN="http://localhost:${port}"
 # Long enough to satisfy MIN_BOOTSTRAP_SECRET_LENGTH. Local only.
 export NN_BOOTSTRAP_SECRET="local-emulated-bootstrap-secret-not-a-real-one"
+# Passed through when set, so the "NN carries its own password" path can be
+# exercised against an *empty* database — which is the only way to prove it
+# does not depend on Firestore holding anything.
+if [ -n "${NN_OWNER_RECOVERY:-}" ]; then export NN_OWNER_RECOVERY; fi
 
 inner="
   if [ -n '${seed_script}' ]; then node '${seed_script}' '${password}' || exit 1; fi
