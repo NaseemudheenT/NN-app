@@ -68,3 +68,20 @@ describe("the liquid material every control shares", () => {
     expect(global).toMatch(/\.nn-liquid::before[\s\S]*?backdrop-filter/);
   });
 });
+
+describe("the primary control", () => {
+  it("is glass, not a painted slab", () => {
+    // It was 88% opaque accent, which stopped NN's water at its edge and
+    // made the one control that matters most the only one not made of the
+    // same material as the rest.
+    const block = /\.nn-liquid-primary \{[\s\S]*?\n\}/.exec(global)?.[0] ?? "";
+    expect(block).toContain("--glass-3-bg");
+    expect(block).not.toMatch(/var\(--text-accent\)\s*;/);
+  });
+
+  it("leads by light rather than by colour", () => {
+    // Hierarchy from luminance: a brighter rim and more water than its
+    // neighbours, so it still reads as the decision.
+    expect(global).toMatch(/\.nn-liquid-primary::before \{[^}]*--liquid-tide/);
+  });
+});
