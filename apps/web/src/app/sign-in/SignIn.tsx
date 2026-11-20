@@ -9,6 +9,7 @@ import {
   signInWithPasskey, signInWithRecoveryPassword, useAuth, type AuthStatus,
 } from "@/lib/auth";
 import { assessRecoveryPassword } from "@nn/auth/recovery-policy";
+import { explainAuthError } from "@/lib/auth/explain";
 import { enterPreview, leavePreview, previewOffered } from "@/lib/preview";
 import s from "./signin.module.css";
 
@@ -81,7 +82,10 @@ export function SignIn() {
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      // Firebase reports "auth/configuration-not-found" for a project whose
+      // Authentication was never switched on, which reads to the founder as
+      // "your password is wrong" when the password was perfect.
+      setError(explainAuthError(e));
     } finally {
       setBusy(false);
     }
