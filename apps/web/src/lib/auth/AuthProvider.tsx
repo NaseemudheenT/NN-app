@@ -55,17 +55,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { userRef.current = user; }, [user]);
 
+  /*
+   * NN's own session, asked for first.
+   *
+   * Firebase Authentication is not provisioned on this project and cannot be
+   * without billing, so `onIdTokenChanged` will never fire with a user no
+   * matter how correct the founder's password is. The session that actually
+   * exists is the cookie NN signed, and the only way the browser learns
+   * about an httpOnly cookie is to ask the server.
+   *
+   * Asked before Firebase and allowed to settle the phase on its own: if NN
+   * says the founder is signed in, they are, whatever Firebase thinks.
+   */
+  const [nnSession, setNnSession] = useState<{ uid: string } | null>(null);
+  const [asked, setAsked] = useState(false);
+
+  const refreshSession = useCallback(async () => {
+    try {
+      const response = await fetch("/api/auth/me", { cache: "no-store" });
+      const body = (await response.json()) as { signedIn?: boolean; uid?: string };
+      setNnSession(body.signedIn === true && body.uid ? { uid: body.uid } : null);
+    } catch {
+      // A network failure is not a sign-out. Leaving the previous answer in
+      // place keeps a flaky connection from throwing the founder at the door.
+    } finally {
+      setAsked(true);
+    }
+  }, []);
+
+  useEffect(() => { void refreshSession(); }, [refreshSession]);
+
   useEffect(() => {
     if (!firebaseAvailable()) {
-      setPhase("unconfigured");
+      // Without Firebase config there is no Firebase session to wait for,
+      // but NN's own may still exist.
+      if (asked) setPhase(nnSession !== null ? "signed-in" : "unconfigured");
       return;
     }
     const { auth } = getFirebase();
     return onIdTokenChanged(auth, async (u) => {
       if (u === null) {
         setUser(null);
-        setPhase("signed-out");
         clearSession();
+        // Firebase has no user — which on this project is the *normal*
+        // state, not a failure. NN's own session decides.
+        setPhase(nnSession !== null ? "signed-in" : (asked ? "signed-out" : "loading"));
         return;
       }
 
@@ -100,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setPhase("signed-in");
     });
-  }, []);
+  }, [nnSession, asked]);
 
   // Enforce the absolute and idle limits, and keep lastActiveAt moving while
   // the founder is actually using NN.
@@ -146,7 +180,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOutHere = useCallback(async (): Promise<void> => {
     setEndedReason(null);
     clearSession();
-    await fbSignOut(getFirebase().auth);
+    // NN's cookie is httpOnly, so only the server can remove it.
+    await fetch("/api/auth/signout", { method: "POST" }).catch(() => undefined);
+    setNnSession(null);
+    setPhase("signed-out");
+    if (firebaseAvailable()) await fbSignOut(getFirebase().auth).catch(() => undefined);
   }, []);
 
   const signOutEverywhere = useCallback(async (): Promise<void> => {

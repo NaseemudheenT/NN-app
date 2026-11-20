@@ -5,6 +5,7 @@ import { verifyRecoveryPassword } from "@nn/auth/recovery";
 import { getAdmin } from "@/server/admin";
 import { readOwner, readRecovery, recordSecurityEvent, writeRecovery } from "@/server/auth/store";
 import { defaultOwner, defaultRecoveryRecord } from "@/server/auth/default-owner";
+import { issueSession, sessionCookie } from "@/server/auth/nn-session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -132,14 +133,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return refuse(verdict.ok ? 0 : verdict.retryAfterMs);
   }
 
-  const customToken = await getAdmin().auth.createCustomToken(owner.uid, { nnOwner: true });
+  /*
+   * NN's own session is what actually signs the founder in.
+   *
+   * A Firebase custom token is still minted when Auth is reachable, because
+   * a project that has it should get the richer session — but it is no
+   * longer required, and a failure to mint one no longer costs the founder
+   * their sign-in. That failure is exactly what
+   * `auth/configuration-not-found` was: a correct password thrown away at
+   * the last step by a service this project does not have.
+   */
+  let customToken: string | null = null;
+  try {
+    customToken = await getAdmin().auth.createCustomToken(owner.uid, { nnOwner: true });
+  } catch (error) {
+    console.error("NN: no Firebase custom token; continuing on NN's own session.",
+      (error as Error)?.name);
+  }
+
   await recordSecurityEvent(owner.uid, "recovery_succeeded", { via });
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     customToken,
     // Said plainly so the surface can say it too: a recovery is a signal that
     // the founder has lost a device, and the next thing they should do is add
     // a passkey on the one they are holding.
     advice: "Add a passkey on this device now, so you do not need this again.",
   });
+  response.headers.set("set-cookie", sessionCookie(issueSession(owner.uid, "password")));
+  return response;
 }
