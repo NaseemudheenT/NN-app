@@ -4,7 +4,8 @@ import { AppShell } from "@/components/nn/AppShell";
 import { NNFiles } from "@/components/nn/NNFiles";
 
 export const metadata: Metadata = {
-  title: "Files · NN",
+  // The root layout already appends "· NN" through its title template.
+  title: "Files",
   description: "Your documents, held in folders.",
 };
 

@@ -4,7 +4,8 @@ import { AppShell } from "@/components/nn/AppShell";
 import { SettingsSurface } from "./SettingsSurface";
 
 export const metadata: Metadata = {
-  title: "Settings · NN",
+  // The root layout already appends "· NN" through its title template.
+  title: "Settings",
   description: "How NN looks and behaves on this device.",
 };
 

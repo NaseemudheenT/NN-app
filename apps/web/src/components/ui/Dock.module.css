@@ -10,6 +10,12 @@
 }
 .item {
   display: grid; place-items: center;
+  /* 44px is a touch target, not a suggestion. The dock is a flex row, and
+     flex items shrink by default — so on a phone, thirty-four applications
+     in a 355px bar were being squeezed to fourteen pixels wide each while
+     still *declaring* 44. The dock already scrolls (`overflow: auto`, with
+     the scrollbar hidden); refusing to shrink is what lets it. */
+  flex: none;
   width: 44px; height: 44px;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
@@ -22,7 +28,7 @@
 }
 .item:hover { background: var(--glass-hover); color: var(--text-primary); transform: translateY(-3px); }
 .item[aria-current="true"] { color: var(--nn-icy); background: var(--glass-active); border-color: var(--border-normal); }
-.sep { width: 1px; height: 26px; margin: 0 var(--space-2); background: var(--border-normal); }
+.sep { flex: none; width: 1px; height: 26px; margin: 0 var(--space-2); background: var(--border-normal); }
 
 @media (prefers-reduced-motion: reduce) { .item:hover { transform: none; } }
 :global(html[data-motion="reduced"]) .item:hover { transform: none; }

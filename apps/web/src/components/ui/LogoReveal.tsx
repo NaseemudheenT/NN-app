@@ -404,7 +404,27 @@ export function LogoReveal({
        scrolled away, and wall time would carry on without it — the founder
        would switch back to a mark that had already arrived without them. */
     let elapsed = 0;
+    /*
+     * If the reveal never starts, show the mark anyway.
+     *
+     * The canvas is transparent until the shader draws, so a GPU that is
+     * slow, busy, throttled or simply never scheduled leaves the founder
+     * looking at an empty card on the first screen of their own
+     * environment. Nothing in the GL path can notice that, because the thing
+     * that has not happened is the frame loop itself.
+     *
+     * A timer can. If no frame has been drawn by the time this fires, the
+     * SVG mark takes over — the same geometry given the same optical
+     * treatment, no GPU required. Falling back costs the animation; not
+     * falling back costs the logo.
+     */
+    let frames = 0;
+    const watchdog = window.setTimeout(() => {
+      if (frames === 0) setFallback(true);
+    }, 1500);
+
     const stop = createFrameLoop(host, (dt) => {
+      frames += 1;
       resize();
       elapsed += dt * 1000;
       const t = Math.min(1, elapsed / duration);
@@ -421,6 +441,7 @@ export function LogoReveal({
     });
 
     return () => {
+      window.clearTimeout(watchdog);
       stop();
       observer?.disconnect();
       themeWatch.disconnect();
