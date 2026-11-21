@@ -17,7 +17,7 @@ afterEach(() => {
 describe("the shared application header", () => {
   it("reserves the centre lane for the global Dynamic Island", () => {
     render(<AppShell title="Finance"><p>Finance content</p></AppShell>);
-    const clearance = document.querySelector('[aria-hidden="true"].islandClearance');
+    const clearance = screen.getByTestId("island-clearance");
     expect(clearance).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Open NN Home" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Search NN" })).toBeInTheDocument();

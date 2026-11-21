@@ -38,7 +38,7 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
           </span>
         </button>
 
-        <span className={styles.islandClearance} aria-hidden="true" />
+        <span className={styles.islandClearance} data-testid="island-clearance" aria-hidden="true" />
         <div className={styles.barRight}>
           {actions}
           <button
