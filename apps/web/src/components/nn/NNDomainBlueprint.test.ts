@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DOMAIN_BLUEPRINTS } from "./NNDomainBlueprint";
+import { DOMAIN_BLUEPRINTS, inferDomainLayout } from "./NNDomainBlueprint";
 
 describe("NN domain interface blueprints", () => {
   it("provides domain-specific interface maps for all 31 records-based applications", () => {
@@ -24,4 +24,19 @@ describe("NN domain interface blueprints", () => {
       }
     }
   });
+  it("selects specialised layouts for distinct application domains", () => {
+    const resolve = (appId: string, id: string, title: string) =>
+      inferDomainLayout(appId, { id, title, description: "", icon: "file", regions: ["One", "Two", "Three"] });
+    expect(resolve("finance", "transactions", "Ledger")).toBe("finance");
+    expect(resolve("mail", "inbox", "Inbox")).toBe("inbox");
+    expect(resolve("automation-studio", "workflows", "Flow")).toBe("flow");
+    expect(resolve("security-centre", "audit", "Audit")).toBe("security");
+    expect(resolve("creator-studio", "production", "Production")).toBe("media");
+    expect(resolve("formula-engine", "workspace", "Compute")).toBe("calculator");
+    expect(resolve("travel", "places", "Places")).toBe("map");
+    expect(resolve("studio", "documents", "Docs")).toBe("editor");
+    expect(resolve("projects", "boards", "Boards")).toBe("board");
+    expect(resolve("control-room", "preferences", "Preferences")).toBe("settings");
+  });
+
 });

@@ -16,7 +16,7 @@ export interface DomainModule {
   regions: readonly string[];
 }
 
-function inferDomainLayout(appId: string, module: DomainModule): DomainLayout {
+export function inferDomainLayout(appId: string, module: DomainModule): DomainLayout {
   if (module.layout) return module.layout;
   const key = `${appId} ${module.id} ${module.title}`.toLowerCase();
   if (/(ledger|budget|transaction|portfolio|watchlist|investment|cash-flow|billing|invoice)/.test(key)) return "finance";
