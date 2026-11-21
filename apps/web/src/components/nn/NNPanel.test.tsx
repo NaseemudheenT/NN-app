@@ -96,6 +96,17 @@ describe("choosing somewhere", () => {
     expect(today).toHaveAttribute("aria-current", "page");
   });
 
+  it("filters the phone navigation across all application families", async () => {
+    await open();
+    const search = screen.getByRole("searchbox", { name: "Search destinations" });
+    await userEvent.type(search, "finance");
+    expect(screen.getByRole("button", { name: /Finance/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /College/ })).toBeNull();
+    expect(screen.getByText("1 destinations")).toBeInTheDocument();
+    await userEvent.clear(search);
+    expect(screen.getByRole("button", { name: /College/ })).toBeInTheDocument();
+  });
+
   it("offers only what NN can actually open", async () => {
     await open();
     const planned = destinations().filter((d) => d.route === undefined);

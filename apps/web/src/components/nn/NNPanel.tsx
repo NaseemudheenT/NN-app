@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { RenMark } from "@/components/ui/RenMark";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { currentDestination, destinations, type Destination } from "@/lib/nn/destinations";
+import { getApplication, GROUPS } from "@/lib/apps/registry";
 import s from "./NNPanel.module.css";
 
 /**
@@ -41,14 +42,29 @@ export function NNPanel() {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const hostRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const islandRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const here = currentDestination(pathname);
   const places = destinations().filter((d) => d.route !== undefined && d.group === "NN");
   const apps = destinations().filter((d) => d.route !== undefined && d.group === "Applications");
+  const needle = query.trim().toLowerCase();
+  const visiblePlaces = useMemo(
+    () => places.filter((destination) => !needle || (destination.label + " " + destination.hint).toLowerCase().includes(needle)),
+    [needle],
+  );
+  const visibleGroups = useMemo(() => GROUPS.map((group) => ({
+    ...group,
+    destinations: apps.filter((destination) => {
+      const app = getApplication(destination.id.slice(4));
+      return app?.group === group.name
+        && (!needle || (destination.label + " " + destination.hint + " " + group.label).toLowerCase().includes(needle));
+    }),
+  })).filter((group) => group.destinations.length > 0), [apps, needle]);
 
   /*
    * The island and its expanded panel stay mounted as two visual states of
@@ -60,12 +76,13 @@ export function NNPanel() {
 
   const close = useCallback(() => {
     restoring.current = true;
+    setQuery("");
     setOpen(false);
   }, []);
 
   useEffect(() => {
     if (open) {
-      closeRef.current?.focus();
+      searchRef.current?.focus();
       return;
     }
     if (!restoring.current) return;
@@ -103,7 +120,7 @@ export function NNPanel() {
       if (event.key === "Escape") { event.preventDefault(); close(); }
     };
     const onDown = (event: PointerEvent) => {
-      if (!hostRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!hostRef.current?.contains(event.target as Node)) { setQuery(""); setOpen(false); }
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onDown);
@@ -170,12 +187,45 @@ export function NNPanel() {
             <Icon name="close" size={15} />
           </button>
         </div>
-        <ul className={s.list}>
-          {places.map(row)}
-          {apps.length > 0 ? (
-            <li className={s.group} aria-hidden="true">Applications</li>
+        <label className={s.filter}>
+          <Icon name="search" size={16} />
+          <input
+            ref={searchRef}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && query) {
+                event.preventDefault();
+                event.stopPropagation();
+                setQuery("");
+              }
+            }}
+            placeholder="Find an app or destination"
+            aria-label="Search destinations"
+            autoComplete="off"
+            spellCheck={false}
+          />
+          {query ? (
+            <button type="button" className={s.clear} aria-label="Clear destination search" onClick={() => setQuery("")}>
+              <Icon name="close" size={14} />
+            </button>
           ) : null}
-          {apps.map(row)}
+        </label>
+        <p className={s.resultCount} role="status">
+          {visiblePlaces.length + visibleGroups.reduce((total, group) => total + group.destinations.length, 0)} destinations
+        </p>
+        <ul className={s.list}>
+          {visiblePlaces.map(row)}
+          {visibleGroups.map((group) => (
+            <li key={group.slug}>
+              <div className={s.group}>{group.label}</div>
+              <ul className={s.groupList}>{group.destinations.map(row)}</ul>
+            </li>
+          ))}
+          {visiblePlaces.length === 0 && visibleGroups.length === 0 ? (
+            <li className={s.noResults} role="status">No destinations found</li>
+          ) : null}
         </ul>
         <div className={s.panelFoot}>
           <span>PRIVATE ENVIRONMENT</span>
