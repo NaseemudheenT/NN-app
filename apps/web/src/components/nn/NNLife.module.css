@@ -87,3 +87,5 @@
 
 .retry { margin-top: 14px; padding: 8px 13px; border: 1px solid var(--glass-2-border); border-radius: 999px; color: var(--text-primary); background: var(--glass-1-bg); font: inherit; font-size: 10px; cursor: pointer; }
 .retry:hover { border-color: var(--nn-icy); }
+
+.task[data-completed="true"] .taskCopy strong { color: var(--text-muted); text-decoration: line-through; text-decoration-thickness: 1px; }

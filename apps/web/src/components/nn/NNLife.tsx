@@ -99,6 +99,8 @@ export function NNLife() {
 
   const openTasks = useMemo(() => tasks.filter((task) => task.status !== "done"), [tasks]);
   const completedTasks = useMemo(() => tasks.filter((task) => task.status === "done"), [tasks]);
+  const visibleTasks = view === "today" ? openTasks.slice(0, 8) : tasks;
+  const noVisibleTasks = view === "today" ? openTasks.length === 0 : tasks.length === 0;
   const greeting = hour === null ? "Your day, in one place" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   async function createTask(event: React.FormEvent<HTMLFormElement>) {
@@ -241,7 +243,7 @@ export function NNLife() {
                   <button className={styles.retry} type="button" onClick={() => { setLoadState("loading"); setError(""); setRetryKey((value) => value + 1); }}>Try again</button>
                 ) : null}
               </div>
-            ) : openTasks.length === 0 ? (
+            ) : noVisibleTasks ? (
               <div className={styles.emptyState}>
                 <span className={styles.emptyIcon}><Icon name="check" size={22} /></span>
                 <h3>Nothing waiting on you.</h3>
@@ -249,8 +251,8 @@ export function NNLife() {
               </div>
             ) : (
               <div className={styles.taskList}>
-                {(view === "today" ? openTasks.slice(0, 8) : openTasks).map((task) => (
-                  <article className={styles.task} key={task.id}>
+                {visibleTasks.map((task) => (
+                  <article className={styles.task} data-completed={task.status === "done"} key={task.id}>
                     <button
                       type="button"
                       className={styles.complete}
@@ -294,7 +296,7 @@ export function NNLife() {
             <section className={styles.sidePanel}>
               <p className={styles.eyebrow}>DATA OWNERSHIP</p>
               <h2>Your records stay yours.</h2>
-              <p className={styles.sideCopy}>This view reads and writes only to your authenticated account. NN's security rules enforce ownership independently of the interface.</p>
+              <p className={styles.sideCopy}>This view reads and writes only to your authenticated account. NN&apos;s security rules enforce ownership independently of the interface.</p>
             </section>
           </aside>
         </div>
