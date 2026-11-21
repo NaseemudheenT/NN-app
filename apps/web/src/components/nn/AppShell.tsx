@@ -50,6 +50,8 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
   }, []);
 
   const activeId = dockItems.find((item) => item.id === pathname)?.id ?? "/home";
+  const currentApp = APPLICATIONS.find((app) => app.href === pathname || app.overviewHref === pathname);
+
 
   return (
     <div className={`${styles.root} nn-ios-app-shell`}>
