@@ -3,7 +3,8 @@ import { callerUid } from "@/server/auth/session";
 import { adminConfigured } from "@/server/admin";
 import { systemPrompt } from "@/server/ren/prompt";
 import { ask, availableProviders, type Message, type Part, type ProviderId } from "@/server/ren/providers";
-import { REN_TOOLS } from "@/lib/ren/tools";
+import { REN_TOOLS, toolsForSpecialist } from "@/lib/ren/tools";
+import { specialistForRoute, specialistInstructions } from "@/lib/ren/specialists";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -83,8 +84,12 @@ export async function POST(request: NextRequest): Promise<Response> {
     return NextResponse.json({ error: "There is nothing to answer." }, { status: 400 });
   }
 
+  const currentRoute = typeof input["route"] === "string" ? input["route"] : "NN";
+  const specialist = specialistForRoute(currentRoute);
+  const activeTools = specialist ? toolsForSpecialist(specialist) : REN_TOOLS;
   const system = systemPrompt({
-    route: typeof input["route"] === "string" ? input["route"] : "NN",
+    route: currentRoute,
+    specialistInstructions: specialist ? specialistInstructions(specialist) : undefined,
     firstName: typeof input["firstName"] === "string" ? input["firstName"] : undefined,
     localTime: typeof input["localTime"] === "string" ? input["localTime"] : undefined,
   });
@@ -96,13 +101,16 @@ export async function POST(request: NextRequest): Promise<Response> {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(value)}\n\n`));
       };
       send({ type: "provider", id: chosen.id, label: chosen.label, model: chosen.model });
+      if (specialist) {
+        send({ type: "specialist", id: specialist.id, appId: specialist.appId, name: specialist.name });
+      }
       try {
         for await (const chunk of ask(
           chosen.id as ProviderId,
           {
             system,
             messages,
-            tools: REN_TOOLS.map((tool) => ({
+            tools: activeTools.map((tool) => ({
               name: tool.name,
               description: tool.description,
               schema: tool.schema,
