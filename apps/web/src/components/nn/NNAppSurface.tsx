@@ -43,11 +43,11 @@ function fieldValue(record: NNRecord, field: AppField): string | null {
   const value = record[field.key];
   if (value === undefined || value === null || value === "") return null;
   if (field.type === "date") {
-    const date =
-      value && typeof value === "object" && "toDate" in value
-        ? (value as { toDate: () => Date }).toDate()
-        : new Date(value as string | number);
-    return Number.isNaN(date.getTime()) ? null : date.toLocaleDateString();
+    const inputDate = toDateInputValue(value);
+    if (!inputDate) return null;
+    const [year, month, day] = inputDate.split("-").map(Number);
+    if (!year || !month || !day) return null;
+    return new Date(year, month - 1, day).toLocaleDateString();
   }
   if (field.type === "number") {
     return typeof value === "number" ? String(value) : null;
@@ -110,9 +110,8 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
     if (!editingId || !editDraft.title?.trim() || !writer.ready || busy) return;
     const payload: Record<string, unknown> = { title: editDraft.title.trim() };
     for (const field of section.fields) {
-      const raw = editDraft[field.key]?.trim();
-      if (!raw) continue;
-      const parsed = parseRecordField(field, raw ?? "");
+      const raw = editDraft[field.key]?.trim() ?? "";
+      const parsed = parseRecordField(field, raw);
       if (!parsed.ok) { setProblem(parsed.error); return; }
       payload[field.key] = parsed.value;
     }
