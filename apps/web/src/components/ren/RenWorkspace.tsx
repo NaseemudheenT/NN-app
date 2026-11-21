@@ -41,11 +41,12 @@ const OPENERS = [
   { icon: "check", text: "Add a task to my day", hint: "REN writes it into NN itself" },
 ] as const;
 
-export function RenWorkspace({ workspaceId }: { workspaceId?: string }) {
+export function RenWorkspace({ workspaceId, initialTask }: { workspaceId?: string; initialTask?: string }) {
   const router = useRouter();
   const { user } = useAuth();
   const firstName = ownerFirstName(user?.displayName);
   const ren = useRenConversation(firstName, workspaceId);
+  const delegatedTaskStarted = useRef(false);
 
   const [draft, setDraft] = useState("");
   const [files, setFiles] = useState<Attachment[]>([]);
@@ -60,6 +61,12 @@ export function RenWorkspace({ workspaceId }: { workspaceId?: string }) {
     : "idle";
 
   const ready = ren.providers.length > 0;
+
+  useEffect(() => {
+    if (!initialTask || !ren.specialist || !ready || ren.busy || delegatedTaskStarted.current) return;
+    delegatedTaskStarted.current = true;
+    ren.send(initialTask, []);
+  }, [initialTask, ready, ren.busy, ren.send, ren.specialist]);
 
   /* Follows the answer as it streams, but only while the founder is already
      at the bottom — yanking the view back while they are reading something
@@ -180,7 +187,9 @@ export function RenWorkspace({ workspaceId }: { workspaceId?: string }) {
             <h1>Good to see you, {firstName}.</h1>
             <p>
               {ready
-                ? "Ask me anything, or tell me to do something in NN. I can read what you send me, write code, work through problems, and operate NN itself."
+                ? ren.specialist
+                  ? `I'm the dedicated ${ren.specialist.workspace} specialist. I work only with this workspace's information and records; REN coordinates anything outside it.`
+                  : "Ask me anything, or tell me to do something in NN. I can reason across your work, teach, research, plan and coordinate the workspace specialists."
                 : "My language is not connected on this deployment yet. Everything else about me is already here — I just cannot speak until NN is given an engine to think with."}
             </p>
             {ready ? (
