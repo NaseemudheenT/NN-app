@@ -736,3 +736,62 @@
 .calendarDay:has(small) i { background: #64c8ff; box-shadow: 0 0 8px rgb(100 200 255 / 65%); }
 .calendarDay[data-today] i { background: #a88bff; }
 .calendarDay[data-selected] { box-shadow: inset 0 1px 0 rgb(255 255 255 / 36%), 0 0 0 2px rgb(110 177 255 / 12%), 0 7px 20px rgb(0 0 0 / 18%); }
+
+
+.noteSearch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  margin: 0 0 13px;
+  padding: 0 13px;
+  border: 1px solid rgb(199 224 255 / 22%);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgb(226 242 255 / 9%), rgb(105 143 210 / 5%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 17%);
+}
+.noteSearch > span {
+  flex: none;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.noteSearch input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 16px;
+}
+.noteSearch button {
+  flex: none;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--glass-2-border);
+  border-radius: 999px;
+  background: var(--glass-1-bg);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 10px;
+}
+.noteForm textarea {
+  field-sizing: content;
+  min-height: 170px;
+  max-height: 52dvh;
+  overflow: auto;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.noteCard p {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+@media (max-width: 520px) {
+  .noteSearch { flex-wrap: wrap; gap: 4px 9px; padding-block: 6px; }
+  .noteSearch > span { width: 100%; }
+  .noteSearch input { min-height: 38px; }
+}
