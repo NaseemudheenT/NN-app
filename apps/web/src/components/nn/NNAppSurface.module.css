@@ -458,3 +458,8 @@
 @media (prefers-reduced-motion: reduce) {
   .skeleton span { animation: none; }
 }
+
+.edit { composes: nn-liquid from global; flex:none; display:grid; place-items:center; width:44px; min-width:44px; height:44px; border-radius:var(--radius-full); color:var(--text-secondary); cursor:pointer; transition:background var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard); }
+.edit:hover:not(:disabled) { background:var(--glass-hover); color:var(--nn-icy); }
+.edit:disabled { opacity:.35; cursor:not-allowed; }
+.edit:focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }

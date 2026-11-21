@@ -81,6 +81,8 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
   const [problem, setProblem] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<Record<string, string>>({});
 
   const title = draft.title?.trim() ?? "";
 
@@ -88,6 +90,44 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
   const done = useMemo(() => records.items.filter(isDone), [records.items]);
 
   const reset = useCallback(() => { setDraft({}); setAdding(false); }, []);
+  const beginEdit = (record: NNRecord) => {
+    const next: Record<string, string> = { title: titleOf(record) };
+    for (const field of section.fields) {
+      const value = record[field.key];
+      if (value === undefined || value === null) continue;
+      if (field.type === "date") {
+        const date = value && typeof value === "object" && "toDate" in value
+          ? (value as { toDate: () => Date }).toDate()
+          : new Date(value as string | number);
+        if (!Number.isNaN(date.getTime())) next[field.key] = date.toISOString().slice(0, 10);
+      } else if (typeof value === "string" || typeof value === "number") next[field.key] = String(value);
+    }
+    setEditingId(record.id);
+    setEditDraft(next);
+    setAdding(false);
+    setProblem(null);
+  };
+  const saveEdit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!editingId || !editDraft.title?.trim() || !writer.ready || busy) return;
+    const payload: Record<string, unknown> = { title: editDraft.title.trim() };
+    for (const field of section.fields) {
+      const raw = editDraft[field.key]?.trim();
+      if (!raw) continue;
+      if (field.type === "number") {
+        const number = Number(raw);
+        if (!Number.isFinite(number)) { setProblem(`${field.label} must be a number.`); return; }
+        payload[field.key] = number;
+      } else payload[field.key] = raw;
+    }
+    setBusy(true); setProblem(null);
+    try {
+      await writer.update(section.collection, editingId, payload);
+      setEditingId(null); setEditDraft({});
+    } catch (error) {
+      setProblem(error instanceof Error ? `Not updated. ${error.message}` : "Not updated. NN could not save those changes.");
+    } finally { setBusy(false); }
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -195,6 +235,21 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
             </button>
           ) : null}
         </label>
+      ) : null}
+
+      {editingId ? (
+        <form className={styles.form} onSubmit={(event) => void saveEdit(event)} aria-label={`Edit ${section.noun}`}>
+          <label className={styles.field}><span>Title</span><input autoFocus value={editDraft.title ?? ""} onChange={(event) => setEditDraft((draft) => ({ ...draft, title: event.target.value }))} maxLength={200} required /></label>
+          {section.fields.map((field) => (
+            <label className={styles.field} key={field.key} data-wide={field.type === "longtext"}>
+              <span>{field.label}{field.hint ? <em>{field.hint}</em> : null}</span>
+              {field.type === "longtext" ? <textarea rows={3} value={editDraft[field.key] ?? ""} onChange={(event) => setEditDraft((draft) => ({ ...draft, [field.key]: event.target.value }))} maxLength={4000} /> :
+               field.type === "choice" ? <select value={editDraft[field.key] ?? field.choices?.[0] ?? ""} onChange={(event) => setEditDraft((draft) => ({ ...draft, [field.key]: event.target.value }))}>{(field.choices ?? []).map((choice) => <option key={choice} value={choice}>{choice}</option>)}</select> :
+               <input type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"} step={field.type === "number" ? "any" : undefined} value={editDraft[field.key] ?? ""} onChange={(event) => setEditDraft((draft) => ({ ...draft, [field.key]: event.target.value }))} maxLength={field.type === "text" ? 200 : undefined} />}
+            </label>
+          ))}
+          <div className={styles.formActions}><button type="submit" disabled={!editDraft.title?.trim() || busy || !writer.ready}>{busy ? "Saving…" : "Save changes"}</button><button type="button" className={styles.ghost} onClick={() => { setEditingId(null); setEditDraft({}); }}>Cancel</button></div>
+        </form>
       ) : null}
 
       {adding ? (
@@ -318,6 +373,8 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
                     return relativeTime((updated as { toDate: () => Date }).toDate(), now);
                   })()}
                 </span>
+
+                <button type="button" className={styles.edit} aria-label={`Edit ${titleOf(record)}`} onClick={() => beginEdit(record)} disabled={!writer.ready || busy}><Icon name="edit" size={14} /></button>
 
                 <button
                   type="button"
