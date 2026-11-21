@@ -48,7 +48,7 @@ export function FeedbackState({
       data-kind={kind}
       role={role}
       aria-busy={kind === "loading" ? true : undefined}
-      aria-label={kind === "empty" || kind === "permission" ? title : undefined}
+      aria-label={title}
     >
       <span className={[styles.icon, kind === "loading" ? styles.loading : ""].filter(Boolean).join(" ")} aria-hidden="true">
         <Icon name={ICONS[kind]} size={22} />
