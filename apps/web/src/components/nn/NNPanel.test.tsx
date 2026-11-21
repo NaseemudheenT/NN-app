@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-const push = vi.hoisted(() => vi.fn());
+const navigate = vi.hoisted(() => vi.fn());
 const path = vi.hoisted(() => ({ value: "/home" }));
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push }),
   usePathname: () => path.value,
 }));
+vi.mock("@/components/nn/AppTransition", () => ({ useAppTransition: () => ({ open: navigate }) }));
 
 const { NNPanel } = await import("./NNPanel");
 const { destinations } = await import("@/lib/nn/destinations");
@@ -22,7 +22,7 @@ const { destinations } = await import("@/lib/nn/destinations");
  */
 
 afterEach(cleanup);
-beforeEach(() => { push.mockReset(); path.value = "/home"; });
+beforeEach(() => { navigate.mockReset(); path.value = "/home"; });
 
 describe("the island", () => {
   it("starts closed, as one control", () => {
@@ -80,7 +80,7 @@ describe("choosing somewhere", () => {
   it("goes there, and closes", async () => {
     await open();
     await userEvent.click(screen.getByRole("button", { name: /Settings/ }));
-    expect(push).toHaveBeenCalledWith("/settings");
+    expect(navigate).toHaveBeenCalledWith("/settings", "Settings");
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 

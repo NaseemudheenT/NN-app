@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
@@ -16,7 +15,6 @@ import styles from "./NNAppLauncher.module.css";
  * work inside them. The registry is the single source of truth.
  */
 export function NNAppLauncher() {
-  const router = useRouter();
   const travel = useAppTransition();
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
@@ -58,7 +56,7 @@ export function NNAppLauncher() {
           className={styles.profile}
           aria-label="Profile and settings"
           title="Profile and settings"
-          onClick={() => router.push("/settings" as Route)}
+          onClick={() => travel.open("/settings" as Route, "Settings")}
         >
           <Icon name="settings" size={17} />
         </button>

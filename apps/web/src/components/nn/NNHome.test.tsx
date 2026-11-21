@@ -3,11 +3,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
 
-const { push, open } = vi.hoisted(() => ({ push: vi.fn(), open: vi.fn() }));
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push }),
-}));
+const open = vi.hoisted(() => vi.fn());
 
 vi.mock("@/components/nn/AppTransition", () => ({
   useAppTransition: () => ({ open, close: vi.fn(), request: null }),
@@ -17,7 +13,6 @@ const { NNHomePreview } = await import("./NNHome");
 
 afterEach(cleanup);
 beforeEach(() => {
-  push.mockClear();
   open.mockClear();
 });
 
@@ -91,7 +86,7 @@ describe("NN application launcher", () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
     await user.click(screen.getByRole("button", { name: "Profile and settings" }));
-    expect(push).toHaveBeenCalledWith("/settings");
+    expect(open).toHaveBeenCalledWith("/settings", "Settings");
   });
 
   it("explains when a search has no matches and lets the user clear it", async () => {

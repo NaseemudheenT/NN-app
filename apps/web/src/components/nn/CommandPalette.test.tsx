@@ -11,13 +11,13 @@ import { APPLICATIONS } from "@/lib/apps/registry";
  * decides whether the first press of Enter lands where the founder meant.
  */
 
-const push = vi.hoisted(() => vi.fn());
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+const navigate = vi.hoisted(() => vi.fn());
+vi.mock("@/components/nn/AppTransition", () => ({ useAppTransition: () => ({ open: navigate }) }));
 
 const { CommandPalette } = await import("./CommandPalette");
 
 afterEach(cleanup);
-beforeEach(() => push.mockReset());
+beforeEach(() => navigate.mockReset());
 
 const open = async () => {
   render(<CommandPalette />);
@@ -90,7 +90,7 @@ describe("the palette", () => {
     const options = screen.getAllByRole("option");
     expect(options[0]).toHaveTextContent("Finance");
     await userEvent.keyboard("{Enter}");
-    expect(push).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
   });
 
   it("moves with the arrows without leaving the field", async () => {
@@ -110,7 +110,7 @@ describe("the palette", () => {
     const first = screen.getAllByRole("option")[0];
     if (first?.getAttribute("aria-disabled") !== "true") return;
     await userEvent.keyboard("{Enter}");
-    expect(push).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it("says so rather than showing an empty list", async () => {
@@ -131,8 +131,8 @@ describe("the direct keys", () => {
   it("sends ⌘J to REN and ⌘H to the dashboard", async () => {
     render(<CommandPalette />);
     await userEvent.keyboard("{Meta>}j{/Meta}");
-    expect(push).toHaveBeenCalledWith("/ren");
+    expect(navigate).toHaveBeenCalledWith("/ren", "REN");
     await userEvent.keyboard("{Meta>}h{/Meta}");
-    expect(push).toHaveBeenCalledWith("/home");
+    expect(navigate).toHaveBeenCalledWith("/home", "Today");
   });
 });

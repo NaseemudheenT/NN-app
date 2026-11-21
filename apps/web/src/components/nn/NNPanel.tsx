@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useAppTransition } from "@/components/nn/AppTransition";
 import { Icon } from "@/components/ui/Icon";
 import { RenMark } from "@/components/ui/RenMark";
 import { NNLogo } from "@/components/ui/NNLogo";
@@ -43,7 +44,7 @@ const NN_PLACES = ALL_DESTINATIONS.filter((destination) => destination.route !==
 const APP_DESTINATIONS = ALL_DESTINATIONS.filter((destination) => destination.route !== undefined && destination.group === "Applications");
 
 export function NNPanel() {
-  const router = useRouter();
+  const travel = useAppTransition();
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -115,8 +116,8 @@ export function NNPanel() {
   const go = useCallback((destination: Destination) => {
     if (destination.route === undefined) return;
     close();
-    router.push(destination.route);
-  }, [close, router]);
+    travel.open(destination.route, destination.label);
+  }, [close, travel]);
 
   /* Escape, and a press anywhere else, both close it. */
   useEffect(() => {
