@@ -7,7 +7,7 @@ import { useAppTransition } from "@/components/nn/AppTransition";
 import { Dock } from "@/components/ui/Dock";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
-import { openableApplications } from "@/lib/apps/registry";
+import { APPLICATIONS } from "@/lib/apps/registry";
 import { NNIsland } from "@/components/nn/NNIsland";
 import styles from "./AppShell.module.css";
 
@@ -36,15 +36,18 @@ export interface AppShellProps {
 export function AppShell({ title, subtitle, actions, children }: AppShellProps) {
   const travel = useAppTransition();
   const pathname = usePathname();
-  const openable = openableApplications();
-
-  const dockItems = React.useMemo(
-    () => [
+  // A dock is a small, intentional set of destinations — not a second app launcher.
+  // Keep the most-used workspaces within thumb reach and leave the full catalogue to Home.
+  const dockItems = React.useMemo(() => {
+    const priority = ["life", "college", "finance", "projects", "search"];
+    const featured = priority
+      .map((id) => APPLICATIONS.find((app) => app.id === id))
+      .filter((app) => app?.href);
+    return [
       { id: "/home" as Route, label: "NN Home", icon: "grid" as const },
-      ...openable.map((app) => ({ id: app.href!, label: app.name, icon: app.icon })),
-    ],
-    [openable],
-  );
+      ...featured.map((app) => ({ id: app!.href!, label: app!.name, icon: app!.icon })),
+    ];
+  }, []);
 
   const activeId = dockItems.find((item) => item.id === pathname)?.id ?? "/home";
 
