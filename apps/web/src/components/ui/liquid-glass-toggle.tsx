@@ -71,7 +71,8 @@ export function LiquidToggle({
   const playSnap = React.useCallback((next: boolean) => {
     if (!sound || typeof window === "undefined") return;
     try {
-      const AudioContextClass = window.AudioContext;
+      const AudioContextClass = window.AudioContext ??
+        (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AudioContextClass) return;
       const context = audioRef.current ?? (audioRef.current = new AudioContextClass());
       if (context.state === "suspended") void context.resume();
@@ -114,7 +115,11 @@ export function LiquidToggle({
       moved: false,
     };
     suppressClick.current = false;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Pointer capture is not available in every embedded browser.
+    }
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -133,7 +138,10 @@ export function LiquidToggle({
   const endPointer = (event: React.PointerEvent<HTMLButtonElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
-    if (drag.moved) commit(progressFromClientX(drag.currentX) >= 0.5);
+    if (drag.moved) {
+      drag.currentX = event.clientX;
+      commit(progressFromClientX(drag.currentX) >= 0.5);
+    }
     dragRef.current = null;
     setDragProgress(null);
   };
