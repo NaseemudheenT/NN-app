@@ -38,6 +38,26 @@ export function inferDomainLayout(appId: string, module: DomainModule): DomainLa
   return "dashboard";
 }
 
+const REGION_ICON_HINTS: ReadonlyArray<[RegExp, IconName]> = [
+  [/calendar|date|schedule|timeline|history/i, "calendar"],
+  [/finance|ledger|budget|transaction|payment|invoice|portfolio/i, "wallet"],
+  [/search|question|research|source|archive/i, "search"],
+  [/security|access|audit|permission|session/i, "shield"],
+  [/workflow|automation|approval|integration|process/i, "circuit"],
+  [/media|image|video|production|content|publishing/i, "sparkle"],
+  [/formula|compute|calculation|unit|result/i, "formula"],
+  [/map|place|location|trip|travel/i, "globe"],
+  [/writing|editor|document|notes|journal|reflection/i, "file"],
+  [/people|contact|person|client|relationship/i, "people"],
+  [/settings|preference|environment|control/i, "sliders"],
+  [/task|board|milestone|project|deliverable/i, "check"],
+  [/book|course|lesson|library|reader|syllabus/i, "book"],
+];
+
+function iconForRegion(region: string, fallback: IconName): IconName {
+  return REGION_ICON_HINTS.find(([pattern]) => pattern.test(region))?.[1] ?? fallback;
+}
+
 export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>> = {
   soul: [
     { id: "reflections", title: "Reflect", description: "A private writing environment for thoughts, values and personal reflection.", icon: "file", regions: ["Writing canvas", "Date and context", "Private archive"] },
