@@ -18,7 +18,7 @@ import { ownerFirstName } from "@/lib/nn/owner";
 import { buildCalendarGrid, calendarDateKey } from "@/lib/nn/calendar-grid";
 
 type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals" | "habits" | "routines" | "focus" | "reviews";
-type LifePreviewTab = "habits" | "routines" | "focus" | "reviews";
+export type LifePreviewTab = "habits" | "routines" | "focus" | "reviews";
 type RecordData = Record<string, unknown> & { id: string };
 type LifeData = { tasks: RecordData[]; calendar_events: RecordData[]; reminders: RecordData[]; notes: RecordData[]; goals: RecordData[] };
 type CollectionName = keyof LifeData;
@@ -87,7 +87,7 @@ const LIFE_PREVIEWS: Record<LifePreviewTab, {
   },
 };
 
-function LifePreviewCanvas({ module }: { module: LifePreviewTab }) {
+export function LifePreviewCanvas({ module }: { module: LifePreviewTab }) {
   if (module === "habits") return (
     <div className={styles.previewCanvas} data-preview="habits" aria-label="Habit check-in layout preview">
       <div className={styles.canvasHeading}><span>WEEKLY RHYTHM</span><strong>Check-in matrix</strong></div>
