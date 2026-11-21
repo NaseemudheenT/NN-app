@@ -12,11 +12,13 @@ import styles from "./NNNexus.module.css";
 const SYSTEM_LINKS = [
   { href: "/", label: "Home", icon: "calendar" as const },
   { href: "/workspace", label: "Workspace", icon: "grid" as const },
+  { href: "/life", label: "Life", icon: "calendar" as const },
   { href: "/design", label: "Design", icon: "sparkle" as const },
 ] as const;
 
 const QUICK_LINKS = [
   { href: "/workspace", label: "Workspace", detail: "Your personal environment", icon: "grid" as const, tone: "blue" },
+  { href: "/life", label: "Life", detail: "Tasks and daily planning", icon: "calendar" as const, tone: "blue" },
   { href: "/design", label: "Design system", detail: "NN interface library", icon: "sparkle" as const, tone: "violet" },
 ] as const;
 
