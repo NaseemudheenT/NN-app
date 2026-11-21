@@ -89,8 +89,8 @@
 }
 .iconStack { position: relative; display: block; width: 62%; height: 62%; }
 .iconOff, .iconOn { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity 180ms ease, transform 240ms ease; }
-.iconOff { color: #E89A12; opacity: calc(1 - var(--toggle-progress)); transform: scale(calc(.72 + var(--toggle-progress) * .28)) rotate(calc(var(--toggle-progress) * 24deg)); }
-.iconOn { color: #0B132B; opacity: var(--toggle-progress); transform: scale(calc(.72 + var(--toggle-progress) * .28)) rotate(calc((1 - var(--toggle-progress)) * -24deg)); }
+.iconOff { color: #E89A12; opacity: calc(1 - var(--toggle-progress)); }
+.iconOn { color: #0B132B; opacity: var(--toggle-progress); }
 .toggle[data-tone="dark"] .iconOff { color: #FFC24A; }
 .toggle[data-tone="dark"] .iconOn { color: #EAF4FF; }
 .ripple {
