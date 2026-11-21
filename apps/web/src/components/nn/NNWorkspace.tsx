@@ -123,7 +123,7 @@ export function NNWorkspace({
   entries = ENTRIES,
   goals = GOALS,
   periods = PERIODS,
-  glass = DEFAULTS,
+  glass,
   onSignOut,
   onSignOutEverywhere,
 }: NNWorkspaceProps) {
@@ -132,7 +132,7 @@ export function NNWorkspace({
   const id = useId().replace(/:/g, "");
 
   const [view, setView] = useState<View>("today");
-  const [material, setMaterial] = useState(() => normalise(glass));
+  const [material, setMaterial] = useState(() => normalise(glass ?? DEFAULTS));
   const [materialReady, setMaterialReady] = useState(false);
   const [localHour, setLocalHour] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -146,14 +146,19 @@ export function NNWorkspace({
   // Keep the founder's material preference across sessions without making
   // browser storage part of the server render or risking a hydration mismatch.
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("nn.glass.v1");
-      if (saved) setMaterial(normalise(JSON.parse(saved) as Partial<GlassSettings>));
-    } catch {
-      // A blocked or malformed local preference falls back to the safe defaults.
+    // An explicit glass prop is a caller-owned configuration and takes
+    // precedence over the browser's saved preference (including in tests,
+    // previews and embedded workspaces).
+    if (glass === undefined) {
+      try {
+        const saved = window.localStorage.getItem("nn.glass.v1");
+        if (saved) setMaterial(normalise(JSON.parse(saved) as Partial<GlassSettings>));
+      } catch {
+        // A blocked or malformed local preference falls back to safe defaults.
+      }
     }
     setMaterialReady(true);
-  }, []);
+  }, [glass]);
 
   useEffect(() => {
     if (!materialReady) return;
@@ -1011,7 +1016,7 @@ export function NNWorkspace({
                 onChange={(event) => updateGlass({ tint: event.target.value })}
               />
             </label>
-            <button className={styles.reset} type="button" onClick={() => setMaterial(normalise(glass))}>
+            <button className={styles.reset} type="button" onClick={() => setMaterial(normalise(glass ?? DEFAULTS))}>
               Reset appearance
             </button>
           </aside>
