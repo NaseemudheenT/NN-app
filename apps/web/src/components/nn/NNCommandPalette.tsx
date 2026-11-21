@@ -92,8 +92,9 @@ export function NNCommandPalette() {
     if (event.key !== "Tab") return;
     const focusable = panelRef.current?.querySelectorAll<HTMLElement>('input:not([disabled]), button:not([disabled])');
     if (!focusable?.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+    const first = focusable.item(0);
+    const last = focusable.item(focusable.length - 1);
+    if (!first || !last) return;
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();
@@ -128,8 +129,8 @@ export function NNCommandPalette() {
             role="combobox"
             aria-label="Search NN"
             aria-autocomplete="list"
-            aria-expanded={results.length > 0}
-            aria-controls={listId}
+            aria-expanded={true}
+            aria-controls={results.length > 0 ? listId : undefined}
             aria-activedescendant={results[active] ? `${listId}-${results[active].id}` : undefined}
             placeholder="Where would you like to go?"
             value={query}

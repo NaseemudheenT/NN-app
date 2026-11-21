@@ -277,7 +277,7 @@ export function NNNexus() {
           </div>
           <footer className={styles.panelFooter}>
             <span><i /> NN SYSTEM</span>
-            <span>⌘K / Ctrl K · Search NN</span>
+            <span>⌘K / Ctrl K · Quick navigation</span>
           </footer>
         </section>
       ) : null}
