@@ -138,13 +138,13 @@ export interface LauncherApp {
 }
 
 export const LAUNCHER: readonly LauncherApp[] = [
-  { id: "life", name: "NN Life", icon: "calendar", hint: "3 today" },
-  { id: "college", name: "NN College", icon: "book", hint: "CAT-II in 6 days" },
-  { id: "academy", name: "NN Academy", icon: "graph", hint: "Python · unit 4" },
-  { id: "projects", name: "NN Projects", icon: "grid", hint: "2 active" },
-  { id: "finance", name: "NN Finance", icon: "wallet", hint: "Nov budget" },
-  { id: "files", name: "NN Files", icon: "folder", hint: "12 recent" },
-  { id: "memory", name: "NN Memory", icon: "sparkle", hint: "48 entries" },
-  { id: "security", name: "NN Security", icon: "shield", hint: "All clear" },
-  { id: "control", name: "NN Control", icon: "settings", hint: "Spark · dev" },
+  { id: "life", name: "Life", icon: "calendar", hint: "3 today" },
+  { id: "college", name: "Study", icon: "book", hint: "CAT-II in 6 days" },
+  { id: "academy", name: "Learn", icon: "graph", hint: "Python · unit 4" },
+  { id: "projects", name: "Build", icon: "grid", hint: "2 active" },
+  { id: "finance", name: "Money", icon: "wallet", hint: "Nov budget" },
+  { id: "files", name: "Files", icon: "folder", hint: "12 recent" },
+  { id: "memory", name: "Recall", icon: "sparkle", hint: "48 entries" },
+  { id: "security", name: "Shield", icon: "shield", hint: "All clear" },
+  { id: "control", name: "System", icon: "settings", hint: "Spark · dev" },
 ];
