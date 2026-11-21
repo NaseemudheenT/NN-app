@@ -119,3 +119,11 @@
 :global(html[data-motion="reduced"]) .iconOff,
 :global(html[data-motion="reduced"]) .iconOn { transition-duration: 1ms; }
 :global(html[data-motion="reduced"]) .toggle[data-state="on"]:active .ripple { animation-duration: 1ms; }
+
+@media (prefers-reduced-motion: reduce) { .water, .drop, .iconOff, .iconOn { transition: none; } .toggle[data-state="on"]:active .ripple { animation: none; } }
+:global(html[data-motion="reduced"]) .water,
+:global(html[data-motion="reduced"]) .drop,
+:global(html[data-motion="reduced"]) .iconOff,
+:global(html[data-motion="reduced"]) .iconOn { transition: none; }
+:global(html[data-motion="reduced"]) .toggle[data-state="on"]:active .ripple { animation: none; }
+@media (prefers-reduced-transparency: reduce) { .track { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--surface-raised) 94%, transparent); } }

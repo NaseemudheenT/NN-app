@@ -107,3 +107,7 @@
 :global(html[data-theme="light"]) .input {
   background: rgb(255 255 255 / 70%); border-color: rgb(7 17 31 / 12%);
 }
+
+@media (prefers-reduced-motion: reduce) { .orb:active { transform: none; } }
+:global(html[data-motion="reduced"]) .orb:active { transform: none; }
+@media (prefers-reduced-transparency: reduce) { .card { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--surface-raised) 97%, transparent); } }

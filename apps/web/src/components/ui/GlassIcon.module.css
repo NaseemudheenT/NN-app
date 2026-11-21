@@ -139,3 +139,6 @@
       0 2px 5px -1px rgb(4 10 28 / 34%);
   }
 }
+
+:global(html[data-motion="reduced"]) .tile::before { animation: none; }
+@media (prefers-reduced-transparency: reduce) { .tile { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--surface-raised) 94%, transparent); } }
