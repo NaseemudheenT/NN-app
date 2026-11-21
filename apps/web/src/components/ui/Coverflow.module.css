@@ -41,8 +41,13 @@
     var(--glass-2-bg);
   backdrop-filter: blur(var(--glass-2-blur));
   -webkit-backdrop-filter: blur(var(--glass-2-blur));
-  box-shadow: var(--shadow-3), inset 0 1px 0 var(--glass-sheen);
+  box-shadow:
+    0 24px 58px rgb(0 0 0 / 17%),
+    var(--shadow-3),
+    inset 0 1px 0 var(--glass-sheen),
+    inset 0 0 0 1px rgb(255 255 255 / 3%);
   will-change: transform, opacity;
+  transition: filter 260ms ease, box-shadow 320ms ease;
   /* Only the transform is written per frame; nothing here transitions, or the
      drag would lag a frame behind the finger. */
 }
@@ -60,6 +65,26 @@
     transparent 70%
   );
   opacity: calc(0.35 + var(--centred, 0) * 0.65);
+  mix-blend-mode: screen;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 18% 8%, rgb(255 255 255 / 13%), transparent 48%);
+  opacity: calc(0.18 + var(--centred, 0) * 0.42);
+}
+
+.card:hover {
+  filter: brightness(1.07) saturate(1.08);
+  box-shadow:
+    0 30px 72px rgb(0 0 0 / 24%),
+    var(--shadow-3),
+    inset 0 1px 0 rgb(255 255 255 / 22%),
+    inset 0 0 0 1px rgb(255 255 255 / 6%);
 }
 
 .cardIcon {
@@ -189,3 +214,9 @@
 }
 .dots { position: relative; }
 .dot { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .caption { animation: none; }
+  .nav, .dot { transition: none; }
+}
