@@ -87,6 +87,49 @@ const LIFE_PREVIEWS: Record<LifePreviewTab, {
   },
 };
 
+function LifePreviewCanvas({ module }: { module: LifePreviewTab }) {
+  if (module === "habits") return (
+    <div className={styles.previewCanvas} data-preview="habits" aria-label="Habit check-in layout preview">
+      <div className={styles.canvasHeading}><span>WEEKLY RHYTHM</span><strong>Check-in matrix</strong></div>
+      <div className={styles.habitMatrix}>
+        {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
+          <div className={styles.habitDay} key={index}><span>{day}</span><i aria-hidden="true"/></div>
+        ))}
+      </div>
+      <div className={styles.canvasFoot}><span>HABIT ROWS</span><i/><i/><i/></div>
+    </div>
+  );
+  if (module === "routines") return (
+    <div className={styles.previewCanvas} data-preview="routines" aria-label="Routine sequence layout preview">
+      <div className={styles.canvasHeading}><span>ROUTINE BUILDER</span><strong>Sequence and timing</strong></div>
+      <div className={styles.routineSequence}>
+        {["01", "02", "03"].map((step) => (
+          <div className={styles.routineStep} key={step}><span>{step}</span><i/><strong>Step title</strong><small>Optional time window</small></div>
+        ))}
+      </div>
+    </div>
+  );
+  if (module === "focus") return (
+    <div className={styles.previewCanvas} data-preview="focus" aria-label="Focus session layout preview">
+      <div className={styles.canvasHeading}><span>ATTENTION SPACE</span><strong>Session workspace</strong></div>
+      <div className={styles.focusWorkspace}>
+        <div className={styles.focusDial}><div><strong>READY</strong><span>SESSION TIMER</span></div></div>
+        <div className={styles.focusIntent}><span>SESSION INTENTION</span><i/><i/><i/><small>NO SESSION RUNNING</small></div>
+      </div>
+    </div>
+  );
+  return (
+    <div className={styles.previewCanvas} data-preview="reviews" aria-label="Reflection review layout preview">
+      <div className={styles.canvasHeading}><span>REVIEW WORKSPACE</span><strong>Reflect and reset</strong></div>
+      <div className={styles.reviewPrompts}>
+        {["Wins", "Lessons", "Next move"].map((prompt) => (
+          <div className={styles.reviewPrompt} key={prompt}><strong>{prompt}</strong><i/><i/><i/></div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
   const preview = LIFE_PREVIEWS[module];
   return (
@@ -104,7 +147,7 @@ function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
           <span><strong>Design complete in progress.</strong> This screen is a visual handoff for Claude. No records, schedules or activity are being simulated.</span>
         </div>
       </GlassPanel>
-      <div className={styles.previewGrid}>
+      <LifePreviewCanvas module={module}/>\n      <div className={styles.previewGrid}>
         {preview.features.map((feature) => (
           <GlassPanel key={feature.title} tier={2} padding="lg" className={styles.previewFeature}>
             <span className={styles.previewFeatureIcon}><Icon name={feature.icon} size={18}/></span>
