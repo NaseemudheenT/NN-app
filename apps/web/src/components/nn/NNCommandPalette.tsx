@@ -9,6 +9,7 @@ const DESTINATIONS = [
   { id: "home", title: "Home", detail: "The NN entrance", keywords: "start overview entrance", href: "/" },
   { id: "workspace", title: "Workspace", detail: "Your personal environment", keywords: "today timeline goals focus", href: "/workspace" },
   { id: "life", title: "Life", detail: "Tasks and daily planning", keywords: "tasks habits routines personal calendar", href: "/life" },
+  { id: "study", title: "Study", detail: "Subjects and academic work", keywords: "college subjects syllabus exams question banks", href: "/study" },
   { id: "design", title: "Design system", detail: "Interface library and themes", keywords: "components glass motion tokens", href: "/design" },
   { id: "signin", title: "Sign in", detail: "Secure access with a passkey", keywords: "account authentication passkey", href: "/sign-in" },
 ] as const;
@@ -160,7 +161,7 @@ export function NNCommandPalette() {
                 onMouseEnter={() => setActive(index)}
                 onClick={() => navigate(item.href)}
               >
-                <span className={styles.optionIcon}><Icon name={item.id === "home" || item.id === "life" ? "calendar" : item.id === "workspace" ? "grid" : item.id === "design" ? "sparkle" : "shield"} size={18} /></span>
+                <span className={styles.optionIcon}><Icon name={item.id === "home" || item.id === "life" ? "calendar" : item.id === "study" ? "book" : item.id === "workspace" ? "grid" : item.id === "design" ? "sparkle" : "shield"} size={18} /></span>
                 <span className={styles.optionCopy}>
                   <strong>{item.title}</strong>
                   <small>{item.detail}</small>
@@ -172,7 +173,7 @@ export function NNCommandPalette() {
         ) : (
           <div className={styles.empty}>
             <strong>No matching destination</strong>
-            <span>Search Home, Workspace, Life, Design or Sign in.</span>
+            <span>Search Home, Workspace, Life, Study, Design or Sign in.</span>
           </div>
         )}
 
