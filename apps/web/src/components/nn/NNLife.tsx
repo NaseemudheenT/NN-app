@@ -34,59 +34,6 @@ const TABS: readonly { id: LifeTab; label: string; icon: IconName }[] = [
   { id: "focus", label: "Focus", icon: "bolt" },
   { id: "reviews", label: "Reviews", icon: "book" },
 ];
-const LIFE_PREVIEWS: Record<LifePreviewTab, {
-  eyebrow: string;
-  title: string;
-  description: string;
-  icon: IconName;
-  features: { icon: IconName; title: string; description: string }[];
-}> = {
-  habits: {
-    eyebrow: "DAILY PRACTICE",
-    title: "Make consistency feel natural.",
-    description: "A calm space for the practices you choose to repeat. Habit records and check-in logic are not connected yet.",
-    icon: "pulse",
-    features: [
-      { icon: "calendar", title: "Flexible cadence", description: "Daily, selected weekdays or a schedule that fits the habit." },
-      { icon: "check", title: "Simple check-ins", description: "A clear completion interaction with room for missed days." },
-      { icon: "graph", title: "Consistency history", description: "A readable history built from real check-ins, never invented streaks." },
-    ],
-  },
-  routines: {
-    eyebrow: "REPEATABLE SYSTEMS",
-    title: "Give your day a considered rhythm.",
-    description: "Design repeatable sequences for the parts of life you want to make easier. Routine storage and scheduling are not connected yet.",
-    icon: "flow",
-    features: [
-      { icon: "check", title: "Ordered steps", description: "A sequence you can follow and adjust without rebuilding it." },
-      { icon: "clock", title: "Time windows", description: "Optional timing that respects your actual calendar." },
-      { icon: "graph", title: "Completion review", description: "See what happened after routine execution is connected." },
-    ],
-  },
-  focus: {
-    eyebrow: "ATTENTION SPACE",
-    title: "Protect a little time for deep work.",
-    description: "A focused session environment with a timer, intention and session history. Timer persistence and session records are not connected yet.",
-    icon: "bolt",
-    features: [
-      { icon: "clock", title: "Session timer", description: "A distraction-light timer with clear pause and finish states." },
-      { icon: "compass", title: "Session intention", description: "Keep one task or outcome in view while you work." },
-      { icon: "graph", title: "Focus history", description: "Review only sessions that were actually recorded." },
-    ],
-  },
-  reviews: {
-    eyebrow: "REFLECTION",
-    title: "Notice what is moving forward.",
-    description: "A structured space for daily, weekly and monthly reflection. Review templates and saved entries are not connected yet.",
-    icon: "book",
-    features: [
-      { icon: "calendar", title: "Review rhythm", description: "Choose a cadence that supports reflection without noise." },
-      { icon: "file", title: "Wins and lessons", description: "Capture what worked, what did not and what you learned." },
-      { icon: "graph", title: "Next priorities", description: "Turn reflection into a small, deliberate next step." },
-    ],
-  },
-};
-
 export function LifePreviewCanvas({ module }: { module: LifePreviewTab }) {
   if (module === "habits") return (
     <div className={styles.previewCanvas} data-preview="habits" role="group" aria-label="Habit check-in layout preview">
@@ -681,7 +628,7 @@ function LifeSurface() {
       </section> : null}
       {!loading && tab === "focus" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>ATTENTION SPACE</p><h2>Protect time for one thing.</h2>
         {activeFocus ? <div className={styles.focusSession} role="status"><span className={styles.focusCountdown}>{String(Math.floor(focusRemaining / 60)).padStart(2,"0")}:{String(focusRemaining % 60).padStart(2,"0")}</span><strong>{String(activeFocus.intention ?? "Focus session")}</strong><small>{focusRemaining === 0 ? "Planned time reached — finish when ready." : "Session in progress"}</small><div className={styles.focusActions}><button type="button" disabled={busy} onClick={() => finishFocusSession(activeFocus,"completed")}>Complete</button><button type="button" className={styles.inlineAction} disabled={busy} onClick={() => finishFocusSession(activeFocus,"cancelled")}>Cancel</button></div></div>
-        : <form className={styles.captureForm} onSubmit={(event) => { event.preventDefault(); startFocusSession(); }}><input value={focusIntention} onChange={(e) => setFocusIntention(e.target.value)} placeholder="What will you focus on?" aria-label="Focus intention" required maxLength={160}/><select value={focusMinutes} onChange={(e) => setFocusMinutes(e.target.value)} aria-label="Focus duration"><option value="15">15 minutes</option><option value="25">25 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select><button disabled={busy || !focusIntention.trim()}><Icon name="play" size={16}/> Start focus</button></form>}
+        : <form className={styles.captureForm} onSubmit={(event) => { event.preventDefault(); startFocusSession(); }}><input value={focusIntention} onChange={(e) => setFocusIntention(e.target.value)} placeholder="What will you focus on?" aria-label="Focus intention" required maxLength={160}/><select value={focusMinutes} onChange={(e) => setFocusMinutes(e.target.value)} aria-label="Focus duration"><option value="15">15 minutes</option><option value="25">25 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select><button disabled={busy || !focusIntention.trim()}><Icon name="bolt" size={16}/> Start focus</button></form>}
         <div className={styles.list}>{data.focus_sessions.filter((session) => session.status !== "active").slice(0,12).map((session) => <article className={styles.record} key={session.id}><span className={styles.recordGlyph}><Icon name="clock" size={17}/></span><div className={styles.recordMain}><strong>{String(session.intention ?? "Focus session")}</strong><small>{String(session.status ?? "saved")} · {Number(session.actualMinutes ?? 0)} minutes recorded</small></div></article>)}</div>
       </GlassPanel></section> : null}
       {!loading && tab === "reviews" ? <section className={styles.notesLayout}>
