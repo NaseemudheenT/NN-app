@@ -98,7 +98,7 @@ function ThemeToggleRow({ theme, resolvedTheme, onChange }: {
         tone={resolvedTheme}
         size={36}
         label="Dark appearance"
-        icons={NimbusToggleIcons}
+        icons={{ off: NimbusToggleIcons.sun, on: NimbusToggleIcons.moon }}
       />
     </div>
   );
