@@ -147,3 +147,38 @@
   background: var(--glass-active);
   border-color: var(--border-normal);
 }
+
+
+/* Small-screen refinement: keep the design-system controls usable without
+   forcing the page wider than the device viewport. */
+@media (max-width: 680px) {
+  .topbar {
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: 22px;
+  }
+  .topbarSpacer { min-width: 0; }
+  .log {
+    flex: 1 1 100%;
+    order: 3;
+    min-height: 14px;
+  }
+  .tabs {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    padding: var(--space-2);
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: 0 0 auto; scroll-snap-align: start; }
+  .sizes {
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: var(--space-3);
+    gap: var(--space-7);
+  }
+  .sizes figure { flex: 0 0 auto; }
+}
