@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  FRAG, VERT, VISIBLE, visibleFor,
+  FRAG, VERT, VISIBLE, visibleFor, hueFor,
   cardSize, offsetOf, restFor, springStep, stackConfig, stackTransform, wrapIndex,
 } from "./CurvedCarousel";
 
@@ -11,6 +11,26 @@ import {
  * wrong lives there: which slide is centred, which way it travels, and where
  * a flick comes to rest are all pure functions, and these are them.
  */
+describe("application identity light", () => {
+  it("gives registered applications distinct, approved-spectrum glass accents", () => {
+    const life = hueFor("Life");
+    const college = hueFor("College");
+    const finance = hueFor("Finance");
+    const creator = hueFor("Creator Studio");
+    expect(life).not.toEqual(college);
+    expect(college).not.toEqual(finance);
+    expect(finance).not.toEqual(creator);
+    for (const hue of [life, college, finance, creator]) {
+      expect(hue).toHaveLength(3);
+      expect(hue.every((channel) => channel >= 0 && channel <= 1)).toBe(true);
+    }
+  });
+
+  it("falls back to the shared glass light for unknown names", () => {
+    expect(hueFor("Unknown application")).toEqual([0.46, 0.74, 1.0]);
+  });
+});
+
 describe("wrapIndex", () => {
   it("brings any index inside the ring", () => {
     expect(wrapIndex(0, 5)).toBe(0);

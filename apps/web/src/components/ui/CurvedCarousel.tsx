@@ -253,26 +253,53 @@ export function glyphMask(icon: IconName): HTMLCanvasElement | null {
 }
 
 /**
- * The light inside the glass.
+ * Application identity light.
  *
- * One tone for every application, not five.
- *
- * Each card used to take a hue from its own name — cyan, aqua, blue, indigo,
- * violet — so a row of them was a row of different colours, and the founder
- * read that as paint rather than material. Thirty-four applications are one
- * set, and a set is held together by being made of the same thing. The
- * colour now comes from the room the cards are in; the cards themselves are
- * glass with a cool light moving in them.
- *
- * The signature still takes a name, so that if a card ever earns its own
- * colour — a status, a warning, something true about that application rather
- * than its spelling — this is the one place it would come from.
+ * Every application keeps the same physical glass material, but its emblem
+ * receives a restrained identity hue from NN's approved cyan/blue/indigo/
+ * violet spectrum. The hue is a semantic accent, not a flat painted tile:
+ * the shader still supplies the moving water, bevel, reflection and rim.
  */
 const GLASS: readonly [number, number, number] = [0.46, 0.74, 1.0];
+const APP_HUES: Readonly<Record<string, readonly [number, number, number]>> = {
+  "Life": [0.26, 0.88, 0.94],
+  "Soul": [0.70, 0.54, 1.00],
+  "Mind": [0.48, 0.60, 1.00],
+  "Body": [0.24, 0.88, 0.78],
+  "Contacts": [0.42, 0.72, 1.00],
+  "Nature & Universe": [0.32, 0.82, 0.92],
+  "Peace Mode": [0.56, 0.66, 1.00],
+  "College": [0.30, 0.62, 1.00],
+  "Academy": [0.48, 0.58, 1.00],
+  "Formula Engine": [0.34, 0.78, 1.00],
+  "Logic Lab": [0.42, 0.68, 0.98],
+  "Learning Vault": [0.58, 0.58, 0.98],
+  "Finance": [0.26, 0.82, 0.80],
+  "Invest": [0.30, 0.88, 0.70],
+  "Business": [0.36, 0.72, 0.96],
+  "Freelance": [0.48, 0.68, 1.00],
+  "Career": [0.34, 0.74, 0.94],
+  "Projects": [0.46, 0.62, 1.00],
+  "Achievements": [0.62, 0.58, 0.98],
+  "Creator Studio": [0.64, 0.54, 1.00],
+  "Studio": [0.52, 0.60, 1.00],
+  "Mail": [0.34, 0.72, 1.00],
+  "English": [0.34, 0.84, 0.92],
+  "Files": [0.40, 0.68, 0.98],
+  "Memory": [0.58, 0.60, 0.98],
+  "Life Archive": [0.48, 0.66, 1.00],
+  "Analytics": [0.30, 0.84, 0.82],
+  "Travel": [0.34, 0.76, 1.00],
+  "Simulator": [0.56, 0.58, 1.00],
+  "Command Centre": [0.30, 0.82, 0.96],
+  "Search": [0.42, 0.72, 1.00],
+  "Automation Studio": [0.50, 0.60, 1.00],
+  "Security Centre": [0.34, 0.76, 0.88],
+  "Control Room": [0.52, 0.62, 0.98],
+};
 
 export function hueFor(name: string): readonly [number, number, number] {
-  void name;
-  return GLASS;
+  return APP_HUES[name] ?? GLASS;
 }
 
 /* ---------------------------------------------------------------- shader -- */
