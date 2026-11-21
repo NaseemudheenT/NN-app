@@ -70,7 +70,7 @@ export function NNCommandPalette() {
     }
   }, [open]);
 
-  function navigate(href: string) {
+  function navigate(href: (typeof DESTINATIONS)[number]["href"]) {
     setOpen(false);
     router.push(href);
   }
