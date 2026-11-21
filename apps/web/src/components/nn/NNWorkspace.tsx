@@ -689,6 +689,7 @@ export function NNWorkspace({
                     <Coverflow
                       cards={LAUNCHER.map((app) => ({
                         id: app.id,
+                        appId: app.id,
                         title: app.name,
                         subtitle: app.hint,
                         icon: app.icon,
