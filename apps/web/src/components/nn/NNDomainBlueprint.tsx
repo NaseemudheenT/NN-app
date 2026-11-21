@@ -5,7 +5,7 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import type { NNApplication } from "@/lib/apps/registry";
 import styles from "./NNDomainBlueprint.module.css";
 
-export type DomainLayout = "dashboard" | "navigator" | "library" | "planner" | "roadmap" | "reader" | "analytics";
+export type DomainLayout = "dashboard" | "navigator" | "library" | "planner" | "roadmap" | "reader" | "analytics" | "timeline" | "finance" | "inbox" | "flow" | "security" | "media" | "calculator" | "cards" | "map" | "editor" | "settings" | "board";
 
 export interface DomainModule {
   id: string;
@@ -19,33 +19,23 @@ export interface DomainModule {
 function inferDomainLayout(appId: string, module: DomainModule): DomainLayout {
   if (module.layout) return module.layout;
   const key = `${appId} ${module.id} ${module.title}`.toLowerCase();
-  if (/(lesson|journal|writing|compose|document|reflection|notes|retrospective)/.test(key)) return "reader";
-  if (/(calendar|timeline|date|session|focus|schedule|interview|follow|delivery|practice|trip|itinerary|activity)/.test(key)) return "planner";
-  if (/(library|archive|people|contact|asset|inbox|collection|card|vault|place|portfolio|evidence)/.test(key)) return "library";
-  if (/(path|flow|project|milestone|roadmap|workflow|scenario|skill|production)/.test(key)) return "roadmap";
-  if (/(trend|analytics|mastery|metric|report|finance|invest|result|growth|ledger|budget)/.test(key)) return "analytics";
+  if (/(ledger|budget|transaction|portfolio|watchlist|investment|cash-flow|billing|invoice)/.test(key)) return "finance";
+  if (/(inbox|mail|message|follow-up|draft|compose)/.test(key)) return "inbox";
+  if (/(workflow|automation|approval|integration|execution|runs|process)/.test(key)) return "flow";
+  if (/(security|access|audit|device|session|permission)/.test(key)) return "security";
+  if (/(media|creator|publishing|production|studio|content)/.test(key)) return "media";
+  if (/(formula|compute|converter|calculation|model)/.test(key)) return "calculator";
+  if (/(travel|trip|place|itinerary|map)/.test(key)) return "map";
+  if (/(board|project|task|milestone|operations|deliverable)/.test(key)) return "board";
+  if (/(contact|people|profile|relationship|client)/.test(key)) return "cards";
+  if (/(preference|environment|control|setting)/.test(key)) return "settings";
+  if (/(lesson|journal|writing|compose|document|reflection|notes|retrospective)/.test(key)) return "editor";
+  if (/(date|timeline|calendar|session|schedule|interview|practice|activity)/.test(key)) return "timeline";
+  if (/(library|archive|collection|card|vault|portfolio|evidence)/.test(key)) return "library";
+  if (/(path|roadmap|scenario|skill)/.test(key)) return "roadmap";
+  if (/(trend|analytics|mastery|metric|report|result|growth)/.test(key)) return "analytics";
   if (/(syllabus|navigator|structure|graph|connection|question-bank)/.test(key)) return "navigator";
   return "dashboard";
-}
-
-function iconForRegion(region: string, fallback: IconName): IconName {
-  const key = region.toLowerCase();
-  if (/(date|calendar|timeline|schedule|timetable)/.test(key)) return "calendar";
-  if (/(search|question|filter|query)/.test(key)) return "search";
-  if (/(note|document|writing|editor|lesson|reader|journal|reflection)/.test(key)) return "file";
-  if (/(task|action|check|milestone|delivery|approval|exercise)/.test(key)) return "check";
-  if (/(budget|ledger|account|holding|portfolio|invoice|billing)/.test(key)) return "wallet";
-  if (/(security|access|audit|permission|device)/.test(key)) return "shield";
-  if (/(project|workflow|process|operation|board|production)/.test(key)) return "layers";
-  if (/(people|contact|client|relationship)/.test(key)) return "people";
-  if (/(map|place|location|travel|trip)/.test(key)) return "globe";
-  if (/(time|session|focus|activity|history|reminder)/.test(key)) return "clock";
-  if (/(path|skill|roadmap|growth|learning)/.test(key)) return "compass";
-  if (/(course|book|library|formula|syllabus)/.test(key)) return "book";
-  if (/(media|asset|camera|content|image)/.test(key)) return "camera";
-  if (/(mail|message|inbox|compose)/.test(key)) return "mail";
-  if (/(result|metric|trend|analytics|report|mastery)/.test(key)) return "graph";
-  return fallback;
 }
 
 export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>> = {
@@ -299,7 +289,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
             }}
             onClick={() => setSelectedId(module.id)}
           >
-            <span className={styles.moduleIcon}><Icon name={module.icon} size={18}/></span>
+            <span className={styles.moduleIcon}><Icon name={module.icon} size={20} solid tone="ice"/></span>
             <span className={styles.moduleCopy}><strong>{module.title}</strong><small id={`${app.id}-space-description-${module.id}`}>{module.description}</small></span>
             <Icon name="expand" size={14}/>
           </button>
@@ -320,7 +310,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
         </div>
         <div className={styles.screenPreview} role="group" aria-label={`${selected.title} interface preview`}>
           <div className={styles.screenTop}>
-            <span className={styles.screenBrand}><Icon name={app.icon} size={13}/>{app.name}</span>
+            <span className={styles.screenBrand}><Icon name={app.icon} size={14} solid tone="ice"/>{app.name}</span>
           </div>
           {app.group === "Education" ? <EducationCanvas app={app} module={selected}/> : (
         <>

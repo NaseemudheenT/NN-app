@@ -88,7 +88,7 @@ export function NNAppLauncher() {
                     aria-label={`Open ${app.name}`}
                   >
                     <span className={styles.iconWell}>
-                      <Icon name={app.icon} size={22} />
+                      <Icon name={app.icon} size={24} solid tone="ice" />
                     </span>
                     <span className={styles.appName}>{app.name}</span>
                   </button>
