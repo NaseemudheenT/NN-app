@@ -39,15 +39,15 @@ interface IntroCard {
 }
 
 const CARDS: readonly IntroCard[] = [
-  { icon: "calendar", title: "NN Life", hint: "Days, plans, routine" },
-  { icon: "book", title: "NN College", hint: "Timetable, marks, revision" },
-  { icon: "graph", title: "NN Academy", hint: "What you are learning" },
-  { icon: "grid", title: "NN Projects", hint: "What you are building" },
-  { icon: "wallet", title: "NN Finance", hint: "Where it goes" },
-  { icon: "folder", title: "NN Files", hint: "Everything kept" },
-  { icon: "sparkle", title: "NN Memory", hint: "What NN remembers" },
-  { icon: "shield", title: "NN Security", hint: "Who gets in" },
-  { icon: "settings", title: "NN Control", hint: "How NN behaves" },
+  { icon: "calendar", title: "Life", hint: "Plans · routines" },
+  { icon: "book", title: "Study", hint: "Classes · revision" },
+  { icon: "graph", title: "Learn", hint: "Skills · knowledge" },
+  { icon: "grid", title: "Build", hint: "Projects · ideas" },
+  { icon: "wallet", title: "Money", hint: "Budget · accounts" },
+  { icon: "folder", title: "Files", hint: "Your documents" },
+  { icon: "sparkle", title: "Recall", hint: "Your saved context" },
+  { icon: "shield", title: "Shield", hint: "Access · protection" },
+  { icon: "settings", title: "System", hint: "Preferences · control" },
 ];
 
 /** Placement is fixed per card, so it is computed once at module load. */
