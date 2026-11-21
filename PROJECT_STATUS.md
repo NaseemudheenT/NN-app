@@ -1,26 +1,23 @@
 # NN APP — Project Status
 
-Last updated: 2026-11-08 · Phase 0 complete. Phase 1 foundation built and
-preserved; the operating experience is being redesigned to the full vision at
-the founder's direction. Planning documents prepared and awaiting approval.
+## Latest founder-directed frontend pass — 2026-11-10
 
-**Honest completion: ~3% of NN.** A tested foundation and a design language
-exist. None of the 34 applications, no authentication, no data model and no
-REN exist yet.
+- Simplified the global shell by removing the persistent bottom navigation dock; REN remains globally mounted.
+- Corrected founder-name parsing in the Home greeting.
+- Recorded the latest phone-first, app-cards-only Home direction; official NN mark and REN reference fidelity; thin spatial-glass surfaces; touch-first interactions; no decorative arrows or duplicate navigation; and truthful smart automation requirements in `docs/NN_FRONTEND_EXECUTION_PROGRAMME.md`.
+- These changes are committed on `design/nn-frontend-system`.
+- The new commits' Vercel checks were still pending at the last status inspection. No new Render deployment had been created; the public Render URL was still serving commit `97f29639179fb58d8b4852f7fcbea4ed5da716d5`.
+- This pass is not a full application implementation or a production release. NN Life remains the only registered operational app; planned-app screens are design previews.
 
-## Planning documents awaiting approval
+Last updated: 2026-11-10
 
-| Document | Status |
-|---|---|
-| `docs/APPLICATION_REGISTRY.md` | `IMPLEMENTED` — 34 apps, consolidations applied |
-| `docs/COST_ESTIMATE.md` | `IMPLEMENTED` — prices verified against Google 2026-11-08 |
-| `docs/EXPERIENCE_SPEC.md` | `IMPLEMENTED` — all 15 required design areas |
-| `docs/MASTER_IMPLEMENTATION_PLAN.md` | `IMPLEMENTED` — phases 2–13 with gates |
+**Current handoff:** Claude is to lead completion of the remaining NN operating system using the frontend on `design/nn-frontend-system` as the approved baseline. Read `docs/CLAUDE_OS_COMPLETION_BRIEF.md` before implementation.
 
-**Status labels:** `VERIFIED` (built and tested) · `IMPLEMENTED` (built, not fully verified) ·
-`NEEDS CONFIGURATION` (needs credentials or external setup) · `NOT IMPLEMENTED` · `BLOCKED`.
+**Verified frontend baseline:** the 50-primitive future design system, 34-app registry and planned-app overview routes are committed. The full CI workflow passed on commit `44b1ecf13b0444d96c30cd7f229dfe824fb4c4ba` (typecheck, lint, tests and Next.js production build). This does not mean the full frontend or OS is complete.
 
-> Nothing below is marked `VERIFIED` on the basis that a screen exists.
+**Application availability:** NN Life is the only application marked operational in the current frontend registry. The other registered applications remain planned and must not be presented as working until their real workflows, data paths, security and tests are complete.
+
+**Completion percentage:** not recalculated. The earlier `~3%` summary is stale and should not be used as a current measurement. Historical phase tables below may also be stale or internally inconsistent; reconcile them against current source, tests and workflow evidence before relying on them.
 
 ## Phase 0 — Repository and environment audit
 

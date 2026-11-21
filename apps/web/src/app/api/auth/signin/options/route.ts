@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { enforceRateLimit } from "@/server/auth/ratelimit";
+import { requireServerCredentials } from "@/server/auth/credentials";
 import { buildAuthenticationOptions, makeRecord, readRelyingParty } from "@nn/auth";
 import { FirestoreChallengeStore, readOwner } from "@/server/auth/store";
 
@@ -15,6 +16,11 @@ export const dynamic = "force-dynamic";
  * claimed. The real check happens at verification.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Asked before the rate limiter, which needs Firestore itself and would
+  // otherwise be the thing that throws.
+  const unconfigured = requireServerCredentials();
+  if (unconfigured !== null) return unconfigured;
+
   const limited = await enforceRateLimit(request, "signin-options");
   if (limited !== null) return limited;
 

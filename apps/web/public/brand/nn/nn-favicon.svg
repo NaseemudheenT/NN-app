@@ -1,7 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 76 76" role="img" aria-label="NN">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="NN">
   <title>NN</title>
-  <rect width="76" height="76" rx="16" fill="#07111F"/>
-  <g transform="translate(8 19) scale(0.6383)">
-    <path fill="#F7F9FC" fill-rule="nonzero" d="M0 0 H12 L32 46 V0 H44 V76 H32 L12 30 V76 H0 Z M50 0 H62 L82 46 V0 H94 V76 H82 L62 30 V76 H50 Z"/>
+  <defs>
+    <linearGradient id="nn-fav-face" x1="0" y1="0" x2="0.82" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.32" stop-color="#CDEBFF"/>
+      <stop offset="0.66" stop-color="#9FC2FF"/>
+      <stop offset="1" stop-color="#CBAEFF"/>
+    </linearGradient>
+    <filter id="nn-fav-bloom" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="6.0"/>
+    </filter>
+  </defs>
+  <defs>
+    <radialGradient id="nn-fav-halo" cx="0.5" cy="0.46" r="0.5">
+      <stop offset="0" stop-color="#8FD2FF" stop-opacity="0.5"/>
+      <stop offset="0.45" stop-color="#60A8FF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#60A8FF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#07111F"/>
+  <circle cx="32" cy="29" r="27" fill="url(#nn-fav-halo)"/>
+  <g transform="translate(14.2 16.0) scale(0.2963)">
+    <path d="M0 14 L14 0 H22 V108 H0 Z M20 0 H46 L100 108 H74 Z M98 0 H120 V94 L106 108 H98 Z" fill="#6FB6FF" filter="url(#nn-fav-bloom)" opacity="0.6"/>
+    <path d="M0 14 L14 0 H22 V108 H0 Z M20 0 H46 L100 108 H74 Z M98 0 H120 V94 L106 108 H98 Z" fill="url(#nn-fav-face)"/>
+    <path d="M0 14 L14 0 H22 V108 H0 Z M20 0 H46 L100 108 H74 Z M98 0 H120 V94 L106 108 H98 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="1.6" stroke-linejoin="round"/>
   </g>
 </svg>

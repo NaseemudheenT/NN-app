@@ -10,6 +10,8 @@ import { expect, test, type CDPSession, type Page } from "@playwright/test";
  */
 
 const BOOTSTRAP = "e2e-only-bootstrap-secret-not-a-real-one";
+/* The claim sets both credentials in one ceremony now. */
+const RECOVERY = "harbour-lantern-thistle-49!";
 
 /** Attaches a platform authenticator that reports successful user verification. */
 async function attachAuthenticator(page: Page): Promise<{ client: CDPSession; id: string }> {
@@ -32,8 +34,10 @@ test.describe.configure({ mode: "serial" });
 
 test.describe("passkey authentication", () => {
   test("an unclaimed NN offers to be claimed, not signed into", async ({ page }) => {
+    // The door is the mark and one button now, so the state it is in is
+    // read off the control rather than a headline.
     await page.goto("/sign-in");
-    await expect(page.getByRole("heading", { name: "Claim NN" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Claim NN/ })).toBeVisible();
     await expect(page.getByLabel("Bootstrap secret")).toBeVisible();
   });
 
@@ -41,11 +45,12 @@ test.describe("passkey authentication", () => {
     await attachAuthenticator(page);
     await page.goto("/sign-in");
     await page.getByLabel("Bootstrap secret").fill("definitely-the-wrong-secret-value");
+    await page.getByLabel("Choose a password").fill(RECOVERY);
     await page.getByRole("button", { name: /Claim NN/ }).click();
     await expect(page.getByTestId("signin-error")).toContainText(/Invalid bootstrap secret/i);
     // Still unclaimed.
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Claim NN" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Claim NN/ })).toBeVisible();
   });
 
   test("an unauthenticated visitor cannot reach the workspace", async ({ page }) => {
@@ -58,19 +63,144 @@ test.describe("passkey authentication", () => {
     await attachAuthenticator(page);
     await page.goto("/sign-in");
     await page.getByLabel("Bootstrap secret").fill(BOOTSTRAP);
+    await page.getByLabel("Choose a password").fill(RECOVERY);
     await page.getByRole("button", { name: /Claim NN/ }).click();
 
     // The browser performs a genuine WebAuthn create() against the virtual
     // authenticator, then NN exchanges the assertion for a Firebase session.
-    await page.waitForURL("**/workspace", { timeout: 30_000 });
-    await expect(page.getByRole("heading", { name: "You are signed in." })).toBeVisible();
-    await expect(page.getByText(/owner uid · /)).toBeVisible();
+    // It lands on the dashboard: that is where NN opens now.
+    // `commit` rather than `load`: the dashboard keeps WebGL surfaces
+    // painting, so "load" can outlast the navigation it is waiting for.
+    await page.waitForURL("**/home", { timeout: 60_000, waitUntil: "commit" });
+
+    /* Arriving already means the ceremony completed. What is asserted here is
+       that a *real* session exists rather than the preview — the preview says
+       so on every surface it is on, and the owner's own controls only appear
+       when there is an owner. */
+    await expect(page.getByText(/Exploring NN/)).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /profile and settings/ })).toBeVisible();
+    await expect(page.getByText(/Welcome back, /)).toBeVisible();
+
+    /* ---- REN's console, on the session that now exists ------------------
+     *
+     * The expansion brief's TEST A and TEST I. They run here, inside the
+     * claim, rather than in a file of their own for a plain reason: a
+     * virtual authenticator belongs to one page, so a second spec gets a
+     * fresh one with no credential and cannot sign in to a claimed NN. This
+     * is the only place a real owner session exists.
+     */
+    await page.goto("/ren");
+
+    // TEST A — an operating surface, not a chat.
+    await expect(page.getByRole("button", { name: /speak|microphone/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Chat/ })).toBeVisible();
+    await expect(page.getByLabel("Type to REN")).toBeVisible();
+    // REN says what it cannot do rather than implying a mind that is absent.
+    await expect(page.getByText(/No language model is connected/)).toBeVisible();
+
+    // TEST B — the chat is reached only because the founder asked.
+    await page.getByRole("button", { name: /Chat/ }).click();
+    await page.waitForURL("**/ren/chat", { timeout: 20_000 });
+
+    // TEST I — every size the founder actually uses.
+    for (const size of [
+      { name: "iPhone SE", width: 375, height: 667 },
+      { name: "iPhone 15", width: 393, height: 852 },
+      { name: "Android", width: 412, height: 915 },
+      { name: "iPad", width: 768, height: 1024 },
+      { name: "iPad landscape", width: 1024, height: 768 },
+      { name: "laptop", width: 1440, height: 900 },
+      { name: "desktop", width: 1920, height: 1080 },
+    ]) {
+      await page.setViewportSize({ width: size.width, height: size.height });
+      await page.goto("/ren");
+      await page.waitForTimeout(900);
+
+      // A horizontal scrollbar on a phone is the commonest way a responsive
+      // layout is actually broken, and the easiest to miss by eye.
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow, `${size.name} scrolls sideways by ${overflow}px`).toBeLessThanOrEqual(1);
+
+      const controls = await page.evaluate(() => {
+        const out: { label: string; h: number; right: number }[] = [];
+        for (const element of document.querySelectorAll("button, input")) {
+          const box = element.getBoundingClientRect();
+          if (box.width === 0 || box.height === 0) continue;
+          out.push({
+            label: (element.getAttribute("aria-label") ?? element.textContent ?? "")
+              .trim().slice(0, 30),
+            h: Math.round(box.height),
+            right: Math.round(box.right),
+          });
+        }
+        return out;
+      });
+
+      expect(controls.length, `${size.name} lost its controls`).toBeGreaterThan(2);
+      for (const control of controls) {
+        expect(control.h, `"${control.label}" is ${control.h}px tall on ${size.name}`)
+          .toBeGreaterThanOrEqual(32);
+        expect(control.right, `"${control.label}" runs past the right edge on ${size.name}`)
+          .toBeLessThanOrEqual(size.width + 1);
+      }
+      await page.screenshot({ path: `test-results/ren-${size.width}x${size.height}.png` });
+    }
+    /* ---- the phone, everywhere ------------------------------------------
+     * Screenshots of every surface at 393x852, kept, so the phone experience
+     * is looked at rather than inferred from "nothing overflows".
+     */
+    await page.setViewportSize({ width: 393, height: 852 });
+    for (const [name, url] of [
+      ["today", "/home"], ["ren", "/ren"], ["settings", "/settings"],
+    ] as const) {
+      await page.goto(url);
+      await page.waitForTimeout(1600);
+      await page.screenshot({ path: `test-results/phone-${name}.png`, fullPage: false });
+    }
+    await page.goto("/home");
+    await page.waitForTimeout(1200);
+    await page.getByRole("button", { name: /^Applications/ }).first().click();
+    await page.waitForTimeout(2000);
+    await page.screenshot({ path: "test-results/phone-apps.png" });
+
+    await page.setViewportSize({ width: 1280, height: 800 });
   });
 
   test("NN is now claimed, so the sign-in screen changes", async ({ page }) => {
     await page.goto("/sign-in");
-    await expect(page.getByRole("heading", { name: "Welcome back, Founder." })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in with passkey" })).toBeVisible();
     await expect(page.getByLabel("Bootstrap secret")).toBeHidden();
+    // And the public door closes with it: a preview grants no session, but a
+    // way into the founder's own surfaces should not outlive the claim.
+    await expect(page.getByRole("button", { name: /Explore NN/ })).toHaveCount(0);
+  });
+
+  test("the password signs in on its own, with no authenticator at all", async ({ page }) => {
+    /*
+     * The path that matters most, and the one a passkey cannot prove: this
+     * page has no virtual authenticator attached. If the password works
+     * here, it works on a device whose passkey will not — which is the
+     * entire reason it exists.
+     */
+    await page.goto("/sign-in");
+    await page.getByRole("button", { name: "Use my password" }).click();
+    await page.getByLabel("Password").fill(RECOVERY);
+    await page.getByRole("button", { name: "Unlock NN" }).click();
+    await page.waitForURL("**/home", { timeout: 60_000, waitUntil: "commit" });
+    await expect(page.getByRole("button", { name: /profile and settings/ })).toBeVisible();
+  });
+
+  test("a wrong password is refused and says nothing useful", async ({ page }) => {
+    await page.goto("/sign-in");
+    await page.getByRole("button", { name: "Use my password" }).click();
+    await page.getByLabel("Password").fill("definitely-not-the-password-1!");
+    await page.getByRole("button", { name: "Unlock NN" }).click();
+    // One answer for every failure: a caller learns nothing from which.
+    await expect(page.getByTestId("signin-error")).toContainText(/Recovery failed/i);
+    expect(page.url()).toContain("/sign-in");
   });
 
   test("the bootstrap secret stops working once NN is claimed", async ({ request }) => {

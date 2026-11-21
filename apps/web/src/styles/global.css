@@ -1,5 +1,8 @@
 @import "./tokens.css";
 @import "./holo.css";
+@import "./future-system.css";
+@import "./mobile.css";
+@import "./ios-system.css";
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -90,3 +93,921 @@ button, input, textarea, select { font: inherit; color: inherit; }
     transparent 100%
   );
 }
+
+
+/* A restrained arrival transition shared by every NN route. The environment
+   remains mounted behind the shell; only the page content settles into place.
+   No route-specific timers, JavaScript animation loop, or extra dependency. */
+/*
+ * The arrival. Opacity only, and that is not a style preference.
+ *
+ * This used to lift and scale the shell as well, with `fill-mode: both` — so
+ * the final frame's `transform` stayed on the element forever, computing to
+ * `matrix(1, 0, 0, 1, 0, 0)` rather than `none`. A transformed ancestor
+ * becomes the containing block for every `position: fixed` descendant inside
+ * it, so NN's shell quietly captured all of them: the phone's navigation bar
+ * was pinned to the bottom of a 991px document instead of the 819px viewport
+ * and sat 172px below the fold, invisible.
+ *
+ * It would have done the same to any fixed element anywhere in the app. A
+ * nine-pixel rise is not worth that, so the rise is gone and the fade stays.
+ * `opacity` makes a stacking context, which is harmless here, and never a
+ * containing block.
+ */
+.nn-page-arrive {
+  animation: nn-page-arrive 520ms cubic-bezier(0.2, 0.72, 0.24, 1) both;
+}
+
+@keyframes nn-page-arrive {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nn-page-arrive {
+    animation: none;
+  }
+}
+
+:root[data-motion="reduced"] .nn-page-arrive {
+  animation: none;
+}
+
+
+/* Founder visual reset — one calm iridescent environment shared by every app.
+   The WebGL room remains the source of motion; these CSS light fields are the
+   low-cost fallback and colour atmosphere, not a second animation engine. */
+/* The atmosphere layer.
+
+   The ribbons are deliberately wider than the screen — a light field that runs
+   off the edges rather than sitting in a box. They used to hang off `.nn-shell`
+   as fixed-position pseudo-elements, which gave NN a 48px horizontal scroll on
+   a 375px phone: a fixed element's containing block is the viewport, so no
+   ancestor's `overflow` reaches it, and `overflow-x: clip` on the root does not
+   contain it either (measured in Chrome, not assumed).
+
+   So they are given a parent that can hold them: one fixed, full-viewport,
+   clipping layer. The ribbons inside it are absolutely positioned, keep their
+   original geometry exactly, and cannot reach past the edge of the screen. */
+.nn-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.nn-atmosphere::before,
+.nn-atmosphere::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: auto;
+  width: 118vw;
+  height: 34vh;
+  left: -9vw;
+  top: 19vh;
+  border-radius: 48% 52% 61% 39% / 52% 40% 60% 48%;
+  filter: blur(34px);
+  opacity: .42;
+  transform: rotate(-8deg);
+  background: var(--nn-wave-ribbon-primary);
+}
+.nn-atmosphere::after {
+  top: 42vh;
+  left: -12vw;
+  height: 25vh;
+  opacity: .26;
+  transform: rotate(7deg) scaleX(1.08);
+  filter: blur(48px);
+  background: var(--nn-wave-ribbon-secondary);
+}
+@media (max-width: 700px) {
+  .nn-atmosphere::before { top: 22vh; height: 26vh; opacity: .32; filter: blur(28px); }
+  .nn-atmosphere::after { top: 45vh; height: 19vh; opacity: .2; filter: blur(36px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nn-atmosphere::before, .nn-atmosphere::after { transform: none; }
+}
+
+/* --------------------------------------------------------------------------
+   NN LIQUID GLASS LANGUAGE
+   Shared material recipes for every route. Opacity is tiered so reading
+   surfaces retain contrast while the environment remains visible.
+   -------------------------------------------------------------------------- */
+:root {
+  --nn-glass-float: linear-gradient(145deg, rgb(238 248 255 / 17%), rgb(var(--nn-spectrum-cyan) / 7%) 34%, rgb(var(--nn-spectrum-indigo) / 7%) 72%, rgb(255 255 255 / 4%));
+  --nn-glass-primary: linear-gradient(145deg, rgb(238 248 255 / 22%), rgb(var(--nn-spectrum-cyan) / 11%) 32%, rgb(var(--nn-spectrum-violet) / 10%) 74%, rgb(255 255 255 / 7%));
+  --nn-glass-reading: linear-gradient(145deg, rgb(28 42 82 / 96%), rgb(10 17 48 / 97%));
+  --nn-glass-shadow: 0 22px 60px rgb(0 0 0 / 28%), 0 4px 16px rgb(0 0 0 / 20%), inset 0 1px 0 rgb(255 255 255 / 22%), inset 0 0 0 1px rgb(198 225 255 / 8%);
+  --nn-glass-edge: 0 0 0 1px rgb(210 231 255 / 20%), 0 0 24px rgb(var(--nn-spectrum-cyan) / 8%), inset 0 1px 0 rgb(255 255 255 / 24%);
+}
+:root[data-theme="light"] {
+  --nn-glass-float: linear-gradient(145deg, rgb(255 255 255 / 82%), rgb(226 243 255 / 67%) 42%, rgb(242 235 255 / 62%));
+  --nn-glass-primary: linear-gradient(145deg, rgb(255 255 255 / 92%), rgb(222 241 255 / 80%) 45%, rgb(238 232 255 / 74%));
+  --nn-glass-reading: linear-gradient(145deg, rgb(255 255 255 / 97%), rgb(239 245 252 / 98%));
+  --nn-glass-shadow: 0 18px 48px rgb(35 62 102 / 12%), inset 0 1px 0 rgb(255 255 255 / 94%);
+  --nn-glass-edge: 0 0 0 1px rgb(91 137 192 / 17%), 0 0 20px rgb(var(--nn-spectrum-cyan) / 8%), inset 0 1px 0 rgb(255 255 255 / 95%);
+}
+.nn-glass {
+  position: relative; isolation: isolate;
+  border: 1px solid var(--nn-spectrum-border);
+  background: var(--nn-glass-float);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+  backdrop-filter: blur(24px) saturate(155%);
+  box-shadow: var(--nn-glass-shadow), var(--nn-glass-edge);
+}
+.nn-glass-primary {
+  background: var(--nn-glass-primary);
+  border-color: var(--glass-2-border);
+  -webkit-backdrop-filter: blur(30px) saturate(165%);
+  backdrop-filter: blur(30px) saturate(165%);
+}
+.nn-glass-reading {
+  background: var(--nn-glass-reading);
+  border-color: var(--glass-3-border);
+  -webkit-backdrop-filter: blur(30px) saturate(140%);
+  backdrop-filter: blur(30px) saturate(140%);
+}
+.nn-glass-icon {
+  display: grid; place-items: center;
+  border: 1px solid var(--glass-2-border);
+  background: var(--nn-glass-primary); color: var(--nn-icy);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 24%), 0 8px 22px rgb(0 0 0 / 18%);
+  -webkit-backdrop-filter: blur(18px) saturate(165%);
+  backdrop-filter: blur(18px) saturate(165%);
+}
+.nn-glass::after, .nn-glass-primary::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  pointer-events: none; border-radius: inherit;
+  background: linear-gradient(118deg, rgb(255 255 255 / 9%), transparent 32%, transparent 70%, rgb(var(--nn-spectrum-violet) / 8%));
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nn-glass, .nn-glass-primary { background: var(--surface-raised); }
+}
+
+
+/* NN global glass material: consistent physical edge, face reflection and
+   contact shadow for every component that opts into the shared glass classes. */
+.nn-glass,.nn-glass-primary,.nn-glass-reading {
+  position: relative; isolation: isolate; transform-style: preserve-3d;
+  border: 1px solid rgb(210 231 255 / 34%);
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 38%), inset 1px 0 0 rgb(255 255 255 / 9%), inset 0 -2px 0 rgb(0 0 0 / 24%), 0 1px 0 rgb(177 211 255 / 20%), 0 3px 0 rgb(3 10 27 / 68%), 0 9px 18px rgb(0 0 0 / 22%), 0 22px 42px rgb(0 0 0 / 24%);
+}
+.nn-glass::before,.nn-glass-primary::before,.nn-glass-reading::before {
+  content:"";position:absolute;inset:1px;z-index:-1;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(120deg,rgb(255 255 255 / 12%),transparent 32%,transparent 70%,rgb(var(--nn-spectrum-blue) / 7%));
+}
+.nn-glass-icon { box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 46%),inset 0 -2px 2px rgb(0 0 0 / 22%),0 2px 0 rgb(3 10 27 / 62%),0 7px 14px rgb(0 0 0 / 20%); }
+:root[data-theme="light"] .nn-glass,:root[data-theme="light"] .nn-glass-primary,:root[data-theme="light"] .nn-glass-reading {
+  border-color:rgb(91 137 192 / 24%);
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 96%),inset 0 -2px 0 rgb(91 137 192 / 8%),0 1px 0 rgb(91 137 192 / 18%),0 3px 0 rgb(80 112 155 / 12%),0 14px 28px rgb(35 62 102 / 12%);
+}
+
+/* Unified NN material tokens and shared glass primitives. */
+:root{--nn-glass-float:linear-gradient(145deg,rgb(238 248 255 / 16%),rgb(var(--nn-spectrum-cyan) / 7%) 34%,rgb(var(--nn-spectrum-indigo) / 7%) 72%,rgb(255 255 255 / 4%)),linear-gradient(320deg,rgb(10 20 46 / 78%),rgb(21 37 73 / 72%) 54%,rgb(10 19 44 / 80%));--nn-glass-primary:linear-gradient(145deg,rgb(244 250 255 / 22%),rgb(var(--nn-spectrum-cyan) / 11%) 32%,rgb(var(--nn-spectrum-violet) / 10%) 74%,rgb(255 255 255 / 7%)),linear-gradient(320deg,rgb(13 26 58 / 82%),rgb(24 42 82 / 76%) 54%,rgb(12 22 52 / 84%));--nn-glass-reading:linear-gradient(145deg,rgb(29 45 86 / 96%),rgb(10 17 48 / 97%));--nn-glass-depth:inset 0 1.5px 0 rgb(255 255 255 / 46%),inset 1px 0 0 rgb(225 241 255 / 10%),inset -1px 0 0 rgb(177 205 255 / 12%),inset 0 -2px 0 rgb(2 8 22 / 34%),0 1px 0 rgb(190 220 255 / 28%),0 3px 0 rgb(3 10 27 / 72%),0 10px 20px rgb(0 0 0 / 24%),0 24px 48px rgb(0 0 0 / 28%)}
+:root[data-theme="light"]{--nn-glass-float:linear-gradient(145deg,rgb(255 255 255 / 86%),rgb(226 243 255 / 72%) 42%,rgb(242 235 255 / 68%)),linear-gradient(320deg,rgb(231 240 252 / 76%),rgb(255 255 255 / 84%));--nn-glass-primary:linear-gradient(145deg,rgb(255 255 255 / 94%),rgb(222 241 255 / 84%) 45%,rgb(238 232 255 / 78%)),linear-gradient(320deg,rgb(237 244 253 / 84%),rgb(255 255 255 / 90%));--nn-glass-reading:linear-gradient(145deg,rgb(255 255 255 / 98%),rgb(239 245 252 / 99%));--nn-glass-depth:inset 0 1.5px 0 rgb(255 255 255 / 98%),inset 0 -2px 0 rgb(91 137 192 / 9%),0 1px 0 rgb(91 137 192 / 20%),0 4px 0 rgb(80 112 155 / 12%),0 16px 34px rgb(35 62 102 / 14%)}
+.nn-holo,.nn-glass,.nn-glass-primary,.nn-glass-reading{position:relative;isolation:isolate;transform-style:preserve-3d;border:1px solid rgb(210 231 255 / 38%);background:var(--nn-glass-float);-webkit-backdrop-filter:blur(28px) saturate(160%);backdrop-filter:blur(28px) saturate(160%);box-shadow:var(--nn-glass-depth)}
+.nn-glass-primary{background:var(--nn-glass-primary)}.nn-glass-reading{background:var(--nn-glass-reading);-webkit-backdrop-filter:blur(30px) saturate(145%);backdrop-filter:blur(30px) saturate(145%)}
+.nn-glass::before,.nn-glass-primary::before,.nn-glass-reading::before{content:"";position:absolute;inset:1px;z-index:-1;border-radius:inherit;pointer-events:none;background:linear-gradient(122deg,rgb(255 255 255 / 15%),transparent 34%,transparent 72%,rgb(var(--nn-spectrum-blue) / 8%))}
+.nn-glass-icon{display:grid;place-items:center;border:1px solid rgb(220 238 255 / 42%);background:var(--nn-glass-primary);color:var(--nn-icy);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 52%),inset 0 -2px 2px rgb(0 0 0 / 24%),0 2px 0 rgb(3 10 27 / 66%),0 8px 16px rgb(0 0 0 / 22%);-webkit-backdrop-filter:blur(20px) saturate(165%);backdrop-filter:blur(20px) saturate(165%)}
+:root[data-theme="light"] .nn-holo,:root[data-theme="light"] .nn-glass,:root[data-theme="light"] .nn-glass-primary,:root[data-theme="light"] .nn-glass-reading{border-color:rgb(91 137 192 / 26%)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.nn-holo,.nn-glass,.nn-glass-primary,.nn-glass-reading{background:var(--surface-raised)}}
+
+
+
+/* NN UNIVERSAL FLOATING GLASS — authoritative card material */
+:root{--nn-glass-face:linear-gradient(138deg,rgb(255 255 255 / 24%),rgb(242 249 255 / 13%) 24%,rgb(188 222 255 / 8%) 58%,rgb(205 195 255 / 9%)),linear-gradient(320deg,rgb(20 37 75 / 23%),rgb(255 255 255 / 5%));--nn-glass-rim:rgb(235 247 255 / 48%);--nn-glass-contact:0 3px 0 rgb(2 9 28 / 58%),0 10px 22px rgb(0 4 22 / 25%),0 26px 52px rgb(0 4 22 / 25%);--nn-glass-laminate:inset 0 1.5px 0 rgb(255 255 255 / 68%),inset 1px 0 0 rgb(255 255 255 / 20%),inset -1px 0 0 rgb(175 213 255 / 16%),inset 0 -2px 0 rgb(3 12 34 / 24%)}
+:root[data-theme="light"]{--nn-glass-face:linear-gradient(138deg,rgb(255 255 255 / 78%),rgb(239 248 255 / 60%) 36%,rgb(225 235 255 / 48%) 72%,rgb(244 238 255 / 56%)),linear-gradient(320deg,rgb(232 242 255 / 32%),rgb(255 255 255 / 44%));--nn-glass-rim:rgb(255 255 255 / 92%);--nn-glass-contact:0 3px 0 rgb(84 117 158 / 12%),0 12px 26px rgb(35 62 102 / 11%),0 28px 54px rgb(35 62 102 / 10%);--nn-glass-laminate:inset 0 1.5px 0 rgb(255 255 255 / 98%),inset 1px 0 0 rgb(255 255 255 / 70%),inset -1px 0 0 rgb(91 137 192 / 12%),inset 0 -2px 0 rgb(91 137 192 / 10%)}
+.nn-glass-card.nn-glass-card.nn-glass-card{isolation:isolate;transform-style:preserve-3d;border:1px solid var(--nn-glass-rim);background:var(--nn-glass-face);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);box-shadow:var(--nn-glass-laminate),var(--nn-glass-contact),0 0 0 1px rgb(190 224 255 / 8%);transition:transform 360ms cubic-bezier(.16,1,.3,1),box-shadow 360ms cubic-bezier(.16,1,.3,1),border-color 260ms ease,background 260ms ease}
+.nn-glass-card.nn-glass-card.nn-glass-card:hover{transform:perspective(1400px) translate3d(0,-4px,7px) rotateX(.45deg);border-color:rgb(244 250 255 / 72%);box-shadow:inset 0 2px 0 rgb(255 255 255 / 76%),inset 1px 0 0 rgb(255 255 255 / 24%),inset 0 -2px 0 rgb(3 12 34 / 22%),0 4px 0 rgb(2 9 28 / 48%),0 16px 30px rgb(0 4 22 / 30%),0 36px 66px rgb(0 4 22 / 30%),0 0 28px rgb(var(--nn-spectrum-cyan) / 9%)}
+.nn-glass-card.nn-glass-card.nn-glass-card:active{transform:perspective(1400px) translate3d(0,1px,1px) scale(.995)}
+:root[data-theme="light"] .nn-glass-card.nn-glass-card.nn-glass-card{border-color:rgb(91 137 192 / 30%)}:root[data-theme="light"] .nn-glass-card.nn-glass-card.nn-glass-card:hover{border-color:rgb(91 137 192 / 42%)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.nn-glass-card.nn-glass-card.nn-glass-card{background:rgb(28 42 82 / 92%)}}
+@media(prefers-reduced-motion:reduce){.nn-glass-card.nn-glass-card.nn-glass-card,.nn-glass-card.nn-glass-card.nn-glass-card:hover,.nn-glass-card.nn-glass-card.nn-glass-card:active{transition:none;transform:none}}
+:root[data-motion="reduced"] .nn-glass-card.nn-glass-card.nn-glass-card,:root[data-motion="reduced"] .nn-glass-card.nn-glass-card.nn-glass-card:hover{transition:none;transform:none}
+
+
+/* ==========================================================================
+   NN MATERIAL SYSTEM — FINAL OPTICAL GLASS PASS
+   One shared physical material for panels, launch tiles, coverflow cards,
+   floating windows and application surfaces. The edge is laminated; the face
+   carries a broad softbox reflection and a restrained cool refraction.
+   Layout and positioning are intentionally untouched.
+   ========================================================================== */
+:root {
+  --nn-glass-face-final:
+    radial-gradient(ellipse 78% 42% at 13% 0%, rgb(255 255 255 / 19%), transparent 72%),
+    linear-gradient(142deg, rgb(255 255 255 / 13%) 0%, rgb(190 222 255 / 5%) 31%, rgb(110 150 255 / 4%) 68%, rgb(255 255 255 / 3%) 100%),
+    linear-gradient(315deg, rgb(8 17 39 / 70%), rgb(25 43 81 / 68%) 48%, rgb(10 20 47 / 76%));
+  --nn-glass-edge-final:
+    conic-gradient(from 218deg,
+      rgb(226 243 255 / 72%) 0deg,
+      rgb(180 218 255 / 38%) 58deg,
+      rgb(172 164 255 / 24%) 142deg,
+      rgb(194 224 255 / 12%) 210deg,
+      rgb(166 222 255 / 46%) 302deg,
+      rgb(226 243 255 / 72%) 360deg);
+  --nn-glass-depth-final:
+    inset 0 1.5px 0 rgb(255 255 255 / 56%),
+    inset 1px 0 0 rgb(255 255 255 / 17%),
+    inset -1px 0 0 rgb(166 204 255 / 15%),
+    inset 0 -2px 0 rgb(2 8 22 / 38%),
+    0 1px 0 rgb(190 222 255 / 30%),
+    0 3px 0 rgb(2 8 22 / 72%),
+    0 9px 18px rgb(0 0 0 / 23%),
+    0 22px 44px rgb(0 0 0 / 27%),
+    0 38px 72px rgb(0 0 0 / 14%);
+}
+.nn-glass-card,
+.nn-glass,
+.nn-glass-primary,
+.nn-glass-reading,
+.nn-holo {
+  border: 1px solid transparent;
+  background-image: var(--nn-glass-face-final), var(--nn-glass-edge-final);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-blend-mode: normal, normal;
+  -webkit-backdrop-filter: blur(30px) saturate(168%) contrast(106%);
+  backdrop-filter: blur(30px) saturate(168%) contrast(106%);
+  box-shadow: var(--nn-glass-depth-final);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+.nn-glass-primary {
+  -webkit-backdrop-filter: blur(34px) saturate(174%) contrast(107%);
+  backdrop-filter: blur(34px) saturate(174%) contrast(107%);
+}
+.nn-glass-reading {
+  background-image:
+    radial-gradient(ellipse 80% 34% at 14% 0%, rgb(255 255 255 / 13%), transparent 72%),
+    linear-gradient(145deg, rgb(29 44 82 / 95%), rgb(9 16 42 / 96%)),
+    var(--nn-glass-edge-final);
+  background-clip: padding-box, padding-box, border-box;
+}
+.nn-glass-icon {
+  border: 1px solid rgb(221 239 255 / 52%);
+  background: linear-gradient(145deg, rgb(255 255 255 / 30%), rgb(129 177 255 / 12%) 58%, rgb(7 18 43 / 76%));
+  box-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 62%),
+    inset 0 -2px 2px rgb(0 0 0 / 25%),
+    0 2px 0 rgb(2 8 22 / 70%),
+    0 8px 17px rgb(0 0 0 / 24%);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nn-glass-card:hover,
+  .nn-glass:hover,
+  .nn-glass-primary:hover,
+  .nn-glass-reading:hover,
+  .nn-holo:hover {
+    border-color: rgb(245 251 255 / 76%);
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 68%),
+      inset 1px 0 0 rgb(255 255 255 / 20%),
+      inset 0 -2px 0 rgb(2 8 22 / 32%),
+      0 1px 0 rgb(210 234 255 / 38%),
+      0 4px 0 rgb(2 8 22 / 70%),
+      0 15px 28px rgb(0 0 0 / 27%),
+      0 34px 62px rgb(0 0 0 / 28%),
+      0 0 30px rgb(82 177 255 / 10%);
+  }
+}
+:root[data-theme="light"] {
+  --nn-glass-face-final:
+    radial-gradient(ellipse 78% 42% at 13% 0%, rgb(255 255 255 / 96%), transparent 72%),
+    linear-gradient(142deg, rgb(255 255 255 / 80%) 0%, rgb(229 243 255 / 66%) 42%, rgb(236 234 255 / 58%) 100%),
+    linear-gradient(315deg, rgb(226 238 252 / 76%), rgb(255 255 255 / 86%) 52%, rgb(230 240 253 / 80%));
+  --nn-glass-edge-final:
+    conic-gradient(from 218deg,
+      rgb(255 255 255 / 98%) 0deg,
+      rgb(117 164 218 / 42%) 58deg,
+      rgb(164 151 222 / 28%) 142deg,
+      rgb(117 164 218 / 18%) 210deg,
+      rgb(99 177 218 / 40%) 302deg,
+      rgb(255 255 255 / 98%) 360deg);
+  --nn-glass-depth-final:
+    inset 0 1.5px 0 rgb(255 255 255 / 98%),
+    inset 1px 0 0 rgb(255 255 255 / 72%),
+    inset -1px 0 0 rgb(91 137 192 / 12%),
+    inset 0 -2px 0 rgb(91 137 192 / 12%),
+    0 1px 0 rgb(91 137 192 / 22%),
+    0 3px 0 rgb(80 112 155 / 14%),
+    0 12px 24px rgb(35 62 102 / 12%),
+    0 28px 54px rgb(35 62 102 / 10%);
+}
+:root[data-theme="light"] .nn-glass-card,
+:root[data-theme="light"] .nn-glass,
+:root[data-theme="light"] .nn-glass-primary,
+:root[data-theme="light"] .nn-glass-reading,
+:root[data-theme="light"] .nn-holo {
+  border-color: transparent;
+}
+:root[data-theme="light"] .nn-glass-reading {
+  background-image:
+    radial-gradient(ellipse 80% 34% at 14% 0%, rgb(255 255 255 / 98%), transparent 72%),
+    linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(238 245 253 / 98%)),
+    var(--nn-glass-edge-final);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nn-glass-card,
+  .nn-glass,
+  .nn-glass-primary,
+  .nn-glass-reading,
+  .nn-holo {
+    transition: none !important;
+  }
+}
+:root[data-motion="reduced"] .nn-glass-card,
+:root[data-motion="reduced"] .nn-glass,
+:root[data-motion="reduced"] .nn-glass-primary,
+:root[data-motion="reduced"] .nn-glass-reading,
+:root[data-motion="reduced"] .nn-holo {
+  transition: none !important;
+}
+
+
+/* ==========================================================================
+   NN PRISMATIC REALITY — CINEMATIC MATERIAL OVERRIDE
+   Intent: an immersive virtual environment in deep cobalt, ion-cyan and
+   ultraviolet. Glass remains translucent; colour comes from refracted light,
+   not opaque paint. Shared by the launcher, panels, tiles and floating UI.
+   ========================================================================== */
+:root {
+  --nn-prism-cyan: 70 232 255;
+  --nn-prism-blue: 72 132 255;
+  --nn-prism-violet: 153 111 255;
+  --nn-prism-ice: 222 248 255;
+  /* The rim, as a colour.
+   *
+   * `--nn-prism-edge` below is a conic cut, and it was being painted as the
+   * last background layer of every glass surface with `background-clip:
+   * border-box`. Every layer above it is partly transparent, so it did not
+   * stay in the 1px band it was drawn for — it came through the whole face
+   * as a bright X from the centre to the four corners. On a dock tile that
+   * reads as a smudge; on a 380px card it reads as a crease in the glass.
+   * The band gets a real border colour instead. The spectral cut has not
+   * been lost: it is still carried by the inset laminate below, which lights
+   * the top edge white, the left cool and the right violet — the part of the
+   * prism anyone could actually see. */
+  --nn-prism-rim: rgb(203 234 255 / 40%);
+  /* The card's own thickness, before any blur. Three hard steps rather than
+     two: every surface in the workspace is built on this, and the founder
+     asked for all of them to read as solidly as the dashboard's do. */
+  --nn-prism-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 72%),
+    inset 1.5px 0 0 rgb(222 247 255 / 24%),
+    inset -1.5px 0 0 rgb(93 160 255 / 25%),
+    inset 0 -2px 0 rgb(4 10 34 / 56%),
+    0 1px 0 rgb(155 226 255 / 50%),
+    0 3px 0 rgb(2 8 29 / 82%),
+    0 6px 0 rgb(2 8 24 / 46%),
+    0 11px 22px rgb(0 4 24 / 34%),
+    0 28px 58px rgb(0 4 26 / 38%),
+    0 48px 90px rgb(0 4 26 / 22%),
+    0 0 34px rgb(40 179 255 / 12%);
+}
+/* The environment itself gains a richer spatial light field. */
+body {
+  background-image:
+    radial-gradient(ellipse 68% 48% at 12% 8%, rgb(35 112 255 / 20%), transparent 72%),
+    radial-gradient(ellipse 58% 42% at 91% 18%, rgb(137 62 255 / 17%), transparent 74%),
+    radial-gradient(ellipse 72% 50% at 50% 100%, rgb(0 201 255 / 11%), transparent 76%),
+    var(--ambient);
+  background-color: #05091d;
+}
+.nn-shell {
+  background:
+    radial-gradient(ellipse 55% 36% at 16% 2%, rgb(38 130 255 / 13%), transparent 74%),
+    radial-gradient(ellipse 48% 32% at 92% 25%, rgb(143 83 255 / 12%), transparent 76%);
+}
+/* Shared laminated optical-glass face and prism-cut edge. */
+.nn-glass-card,
+.nn-glass,
+.nn-glass-primary,
+.nn-glass-reading,
+.nn-holo {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--nn-prism-rim) !important;
+  background-color: rgb(9 19 52 / 30%) !important;
+  background-image:
+    radial-gradient(ellipse 92% 56% at 8% -8%, rgb(255 255 255 / 24%), transparent 68%),
+    radial-gradient(ellipse 78% 70% at 100% 100%, rgb(91 77 255 / 17%), transparent 74%),
+    linear-gradient(126deg, rgb(255 255 255 / 15%) 0%, rgb(114 218 255 / 8%) 20%, transparent 43%, rgb(141 117 255 / 8%) 78%, rgb(255 255 255 / 7%) 100%),
+    linear-gradient(155deg, rgb(24 65 132 / 40%), rgb(8 18 51 / 48%) 52%, rgb(19 25 75 / 44%)) !important;
+  background-origin: padding-box !important;
+  background-clip: padding-box !important;
+  -webkit-backdrop-filter: blur(32px) saturate(190%) brightness(1.12) contrast(1.08) !important;
+  backdrop-filter: blur(32px) saturate(190%) brightness(1.12) contrast(1.08) !important;
+  box-shadow: var(--nn-prism-shadow) !important;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition:
+    transform 420ms cubic-bezier(.16,1,.3,1),
+    box-shadow 420ms cubic-bezier(.16,1,.3,1),
+    filter 420ms ease,
+    border-color 320ms ease !important;
+}
+/* Long, soft studio reflection across the glass surface. */
+.nn-glass-card::after,
+.nn-glass::after,
+.nn-glass-primary::after,
+.nn-glass-reading::after,
+.nn-holo::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(112deg,
+      transparent 0%,
+      rgb(255 255 255 / 10%) 13%,
+      rgb(255 255 255 / 3%) 24%,
+      transparent 39%,
+      transparent 72%,
+      rgb(123 199 255 / 5%) 88%,
+      transparent 100%);
+  opacity: .9;
+  mix-blend-mode: screen;
+}
+/* Give nested icon wells their own optical lens and bevel. */
+.nn-glass-icon,
+.nn-glass-card [class*="badge"],
+.nn-glass-card [class*="icon"] {
+  border-color: rgb(170 229 255 / 44%);
+  background:
+    radial-gradient(ellipse at 28% 8%, rgb(255 255 255 / 40%), transparent 62%),
+    linear-gradient(145deg, rgb(97 202 255 / 24%), rgb(82 103 255 / 17%) 54%, rgb(16 27 77 / 72%));
+  box-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 68%),
+    inset 0 -2px 2px rgb(0 0 0 / 34%),
+    0 2px 0 rgb(2 8 29 / 78%),
+    0 9px 18px rgb(0 4 26 / 30%),
+    0 0 20px rgb(60 190 255 / 12%);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nn-glass-card:hover,
+  .nn-glass:hover,
+  .nn-glass-primary:hover,
+  .nn-glass-reading:hover,
+  .nn-holo:hover {
+    transform: perspective(1500px) translate3d(0, -6px, 12px) rotateX(1deg) !important;
+    filter: brightness(1.12) saturate(1.14);
+    border-color: rgb(215 248 255 / 82%) !important;
+    box-shadow:
+      inset 0 2px 0 rgb(255 255 255 / 84%),
+      inset 1.5px 0 0 rgb(222 247 255 / 30%),
+      inset -1.5px 0 0 rgb(93 160 255 / 30%),
+      inset 0 -2px 0 rgb(4 10 34 / 42%),
+      0 1px 0 rgb(155 226 255 / 65%),
+      0 4px 0 rgb(2 8 29 / 82%),
+      0 18px 34px rgb(0 4 24 / 38%),
+      0 42px 76px rgb(0 4 26 / 42%),
+      0 0 42px rgb(45 194 255 / 22%),
+      0 0 72px rgb(143 83 255 / 13%) !important;
+  }
+}
+.nn-glass-card:active,
+.nn-glass:active,
+.nn-glass-primary:active,
+.nn-holo:active {
+  transform: perspective(1200px) translate3d(0, 1px, 1px) scale(.994) !important;
+  filter: brightness(1.04);
+}
+/* Reading panes retain high contrast while sharing the same spectral rim. */
+.nn-glass-reading {
+  background-image:
+    radial-gradient(ellipse 90% 44% at 12% 0%, rgb(255 255 255 / 17%), transparent 72%),
+    linear-gradient(145deg, rgb(14 31 76 / 94%), rgb(6 13 39 / 96%) 68%, rgb(23 19 70 / 94%)) !important;
+  background-clip: padding-box !important;
+}
+/* The light theme is still glass: frosted ice with cyan and amethyst dispersion. */
+:root[data-theme="light"] body {
+  /*
+   * Light has to actually be lighter.
+   *
+   * The ground was #e8f2ff under a 23% blue wash and a 19% violet one, which
+   * is a *tinted* page rather than a bright one — the founder read it as the
+   * light theme being dimmer than the dark theme, and measured against the
+   * ink ramp they were right: the surfaces are near-white but almost none of
+   * the page was showing them. The ground is now close to white and the two
+   * washes are roughly halved, so the colour reads as light caught in glass
+   * rather than as a coat of paint over it.
+   */
+  background-color: #f6faff;
+  background-image:
+    radial-gradient(ellipse 70% 46% at 12% 4%, rgb(70 168 255 / 12%), transparent 72%),
+    radial-gradient(ellipse 60% 40% at 90% 14%, rgb(174 123 255 / 9%), transparent 74%),
+    var(--ambient);
+}
+:root[data-theme="light"] {
+  /* A rim has to be darker than the glass it edges, not lighter. */
+  --nn-prism-rim: rgb(118 158 208 / 34%);
+}
+:root[data-theme="light"] .nn-glass-card,
+:root[data-theme="light"] .nn-glass,
+:root[data-theme="light"] .nn-glass-primary,
+:root[data-theme="light"] .nn-glass-reading,
+:root[data-theme="light"] .nn-holo {
+  background-color: rgb(239 248 255 / 44%) !important;
+  background-image:
+    radial-gradient(ellipse 92% 56% at 8% -8%, rgb(255 255 255 / 92%), transparent 68%),
+    radial-gradient(ellipse 78% 70% at 100% 100%, rgb(164 135 255 / 12%), transparent 74%),
+    linear-gradient(126deg, rgb(255 255 255 / 82%) 0%, rgb(103 204 255 / 17%) 30%, transparent 52%, rgb(162 134 255 / 14%) 82%, rgb(255 255 255 / 64%) 100%),
+    linear-gradient(155deg, rgb(247 252 255 / 72%), rgb(220 238 255 / 56%) 52%, rgb(237 231 255 / 62%)) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(175%) brightness(1.04) !important;
+  backdrop-filter: blur(32px) saturate(175%) brightness(1.04) !important;
+  box-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 98%),
+    inset 1.5px 0 0 rgb(255 255 255 / 76%),
+    inset -1.5px 0 0 rgb(106 155 219 / 18%),
+    inset 0 -2px 0 rgb(95 139 199 / 17%),
+    0 1px 0 rgb(113 168 222 / 35%),
+    0 3px 0 rgb(95 139 199 / 22%),
+    0 6px 0 rgb(95 139 199 / 12%),
+    0 14px 30px rgb(53 93 145 / 15%),
+    0 32px 64px rgb(53 93 145 / 12%) !important;
+}
+:root[data-theme="light"] .nn-glass-reading {
+  background-image:
+    radial-gradient(ellipse 90% 44% at 12% 0%, rgb(255 255 255 / 98%), transparent 72%),
+    linear-gradient(145deg, rgb(250 253 255 / 98%), rgb(231 242 255 / 98%) 68%, rgb(242 237 255 / 98%)) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nn-glass-card,.nn-glass,.nn-glass-primary,.nn-glass-reading,.nn-holo,
+  .nn-glass-card:hover,.nn-glass:hover,.nn-glass-primary:hover,.nn-holo:hover {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+:root[data-motion="reduced"] .nn-glass-card,
+:root[data-motion="reduced"] .nn-glass,
+:root[data-motion="reduced"] .nn-glass-primary,
+:root[data-motion="reduced"] .nn-glass-reading,
+:root[data-motion="reduced"] .nn-holo {
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Preserve popovers, focus rings and floating controls above glass surfaces.
+ *
+ * Not `!important`. Global utilities load before CSS Modules, so this already
+ * loses to any component that sets `overflow` itself — which is the point: a
+ * surface whose design depends on clipping its own decoration must be allowed
+ * to clip it. Forcing this on everything made Life's hero stop containing a
+ * 1347px blurred ribbon, and the page scrolled sideways at every width.
+ *
+ * A component that needs content to escape either says nothing, and inherits
+ * this, or says `overflow: visible` itself. Both are explicit. */
+.nn-glass-card,.nn-glass,.nn-glass-primary,.nn-glass-reading,.nn-holo {
+  overflow: visible;
+}
+.nn-glass-card::after,.nn-glass::after,.nn-glass-primary::after,.nn-glass-reading::after,.nn-holo::after {
+  border-radius: inherit;
+}
+
+
+/* Semantic NN icon colours — a restrained, consistent spectrum. */
+[data-nn-icon="calendar"]{color:#75dfff;filter:drop-shadow(0 0 7px rgb(67 202 255 / 28%))}
+[data-nn-icon="check"]{color:#83e5ce;filter:drop-shadow(0 0 7px rgb(83 224 188 / 25%))}
+[data-nn-icon="clock"]{color:#9fc5ff;filter:drop-shadow(0 0 7px rgb(104 164 255 / 25%))}
+[data-nn-icon="file"],[data-nn-icon="folder"]{color:#b6caff;filter:drop-shadow(0 0 7px rgb(142 170 255 / 24%))}
+[data-nn-icon="graph"]{color:#c0aaff;filter:drop-shadow(0 0 8px rgb(167 132 255 / 27%))}
+[data-nn-icon="grid"]{color:#9fd7ff;filter:drop-shadow(0 0 7px rgb(103 187 255 / 25%))}
+[data-nn-icon="book"]{color:#a8caff;filter:drop-shadow(0 0 7px rgb(112 163 255 / 25%))}
+[data-nn-icon="search"]{color:#80e5f0;filter:drop-shadow(0 0 7px rgb(83 215 230 / 24%))}
+[data-nn-icon="settings"]{color:#b8c8e8;filter:drop-shadow(0 0 7px rgb(151 180 222 / 22%))}
+[data-nn-icon="shield"]{color:#85dfd5;filter:drop-shadow(0 0 7px rgb(81 211 195 / 24%))}
+[data-nn-icon="sparkle"]{color:#c3b0ff;filter:drop-shadow(0 0 8px rgb(174 142 255 / 30%))}
+[data-nn-icon="wallet"]{color:#80dfc9;filter:drop-shadow(0 0 7px rgb(79 211 176 / 25%))}
+[data-nn-icon="mic"]{color:#bcaeff;filter:drop-shadow(0 0 7px rgb(165 139 255 / 25%))}
+[data-nn-icon="plus"]{color:#8edfff;filter:drop-shadow(0 0 7px rgb(91 204 255 / 25%))}
+[data-nn-icon="close"],[data-nn-icon="minus"]{color:#b9c8df}
+[data-nn-icon="expand"]{color:#a9c8ff;filter:drop-shadow(0 0 7px rgb(112 163 255 / 23%))}
+.nn-icon-surface{border-color:color-mix(in srgb,var(--nn-icon-tone,#8fcfff) 38%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--nn-icon-tone,#8fcfff) 17%,transparent),color-mix(in srgb,var(--nn-icon-tone,#8fcfff) 6%,var(--nn-glass-float)));box-shadow:inset 0 1px 0 rgb(255 255 255 / 30%),0 7px 18px color-mix(in srgb,var(--nn-icon-tone,#8fcfff) 12%,transparent)}
+
+/* ==========================================================================
+   LIQUID CONTROLS
+   One material for every control in NN — buttons, segments, chips, the rows
+   of Settings. The founder asked for liquid glass on all of it, and a single
+   utility is how that stays true: a control that opts in gets the same edge,
+   the same refraction and the same press as every other, in both themes,
+   without each module inventing its own near-miss.
+
+   Built on --liquid-edge-shadow, which the token file redefines for light,
+   so none of this needs to know which theme it is in.
+   ========================================================================== */
+.nn-liquid {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid var(--glass-2-border);
+  background: var(--glass-2-bg);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  /* The control's own thickness under the glass edge. A button in NN is an
+     object you press, so there is a side to it before any blur. */
+  box-shadow:
+    var(--liquid-edge-shadow),
+    0 2px 0 var(--liquid-thickness),
+    0 5px 12px -3px var(--liquid-thickness-cast);
+  color: var(--text-primary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    background var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard);
+}
+
+/* The top-edge highlight. A real slab is brightest where the light first
+   meets it, and without this the control reads as a flat tinted rectangle. */
+.nn-liquid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+  /* Two layers in one pseudo-element, because a control only has two and the
+     other is spoken for elsewhere: the fixed top-edge highlight, and NN's own
+     water drifting under it. Per-layer `background-position` is what lets the
+     second move while the first stays still. */
+  background-image:
+    linear-gradient(
+      168deg,
+      var(--glass-sheen) 0%,
+      transparent 38%,
+      transparent 72%,
+      rgb(var(--nn-spectrum-blue) / 7%) 100%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 0%,
+      rgb(var(--nn-spectrum-cyan) / var(--liquid-tide, 20%)) 16%,
+      rgb(var(--nn-spectrum-blue) / var(--liquid-tide, 20%)) 38%,
+      rgb(var(--nn-spectrum-violet) / var(--liquid-tide, 20%)) 62%,
+      rgb(var(--nn-spectrum-aqua) / var(--liquid-tide, 20%)) 84%,
+      transparent 100%
+    );
+  background-size: 100% 100%, 220% 100%;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 0 0, 0 0;
+  animation: nn-liquid-tide 17s linear infinite;
+  /* The refraction, on the layer that already exists rather than a new one.
+     NN's displacement map pushes the backdrop around with blurred turbulence,
+     so what is behind a control is genuinely bent rather than only blurred —
+     the difference between glass and frosted plastic.
+
+     It lives here, and not in the declaration on `.nn-liquid` itself, for one
+     reason worth stating: `backdrop-filter: url(...)` is Chromium-only today.
+     Listed alongside the blur in a single declaration, an engine that cannot
+     run it drops the *whole* property and the control loses its blur too —
+     which would make Safari, and so the founder's iPhone, strictly worse.
+     On its own layer it is additive: where it works the glass refracts, and
+     where it does not `.nn-liquid`'s own blur is untouched.
+
+     A pseudo-element is also the safe place for it. `backdrop-filter` makes
+     an element the containing block for any `position: fixed` descendant,
+     which is what pinned the phone's tab bar below the fold twice. A
+     pseudo-element has no descendants to capture. */
+  -webkit-backdrop-filter: var(--liquid-refraction);
+  backdrop-filter: var(--liquid-refraction);
+}
+
+@keyframes nn-liquid-tide {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 0, -220% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nn-liquid::before { animation: none; }
+}
+
+:root[data-motion="reduced"] .nn-liquid::before { animation: none; }
+
+.nn-liquid:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--glass-3-bg);
+  border-color: var(--glass-3-border);
+  transform: translateY(-1px);
+}
+
+/* Pressed means pressed in: it loses its own height rather than only
+   shrinking, which is what a key does. */
+.nn-liquid:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(1px) scale(0.985);
+  box-shadow: var(--liquid-edge-shadow), 0 0 0 var(--liquid-thickness);
+}
+.nn-liquid:disabled, .nn-liquid[aria-disabled="true"] { opacity: 0.42; cursor: not-allowed; }
+.nn-liquid:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+
+/* The one control on a screen that carries the decision. Same material, lit
+   from inside, so it leads without leaving the family. */
+/*
+ * The one control on a screen that carries the decision — as glass, not as
+ * paint.
+ *
+ * It used to be an 88%-opaque slab of the accent colour, which made it a
+ * *button* sitting on NN rather than a part of NN: the water underneath
+ * stopped at its edge, the refraction had nothing to refract, and next to
+ * the clear controls it read as a different material altogether. The
+ * founder asked for plain liquid glass everywhere and they were right —
+ * the accent was doing a job that light can do better.
+ *
+ * Hierarchy now comes from luminance rather than hue: a brighter rim, a
+ * stronger top-edge highlight and more water than its neighbours hold. It
+ * is still unmistakably the primary control, and it is still made of the
+ * same glass as everything around it.
+ */
+.nn-liquid-primary {
+  border-color: color-mix(in srgb, var(--text-accent) 70%, var(--glass-3-border));
+  background:
+    linear-gradient(168deg, rgb(255 255 255 / 26%), transparent 46%),
+    color-mix(in srgb, var(--text-accent) 16%, var(--glass-3-bg));
+  color: var(--text-primary);
+  box-shadow:
+    var(--liquid-edge-shadow),
+    inset 0 1px 0 rgb(255 255 255 / 34%),
+    0 2px 0 var(--liquid-thickness),
+    0 6px 16px -4px var(--liquid-thickness-cast);
+}
+
+/* It holds more water than the controls beside it, which is what makes it
+   read as the decision without being a different colour. */
+.nn-liquid-primary::before { --liquid-tide: 38%; }
+
+.nn-liquid-primary:hover:not(:disabled) {
+  background:
+    linear-gradient(168deg, rgb(255 255 255 / 32%), transparent 46%),
+    color-mix(in srgb, var(--text-accent) 24%, var(--glass-3-bg));
+  border-color: var(--text-accent);
+}
+
+/* A control that is pressed in, not out: the selected segment of a picker. */
+/* The chosen one holds more water than the rest. */
+.nn-liquid[aria-pressed="true"]::before,
+.nn-liquid[aria-current="page"]::before,
+.nn-liquid[aria-current="true"]::before { --liquid-tide: 44%; }
+
+.nn-liquid[aria-pressed="true"],
+.nn-liquid[aria-current="page"],
+.nn-liquid[aria-current="true"] {
+  background: var(--glass-3-bg);
+  border-color: color-mix(in srgb, var(--text-accent) 50%, var(--glass-3-border));
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nn-liquid { transition-duration: 1ms; }
+  .nn-liquid:hover:not(:disabled) { transform: none; }
+}
+
+/* ==========================================================================
+   THE LIVE WAVE
+   Every card in NN carries moving water, not a painted gradient. The founder
+   asked for it everywhere and the reason it works is that it is the same
+   light as the room: three blobs of the brand spectrum, blurred into each
+   other, drifting behind the card's own glass.
+
+   Cheap on purpose. One pseudo-element, one transform, no paint per frame —
+   it runs on the compositor, so thirty cards cost what one costs. The band
+   is drawn twice across the element and travels exactly half its width, so
+   the loop has no seam.
+   ========================================================================== */
+.nn-live-wave {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.nn-live-wave::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -20%;
+  width: 200%;
+  height: 140%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--wave-strength, 0.5);
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  background-image:
+    radial-gradient(42% 70% at 14% 62%, rgb(var(--nn-spectrum-cyan) / 42%), transparent 68%),
+    radial-gradient(40% 66% at 34% 84%, rgb(var(--nn-spectrum-indigo) / 34%), transparent 68%),
+    radial-gradient(44% 72% at 56% 58%, rgb(var(--nn-spectrum-violet) / 32%), transparent 68%),
+    radial-gradient(38% 64% at 80% 80%, rgb(var(--nn-spectrum-aqua) / 38%), transparent 68%);
+  /* Blurred far past the point where any single blob is legible. The water
+     has to be light under glass, not a pattern on top of it: at 16px of blur
+     the cyan read as a graphic and a 13px label on top of it lost most of its
+     contrast. */
+  filter: blur(26px) saturate(1.35);
+  animation: nn-wave-drift 26s linear infinite;
+}
+
+@keyframes nn-wave-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* On a light ground the same water has to be stronger to be water at all —
+   a 55% veil of cyan over white is a smudge. */
+:root[data-theme="light"] .nn-live-wave::after { --wave-strength: 0.56; filter: blur(30px) saturate(1.25); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .nn-live-wave::after { --wave-strength: 0.56; filter: blur(30px) saturate(1.25); }
+}
+
+/* The reading surface. The wave paints over the card's own background — a
+   negative-z child still lands above it — so the card needs a second layer
+   of its own glass between the water and the words. Without it a 13px label
+   on a moving cyan crest loses most of its contrast twice a minute. */
+.nn-live-wave::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--surface-raised) 58%, transparent),
+    color-mix(in srgb, var(--surface-raised) 78%, transparent)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Stopped, not removed: a still crest is the same card without the motion. */
+  .nn-live-wave::after { animation-play-state: paused; }
+}
+:root[data-motion="reduced"] .nn-live-wave::after { animation-play-state: paused; }
+
+/* ==========================================================================
+   LIGHTFALL
+   The specular highlight that follows your hand.
+
+   NN's glass has carried a fixed highlight at the top-left since it was
+   written. That is correct for a still image and is the clearest tell that
+   a surface is drawn rather than lit — real glass moves its highlight when
+   you do. `Lightfall` writes the pointer's position into two custom
+   properties and this paints the light there.
+
+   Deliberately *one* soft, low-opacity pool. A bright spot that tracks the
+   cursor is a gimmick; a faint lift under the thumb is a material. It sits
+   on the existing `::before` layer rather than adding another, so nothing
+   gains a new element or a new stacking context.
+   ========================================================================== */
+.nn-glass-card[data-lit]::before,
+.nn-liquid[data-lit]::before,
+[data-lightfall][data-lit]::before {
+  background-image:
+    radial-gradient(
+      circle 180px at var(--nn-lightfall-x, 50%) var(--nn-lightfall-y, 0%),
+      rgb(255 255 255 / 13%),
+      transparent 70%
+    ),
+    var(--nn-lightfall-under, none);
+}
+
+/* The liquid control keeps its own two layers and gains the pool above them,
+   or the tide and the top-edge highlight would be replaced rather than lit. */
+.nn-liquid[data-lit]::before {
+  background-image:
+    radial-gradient(
+      circle 140px at var(--nn-lightfall-x, 50%) var(--nn-lightfall-y, 50%),
+      rgb(255 255 255 / 15%),
+      transparent 72%
+    ),
+    linear-gradient(
+      168deg,
+      var(--glass-sheen) 0%,
+      transparent 38%,
+      transparent 72%,
+      rgb(var(--nn-spectrum-blue) / 7%) 100%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 0%,
+      rgb(var(--nn-spectrum-cyan) / var(--liquid-tide, 20%)) 16%,
+      rgb(var(--nn-spectrum-blue) / var(--liquid-tide, 20%)) 38%,
+      rgb(var(--nn-spectrum-violet) / var(--liquid-tide, 20%)) 62%,
+      rgb(var(--nn-spectrum-aqua) / var(--liquid-tide, 20%)) 84%,
+      transparent 100%
+    );
+  background-size: 100% 100%, 100% 100%, 220% 100%;
+}
+
+/* A light that chases the hand is exactly the motion someone asking for
+   less of it does not want. */
+@media (prefers-reduced-motion: reduce) {
+  .nn-glass-card[data-lit]::before,
+  .nn-liquid[data-lit]::before,
+  [data-lightfall][data-lit]::before { background-image: none; }
+}
+
+/* NN iOS-inspired system layer: deliberately last to replace legacy holo styling. */
+@import "./ios-system.css";

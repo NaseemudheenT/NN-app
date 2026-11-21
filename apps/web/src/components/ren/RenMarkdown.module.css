@@ -1,0 +1,117 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  color: var(--text-primary);
+  font-size: var(--text-lg-size);
+  line-height: 1.68;
+  letter-spacing: -0.003em;
+}
+
+.paragraph { margin: 0; }
+
+.heading {
+  margin: var(--space-3) 0 calc(var(--space-2) * -1);
+  font-size: var(--text-t3-size);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.35em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.list li { padding-left: 0.15em; }
+.list li::marker { color: var(--text-accent); }
+
+.quote {
+  margin: 0;
+  padding: var(--space-4) var(--space-6);
+  border-left: 2px solid var(--text-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--glass-hover);
+  color: var(--text-secondary);
+}
+
+.rule {
+  height: 1px;
+  margin: var(--space-3) 0;
+  border: 0;
+  background: var(--border-normal);
+}
+
+.root a {
+  color: var(--text-accent);
+  text-decoration-color: color-mix(in srgb, var(--text-accent) 45%, transparent);
+  text-underline-offset: 3px;
+}
+
+.inlineCode {
+  padding: 0.12em 0.38em;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--glass-hover);
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  letter-spacing: 0;
+}
+
+/* ----------------------------------------------------------- code block -- */
+
+.code {
+  margin: 0;
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-md);
+  background: var(--surface-deep);
+  overflow: hidden;
+}
+
+.code figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--glass-hover);
+  font-size: var(--text-micro-size);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.code figcaption button {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-normal);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--text-micro-size);
+  letter-spacing: var(--text-micro-ls);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+
+.code figcaption button:hover { background: var(--glass-active); color: var(--text-primary); }
+.code figcaption button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+.code pre {
+  margin: 0;
+  padding: var(--space-5) var(--space-6);
+  /* Code is the one thing that must not be reflowed to fit. It scrolls in
+     its own box so the page itself never scrolls sideways. */
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--text-secondary);
+  tab-size: 2;
+}
+
+.code code { font: inherit; }

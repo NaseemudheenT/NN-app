@@ -152,3 +152,21 @@ Remaining applications  →  App Factory  →  devices  →  hardening
 Nothing above a line can be built honestly before the line beneath it exists,
 because every application depends on identity, ownership and the shared
 services listed in §2.
+
+
+---
+
+## Founder-only product boundary — 2026-11-09
+
+**NN is a private, single-owner personal operating environment built exclusively for its founder, Naseemudheen. It is not a public product, SaaS service, multi-tenant workspace or social platform.**
+
+This boundary applies to every application, shared service, workflow and future feature:
+
+1. **One owner identity.** Only the founder's enrolled passkey-backed owner identity may enter the private environment. No public sign-up, invite flow, member directory, team roles or additional owner accounts.
+2. **Owner-only data.** All personal records, files, settings, memories, activity and application state belong to the founder. Preserve server-side owner verification and default-deny access. Client-side visibility is never an authorisation boundary.
+3. **Founder-centred intelligence.** REN is the founder's private assistant. It may use only data and integrations explicitly authorised by the founder, must identify uncertainty and sources, and must request confirmation for consequential external actions.
+4. **Personal integrations, not multi-user sharing.** Connectors, devices and external accounts exist to serve the founder's own workflows. Sharing or publishing outward is an explicit founder-authorised action, not a collaboration feature.
+5. **No generic-market compromises.** Prioritise the founder's actual devices, habits, education, work, businesses, accessibility needs, privacy and preferred workflows over hypothetical mass-market personas.
+6. **No false capability.** Do not display a feature as operational until its real data path, permission boundary, failure states and user interaction are implemented and verified.
+
+**Architecture note:** users/{uid}/… may remain the secure storage namespace for the one enrolled owner UID. That storage shape does not imply multi-tenancy or permission for multiple users. Do not weaken the existing passkey-only and nnOwner: true security contract.

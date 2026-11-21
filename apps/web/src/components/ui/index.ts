@@ -2,6 +2,8 @@ export { NNLogo, NNLockup, NN_MARK_PATH } from "./NNLogo";
 export type { NNLogoProps, NNLockupProps } from "./NNLogo";
 
 export { Icon } from "./Icon";
+export { GlassIcon } from "./GlassIcon";
+export type { GlassIconProps, GlassIconTone } from "./GlassIcon";
 export type { IconName, IconProps } from "./Icon";
 
 export { GlassPanel } from "./GlassPanel";
@@ -56,3 +58,9 @@ export type { GlassFoldProps } from "./GlassFold";
 
 export { Coverflow } from "./Coverflow";
 export type { CoverflowProps, CoverflowCard } from "./Coverflow";
+
+export { FolderCard, useFolderWidth } from "./FolderCard";
+export type { FolderCardProps, FolderSheet } from "./FolderCard";
+
+export { LogoReveal } from "./LogoReveal";
+export type { LogoRevealProps } from "./LogoReveal";

@@ -4,6 +4,20 @@ packages:
   - "functions"
   - "firebase"
 
+# ── Dependency overrides ────────────────────────────────────────────────────
+# jose is held at 5.x because firebase-admin depends on jwks-rsa@4, which does
+# `const jose = require('jose')`. jose 6 is ESM-only — "type": "module" with no
+# CommonJS build — so that require throws ERR_REQUIRE_ESM on Vercel's Node
+# runtime and EVERY /api/auth/* route answers 500. NN could not sign anyone in.
+# It does not reproduce locally, which is why it was only found by reading the
+# deployed function's own logs.
+#
+# jwks-rsa uses exactly two jose APIs, importJWK and exportSPKI, and both exist
+# in jose 5 — so this narrows the surface rather than changing behaviour.
+# Remove it once firebase-admin's chain can be required from CommonJS.
+overrides:
+  jose: "^5.10.0"
+
 # ── Install-script policy ───────────────────────────────────────────────────
 # No dependency is permitted to execute code at install time. Each script
 # below was read in full and explicitly DECLINED; the whole repository was

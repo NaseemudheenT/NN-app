@@ -1,4 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 94 76" role="img" aria-label="NN">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 108" width="120" height="108" role="img" aria-label="NN" overflow="visible">
   <title>NN</title>
-  <path fill="#F7F9FC" fill-rule="nonzero" d="M0 0 H12 L32 46 V0 H44 V76 H32 L12 30 V76 H0 Z M50 0 H62 L82 46 V0 H94 V76 H82 L62 30 V76 H50 Z"/>
+  <defs>
+    <linearGradient id="nn-dark-face" x1="0" y1="0" x2="0.82" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.32" stop-color="#CDEBFF"/>
+      <stop offset="0.66" stop-color="#9FC2FF"/>
+      <stop offset="1" stop-color="#CBAEFF"/>
+    </linearGradient>
+    <filter id="nn-dark-bloom" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="7.5"/>
+    </filter>
+  </defs>
+  <path d="M0 14 L14 0 H22 V108 H0 Z M20 0 H46 L100 108 H74 Z M98 0 H120 V94 L106 108 H98 Z" fill="#6FB6FF" filter="url(#nn-dark-bloom)" opacity="0.6"/>
+  <path d="M0 14 L14 0 H22 V108 H0 Z M20 0 H46 L100 108 H74 Z M98 0 H120 V94 L106 108 H98 Z" fill="url(#nn-dark-face)"/>
+  <path d="M0 14 L14 0 H22 V108 H0 Z M20 0 H46 L100 108 H74 Z M98 0 H120 V94 L106 108 H98 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="1.6" stroke-linejoin="round"/>
 </svg>

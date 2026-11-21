@@ -1,0 +1,141 @@
+.tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  isolation: isolate;
+  color: var(--glass-icon-ink, var(--text-primary));
+  border: 1px solid var(--glass-icon-rim, var(--glass-2-border));
+  background:
+    linear-gradient(168deg, var(--glass-sheen), transparent 46%),
+    linear-gradient(
+      168deg,
+      rgb(var(--glass-icon-hue) / 46%),
+      rgb(var(--glass-icon-hue) / 22%) 64%,
+      rgb(var(--glass-icon-hue) / 30%)
+    );
+  -webkit-backdrop-filter: blur(14px) saturate(1.45);
+  backdrop-filter: blur(14px) saturate(1.45);
+  box-shadow:
+    inset 0 1px 0 var(--glass-sheen),
+    inset 0 -1px 0 rgb(4 10 28 / 26%),
+    0 2px 5px -1px rgb(4 10 28 / 34%);
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    box-shadow var(--dur-base) var(--ease-standard);
+}
+
+/* The same water that is in the cards and the buttons, inside the key the
+   icon stands on. It is what makes an icon an object sitting in NN's own
+   light rather than a glyph on a tinted square. */
+.tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--glass-icon-tide, 0.62);
+  background-image: linear-gradient(
+    104deg,
+    transparent 0%,
+    rgb(var(--nn-spectrum-cyan) / 42%) 14%,
+    rgb(var(--nn-spectrum-blue) / 38%) 36%,
+    rgb(var(--nn-spectrum-violet) / 40%) 60%,
+    rgb(var(--nn-spectrum-aqua) / 44%) 82%,
+    transparent 100%
+  );
+  background-size: 230% 100%;
+  background-repeat: repeat-x;
+  animation: nn-icon-tide 19s linear infinite;
+}
+
+@keyframes nn-icon-tide {
+  from { background-position: 0 0; }
+  to { background-position: -230% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile::before { animation: none; }
+}
+
+/* The chamfer: a hairline of spectrum around the top-left corner, which is
+   what separates a glass key from a rounded rectangle at 30px. */
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 1px;
+  background: var(--nn-spectrum-rim);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  opacity: 0.5;
+}
+
+.tile svg { position: relative; z-index: 1; }
+
+/* The body of the extruded glyph, and the material of its lit face. Both are
+   properties rather than constants so the light theme can swap them without
+   the icon knowing which theme it is in. */
+.tile { --nn-icon-body: #050C22; --nn-icon-face: url(#nn-icon-face); --nn-icon-rim: rgb(255 255 255 / 62%); }
+
+.tile[data-tone="blue"]   { --glass-icon-hue: var(--nn-spectrum-blue); }
+.tile[data-tone="cyan"]   { --glass-icon-hue: var(--nn-spectrum-cyan); }
+.tile[data-tone="aqua"]   { --glass-icon-hue: var(--nn-spectrum-aqua); }
+.tile[data-tone="violet"] { --glass-icon-hue: var(--nn-spectrum-violet); }
+.tile[data-tone="slate"]  { --glass-icon-hue: var(--nn-spectrum-indigo); }
+.tile[data-tone="green"]  { --glass-icon-hue: 63 211 166; }
+.tile[data-tone="amber"]  { --glass-icon-hue: 232 194 122; }
+.tile[data-tone="red"]    { --glass-icon-hue: 232 133 133; }
+
+/* On a light ground the tint has to carry the tile, so it is stronger and the
+   glyph goes dark: pale ink on pale glass was the weakest thing on the page. */
+:root[data-theme="light"] .tile,
+:root:not([data-theme]) .tile {
+  --glass-icon-ink: #0B1730;
+  --glass-icon-tide: 0.5;
+  /* On a pale ground the face has to be the dark half of the spectrum, or a
+     white-lit glyph on white glass loses its silhouette entirely. */
+  --nn-icon-body: #8FA9D4;
+  --nn-icon-face: url(#nn-icon-face-light);
+  --nn-icon-rim: rgb(255 255 255 / 86%);
+  background:
+    linear-gradient(168deg, rgb(255 255 255 / 85%), transparent 52%),
+    linear-gradient(
+      168deg,
+      rgb(var(--glass-icon-hue) / 34%),
+      rgb(var(--glass-icon-hue) / 16%) 64%,
+      rgb(var(--glass-icon-hue) / 24%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 92%),
+    inset 0 -1px 0 rgb(7 17 31 / 8%),
+    0 2px 5px -1px rgb(7 17 31 / 16%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .tile {
+    --glass-icon-ink: var(--text-primary);
+    --nn-icon-body: #050C22;
+    --nn-icon-face: url(#nn-icon-face);
+    --nn-icon-rim: rgb(255 255 255 / 62%);
+    background:
+      linear-gradient(168deg, var(--glass-sheen), transparent 46%),
+      linear-gradient(
+        168deg,
+        rgb(var(--glass-icon-hue) / 46%),
+        rgb(var(--glass-icon-hue) / 22%) 64%,
+        rgb(var(--glass-icon-hue) / 30%)
+      );
+    box-shadow:
+      inset 0 1px 0 var(--glass-sheen),
+      inset 0 -1px 0 rgb(4 10 28 / 26%),
+      0 2px 5px -1px rgb(4 10 28 / 34%);
+  }
+}

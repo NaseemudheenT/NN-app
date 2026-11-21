@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { enforceRateLimit } from "@/server/auth/ratelimit";
+import { requireServerCredentials } from "@/server/auth/credentials";
 import { confirmRegistration, isUsable, readRelyingParty, type RegistrationResponseJSON } from "@nn/auth";
 import {
   FirestoreChallengeStore, claimOwner, readOwner, recordSecurityEvent, saveCredential,
@@ -10,6 +11,11 @@ export const dynamic = "force-dynamic";
 
 /** Step 2: verify the attestation and store the passkey. */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Asked before the rate limiter, which needs Firestore itself and would
+  // otherwise be the thing that throws.
+  const unconfigured = requireServerCredentials();
+  if (unconfigured !== null) return unconfigured;
+
   const limited = await enforceRateLimit(request, "register-verify");
   if (limited !== null) return limited;
 

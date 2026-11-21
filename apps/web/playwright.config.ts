@@ -17,13 +17,16 @@ const ORIGIN = `http://localhost:${PORT}`;
  */
 export default defineConfig({
   testDir: "./e2e",
+  // Compiles every route before the first assertion. `next dev` compiles on
+  // first request, and on this machine that outran the assertion timeout.
+  globalSetup: "./e2e/warm.ts",
   fullyParallel: false,       // one emulator, one owner — tests share state
   workers: 1,
   retries: 0,
   reporter: [["list"]],
   // Generous: the dev server compiles each route on first hit, which can take
   // ten seconds or more on this machine. Production builds are far faster.
-  timeout: 120_000,
+  timeout: 300_000,
   expect: { timeout: 30_000 },
   use: {
     baseURL: ORIGIN,

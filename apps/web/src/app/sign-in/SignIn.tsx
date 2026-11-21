@@ -2,32 +2,68 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, GlassPanel, NNGlassMark, TextField } from "@/components/ui";
+import { LogoReveal } from "@/components/ui/LogoReveal";
+import { TextField } from "@/components/ui";
 import {
-  fetchAuthStatus, passkeysSupported, registerPasskey, signInWithPasskey,
-  useAuth, type AuthStatus,
+  fetchAuthStatus, passkeysSupported, registerPasskey, setRecoveryPassword,
+  signInWithPasskey, signInWithRecoveryPassword, useAuth, type AuthStatus,
 } from "@/lib/auth";
+import { assessRecoveryPassword } from "@nn/auth/recovery-policy";
+import { explainAuthError } from "@/lib/auth/explain";
+import { enterPreview, leavePreview, previewOffered } from "@/lib/preview";
 import s from "./signin.module.css";
 
 /**
  * The door to NN.
  *
- * Two states, decided by the server: claim an unowned environment, or sign in
- * to a claimed one. The fingerprint below is a symbol — the actual biometric
- * check happens inside the device's own authenticator, and NN never receives
- * or stores biometric data.
+ * One card, the mark arriving through glass, and one button. Everything that
+ * used to be on this screen explained a mechanism nobody needs explained
+ * twice.
+ *
+ * Four states, decided by the server rather than guessed at:
+ *
+ * - **claim** — nobody owns this environment. Needs the bootstrap secret as
+ *   well as a passkey, because the site is public and the first visitor
+ *   would otherwise become the owner. A password is set in the same
+ *   ceremony, so the way back exists from the first minute.
+ * - **passkey** — the ordinary way in.
+ * - **password** — the *other* ordinary way in, offered plainly rather than
+ *   hidden behind a failure. A passkey lives on one device, and an
+ *   environment reachable only from one device is one you lose with it.
+ * - **arm** — claimed, but no password was ever stored. Offered with the
+ *   bootstrap secret, once; the offer disappears the moment it is taken.
+ *
+ * A password is weaker than a passkey and this does not pretend otherwise —
+ * it is scrypt-hashed, rate-limited twice and locked out globally after five
+ * wrong guesses. But a passkey the founder cannot use is worth nothing at
+ * all, and that is the comparison that actually matters.
  */
+
+type Mode = "claim" | "passkey" | "password" | "arm";
+
 export function SignIn() {
   const router = useRouter();
-  const { phase, endedReason } = useAuth();
+  const { phase, endedReason, refresh } = useAuth();
   const [status, setStatus] = useState<AuthStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const [secret, setSecret] = useState("");
-  const supported = passkeysSupported();
+  const [password, setPassword] = useState("");
+  const [chosen, setChosen] = useState<Mode | null>(null);
+
+  // Null until mounted. Asked during render, this is false on the server —
+  // which made every visitor's sign-in page ship with "This browser does not
+  // support passkeys" already in it, and React threw the page away on
+  // hydration when the browser disagreed. Unknown is the honest third state.
+  const [supported, setSupported] = useState<boolean | null>(null);
+  useEffect(() => { setSupported(passkeysSupported()); }, []);
 
   useEffect(() => {
-    if (phase === "signed-in") router.replace("/workspace");
+    if (phase === "signed-in") {
+      leavePreview();
+      router.replace("/home");
+    }
   }, [phase, router]);
 
   useEffect(() => {
@@ -46,111 +82,193 @@ export function SignIn() {
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      // Firebase reports "auth/configuration-not-found" for a project whose
+      // Authentication was never switched on, which reads to the founder as
+      // "your password is wrong" when the password was perfect.
+      setError(explainAuthError(e));
     } finally {
       setBusy(false);
     }
   };
 
-  if (phase === "unconfigured") {
-    return (
-      <main className={s.page}>
-        <GlassPanel tier={3} padding="lg" className={s.card}>
-          <div className={s.mark}><NNGlassMark size={64} /></div>
-          <h1 className={s.title}>NN is not configured</h1>
-          <p className={s.lede}>
-            Firebase credentials are missing. Copy <code>.env.example</code> to{" "}
-            <code>.env.local</code> and fill it in, then reload.
-          </p>
-        </GlassPanel>
-      </main>
-    );
-  }
+  /* A deployment whose server has no credentials cannot verify anything, and
+     must say so rather than offering a button that will always fail. */
+  const unconfigured = phase === "unconfigured" || (status !== null && !status.configured);
+  const claimed = status !== null && status.configured && status.claimed;
+  const hasPassword = status?.hasPassword === true;
 
-  const claiming = status !== null && !status.claimed;
+  const mode: Mode = chosen ?? (status === null ? "passkey" : claimed ? "passkey" : "claim");
+  const strength = password.length > 0 ? assessRecoveryPassword(password) : null;
+  const strong = strength !== null && strength.ok;
+
+  const label =
+    mode === "claim" ? "Claim NN"
+      : mode === "password" ? "Unlock NN"
+        : mode === "arm" ? "Save this password"
+          : "Sign in with passkey";
+
+  const blocked =
+    busy || status === null || unconfigured
+    || (mode === "claim"
+      && (supported !== true || !status.bootstrapReady || secret.length === 0 || !strong))
+    || (mode === "passkey" && supported !== true)
+    || (mode === "password" && password.length === 0)
+    || (mode === "arm" && (secret.length === 0 || !strong));
+
+  const act = () => void run(async () => {
+    if (mode === "password") {
+      await signInWithRecoveryPassword(password);
+      // The session is a cookie the page cannot read, so the provider has to
+      // ask the server again before the redirect can fire.
+      await refresh();
+      return;
+    }
+    if (mode === "arm") {
+      await setRecoveryPassword(password, { bootstrapSecret: secret });
+      setPassword("");
+      setSecret("");
+      setChosen("password");
+      setNote("Saved. Sign in with it now.");
+      setStatus((was) => (was === null ? was : { ...was, hasPassword: true }));
+      return;
+    }
+    if (mode === "claim") {
+      await registerPasskey({ bootstrapSecret: secret, label: "First device" });
+      await signInWithPasskey();
+      // Second, and only once the session exists.
+      await setRecoveryPassword(password, {});
+      return;
+    }
+    await signInWithPasskey();
+    await refresh();
+  });
+
+  const wantsSecret = mode === "claim" || mode === "arm";
+  const wantsPassword = mode !== "passkey";
+
+  const reset = (next: Mode) => {
+    setChosen(next);
+    setError(null);
+    setNote(null);
+    setPassword("");
+    setSecret("");
+  };
 
   return (
     <main className={s.page}>
-      <GlassPanel tier={3} padding="lg" className={s.card}>
-        <div className={s.mark}><NNGlassMark size={64} /></div>
+      <div className={s.aurora} aria-hidden="true" />
 
-        <h1 className={s.title}>
-          {status === null ? "NN" : claiming ? "Claim NN" : "Welcome back, Founder."}
-        </h1>
-
-        <p className={s.lede}>
-          {status === null
-            ? "Checking this environment…"
-            : claiming
-              ? "This environment has no owner yet. Claim it with your bootstrap secret and the passkey on this device."
-              : "Sign in with the passkey on this device."}
-        </p>
-
-        <div className={s.fingerprint} aria-hidden="true">
-          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               strokeWidth="1.3" strokeLinecap="round">
-            <path d="M12 10a2 2 0 0 1 2 2c0 2.6-.4 5.1-1.2 7.5" />
-            <path d="M8.6 19.8A14 14 0 0 0 10 12a2 2 0 0 1 3.9-.6" />
-            <path d="M5.5 17.5A17 17 0 0 0 6.5 12a5.5 5.5 0 0 1 9.9-3.3" />
-            <path d="M17.5 11.5a21 21 0 0 1-.8 6.3" />
-            <path d="M3.5 13.5A20 20 0 0 1 4 10a8 8 0 0 1 14.6-3" />
-          </svg>
+      <div className={s.card}>
+        <div className={s.mark}>
+          <LogoReveal size={132} duration={2400} />
         </div>
 
-        {status !== null && claiming ? (
-          <div className={s.secret}>
-            <TextField
-              label="Bootstrap secret"
-              type="password"
-              autoComplete="off"
-              value={secret}
-              onChange={(e) => setSecret(e.currentTarget.value)}
-              hint={
-                status.bootstrapReady
-                  ? "From NN_BOOTSTRAP_SECRET in your .env.local."
-                  : "NN_BOOTSTRAP_SECRET is not set or is too short. See docs/AUTHENTICATION.md."
-              }
-            />
-          </div>
-        ) : null}
+        {/* The environment's name, for anything that reads rather than looks. */}
+        <h1 className={s.name}>NN</h1>
 
-        <div className={s.actions}>
-          {status !== null && claiming ? (
-            <Button
-              variant="primary" size="lg" loading={busy}
-              disabled={!supported || !status.bootstrapReady || secret.length === 0}
-              onClick={() => void run(async () => {
-                await registerPasskey({ bootstrapSecret: secret, label: "First device" });
-                await signInWithPasskey();
-              })}
-            >
-              Claim NN with a passkey
-            </Button>
-          ) : (
-            <Button
-              variant="primary" size="lg" loading={busy} disabled={!supported || status === null}
-              onClick={() => void run(signInWithPasskey)}
-            >
-              Sign in with passkey
-            </Button>
-          )}
-        </div>
-
-        {endedReason !== null ? <p className={s.note}>{endedReason}</p> : null}
-
-        {error !== null ? <p className={s.error} role="alert" data-testid="signin-error">{error}</p> : null}
-
-        {!supported ? (
-          <p className={s.error} role="alert" data-testid="signin-unsupported">
-            This browser does not support passkeys. Use a recent Safari, Chrome or Edge.
+        {unconfigured ? (
+          <p className={s.error} role="alert">
+            This deployment has no server credentials, so it cannot verify a
+            passkey. See <code>docs/DEPLOY_VERCEL.md</code>.
           </p>
         ) : null}
 
-        <p className={s.note}>
-          The fingerprint above is a symbol. Your device performs the biometric check
-          itself — NN never receives or stores biometric data, only a public key.
-        </p>
-      </GlassPanel>
+        {!unconfigured && (wantsSecret || wantsPassword) ? (
+          <div className={s.secret}>
+            {wantsSecret ? (
+              <TextField
+                label="Bootstrap secret"
+                type="password"
+                autoComplete="off"
+                value={secret}
+                onChange={(e) => setSecret(e.currentTarget.value)}
+              />
+            ) : null}
+            {wantsPassword ? (
+              <TextField
+                label={mode === "password" ? "Password" : "Choose a password"}
+                type="password"
+                autoComplete={mode === "password" ? "current-password" : "new-password"}
+                value={password}
+                onChange={(e) => setPassword(e.currentTarget.value)}
+                {...(mode === "password"
+                  ? {}
+                  : strength !== null && !strength.ok
+                    ? { hint: strength.reason }
+                    : { hint: "Sixteen characters or more. Write it down somewhere only you can reach." })}
+              />
+            ) : null}
+          </div>
+        ) : null}
+
+        {!unconfigured ? (
+          <button
+            type="button"
+            className={s.enter}
+            data-busy={busy || undefined}
+            disabled={blocked}
+            onClick={act}
+          >
+            <span className={s.enterScan} aria-hidden="true" />
+            <span className={s.enterLabel}>{label}</span>
+          </button>
+        ) : null}
+
+        {endedReason !== null ? <p className={s.note}>{endedReason}</p> : null}
+        {note !== null ? <p className={s.note}>{note}</p> : null}
+
+        {error !== null ? (
+          <p className={s.error} role="alert" data-testid="signin-error">{error}</p>
+        ) : null}
+
+        {supported === false && mode === "passkey" ? (
+          <p className={s.error} role="alert" data-testid="signin-unsupported">
+            This browser does not support passkeys. Use the password instead.
+          </p>
+        ) : null}
+
+        {/* The other way in, offered plainly. A founder who has just lost a
+            device should not have to fail twice to discover NN has a door
+            for them. */}
+        {claimed && mode !== "passkey" ? (
+          <button type="button" className={s.guestButton} onClick={() => reset("passkey")}>
+            Use my passkey
+          </button>
+        ) : null}
+
+        {/* Offered whenever NN has an owner, and deliberately *not* gated on
+            `hasPassword`. That flag is a convenience for labelling the
+            screen, and it has already been wrong once — a dropped field in
+            the status client hid this button while the password behind it
+            worked perfectly, which is a lockout caused entirely by the UI.
+            The server is the authority on whether the password opens: if
+            none is set it refuses, which costs one honest error message. A
+            hidden door costs the environment. */}
+        {claimed && mode === "passkey" ? (
+          <button type="button" className={s.guestButton} onClick={() => reset("password")}>
+            Use my password
+          </button>
+        ) : null}
+
+        {claimed && mode === "passkey" && !hasPassword ? (
+          <button type="button" className={s.guestButton} onClick={() => reset("arm")}>
+            Set a password
+          </button>
+        ) : null}
+
+        {/* Offered until this environment has an owner to protect — which
+            includes a deployment with no server credentials, where it is the
+            only thing that works and where local development lives. */}
+        {!claimed && previewOffered() ? (
+          <button
+            type="button"
+            className={s.guestButton}
+            onClick={() => { enterPreview(); router.replace("/home"); }}
+          >
+            Explore NN without an account
+          </button>
+        ) : null}
+      </div>
     </main>
   );
 }

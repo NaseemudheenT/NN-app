@@ -32,7 +32,8 @@ export function Dock({ items, activeId, onSelect, className }: DockProps) {
           title={item.label}
           onClick={() => onSelect(item.id)}
         >
-          <Icon name={item.icon} size={20} />
+          <Icon name={item.icon} size={19} />
+          <span className={styles.label}>{item.label}</span>
         </button>
       ))}
     </nav>

@@ -6,7 +6,25 @@ different developer, can continue NN without the original chat history.
 Owner and sole user: **Naseemudheen T.** · Repository: `NaseemudheenT/NN-app`
 (private) · Workspace: `/Users/thajudeen/NN-app-workspace`
 
+**Live at https://getrenew.in** (also `nn-app-sooty.vercel.app`). The domain
+was moved from the founder's Renew project to NN on 2026-11-13 at the
+founder's explicit instruction; Renew remains deployed on its own Vercel URL
+and the move is reversible by reassigning the domain back. WebAuthn binds to
+the hostname, so `WEBAUTHN_RP_ID` and `WEBAUTHN_ORIGIN` point at
+`getrenew.in`: a passkey registered here will not work on any other host.
+
 ---
+
+## 0. Current implementation ownership and handoff
+
+The founder has asked Claude to take the lead on completing the remaining NN operating system using the existing frontend as the approved baseline. Read `docs/CLAUDE_OS_COMPLETION_BRIEF.md` and `docs/CLAUDE_COLLABORATION_HANDOFF.md` before substantial work.
+
+- **Existing frontend baseline:** `design/nn-frontend-system`. It contains the approved NN design tokens, spatial/glass material language, shared UI components, Home/Life/Workspace surfaces, 34-app registry and honest planned-app overview routes. It is not a complete OS.
+- **Claude's assignment:** audit the actual repository, reconcile stale docs, then lead the remaining OS build end-to-end: shell, app workflows, backend integration, REN, security, tests and documentation. Claude may change frontend code when required, but must preserve the founder-approved NN visual direction and existing tested behaviours.
+- **Coordination:** avoid destructive rewrites. Work on a feature branch, use focused commits, keep the handoff/status documents accurate and report exact evidence. If a product decision or conflicting canonical spec cannot be resolved from founder instructions, ask the founder rather than guessing.
+- **Release:** no production merge/deploy, production Firebase changes, billing/Blaze, paid services or domain changes without explicit founder approval.
+
+The previous division in which ChatGPT owned all frontend changes and Claude only backend services is superseded by this founder-directed OS completion handoff. The existing frontend is the baseline to build upon, not a blank slate.
 
 ## 1. What NN is
 
@@ -45,10 +63,12 @@ disconnected pages. It is not finished because a page exists.
 | **Never enable Blaze or attach billing** without explicit founder approval | cost control |
 | **No install scripts.** All three are explicitly declined in `pnpm-workspace.yaml` | supply chain |
 | **Never weaken the security rules** | they are the only authorisation boundary |
-| **Never redesign the NN logo** | approved geometry, test-guarded |
+| **Never redesign the NN logo** | founder-supplied geometry, test-guarded |
 | **The assistant is REN.** Renamed from ORIN on 2026-11-08 | founder decision |
 | **REN has three capabilities and no more:** text, voice, appearance | founder decision |
 | **Never claim something works without running it** | the founder's hardest rule |
+| **A WebGL surface is not proven by `pnpm test`** | jsdom has no WebGL, so every GL path takes its fallback and the suite passes. Two shipped bugs came from this. Check the real page in a real browser before saying it works |
+| **A shader that fails must say so** | silent fallback to a flat list, a flat gradient or a still SVG looks like a design choice. Log the compile and link errors |
 | **No dead buttons, no fake data, no simulated integrations** | |
 | **Never reset git history or discard uncommitted work** | |
 
@@ -149,8 +169,72 @@ Palette (fixed): `#07111F` `#0B1930` `#10223B` `#172B45` `#F7F9FC` `#E7EDF6`
   opaque tier. This single rule is what keeps glassmorphism readable.
 - `.nn-holo` adds the prismatic chamfer; the rim is painted only in a 1 px
   border band via a mask.
-- The logo is **Concept A, 94 × 76, not square**, with a 6-unit gap. Declared
-  once as `NN_MARK_PATH` and guarded by a test.
+- The logo is **a single solid N, cut on the diagonal**: 120 × 108, two
+  upright stems carrying a full-width diagonal, chamfered top-left and
+  bottom-right so the silhouette leans the way the diagonal does. Declared
+  once as `NN_MARK_PATH`, filled **nonzero** — the diagonal overlaps each stem
+  by 2px so no hairline seam can open at the joints, and evenodd would punch
+  those two overlaps out — and guarded by a test. It replaced the hollow
+  double-stroke mark on 2026-11-14 at the founder's instruction: the outline
+  version went wiry below ~28px and read as a wireframe rather than a logo.
+  Every file in `/public/brand/nn/` is generated from that one path.
+- **Every control is liquid glass.** `.nn-liquid` in `global.css` is the one
+  material — edge, refraction, press — and modules take it with
+  `composes: nn-liquid from global`. `composes` only works on a single local
+  class, so a control styled by a descendant selector needs its own class
+  first. `.nn-liquid-primary` is the same slab lit from inside, for the one
+  control on a screen that carries the decision.
+- **Cards carry live water, not painted water.** `.nn-live-wave` in
+  `global.css` is one pseudo-element and one transform, drifting behind a
+  reading surface — a negative-z child still paints above its parent's
+  background, so without that surface a 13px label sits directly on a moving
+  crest. The application cards generate theirs in the fragment shader and
+  upload only the glyph as an alpha mask.
+- **No corridor.** Moving between screens is one 320ms band of spectrum. The
+  sixteen-ring canvas it replaced was theatre in front of work.
+- **The theme is always stamped.** `ThemeProvider` writes the *resolved*
+  theme to `data-theme`, never the choice, and the default choice is
+  `system`. It used to remove the attribute for "system", so a founder on a
+  light screen got the light token ramp — `tokens.css` carries a
+  `prefers-color-scheme` twin for every token — on top of dark glass, a dark
+  dock and dark cards, because none of the forty-odd `[data-theme="light"]`
+  *material* rules had a twin of their own. One answer written once is what
+  makes the environment follow the screen.
+- **A conic rim belongs in the rim.** `--nn-prism-edge` was the last
+  background layer of every glass surface, clipped to the border box, under
+  four partly transparent layers — so it came through the whole face as a
+  bright X from the centre to the corners. Glass gets a real `border-color`
+  (`--nn-prism-rim`); the spectral cut is carried by the inset laminate.
+- **Icons are rendered, not drawn.** `lib/icons/render.ts` turns a glyph into
+  a signed distance field, the field into a half-round height map, and shades
+  that surface per pixel — key light, the room reflected by the normal, a
+  specular, a Fresnel rim, dispersion through the edges, and the shadow it
+  casts. The output is a PNG. On the CPU, not WebGL: a browser allows about
+  sixteen live contexts and NN already spends five, so forty-three icons
+  could never have one each. Two size buckets (76 and 160), because a 160px
+  lit object shown at 18 is averaged into a grey smudge by the downscale.
+  Renders are queued with a 5ms frame budget. The vector is what the server
+  renders, what the first client frame renders so the markup matches, and
+  what stays wherever the canvas read is refused. `GlassIcon` sets one in a
+  key of glass with NN's water drifting in it.
+- **Every control carries the water.** `.nn-liquid` draws two layers in one
+  pseudo-element — the fixed top-edge highlight and a spectrum drifting under
+  it on its own `background-position` — plus a real side before any blur.
+  `--liquid-tide` is how much water a control holds; a chosen segment holds
+  more than the rest.
+- **REN's mark is SVG, not the orb.** The real orb is a ray-marched WebGL2
+  sphere; the navigation renders three times over, so putting it in the item
+  list would open three more contexts to draw a 20px circle. `RenMark`
+  restates the same four things — body, rim, terminator, specular — on the
+  same spectrum, with two orbital rings.
+- **One way into Settings.** The founder's own avatar. There were three —
+  a gear beside it, the avatar, and a "System" item in both navigation
+  panels that opened a fourth surface overlapping Settings. The System view
+  is gone and its facts are rows in Settings.
+- **34 applications, 34 distinct icons.** Seven used to share `sparkle`; a
+  launcher where a fifth of the glyphs are identical reads as a placeholder.
+  `ICON_PATHS` is exported so the card painter rasterises the same geometry
+  rather than keeping a second family.
 
 Forbidden: permanent left sidebar · widget walls · neon · cyberpunk · cartoon ·
 gaming aesthetics · robot mascots · glow for its own sake.
@@ -247,12 +331,47 @@ The launcher hides while the panel is open: one identity on screen, never two.
 **Not built:** voice (phase 4), model intelligence (5), module actions beyond
 navigation (6). The panel states this in one line rather than implying more.
 
-## 9. REN architecture (designed, not yet built)
+## 8d. REN's language (built 2026-11-15)
 
-Provider-independent by design — OpenAI, Anthropic, Google and open-weight
-models behind one gateway, with intelligent routing on quality, cost, latency
-and privacy. Never hardcode a single vendor. Do not call every provider for
-every message.
+REN has a real model behind it, and its own full screen at `/ren`. The panel
+is gone: the founder asked for a page, and the difference is not size — a
+panel is something you consult beside your work, a page is somewhere you
+work. ⌘K and the corner mark both go there.
+
+```
+browser  →  POST /api/ren/chat   (owner session required)
+         →  src/server/ren/providers.ts   one shape in, one shape out
+         →  Anthropic | OpenAI | Google   plain fetch, no vendor SDKs
+         →  SSE back to the browser
+```
+
+- **Keys are server-only.** `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+  `GOOGLE_API_KEY`; the model is overridable with `*_MODEL`. Nothing in the
+  browser ever sees one, and no error message or log carries a prefix of one.
+  `availableProviders()` returns labels and model names, never a key.
+- **No vendor SDKs.** Three SDKs would be three supply chains for what is, in
+  each case, one POST and a stream of lines. Adding a provider is one entry
+  in `PROVIDERS`.
+- **With no key configured REN says so**, on its own screen, with the exact
+  variable names. It does not accept a message it cannot answer.
+- **Tools run in the browser, as the founder.** The model proposes a tool;
+  `planFromToolCall` checks it against what exists and refuses anything else;
+  `useRenOperator` runs it with the founder's own session. Nothing runs on the
+  server with privileges the founder does not have, so the Firestore rules are
+  still the only authorisation boundary. Anything with a consequence waits for
+  a button.
+- **Tool results go back as plain text.** One account of what happened, which
+  every provider understands and which is also what the founder reads.
+- **Markdown is parsed to a tree, never to HTML.** `lib/ren/markdown.ts`
+  returns plain values and the renderer builds React elements from them, so
+  there is no `dangerouslySetInnerHTML` anywhere in the path a model's output
+  takes. `javascript:` and `data:` links render as their own text.
+
+## 9. REN architecture (the rest, still designed)
+
+Provider-independent by design — the gateway above is the first half. Still
+to come: routing on quality, cost, latency and privacy rather than first
+configured; long-term memory with RAG; voice; background workflows.
 
 Planned: skills (software-engineer, business-strategist, financial-analyst,
 research-specialist, teacher, mathematician, designer, writer, project-manager,
@@ -279,11 +398,20 @@ emulator suite, `@nn/firebase`, `@nn/security`, `@nn/auth`, WebAuthn passkey
 registration and sign-in, first-owner bootstrap, session policy with idle and
 absolute limits, sign-out everywhere, route guard.
 
-**216 unit/integration tests + 10 real-browser e2e tests passing.** Typecheck
+**382 unit/integration tests + 90 rules tests + 10 real-browser e2e tests
+passing.** Typecheck
 clean on 5 packages. Lint clean. Build succeeds.
 
 Passkey sign-in is **verified end to end in Chrome 150** via a Playwright CDP
 virtual authenticator against real emulators — not mocked.
+
+**Production can verify passkeys since 2026-11-17.** A key for
+`firebase-adminsdk-fbsvc@nn-os-dev` is the `FIREBASE_SERVICE_ACCOUNT` secret
+in Vercel production, and `NN_BOOTSTRAP_SECRET` there matches
+`apps/web/.env.local`. The environment is unclaimed until the founder claims
+it once; after that the bootstrap secret is dead and the public preview door
+closes. **Never claim production from a test** — a virtual authenticator
+would take ownership with a credential that exists only in that browser.
 
 **Not built** — the NN OS workspace, all 34 applications, REN, Cloud
 Functions (Blaze), notifications, automation, backup/restore, PWA install.
@@ -305,3 +433,31 @@ Honest completion: roughly **7%**. See `docs/NN_GAP_ANALYSIS.md` and
 Ask the founder only for: production changes, paid services, billing,
 destructive operations, brand changes, or a genuine scope decision. Make
 ordinary reversible engineering calls yourself.
+
+## NN visual direction — founder-approved project context
+
+Before changing any frontend, read:
+- `docs/NN_FINAL_FRONTEND_DESIGN_SPEC.md`
+- `docs/NN_FOUNDER_VISUAL_RESET.md`
+- `docs/FRONTEND_DESIGN_SYSTEM.md`
+- `docs/NN_CINEMATIC_VISUAL_SYSTEM.md`
+
+The founder's standing visual direction is a premium, futuristic personal operating environment using the supplied perspective-tunnel introduction, WebGL Glass Fold atmosphere, liquid-glass controls, floating 3D coverflow cards and adjustable-glass workspace language. Apply the same coherent NN visual identity across Home, Life, Learning, Work, Personal and System—not only the landing page.
+
+Follow `docs/NN_FOUNDER_VISUAL_RESET.md` as the latest founder-approved visual authority: deep midnight foundation with luminous cyan, aqua, electric-blue, indigo and violet wave light; premium iridescent floating glass; calm spatial depth. Preserve the custom TypeScript + Next.js + CSS Modules architecture, NN icon family, accessibility and performance constraints. The founder's official NN and REN logo assets are pending; do not redraw or approximate them. Reuse the existing `NNIntro`, `Room`/`GlassFold`, `LiquidButton`, `Coverflow`, `NNWorkspace` and REN components before creating alternatives. The supplied shadcn/Tailwind/Framer Motion/GSAP snippets are references to adapt, not instructions to add duplicate frameworks or dependencies.
+
+All visible controls must work. All live-looking animations must reflect actual state. Keep placeholder data clearly labelled. Respect reduced motion, touch and keyboard interaction, and low-power devices. Do not claim a feature or screen is complete until its real data path, states, responsive behaviour and tests are verified.
+
+
+##  Design and animation implementation authority
+
+Before any product-wide UI or animation work, also read:
+- `docs/NN_PRODUCT_UI_ANIMATION_MASTER_PROMPT.md` — complete product design and reusable implementation prompt for all approved NN applications.
+- `docs/NN_ANIMATION_COMPONENT_SOURCE_INDEX.md` — mapping from the founder's five supplied animation references to the existing NN source components.
+
+These documents are the persistent implementation authority for the complete NN visual system. Store future founder-supplied UI prompts and source snippets in `docs/` (or a clearly named `docs/reference/` archive) and index them. Do not merely mention that references were seen in chat. Adapt every reference to NN's actual architecture, palette, data, accessibility, device and security constraints. The 34-app visual map is a design target, not a claim those apps are implemented.
+
+
+## Product-wide frontend completion contract
+
+The final page-by-page visual and interaction authority is `docs/NN_FINAL_FRONTEND_DESIGN_SPEC.md`. Implement the actual routes and unique application work surfaces from that spec and `docs/NN_APP_REGISTRY.md`; do not stop at docs, mockups, a generic placeholder route, or a successful build. Keep the shared shell coherent, every app's information architecture purpose-specific, and every state honest. The founder owns visual approval and official logo assets; do not invent the NN or REN marks. Frontend work remains on `design/nn-frontend-system` until founder approval to merge.
