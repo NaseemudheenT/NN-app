@@ -18,7 +18,7 @@ describe("NN Life design canvases", () => {
     for (const moduleId of modules) {
       const { unmount } = render(<LifePreviewCanvas module={moduleId} />);
       expect(document.querySelector(`[data-preview="${moduleId}"]`)).toBeInTheDocument();
-      expect(document.querySelector(`[data-preview="${module}"]`)?.getAttribute("aria-label")).toBeTruthy();
+      expect(document.querySelector(`[data-preview="${moduleId}"]`)?.getAttribute("aria-label")).toBeTruthy();
       unmount();
     }
   });
