@@ -5,6 +5,7 @@ import { APP_SECTIONS } from "@/lib/apps/sections";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { AppShell } from "@/components/nn/AppShell";
 import { NNAppSurface } from "@/components/nn/NNAppSurface";
+import { NNCollegeWorkspace } from "@/components/nn/NNCollegeWorkspace";
 
 type PageProps = { params: Promise<{ appId: string }> };
 
@@ -40,7 +41,7 @@ export default async function ApplicationPage({ params }: PageProps) {
   return (
     <RequireOwner>
       <AppShell title={app.name} subtitle={app.description}>
-        <NNAppSurface app={app} sections={sections} />
+        {app.id === "college" ? <NNCollegeWorkspace app={app} sections={sections} /> : <NNAppSurface app={app} sections={sections} />}
       </AppShell>
     </RequireOwner>
   );
