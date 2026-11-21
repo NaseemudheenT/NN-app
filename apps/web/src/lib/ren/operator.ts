@@ -179,6 +179,9 @@ export function useRenOperator(): RenOperator {
         }
         const destination = `/ren/chat?workspace=${encodeURIComponent(agent.appId)}&handoff=${encodeURIComponent(handoffId)}`;
         const arrived = await arrive(destination);
+        if (!arrived) {
+          try { window.sessionStorage.removeItem(`nn:ren:handoff:${handoffId}`); } catch { /* no persistent handoff remains */ }
+        }
         return arrived
           ? { ok: true, said: `Handed the task to the ${agent.name}. The request is open in its workspace chat.` }
           : { ok: false, said: `I could not open the ${agent.name}; no task was handed off.` };
