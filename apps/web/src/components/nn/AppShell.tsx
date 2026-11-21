@@ -71,6 +71,17 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
         <NNIsland title={title} onHome={() => travel.open("/home" as Route, "NN Home")} onSearch={() => travel.open("/search" as Route, "Search")} />
         <div className={styles.barRight}>
           {actions}
+          {currentApp?.href ? (
+            <button
+              type="button"
+              className={styles.agent}
+              onClick={() => travel.open(`/ren/chat?workspace=${currentApp.id}` as Route, `${currentApp.name} Specialist`)}
+              aria-label={`Ask the ${currentApp.name} specialist`}
+            >
+              <Icon name="sparkle" size={15} />
+              <span>Ask {currentApp.name}</span>
+            </button>
+          ) : null}
           <button
             type="button"
             className={styles.search}
