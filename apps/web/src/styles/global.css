@@ -1007,3 +1007,6 @@ body {
   .nn-liquid[data-lit]::before,
   [data-lightfall][data-lit]::before { background-image: none; }
 }
+
+/* NN iOS-inspired system layer: deliberately last to replace legacy holo styling. */
+@import "./ios-system.css";
