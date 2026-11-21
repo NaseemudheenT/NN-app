@@ -1,13 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { Button, GlassPanel, LiquidButton, NNLogo } from "@/components/ui";
 
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => {
-    // Keep the error boundary useful without exposing internal details in the UI.
-  }, []);
-
   return (
     <main style={{ minHeight: "100svh", display: "grid", placeItems: "center", padding: "max(28px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom))" }}>
       <GlassPanel tier={3} padding="lg" style={{ width: "min(440px, 100%)", textAlign: "center" }}>

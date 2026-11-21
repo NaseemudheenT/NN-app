@@ -2,7 +2,7 @@ import { GlassPanel, NNLogo } from "@/components/ui";
 
 export default function WorkspaceLoading() {
   return (
-    <main aria-busy="true" aria-label="Loading NN workspace" style={{ minHeight: "100svh", padding: "88px 24px 40px 84px" }}>
+    <main aria-busy="true" aria-label="Loading NN workspace" style={{ minHeight: "100svh", padding: "88px 24px 40px clamp(24px, 6vw, 84px)" }}>
       <div style={{ width: "min(1120px, 100%)", margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28, color: "var(--text-secondary)" }}>
           <NNLogo size={24} decorative />
