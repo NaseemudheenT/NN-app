@@ -210,3 +210,20 @@ button { -webkit-tap-highlight-color:transparent; }
 .nn-ios-home .appMark[data-app="analytics"],.nn-ios-home .appMark[data-app="simulator"]{background:linear-gradient(145deg,#85d6de,#2b8497)}
 .nn-ios-home .appMark[data-app="command-centre"],.nn-ios-home .appMark[data-app="automation-studio"],.nn-ios-home .appMark[data-app="security-centre"],.nn-ios-home .appMark[data-app="control-room"]{background:linear-gradient(145deg,#aab3c4,#525b6b)}
 @media(max-width:700px){.nn-ios-app-shell [class*="NNIsland_trigger"]{min-width:122px;height:36px}.nn-ios-app-shell [class*="NNIsland_label"] small{font-size:6px}}
+
+
+/* Remove the former holographic treatment at its shared source. The legacy
+   utility classes remain for component compatibility, but render as quiet,
+   neutral controls under the new NN system. */
+.nn-live-wave::before,.nn-live-wave::after,.nn-liquid::before,.nn-liquid::after{display:none!important;content:none!important}
+.nn-liquid{border:1px solid var(--border-normal)!important;border-radius:13px!important;background:var(--surface-elevated)!important;color:var(--text-primary)!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.nn-liquid-primary{border-color:transparent!important;background:#0a84ff!important;color:#fff!important;box-shadow:0 3px 10px rgb(10 132 255 / 18%)!important}
+.nn-holo,.nn-holo::before,.nn-holo::after{background-image:none!important;box-shadow:none!important;filter:none!important}
+.nn-ios-workspace :is([class*="panel"],[class*="Panel"],[class*="section"],[class*="Section"],[class*="card"],[class*="Card"]){--panel-accent:var(--nn-ios-blue)}
+.nn-ios-workspace :is([class*="panel"],[class*="Panel"],[class*="card"],[class*="Card"]){border-color:var(--border-subtle)!important;box-shadow:var(--shadow-1)!important}
+.nn-ios-workspace :is([class*="panel"],[class*="Panel"]){background:var(--surface-raised)!important}
+.nn-ios-workspace :is([class*="section"],[class*="Section"]){border-color:var(--border-subtle)}
+.nn-ios-workspace :is([class*="field"],[class*="Field"]) :is(input,textarea,select){min-height:44px;border-radius:12px;background:var(--surface-elevated);font-size:16px}
+.nn-ios-workspace :is([role="tablist"],[class*="tabs"],[class*="Tabs"]){border-color:var(--border-subtle);background:var(--surface-deep)}
+.nn-ios-workspace :is([role="tab"][aria-selected="true"],[aria-pressed="true"]){background:var(--glass-active)!important;color:var(--text-accent)!important;border-color:var(--border-subtle)!important}
+@media(max-width:700px){.nn-ios-workspace :is([class*="panel"],[class*="Panel"]){border-radius:18px!important}}
