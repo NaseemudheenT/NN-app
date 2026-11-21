@@ -1,6 +1,7 @@
 import { APPLICATIONS } from "@/lib/apps/registry";
 import { APP_SECTIONS } from "@/lib/apps/sections";
 import { plan, type CapabilityArgs, type CapabilityId, type RenPlan } from "./capabilities";
+import { specialistAllows, type WorkspaceSpecialist } from "./specialists";
 
 /**
  * REN's hands, described so a model can reach for them.
@@ -174,6 +175,7 @@ const CAPABILITY_OF: Readonly<Record<string, CapabilityId>> = {
 export function planFromToolCall(
   name: string,
   args: Record<string, unknown>,
+  workspaceId?: string,
 ): { ok: true; plan: RenPlan } | { ok: false; why: string } {
   const capability = CAPABILITY_OF[name];
   if (!capability) return { ok: false, why: `NN has no tool called "${name}".` };
@@ -183,6 +185,13 @@ export function planFromToolCall(
   const appId = typeof args["appId"] === "string" ? args["appId"] : undefined;
   const collection = typeof args["collection"] === "string" ? args["collection"] : undefined;
   const appearance = typeof args["appearance"] === "string" ? args["appearance"] : undefined;
+
+  if (workspaceId && !specialistAllows(workspaceId, capability, collection)) {
+    return {
+      ok: false,
+      why: `The ${workspaceId} specialist is not authorised to use ${name} outside its own workspace records.`,
+    };
+  }
 
   const resolved: CapabilityArgs = {};
 
@@ -233,4 +242,35 @@ export function planFromToolCall(
   }
 
   return { ok: true, plan: plan(capability, resolved) };
+}
+
+
+/** Narrow REN's write tools to the collections owned by one specialist. */
+export function toolsForSpecialist(agent: WorkspaceSpecialist): readonly RenTool[] {
+  if (agent.status !== "active" || agent.collections.length === 0) return [];
+  const allowed = new Set(agent.collections);
+  return REN_TOOLS.filter((tool) =>
+    ["capture_record", "complete_record", "discard_record"].includes(tool.name),
+  ).flatMap((tool) => {
+    const properties = tool.schema["properties"];
+    if (!properties || typeof properties !== "object") return [];
+    const collection = (properties as Record<string, unknown>)["collection"];
+    if (!collection || typeof collection !== "object") return [];
+    const choices = (collection as Record<string, unknown>)["enum"];
+    if (!Array.isArray(choices)) return [];
+    const scoped = choices.filter((value): value is string =>
+      typeof value === "string" && allowed.has(value),
+    );
+    if (scoped.length === 0) return [];
+    return [{
+      ...tool,
+      schema: {
+        ...tool.schema,
+        properties: {
+          ...(properties as Record<string, unknown>),
+          collection: { ...(collection as Record<string, unknown>), enum: scoped },
+        },
+      },
+    }];
+  });
 }
