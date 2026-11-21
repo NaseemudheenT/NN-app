@@ -17,6 +17,7 @@ import styles from "./NNLife.module.css";
 import { ownerFirstName } from "@/lib/nn/owner";
 import { buildCalendarGrid, calendarDateKey } from "@/lib/nn/calendar-grid";
 import { buildLifeEditPatch, type EditableLifeCollection, type LifeEditDraft } from "@/lib/nn/life-edit";
+import { habitPeriodKey, isHabitDueOn } from "@/lib/nn/life-periods";
 
 type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals" | "habits" | "routines" | "focus" | "reviews";
 export type LifePreviewTab = "habits" | "routines" | "focus" | "reviews";
@@ -442,10 +443,14 @@ function LifeSurface() {
   const checkInHabit = (habit: RecordData) => {
     if (!uid || !clock) return;
     const dateKey = calendarDateKey(new Date(clock));
-    const alreadyChecked = data.habit_checkins.some((entry) => entry.habitId === habit.id && entry.dateKey === dateKey);
-    if (alreadyChecked) { setNotice("This habit is already checked in for today."); return; }
+    const cadence = typeof habit.cadence === "string" ? habit.cadence : "daily";
+    const today = new Date(clock);
+    if (!isHabitDueOn(today, cadence)) { setNotice("This habit is scheduled for weekdays. Check in Monday to Friday."); return; }
+    const periodKey = habitPeriodKey(today, cadence);
+    const alreadyChecked = data.habit_checkins.some((entry) => entry.habitId === habit.id && (entry.periodKey === periodKey || (!entry.periodKey && entry.dateKey === dateKey)));
+    if (alreadyChecked) { setNotice(cadence === "weekly" ? "This habit is already checked in for this week." : "This habit is already checked in for today."); return; }
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "habit_checkins"), {
-      ...metadata(), habitId: habit.id, dateKey, checkedAt: Timestamp.fromDate(new Date(clock)), status: "completed",
+      ...metadata(), habitId: habit.id, dateKey, periodKey, checkedAt: Timestamp.fromDate(new Date(clock)), status: "completed",
     }), "Habit checked in for today.");
   };
 
@@ -494,7 +499,7 @@ function LifeSurface() {
       setError("Add at least one reflection before saving."); return;
     }
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "reviews"), {
-      ...metadata(), cadence: "weekly", periodKey: new Date().toISOString().slice(0, 10),
+      ...metadata(), cadence: "weekly", periodKey: habitPeriodKey(new Date(), "weekly"),
       wins: reviewWins.trim(), lessons: reviewLessons.trim(), nextStep: reviewNext.trim(),
     }), "Reflection saved.").then((saved) => { if (saved) { setReviewWins(""); setReviewLessons(""); setReviewNext(""); } });
   };
@@ -621,7 +626,9 @@ function LifeSurface() {
           </form>
           <div className={styles.list}>{data.habits.filter((habit) => habit.status !== "archived").map((habit) => {
             const dateKey = clock === null ? "" : calendarDateKey(new Date(clock));
-            const checked = data.habit_checkins.some((entry) => entry.habitId === habit.id && entry.dateKey === dateKey);
+            const cadence = typeof habit.cadence === "string" ? habit.cadence : "daily";
+            const periodKey = clock === null ? "" : habitPeriodKey(new Date(clock), cadence);
+            const checked = data.habit_checkins.some((entry) => entry.habitId === habit.id && (entry.periodKey === periodKey || (!entry.periodKey && entry.dateKey === dateKey)));
             const count = data.habit_checkins.filter((entry) => entry.habitId === habit.id).length;
             return <article className={styles.record} key={habit.id}><span className={styles.recordGlyph}><Icon name="check" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(habit)}</strong><small>{String(habit.cadence ?? "daily")} · {count} recorded check-ins</small></div><button type="button" className={styles.inlineAction} onClick={() => openEdit("habits", habit)}>Edit</button><button type="button" className={styles.inlineAction} disabled={busy || checked} onClick={() => checkInHabit(habit)}>{checked ? "Done today" : "Check in"}</button></article>;
           })}{data.habits.length === 0 ? <EmptyState icon="check" title="Start with one practice." body="Create a habit, then record each real check-in. NN does not generate streaks or past activity."/> : null}</div>
