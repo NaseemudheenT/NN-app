@@ -350,7 +350,7 @@ export function Coverflow({
               >
                 <span className={styles.sheen} aria-hidden="true" />
                 <span className={styles.cardIcon}>
-                  {card.appId ? <NNAppIcon appId={card.appId} icon={card.icon} size={48} /> : <Icon name={card.icon} size={34} />}
+                  {card.appId ? <NNAppIcon appId={card.appId} icon={card.icon} size={48} label={card.title} /> : <Icon name={card.icon} size={34} />}
                 </span>
                 <span className={styles.cardTitle}>{card.title}</span>
                 {card.subtitle !== undefined ? (
