@@ -1,3 +1,12 @@
+## 2026-11-21 · Domain object-icon pass
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Change:** Replaced numbered wireframe markers inside feature previews with region-aware NN object icons (calendar, search, file, check, wallet, shield, layers, people, globe, clock, compass, book, camera, mail and graph). The icons use the existing rendered-material icon system; the preview remains structural and does not fabricate records or metrics. Added the missing Focus layout inference and simplified the preview's semantic grouping.
+
+**Verification:** Feature-rail accessibility and application-reset tests are in the current CI run; production build must pass before this milestone is marked verified.
+
+---
+
 ## 2026-11-21 · Feature rail hierarchy and navigation refinement
 
 **Branch:** `gt/nn-liquid-glass-unified`  

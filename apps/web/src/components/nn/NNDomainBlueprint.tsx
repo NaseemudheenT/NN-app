@@ -20,12 +20,32 @@ function inferDomainLayout(appId: string, module: DomainModule): DomainLayout {
   if (module.layout) return module.layout;
   const key = `${appId} ${module.id} ${module.title}`.toLowerCase();
   if (/(lesson|journal|writing|compose|document|reflection|notes|retrospective)/.test(key)) return "reader";
-  if (/(calendar|timeline|date|session|schedule|interview|follow|delivery|practice|trip|itinerary|activity)/.test(key)) return "planner";
+  if (/(calendar|timeline|date|session|focus|schedule|interview|follow|delivery|practice|trip|itinerary|activity)/.test(key)) return "planner";
   if (/(library|archive|people|contact|asset|inbox|collection|card|vault|place|portfolio|evidence)/.test(key)) return "library";
   if (/(path|flow|project|milestone|roadmap|workflow|scenario|skill|production)/.test(key)) return "roadmap";
   if (/(trend|analytics|mastery|metric|report|finance|invest|result|growth|ledger|budget)/.test(key)) return "analytics";
   if (/(syllabus|navigator|structure|graph|connection|question-bank)/.test(key)) return "navigator";
   return "dashboard";
+}
+
+function iconForRegion(region: string, fallback: IconName): IconName {
+  const key = region.toLowerCase();
+  if (/(date|calendar|timeline|schedule|timetable)/.test(key)) return "calendar";
+  if (/(search|question|filter|query)/.test(key)) return "search";
+  if (/(note|document|writing|editor|lesson|reader|journal|reflection)/.test(key)) return "file";
+  if (/(task|action|check|milestone|delivery|approval|exercise)/.test(key)) return "check";
+  if (/(budget|ledger|account|holding|portfolio|invoice|billing)/.test(key)) return "wallet";
+  if (/(security|access|audit|permission|device)/.test(key)) return "shield";
+  if (/(project|workflow|process|operation|board|production)/.test(key)) return "layers";
+  if (/(people|contact|client|relationship)/.test(key)) return "people";
+  if (/(map|place|location|travel|trip)/.test(key)) return "globe";
+  if (/(time|session|focus|activity|history|reminder)/.test(key)) return "clock";
+  if (/(path|skill|roadmap|growth|learning)/.test(key)) return "compass";
+  if (/(course|book|library|formula|syllabus)/.test(key)) return "book";
+  if (/(media|asset|camera|content|image)/.test(key)) return "camera";
+  if (/(mail|message|inbox|compose)/.test(key)) return "mail";
+  if (/(result|metric|trend|analytics|report|mastery)/.test(key)) return "graph";
+  return fallback;
 }
 
 export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>> = {
@@ -249,10 +269,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
   return (
     <section className={styles.root} aria-labelledby={`blueprint-${app.id}`}>
       <header className={styles.header}>
-        <div>
-          <h2 id={`blueprint-${app.id}`}>Spaces</h2>
-        </div>
-        
+        <h2 id={`blueprint-${app.id}`}>Spaces</h2>
       </header>
       <div className={styles.moduleGrid} role="tablist" aria-label={`${app.name} spaces`} aria-orientation="horizontal">
         {modules.map((module, index) => (
@@ -301,7 +318,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
           <h3>{selected.title}</h3>
           <span className={styles.pending}>PREVIEW</span>
         </div>
-        <div className={styles.screenPreview} aria-label={`${selected.title} interface layout preview`}>
+        <div className={styles.screenPreview} role="group" aria-label={`${selected.title} interface preview`}>
           <div className={styles.screenTop}>
             <span className={styles.screenBrand}><Icon name={app.icon} size={13}/>{app.name}</span>
           </div>
@@ -323,7 +340,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
               <div className={styles.screenWidgets} data-layout={inferDomainLayout(app.id, selected)}>
                 {selected.regions.map((region, index) => (
                   <div className={styles.screenWidget} data-layout={index === 0 ? "primary" : index === 1 ? "secondary" : "tertiary"} key={region}>
-                    <span className={styles.widgetIndex}>{String(index + 1).padStart(2, "0")}</span>
+                    <span className={styles.widgetIcon}><Icon name={iconForRegion(region, selected.icon)} size={13}/></span>
                     <span className={styles.widgetName}>{region}</span>
                     <span className={styles.widgetLines}><i/><i/><i/></span>
                   </div>
