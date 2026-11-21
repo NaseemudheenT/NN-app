@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
 
@@ -68,7 +68,7 @@ describe("NN application launcher", () => {
   it("opens the selected app through the shared route transition", async () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
-    await user.click(screen.getByRole("button", { name: /Open Life/ }));
+    await user.click(screen.getByRole("button", { name: "Open Life. Dedicated workspace." }));
     expect(open).toHaveBeenCalledWith("/life", "Life");
   });
 
@@ -84,7 +84,7 @@ describe("NN application launcher", () => {
     render(<NNHomePreview />);
     await user.type(screen.getByRole("searchbox", { name: "Find an application" }), "not-a-real-app");
     expect(screen.getByText("No applications found")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Clear search" }));
+    await user.click(within(screen.getByRole("searchbox", { name: "Find an application" }).closest("label")!).getByRole("button", { name: "Clear search" }));
     expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(34);
   });
 });
