@@ -50,7 +50,10 @@ describe("the island", () => {
     render(<NNPanel />);
     await userEvent.click(screen.getByRole("button", { name: /Go to/ }));
     expect(screen.getByRole("dialog", { name: "Go to" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Go to/ , hidden: true })).toHaveAttribute("aria-expanded", "true");
+    // The collapsed island is deliberately removed from the accessibility
+    // tree while expanded; inspect the mounted control without querying it
+    // as an available button.
+    expect(document.querySelector('button[aria-label^="Go to"]')).toHaveAttribute("aria-expanded", "true");
   });
 });
 
