@@ -436,3 +436,21 @@
 @media (prefers-reduced-motion: reduce) {
   .app:hover .iconWell [data-app-logo] { transform: none; }
 }
+
+
+/* A single spatial field behind the workspace — architectural grid, not a
+   flat empty background. It fades before reaching reading surfaces. */
+.topbar { position: relative; z-index: 1; }
+.content::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  inset: 0 -5vw;
+  opacity: .22;
+  background-image:
+    linear-gradient(rgb(119 178 255 / 12%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(119 178 255 / 12%) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(ellipse at 50% 28%, #000 0%, transparent 74%);
+}
