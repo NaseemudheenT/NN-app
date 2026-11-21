@@ -62,7 +62,7 @@ describe("NN application launcher", () => {
   it("opens the selected app through the shared route transition", async () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
-    await user.click(screen.getByRole("button", { name: "Open Life" }));
+    await user.click(screen.getByRole("button", { name: /Open Life/ }));
     expect(open).toHaveBeenCalledWith("/life", "Life");
   });
 

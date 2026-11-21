@@ -13,7 +13,7 @@ describe("NN Home discovery", () => {
   it("shows all 34 applications in their six product families", () => {
     render(<NNAppLauncher />);
     expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(34);
-    for (const family of ["Life & wellbeing", "Education", "Money & work", "Creation & communication", "Knowledge & insight", "System"]) {
+    for (const family of ["Life", "Learn", "Work", "Create", "Knowledge", "System"]) {
       expect(screen.getByRole("heading", { name: family })).toBeInTheDocument();
     }
   });
@@ -24,8 +24,8 @@ describe("NN Home discovery", () => {
   });
   it("opens a family index from its group header", () => {
     render(<NNAppLauncher />);
-    fireEvent.click(screen.getByRole("button", { name: "View all Education applications" }));
-    expect(open).toHaveBeenCalledWith("/family/education", "Education");
+    fireEvent.click(screen.getByRole("button", { name: "View all Learn applications" }));
+    expect(open).toHaveBeenCalledWith("/family/education", "Learn");
   });
   it("filters by app name, family and description, and announces empty results", () => {
     render(<NNAppLauncher />);
