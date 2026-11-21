@@ -226,3 +226,22 @@ layer, light and dark themes.
 **Change:** Added a distinct global Search control to Home so application filtering is not confused with searching the founder's records. Added the slash keyboard shortcut to focus the launcher filter, guarded against typing fields and open modal surfaces, plus Escape-to-clear. Refined app icon object feedback with a restrained moving specular highlight and hover lift, retaining the reduced-motion fallback.
 
 **Verification:** Focused launcher tests added for global Search routing and slash-to-focus. Full CI is required before this milestone is considered verified. Phase C remains open for complete navigation/search audit and device QA.
+
+
+---
+
+## 2026-11-21 · Phase C complete — Home and global discovery
+
+**Verified HEAD:** `9a47e33c30c52ca96bc37e16fde64687419561ee`  
+**CI:** [GitHub Actions run 44893623778](https://github.com/NaseemudheenT/NN-app/actions/runs/44893623778) — success: typecheck, lint, unit tests and Next.js production build.
+
+**Delivered:**
+- Home launcher: all 34 registered apps, six purpose-based families, distinct registered icon identities, app-name/category/description filtering, slash-to-focus and Escape-to-clear.
+- Dedicated global Search entry to `/search`, kept separate from the local app launcher filter.
+- Dynamic Island: expandable touch navigation, six grouped app families, in-panel search, current-destination state, result count, empty state, bounded scrolling and responsive touch targets.
+- Command palette: ⌘K/Ctrl+K, ranked results, arrow navigation, Enter activation, Escape close and direct keys. The island and palette read the same destination registry.
+- Home, Settings, global Search, Dynamic Island and command-palette navigation now use the shared route-transition system.
+- App icons and the island signal have restrained interactive motion with reduced-motion fallbacks.
+- Regression coverage for app count/grouping, unique icon identity, launcher search, keyboard focus, Dynamic Island search, destination parity and shared transition routing.
+
+**Remaining boundaries:** physical-device and cross-browser visual QA is reserved for Phase G. Thirty-one applications are still honest core-record experiences, not completed bespoke domain products; their deeper workflows remain in Phase F. No production merge or deployment was performed.

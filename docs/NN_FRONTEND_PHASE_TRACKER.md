@@ -14,7 +14,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 |---|---|---|---|
 | A | OS shell and navigation | **Complete · CI verified 2026-11-21** | One coherent shell, route coverage, home return, Dynamic Island, REN entry and keyboard/touch navigation verified |
 | B | Spatial-glass design system | **Complete · CI verified 2026-11-21** | Shared tokens, floating materials, responsive components, motion and reduced-motion behaviour consistent across the app; physical-device QA remains in Phase G |
-| C | Home and global discovery | **Minimal launcher polish committed · keyboard/device QA open** | Minimal app launcher, all 34 discoverable, search, command/search surfaces and honest availability |
+| C | Home and global discovery | **Complete · CI verified 2026-11-21; physical-device QA deferred to Phase G** | Minimal app launcher, all 34 discoverable, search, command/search surfaces and honest availability |
 | D | NN Life interface | **Partial** | Complete visual layouts for Today, Calendar, Tasks, Reminders, Notes, Habits, Goals, Routines, Focus and Reviews; real vs design-only states explicit |
 | E | College and Academy interfaces | **Core domain blueprints and visual screen compositions implemented · detailed route designs open** | College, Academy, Formula Engine, Logic Lab and Learning Vault screens designed for their core workflows |
 | F | Remaining application interfaces | **31 records-app domain blueprints and bespoke screen grammars implemented · detailed route interactions open** | All registered apps have coherent domain-specific screens, not merely a generic list/form template |
@@ -57,10 +57,13 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Add concise Home/search hierarchy, dimensional icon wells, card sheen and restrained 3D hover motion.
 - [x] Add a dedicated global Search entry beside Settings, keeping app filtering separate from record search.
 - [x] Add slash-to-focus for launcher search, guarded against editable fields and open modal surfaces, plus Escape-to-clear.
-- [x] Refine icon-object hover response with a moving specular sweep and reduced-motion fallback.
-- [ ] Finish keyboard-first and phone-first launcher polish through route/device QA.
-- [ ] Audit global search, command palette, Settings, Files and REN entry consistency.
-- [ ] Ensure no dead or misleading controls remain.
+- [x] Refine icon-object hover and touch response with a moving specular sweep, press states and reduced-motion fallback.
+- [x] Add grouped, searchable Dynamic Island destinations with active-route indication, result count, empty state and contained phone scrolling.
+- [x] Keep the touch panel and ⌘K palette on one canonical destination registry and verify parity.
+- [x] Route Home, global Search, Settings, Dynamic Island and command-palette navigation through the shared transition system.
+- [x] Audit global Search, command palette, Settings, Files and REN entry consistency; no dead launcher/navigation controls remain.
+- [x] Verify keyboard-first and phone-first interaction contracts in automated tests.
+- [ ] Physical-device, cross-browser and visual screenshot QA — intentionally scheduled for Phase G.
 
 ### Phase D — NN Life interface
 - [x] Today, Calendar, Tasks, Reminders, Notes and Goals tabs exist.
