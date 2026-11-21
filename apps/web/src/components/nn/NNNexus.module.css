@@ -105,7 +105,7 @@
   .date { font-size: 12px; }
   .clock { font-size: 21px; }
 }
-@media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {\n  .root { transition: none; }
   .island, .panel, .liveDot { animation: none; transition: none; }
   .quickCard, .renCard { transition: none; }
 }
