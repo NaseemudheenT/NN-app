@@ -167,3 +167,14 @@
   .kind { order: 3; }
   .open { order: 4; margin-left: auto; }
 }
+
+
+/* Search follows the system search field and result-list conventions. */
+.field{min-height:54px;border:1px solid var(--border-normal);border-radius:16px;background:var(--surface-raised);box-shadow:var(--shadow-1)}
+.group h2{font-size:12px;letter-spacing:.07em}
+.list{gap:2px}
+.row{min-height:62px;border-radius:13px}
+.row:hover{background:var(--glass-hover)}
+.glyph{border:0;border-radius:11px;background:var(--surface-elevated);color:var(--text-secondary)}
+.open{border:1px solid var(--border-subtle);border-radius:10px;background:var(--surface-elevated);color:var(--text-primary)}
+.empty{padding:64px 20px}
