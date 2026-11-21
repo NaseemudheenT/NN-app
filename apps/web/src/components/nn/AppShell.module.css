@@ -80,6 +80,7 @@
 
 
 @media (max-width: 700px) {
+  .brand { gap: 8px; padding-inline: 0; margin-left: 0; }
   .search span { display: none; }
   .search { padding: 0; width: 44px; justify-content: center; }
 }
@@ -138,7 +139,7 @@
 }
 @media (max-width: 700px) {
   .bar {
-    grid-template-columns: minmax(0, 1fr) minmax(142px, 45vw) minmax(44px, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(142px, 45vw) 44px;
     gap: 4px;
     height: 52px;
     margin-top: 6px;

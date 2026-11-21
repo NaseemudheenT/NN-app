@@ -92,6 +92,12 @@ describe("choosing somewhere", () => {
     }
   });
 
+  it("closes when the user presses outside the island", async () => {
+    await open();
+    await userEvent.click(document.body);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
   it("keeps keyboard focus inside the expanded island", async () => {
     const user = userEvent.setup();
     render(<NNPanel />);
