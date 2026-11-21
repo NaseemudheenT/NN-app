@@ -251,3 +251,55 @@
   .island, .panel, .liveDot { animation: none; transition: none; }
   .quickCard, .renCard { transition: none; }
 }
+
+/* Phone-first system ergonomics: keep the dock inside the safe area, make
+   every destination thumb-reachable, and let the expanded surface scroll. */
+@media (max-width: 767px) {
+  .root { width: min(440px, calc(100vw - 20px)); }
+  .panel {
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 76px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .sideRail {
+    bottom: max(10px, env(safe-area-inset-bottom, 0px));
+    width: min(calc(100vw - 20px), 520px);
+    justify-content: center;
+    gap: 8px;
+  }
+  .railToggle { width: 48px; height: 48px; }
+  .railLinks {
+    min-width: 0;
+    max-width: calc(100vw - 84px);
+    min-height: 56px;
+    align-items: center;
+    gap: 3px;
+    padding: 4px;
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+  }
+  .railLink, .railAssistant {
+    flex: 0 0 48px;
+    min-width: 48px;
+    min-height: 48px;
+    height: 48px;
+    border-radius: 13px;
+    touch-action: manipulation;
+  }
+  .railLinks[data-open="true"] {
+    width: min(calc(100vw - 84px), 420px);
+    max-width: calc(100vw - 84px);
+    min-height: 60px;
+  }
+  .railLinks[data-open="true"] .railLink,
+  .railLinks[data-open="true"] .railAssistant {
+    flex: 1 0 48px;
+    min-width: 48px;
+  }
+}
+@media (max-width: 360px) {
+  .island { min-width: 176px; }
+  .panel { padding: 12px; }
+  .railLinks { max-width: calc(100vw - 78px); }
+}
