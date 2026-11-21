@@ -70,7 +70,7 @@ const REGISTERED: readonly NNApplication[] = [
   { id: "projects", name: "Projects", group: "Money & work", icon: "layers", description: "Milestones, dependencies and execution", availability: "available", overviewHref: "/apps/projects", href: "/apps/projects" as Route },
   { id: "achievements", name: "Achievements", group: "Money & work", icon: "trophy", description: "Verified milestones, certificates and evidence", availability: "planned", overviewHref: "/apps/achievements" },
 
-  { id: "creator-studio", name: "Creator Studio", group: "Creation & communication", icon: "sparkle", description: "Photography, video, design and content planning", availability: "planned", overviewHref: "/apps/creator-studio" },
+  { id: "creator-studio", name: "Creator Studio", group: "Creation & communication", icon: "sparkle", description: "Photography, video, design and content planning", availability: "available", overviewHref: "/apps/creator-studio", href: "/apps/creator-studio" as Route },
   { id: "studio", name: "Studio", group: "Creation & communication", icon: "camera", description: "Writing, documents and publishing drafts", availability: "planned", overviewHref: "/apps/studio" },
   { id: "mail", name: "Mail", group: "Creation & communication", icon: "mail", description: "Connected inboxes, drafts and follow-ups", availability: "planned", overviewHref: "/apps/mail" },
   { id: "english", name: "English", group: "Creation & communication", icon: "language", description: "Speaking, listening, grammar and writing practice", availability: "planned", overviewHref: "/apps/english" },
