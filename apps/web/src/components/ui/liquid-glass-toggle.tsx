@@ -138,11 +138,15 @@ export function LiquidToggle({
   const endPointer = (event: React.PointerEvent<HTMLButtonElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
-    if (drag.moved) {
-      drag.currentX = event.clientX;
-      commit(progressFromClientX(drag.currentX) >= 0.5);
-    }
+    if (drag.moved) commit(progressFromClientX(event.clientX) >= 0.5);
     dragRef.current = null;
+    setDragProgress(null);
+  };
+
+  const cancelPointer = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (dragRef.current?.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    suppressClick.current = true;
     setDragProgress(null);
   };
 
@@ -189,7 +193,7 @@ export function LiquidToggle({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endPointer}
-        onPointerCancel={endPointer}
+        onPointerCancel={cancelPointer}
         onKeyDown={(event) => {
           if (event.key === "ArrowRight") { event.preventDefault(); commit(true); }
           if (event.key === "ArrowLeft") { event.preventDefault(); commit(false); }
