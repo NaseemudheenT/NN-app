@@ -1,3 +1,29 @@
+## 2026-11-21 · Frontend operating-shell and recovery milestone
+
+**Branch:** `nn-nexus-interface` · **Verified head at this entry:** `7336407d1e65df358048f6208dce5fce3ba5bcde`
+
+**Implemented in this milestone:**
+- NEXUS shell with the persistent desktop rail, mobile dock, compact activity island, real local focus timer, route-aware state and quick links.
+- Consistent short application names and per-app identity icons across the launcher and design reference.
+- Refined workspace material, responsive layouts, local appearance persistence, dynamic greeting and keyboard behaviour.
+- Design-system preview controls now distinguish local demonstrations from connected product capabilities; the REN preview no longer simulates an AI response.
+- Active navigation route is exposed with `aria-current`.
+- Added branded not-found and error recovery pages, plus a responsive workspace loading state.
+- Separated account/session controls from the notifications panel. Added an account-popover interaction test and corrected Escape focus priority after the test suite exposed a regression.
+- Removed the inert search icon from the design reference and clarified that its save demonstration does not persist data.
+
+**Latest automated verification — GitHub Actions run [44865855116](https://github.com/NaseemudheenT/NN-app/actions/runs/44865855116):**
+- Type-check: passed.
+- Lint: passed.
+- Unit/rules tests: **282 passed** (88 Firebase rules, 34 security, 30 auth, 11 Firebase package, 119 web).
+- Next.js production build: passed.
+
+**Not yet verified:** real-browser visual review of this latest commit, all phone/tablet/desktop breakpoints on physical devices, end-to-end passkey flow against the intended deployed origin, app-by-app backend integration, REN AI/voice, live data, and production deployment.
+
+**Current phase:** shared shell and core-page refinement. App-specific screens and their real service integrations remain outstanding. No claim of complete frontend acceptance or production readiness is made.
+
+---
+
 ## 2026-11-09 · CI foundation merged and main verified
 
 **Merged:** PR #1 (CI: add automated typecheck, lint, test and build gate) into

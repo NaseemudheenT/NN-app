@@ -1,47 +1,40 @@
 # NN — Deployment Status
 
-**Last checked:** 2026-11-09 (after CI merge)  
-**Target:** Vercel project `nn-app` · GitHub repository `NaseemudheenT/NN-app`  
-**Scope:** private single-owner NN application only. Never use the NERO NOREN repository `NaseemudheenT/NN`.
+**Current verification snapshot:** 2026-11-21  
+**Target project:** Vercel `nn-app` · `NaseemudheenT/NN-app`  
+**Development branch:** `nn-nexus-interface`  
+**This snapshot supersedes the older status below where they conflict.**
 
-## Verified state
+## Current verified state
 
 | Component | State | Evidence |
 |---|---|---|
-| GitHub source | `VERIFIED` | Public temporarily at the owner's direction; GitHub connector has repository access |
-| Vercel project | `CREATED` | `nn-app`, project ID `prj_4gUTxoJoX8Ba5t4299ASLBBv8HWM`, team `clientflownn` |
-| Framework | `CONFIGURED` | Next.js |
-| Root directory | `CONFIGURED` | `apps/web` |
-| Monorepo source files | `CONFIGURED` | Files outside root enabled |
-| Install command | `CONFIGURED` | `pnpm install --frozen-lockfile` |
-| Build command | `CONFIGURED` | `pnpm --filter @nn/web build` |
-| Node | `CONFIGURED` | 24.x |
-| Deployment protection | `ENABLED` | Vercel SSO for all deployment URLs except custom domains |
-| Git integration | `BLOCKED` | Vercel Git namespace reports `isAccessRestricted: true`; create_git_project rejected the link because the Vercel GitHub integration is not installed with access to this repository |
-| CI verification | `PASSED` | Main-branch GitHub Actions run 42570312929 passed dependency install, typecheck, lint, tests and Next.js build |\n| Deployment | `NOT CREATED` | No Vercel deployment exists; Git source integration is blocked |
-| Custom domain | `NOT CONFIGURED` | No domain has been selected |
-| Vercel environment variables | `NOT CONFIGURED` | Requires Firebase web config, production origin/RP ID and server-only credentials |
-| Firebase production | `NOT TOUCHED` | Keep `nn-os-prod` untouched |
-| Firebase billing | `NOT ENABLED` | No Blaze upgrade or paid provisioning authorised |
+| GitHub source | Linked | Vercel team lists `nn-app` connected to `NaseemudheenT/NN-app`. |
+| Frontend branch | Active development | Latest verified code is on `nn-nexus-interface`; it has not been merged to `main`. |
+| CI | PASSED | Run [44865855116](https://github.com/NaseemudheenT/NN-app/actions/runs/44865855116): type-check, lint, 282 tests and Next.js build all passed. |
+| Existing production deployment | READY, older source | Deployment `dpl_C8z6gJxLuw7KDCHC11gyuQD4Rk7r`, built from commit `da48c9c8d71b2ac0b59e6c52053c0bd2cb01e90b`; it does not contain the current branch work. |
+| Current branch preview | NOT DEPLOYED | No preview deployment exists for the latest development commit. |
+| Vercel API deployment allowance | BLOCKED | Vercel returned HTTP 402: `api-deployments-free-per-day`, over 100 deployments; retry window reported as 86,400 seconds. |
+| Additional Vercel project | MISCONFIGURED | Duplicate project `web` reports that it cannot detect a Next.js version / root directory mismatch. Do not use it as the NN target. |
+| Existing project aliases | PRESENT | `getrenew.in`, `www.getrenew.in`, `nn-app-sooty.vercel.app`, `nn-app-clientflownn.vercel.app`. The official primary domain still needs founder confirmation. |
+| Production promotion | NOT AUTHORISED / NOT DONE | Do not promote the current branch or replace the older production deployment until the preview and acceptance checks pass. |
 
-## Immediate unlock
+## Next deployment steps
 
-The Vercel GitHub App must be installed/configured for the `NaseemudheenT` namespace and granted access to `NaseemudheenT/NN-app`. Public visibility did not remove the installation restriction. This is a user-side repository integration permission, not a code change. Do not grant access by selecting the unrelated `NaseemudheenT/NN` repository.
+1. Wait until Vercel's reported deployment-API limit has reset, or resolve the account allowance through Vercel. Do not attempt to bypass its limit.
+2. Use the existing `nn-app` project only; avoid the duplicate `web` project.
+3. Create a protected preview for the exact latest approved branch commit.
+4. Verify the preview build, page routes, passkey sign-in, owner guard, workspace interactions, error states and responsive layouts.
+5. Confirm which existing alias is the official NN production domain before promotion.
+6. Promote only after the founder's acceptance criteria and the integration checks are satisfied.
 
-After the integration is installed and access is granted:
+## Security and release constraints
 
-1. Re-read Vercel's Git deployment context and confirm `NN-app` is visible.
-2. Connect the existing `nn-app` project to `NaseemudheenT/NN-app` (do not create a duplicate).
-3. Configure only the required environment variables using values from the development Firebase project and newly generated deployment-specific secrets. Never commit secrets.
-4. Set the exact Vercel origin as the WebAuthn RP ID/origin and add the domain to Firebase Authentication's authorised domains.
-5. Deploy a protected preview first; inspect build logs and verify sign-in, owner guard, route handlers, PWA manifest and mobile layout.
-6. Only then decide whether to promote the protected build to production.
+- Keep production Firebase untouched unless explicitly approved.
+- Never commit Firebase service-account JSON, bootstrap secrets, AI provider keys, API keys or user data.
+- Keep deployment protection enabled for previews.
+- Do not add or change custom domains until ownership and intended access policy are confirmed.
+- Do not claim the current branch is live, deployed or production-ready until the deployed URL is tested.
 
-## Security constraints
+---
 
-- Never add Firebase service-account JSON, bootstrap secrets, AI provider keys, API keys or user data to Git.\n- The repository is temporarily public; return it to private once Vercel has been linked and the temporary sharing need has ended.
-- Never point the deployment at `nn-os-prod` without explicit approval.
-- Never enable Blaze or attach billing without explicit approval.
-- Keep Vercel deployment protection enabled. A private GitHub repository does not make a deployed URL private.
-- Do not add a custom domain until its ownership and intended access policy are confirmed.
-- Do not claim deployment, passkey sign-in or phone installation is working until verified against the deployed URL on a real device.
