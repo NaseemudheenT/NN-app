@@ -49,19 +49,20 @@ const QUICK_DESTINATIONS = QUICK_IDS.flatMap((id) => {
   return destination?.route !== undefined ? [destination] : [];
 });
 
+const APP_ICON_TONES: Record<string, GlassIconTone> = {
+  life: "green", soul: "amber", mind: "violet", body: "red", contacts: "blue", "nature-universe": "aqua", "peace-mode": "slate",
+  college: "blue", academy: "violet", "formula-engine": "cyan", "logic-lab": "aqua", "learning-vault": "amber",
+  finance: "green", invest: "aqua", business: "amber", freelance: "violet", career: "blue", projects: "cyan", achievements: "amber",
+  "creator-studio": "violet", studio: "red", mail: "blue", english: "aqua",
+  files: "cyan", memory: "violet", "life-archive": "amber", analytics: "green", travel: "blue", simulator: "aqua",
+  "command-centre": "cyan", search: "blue", "automation-studio": "violet", "security-centre": "red", "control-room": "slate",
+};
+
 function toneFor(destination: Destination): GlassIconTone {
   if (destination.mark === "ren") return "violet";
   if (destination.group === "NN") return destination.id === "settings" ? "slate" : "cyan";
   const app = getApplication(destination.id.slice(4));
-  switch (app?.group) {
-    case "Life & wellbeing": return "green";
-    case "Education": return "blue";
-    case "Money & work": return "amber";
-    case "Creation & communication": return "violet";
-    case "Knowledge & insight": return "cyan";
-    default: return "slate";
-  }
-}
+  return app ? APP_ICON_TONES[app.id] ?? "blue" : "blue";
 
 export function NNPanel() {
   const travel = useAppTransition();
