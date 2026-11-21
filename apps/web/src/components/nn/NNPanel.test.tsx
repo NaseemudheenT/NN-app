@@ -39,6 +39,20 @@ describe("the island", () => {
     expect(island.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
   });
 
+  it("tracks the destination when browser history changes the route", () => {
+    const { rerender } = render(<NNPanel />);
+    expect(screen.getByRole("button", { name: /currently Today/ })).toBeInTheDocument();
+
+    // Next's pathname subscription updates on back/forward navigation too.
+    path.value = "/settings";
+    rerender(<NNPanel />);
+    expect(screen.getByRole("button", { name: /currently Settings/ })).toBeInTheDocument();
+
+    path.value = "/home";
+    rerender(<NNPanel />);
+    expect(screen.getByRole("button", { name: /currently Today/ })).toBeInTheDocument();
+  });
+
   it("knows where you are on a nested route", () => {
     // /ren/chat is REN, not nothing. Longest match wins.
     path.value = "/ren/chat";
