@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "gt/**"
+      - "nn-nexus-interface"
   pull_request:
     branches:
       - main
