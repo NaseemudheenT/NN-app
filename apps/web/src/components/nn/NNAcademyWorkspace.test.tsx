@@ -10,7 +10,7 @@ const state = (items: object[]) => ({ items, loading: false, empty: !items.lengt
 afterEach(cleanup);
 beforeEach(() => useRecords.mockImplementation((collection: string) => state(collection === "academy_paths" ? [] : [])));
 describe("NN Academy workspace", () => {
-  it("shows useful empty states and the editable learning desk", () => {
+  it("shows honest empty states and the editable learning desk", () => {
     render(<NNAcademyWorkspace app={app} sections={sections} />);
     expect(screen.getByRole("heading", { name: /Academy/ })).toBeInTheDocument();
     expect(screen.getByText("Your first learning path starts here.")).toBeInTheDocument();
@@ -24,4 +24,6 @@ describe("NN Academy workspace", () => {
     expect(screen.getByText("Computer Science")).toBeInTheDocument();
     expect(screen.getByText("C pointers")).toBeInTheDocument();
     expect(screen.getByText("C programming")).toBeInTheDocument();
-    expect(screen.getByText("1 of 2 paths completed")).toBeInTheDocumen...[truncated]
+    expect(screen.getByText("1 of 2 paths completed")).toBeInTheDocument();
+  });
+});
