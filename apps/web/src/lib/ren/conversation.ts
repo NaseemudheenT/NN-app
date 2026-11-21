@@ -283,7 +283,7 @@ export function useRenConversation(firstName?: string, workspaceId?: string): Re
         outcomes.push(`${run.name}: ${outcome.ok ? "done" : "failed"} — ${outcome.said}`);
       }
 
-      if (outcomes.length === 0) return;
+      if (outcomes.length === 0 || runs.some((run) => run.plan.capability === "delegate")) return;
       const report: Turn = {
         id: nextId(),
         role: "founder",
