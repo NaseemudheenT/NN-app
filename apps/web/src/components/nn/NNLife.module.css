@@ -499,3 +499,7 @@
   .panel,.quickPanel,.focusPanel,.notesList,.noteCard,.emptyState{border-radius:17px}
   .panel,.quickPanel,.focusPanel,.notesList,.emptyState{padding:16px}
 }
+
+
+/* The operating-system shell owns global navigation; Life must not add a second dock. */
+.dock { display: none !important; }

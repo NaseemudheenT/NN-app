@@ -113,6 +113,9 @@ function LifeSurface() {
   const [eventStart, setEventStart] = useState("");
   const [eventEnd, setEventEnd] = useState("");
   const [reminderTitle, setReminderTitle] = useState("");
+  const [goalTitle, setGoalTitle] = useState("");
+  const [goalTarget, setGoalTarget] = useState("1");
+  const [goalUnit, setGoalUnit] = useState("");
   const [reminderAt, setReminderAt] = useState("");
   // Null until mounted. Everything below that depends on what time it is
   // reads this, so the server and the browser's first render always agree.
@@ -227,6 +230,19 @@ function LifeSurface() {
     }), "Reminder scheduled in NN Life.");
     setReminderTitle("");
   };
+  const createGoal = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const title = goalTitle.trim();
+    const target = Number(goalTarget);
+    if (!title || !uid || !Number.isFinite(target) || target <= 0) {
+      setError("Enter a goal title and a target greater than zero.");
+      return;
+    }
+    void save(() => addDoc(collection(getFirebase().db, "users", uid, "goals"), {
+      ...metadata(), title, progress: 0, target, unit: goalUnit.trim(), status: "active",
+    }), "Goal created in NN Life.");
+    setGoalTitle(""); setGoalTarget("1"); setGoalUnit("");
+  };
   const deleteRecord = (name: CollectionName, id: string, success: string) => {
     if (!uid) return;
     setPendingDelete({ name, id, success });
@@ -311,7 +327,7 @@ function LifeSurface() {
         <div className={styles.list}>{data.reminders.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("reminders", item.id, "Reminder deleted.")}><article className={`${styles.record} nn-glass-card`}><span className={styles.recordGlyph}><Icon name="clock" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.fireAt)} · {formatTime(item.fireAt)}</small></div><span className={styles.priority}>{typeof item.state === "string" ? item.state : "scheduled"}</span></article></SwipeToDelete>)}{data.reminders.length === 0 ? <EmptyState icon="clock" title="No reminders yet." body="Add a reminder and it will be stored in your private NN account. Delivery requires the notification service."/> : null}</div>
       </GlassPanel></section> : null}
       {!loading && tab === "notes" ? <section className={styles.notesLayout}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>QUICK NOTE</p><h2>Save the thought.</h2><form className={styles.noteForm} onSubmit={createNote}><input value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="Give this note a title" aria-label="Note title" required maxLength={160}/><textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="Write freely. Your original note is kept in NN." aria-label="Note content" rows={7}/><button disabled={busy || !noteTitle.trim()}><Icon name="plus" size={16}/> Save note</button></form></GlassPanel><div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR NOTES</p><h2>Thoughts, collected.</h2></div><span className={styles.count}>{data.notes.length} LOADED</span></div>{data.notes.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("notes", item.id, "Note deleted.")}><GlassPanel tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(item)}</strong><p>{typeof item.body === "string" ? item.body : ""}</p><small>{formatDate(item.updatedAt)}</small></GlassPanel></SwipeToDelete>)}{data.notes.length === 0 ? <EmptyState icon="file" title="Your notes begin here." body="The first note you save will appear in this space."/> : null}</div></section> : null}
-      {!loading && tab === "goals" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>LONG-TERM DIRECTION</p><h2>Progress with purpose.</h2></div><span className={styles.count}>{data.goals.length} GOALS</span></div><div className={styles.list}>{data.goals.map((item) => { const progress = typeof item.progress === "number" ? item.progress : 0; const target = typeof item.target === "number" ? item.target : 0; const pct = target > 0 ? Math.min(100, Math.max(0, progress / target * 100)) : 0; return <SwipeToDelete key={item.id} onDelete={() => deleteRecord("goals", item.id, "Goal deleted.")}><article className={styles.goal}><div><strong>{titleOf(item)}</strong><small>{progress} / {target || "—"} {typeof item.unit === "string" ? item.unit : ""}</small></div><div className={styles.progress}><span style={{ width: `${pct}%` }}/></div></article></SwipeToDelete>; })}{data.goals.length === 0 ? <EmptyState icon="graph" title="Give your ambition a shape." body="Goals you create in NN will be tracked here. No sample goals are inserted."/> : null}</div></GlassPanel></section> : null}
+      {!loading && tab === "goals" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>LONG-TERM DIRECTION</p><h2>Progress with purpose.</h2></div><span className={styles.count}>{data.goals.length} GOALS</span></div><form className={styles.captureForm} onSubmit={createGoal}><input value={goalTitle} onChange={(e) => setGoalTitle(e.target.value)} placeholder="What are you working towards?" aria-label="Goal title" required maxLength={160}/><input type="number" min="0.01" step="any" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)} aria-label="Goal target" required/><input value={goalUnit} onChange={(e) => setGoalUnit(e.target.value)} placeholder="Unit (optional)" aria-label="Goal unit" maxLength={32}/><button disabled={busy || !goalTitle.trim()}><Icon name="plus" size={16}/> Add goal</button></form><div className={styles.list}>{data.goals.map((item) => { const progress = typeof item.progress === "number" ? item.progress : 0; const target = typeof item.target === "number" ? item.target : 0; const pct = target > 0 ? Math.min(100, Math.max(0, progress / target * 100)) : 0; return <SwipeToDelete key={item.id} onDelete={() => deleteRecord("goals", item.id, "Goal deleted.")}><article className={styles.goal}><div><strong>{titleOf(item)}</strong><small>{progress} / {target || "—"} {typeof item.unit === "string" ? item.unit : ""}</small></div><div className={styles.progress}><span style={{ width: `${pct}%` }}/></div></article></SwipeToDelete>; })}{data.goals.length === 0 ? <EmptyState icon="graph" title="Give your ambition a shape." body="Goals you create in NN will be tracked here. No sample goals are inserted."/> : null}</div></GlassPanel></section> : null}
       <footer className={styles.footer}><span>NN LIFE · PERSONAL OPERATING ENVIRONMENT</span><span>{offline ? "LOCAL CACHE / SYNC PENDING" : "OWNER-SCOPED FIRESTORE DATA"}</span></footer>
     </div>
     <div className={styles.dock}><button onClick={() => router.push("/home")} aria-label="NN Home"><Icon name="grid" size={19}/></button><button className={styles.dockCurrent} aria-current="page"><Icon name="calendar" size={19}/><span>Life</span></button><button onClick={() => setTab("tasks")} aria-label="Tasks"><Icon name="check" size={19}/></button><button onClick={() => setTab("notes")} aria-label="Notes"><Icon name="file" size={19}/></button></div>
