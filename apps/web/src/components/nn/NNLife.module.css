@@ -668,3 +668,71 @@
 
 .historyEntry>.inlineAction{margin-top:12px;align-self:flex-start}
 .historyEntry>.inlineAction:disabled{opacity:.45;cursor:not-allowed}
+
+
+/* Responsive content integrity: cards own their text and never widen the
+   viewport. Notes preserve line breaks while long words and URLs wrap. */
+.root, .layout, .dashboard, .mainColumn, .sideColumn, .singleColumn,
+.notesLayout, .panel, .quickPanel, .notesList, .noteCard, .calendarSurface {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.panel *, .quickPanel *, .notesList *, .noteCard *, .calendarSurface * { min-width: 0; }
+.noteCard p, .noteCard strong, .recordMain strong, .event strong,
+.previewDescription, .previewNotice, .historyEntry p {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.noteCard p {
+  max-width: 100%;
+  white-space: pre-wrap;
+  line-height: 1.75;
+}
+.noteForm { min-width: 0; width: 100%; }
+.noteForm input, .noteForm textarea, .noteForm select,
+.captureForm input {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 16px;
+}
+.noteForm textarea {
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.noteCard { overflow: hidden; }
+.tabs { max-width: 100%; overscroll-behavior-x: contain; }
+.tab, .tabActive { flex-shrink: 0; }
+.tab [data-app-logo] { width: 24px; height: 24px; flex-basis: 24px; }
+.calendarSurface { overflow: hidden; }
+.calendarGrid, .calendarWeekdays { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.calendarDay { min-width: 0; padding-inline: 2px; }
+.calendarDay small { max-width: 100%; }
+@media (max-width: 620px) {
+  .layout { padding-inline: 12px; }
+  .notesLayout { grid-template-columns: minmax(0, 1fr); }
+  .noteForm { grid-template-columns: minmax(0, 1fr); }
+  .noteCard { padding: 14px; }
+  .calendarSurface { padding: 9px; }
+  .calendarGrid, .calendarWeekdays { gap: 2px; }
+  .calendarDay { min-height: 42px; border-radius: 9px; font-size: 11px; }
+  .calendarDay small { font-size: 7px; }
+  .tabs { margin-inline: -2px; padding: 4px; }
+  .tab, .tabActive { gap: 6px; padding-inline: 9px; }
+}
+@media (max-width: 360px) {
+  .hero { padding-inline: 17px; }
+  .hero h1 { font-size: clamp(34px, 12vw, 43px); }
+  .heroMeta { left: 16px; right: 16px; }
+  .panel, .quickPanel, .focusPanel, .notesList { padding: 13px; }
+  .calendarToolbar h3 { font-size: 13px; }
+  .calendarDay { min-height: 38px; }
+}
+/* Each real calendar event gets a visible signal without inventing activity. */
+.calendarDay:has(small) i { background: #64c8ff; box-shadow: 0 0 8px rgb(100 200 255 / 65%); }
+.calendarDay[data-today] i { background: #a88bff; }
+.calendarDay[data-selected] { box-shadow: inset 0 1px 0 rgb(255 255 255 / 36%), 0 0 0 2px rgb(110 177 255 / 12%), 0 7px 20px rgb(0 0 0 / 18%); }
