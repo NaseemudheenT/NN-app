@@ -1,0 +1,70 @@
+.logo {
+  --app-logo-size: 44px;
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 var(--app-logo-size);
+  width: var(--app-logo-size);
+  height: var(--app-logo-size);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--app-tone) 52%, rgb(255 255 255 / 34%));
+  border-radius: calc(var(--app-logo-size) * .27);
+  background:
+    radial-gradient(circle at 25% 12%, rgb(255 255 255 / 62%), transparent 34%),
+    radial-gradient(circle at 88% 92%, color-mix(in srgb, var(--app-tone) 72%, transparent), transparent 58%),
+    linear-gradient(145deg, color-mix(in srgb, var(--app-tone) 70%, white), color-mix(in srgb, var(--app-tone) 48%, #101c3b) 64%, #10182e);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 58%),
+    inset 0 -7px 13px rgb(0 0 0 / 22%),
+    0 4px 0 rgb(4 10 25 / 62%),
+    0 9px 20px color-mix(in srgb, var(--app-tone) 24%, transparent);
+  color: white;
+  transform: translateZ(0);
+}
+.logo::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border: 1px solid rgb(255 255 255 / 17%);
+  border-radius: inherit;
+  background: linear-gradient(150deg, rgb(255 255 255 / 24%), transparent 44%);
+}
+.face {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: calc(var(--app-logo-size) * .36);
+  font-weight: 760;
+  line-height: 1;
+  letter-spacing: -.09em;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 28%);
+  transform: translateX(-.04em);
+}
+.glint {
+  position: absolute;
+  z-index: 2;
+  top: -45%;
+  left: -65%;
+  width: 44%;
+  height: 190%;
+  transform: rotate(28deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 46%), transparent);
+  opacity: .65;
+  pointer-events: none;
+  animation: app-logo-glint 7s ease-in-out infinite;
+}
+.logo[data-tone="blue"] { --app-tone: #3f9bff; }
+.logo[data-tone="cyan"], .logo[data-tone="aqua"] { --app-tone: #20c9d9; }
+.logo[data-tone="violet"] { --app-tone: #9873ff; }
+.logo[data-tone="green"] { --app-tone: #20c98a; }
+.logo[data-tone="amber"] { --app-tone: #e8a844; }
+.logo[data-tone="red"] { --app-tone: #f06476; }
+.logo[data-tone="slate"], .logo[data-tone="ice"] { --app-tone: #8da9c9; }
+@keyframes app-logo-glint {
+  0%, 72% { transform: translateX(0) rotate(28deg); opacity: 0; }
+  78% { opacity: .62; }
+  92%, 100% { transform: translateX(390%) rotate(28deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .glint { animation: none; } }

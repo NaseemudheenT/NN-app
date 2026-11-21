@@ -1,4 +1,4 @@
-.row { display: inline-flex; align-items: center; gap: var(--space-5); cursor: pointer; }
+.row { display: inline-flex; align-items: center; gap: var(--space-5); min-height: 44px; cursor: pointer; }
 .row:has(.input:disabled) { cursor: not-allowed; opacity: 0.45; }
 
 .input { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -27,3 +27,10 @@
 .input:focus-visible + .track { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 .label { font-size: var(--text-body-size); color: var(--text-primary); }
+
+@media (prefers-reduced-motion: reduce) { .track, .thumb { transition: none; } }
+:global(html[data-motion="reduced"]) .track,
+:global(html[data-motion="reduced"]) .thumb { transition: none; }
+@media (prefers-reduced-transparency: reduce) {
+  .track { background: color-mix(in srgb, var(--surface-raised) 96%, transparent); }
+}

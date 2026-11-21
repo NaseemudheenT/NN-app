@@ -1,10 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useAppTransition } from "@/components/nn/AppTransition";
 import { Icon } from "@/components/ui/Icon";
+import { AppLogo } from "@/components/ui/AppLogo";
+import { NNLogo } from "@/components/ui/NNLogo";
 import { RenMark } from "@/components/ui/RenMark";
+
 import { currentDestination, destinations, type Destination } from "@/lib/nn/destinations";
+import { getApplication, GROUPS } from "@/lib/apps/registry";
 import s from "./NNPanel.module.css";
 
 /**
@@ -32,48 +37,116 @@ import s from "./NNPanel.module.css";
  * - It offers **only what exists**. A destination with no route is not
  *   listed; NN does not open a screen that is not there.
  *
- * On a phone it moves to the bottom, because the left edge is precisely
- * where a thumb cannot reach, and opens upward into the same arc.
+ * The island stays at the top on every viewport, with the panel expanding
+ * beneath it. This gives the operating environment one stable navigation anchor.
  */
 
+const ALL_DESTINATIONS = destinations();
+const NN_PLACES = ALL_DESTINATIONS.filter((destination) => destination.route !== undefined && destination.group === "NN");
+const APP_DESTINATIONS = ALL_DESTINATIONS.filter((destination) => destination.route !== undefined && destination.group === "Applications");
+const QUICK_IDS = ["home", "app-life", "app-college", "app-search", "ren"] as const;
+const QUICK_DESTINATIONS = QUICK_IDS.flatMap((id) => {
+  const destination = ALL_DESTINATIONS.find((entry) => entry.id === id);
+  return destination?.route !== undefined ? [destination] : [];
+});
+
+const APP_ICON_TONES: Record<string, string> = {
+  life: "green", soul: "amber", mind: "violet", body: "red", contacts: "blue", "nature-universe": "aqua", "peace-mode": "slate",
+  college: "blue", academy: "violet", "formula-engine": "cyan", "logic-lab": "aqua", "learning-vault": "amber",
+  finance: "green", invest: "aqua", business: "amber", freelance: "violet", career: "blue", projects: "cyan", achievements: "amber",
+  "creator-studio": "violet", studio: "red", mail: "blue", english: "aqua",
+  files: "cyan", memory: "violet", "life-archive": "amber", analytics: "green", travel: "blue", simulator: "aqua",
+  "command-centre": "cyan", search: "blue", "automation-studio": "violet", "security-centre": "red", "control-room": "slate",
+};
+
+function destinationLogo(destination: Destination, size = 38) {
+  if (destination.mark === "ren") return <RenMark size={size * 0.72} />;
+  if (destination.group === "NN") return <NNLogo size={size * 0.82} glow decorative />;
+  const app = getApplication(destination.id.slice(4));
+  return app
+    ? <AppLogo id={app.id} name={app.name} tone={APP_ICON_TONES[app.id] ?? "blue"} size={size} />
+    : <NNLogo size={size * 0.82} glow decorative />;
+}
+
 export function NNPanel() {
-  const router = useRouter();
+  const travel = useAppTransition();
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const hostRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const islandRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const here = currentDestination(pathname);
-  const places = destinations().filter((d) => d.route !== undefined && d.group === "NN");
-  const apps = destinations().filter((d) => d.route !== undefined && d.group === "Applications");
+  const places = NN_PLACES;
+  const apps = APP_DESTINATIONS;
+  const needle = query.trim().toLowerCase();
+  const visiblePlaces = useMemo(
+    () => places.filter((destination) => !needle || (destination.label + " " + destination.hint).toLowerCase().includes(needle)),
+    [places, needle],
+  );
+  const visibleGroups = useMemo(() => GROUPS.map((group) => ({
+    ...group,
+    destinations: apps.filter((destination) => {
+      const app = getApplication(destination.id.slice(4));
+      return app?.group === group.name
+        && (!needle || (destination.label + " " + destination.hint + " " + group.label + " " + group.name).toLowerCase().includes(needle));
+    }),
+  })).filter((group) => group.destinations.length > 0), [apps, needle]);
+  const resultCount = visiblePlaces.length + visibleGroups.reduce((total, group) => total + group.destinations.length, 0);
+  const visibleQuickDestinations = useMemo(
+    () => QUICK_DESTINATIONS.filter((destination) => !needle || (destination.label + " " + destination.hint).toLowerCase().includes(needle)),
+    [needle],
+  );
 
   /*
-   * Focus has to go back to the island, and the island does not exist yet.
-   *
-   * The panel replaces it rather than covering it, so at the moment `close`
-   * runs there is nothing to focus — the ref still points at an element
-   * React has already unmounted. Calling `.focus()` there does nothing
-   * silently, and a keyboard user is left with focus on the document body
-   * with no way back. The restore has to wait for the next render.
+   * The island and its expanded panel stay mounted as two visual states of
+   * one control. Focus moves into the panel when it opens and returns to the
+   * island after an explicit close; outside clicks leave focus with the
+   * control the user deliberately chose.
    */
   const restoring = useRef(false);
 
   const close = useCallback(() => {
     restoring.current = true;
+    setQuery("");
     setOpen(false);
   }, []);
 
   useEffect(() => {
-    if (open || !restoring.current) return;
+    if (open) {
+      searchRef.current?.focus();
+      return;
+    }
+    if (!restoring.current) return;
     restoring.current = false;
     islandRef.current?.focus();
   }, [open]);
 
+  const containPanelFocus = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Tab") return;
+    const controls = panelRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    if (!controls?.length) return;
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  }, []);
+
   const go = useCallback((destination: Destination) => {
     if (destination.route === undefined) return;
-    setOpen(false);
-    router.push(destination.route);
-  }, [router]);
+    close();
+    travel.open(destination.route, destination.label);
+  }, [close, travel]);
 
   /* Escape, and a press anywhere else, both close it. */
   useEffect(() => {
@@ -82,7 +155,7 @@ export function NNPanel() {
       if (event.key === "Escape") { event.preventDefault(); close(); }
     };
     const onDown = (event: PointerEvent) => {
-      if (!hostRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!hostRef.current?.contains(event.target as Node)) { setQuery(""); setOpen(false); }
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onDown);
@@ -100,9 +173,7 @@ export function NNPanel() {
         aria-current={here?.id === destination.id ? "page" : undefined}
         onClick={() => go(destination)}
       >
-        {destination.mark === "ren"
-          ? <RenMark size={21} />
-          : <Icon name={destination.icon} size={21} />}
+        {destinationLogo(destination, 38)}
         <span className={s.itemBody}>
           <span className={s.itemName}>{destination.label}</span>
           <span className={s.itemHint}>{destination.hint}</span>
@@ -113,36 +184,103 @@ export function NNPanel() {
 
   return (
     <div className={s.host} ref={hostRef}>
-      {open ? (
-        <div className={s.panel} role="dialog" aria-modal="false" aria-label="Go to">
-          <div className={s.head}>
-            <span className={s.headName}>{here?.label ?? "NN"}</span>
-            <button type="button" className={s.close} aria-label="Close" onClick={close}>
-              <Icon name="expand" size={15} />
-            </button>
-          </div>
-          <ul className={s.list}>
-            {places.map(row)}
-            {apps.length > 0 ? (
-              <li className={s.group} aria-hidden="true">Applications</li>
-            ) : null}
-            {apps.map(row)}
-          </ul>
+      <button
+        ref={islandRef}
+        type="button"
+        className={s.island}
+        aria-label={`Go to — currently ${here?.label ?? "NN"}`}
+        aria-expanded={open}
+        aria-hidden={open}
+        tabIndex={open ? -1 : 0}
+        onClick={() => setOpen(true)}
+      >
+        <span className={s.islandBrand} aria-hidden="true">
+          {here ? destinationLogo(here, 30) : <NNLogo size={25} glow decorative />}
+        </span>
+        <span className={s.islandLabel}>{here?.label ?? "NN"}</span>
+        <span className={s.islandSignal} aria-hidden="true" />
+      </button>
+
+      <div
+        ref={panelRef}
+        onKeyDown={containPanelFocus}
+        className={s.panel}
+        data-open={open || undefined}
+        role="dialog"
+        aria-modal="false"
+        aria-label="Go to"
+        aria-hidden={!open}
+        inert={!open}
+      >
+        <div className={s.head}>
+          <span className={s.headMark}>{here ? destinationLogo(here, 34) : <NNLogo size={28} glow decorative />}</span>
+          <span className={s.headName}>{here?.label ?? "NN"}</span>
+          <span className={s.headStatus}>NN SYSTEM</span>
+          <button ref={closeRef} type="button" className={s.close} aria-label="Close" onClick={close}>
+            <Icon name="close" size={15} />
+          </button>
         </div>
-      ) : (
-        <button
-          ref={islandRef}
-          type="button"
-          className={s.island}
-          aria-label={`Go to — currently ${here?.label ?? "NN"}`}
-          aria-expanded={false}
-          onClick={() => setOpen(true)}
-        >
-          {here?.mark === "ren"
-            ? <RenMark size={24} />
-            : <Icon name={here?.icon ?? "grid"} size={24} />}
-        </button>
-      )}
+        <label className={s.filter}>
+          <Icon name="search" size={16} />
+          <input
+            ref={searchRef}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && query) {
+                event.preventDefault();
+                event.stopPropagation();
+                setQuery("");
+              }
+            }}
+            placeholder="Find an app or destination"
+            aria-label="Search destinations"
+            autoComplete="off"
+            spellCheck={false}
+          />
+          {query ? (
+            <button type="button" className={s.clear} aria-label="Clear destination search" onClick={() => setQuery("")}>
+              <Icon name="close" size={14} />
+            </button>
+          ) : null}
+        </label>
+        <div className={s.quickAccess} role="group" aria-label="Quick access">
+          {visibleQuickDestinations.map((destination) => (
+            <button
+              type="button"
+              key={destination.id}
+              className={s.quickItem}
+              aria-label={`Quick open ${destination.label}`}
+              aria-current={here?.id === destination.id ? "page" : undefined}
+              onClick={() => go(destination)}
+            >
+              {destinationLogo(destination, 38)}
+              <span>{destination.label}</span>
+            </button>
+          ))}
+        </div>
+        <p className={s.resultCount} role="status">
+          {resultCount} {resultCount === 1 ? "destination" : "destinations"}
+        </p>
+        <ul className={s.list}>
+          {visiblePlaces.map(row)}
+          {visibleGroups.map((group) => (
+            <li key={group.slug}>
+              <div className={s.group}>{group.label}</div>
+              <ul className={s.groupList}>{group.destinations.map(row)}</ul>
+            </li>
+          ))}
+          {visiblePlaces.length === 0 && visibleGroups.length === 0 ? (
+            <li className={s.noResults} role="status">No destinations found</li>
+          ) : null}
+        </ul>
+        <div className={s.panelFoot}>
+          <span>PRIVATE ENVIRONMENT</span>
+          <span className={s.panelFootDot} />
+          <span>NAVIGATION</span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -56,6 +56,22 @@ describe("ownership boundary", () => {
     await assertSucceeds(getDoc(doc(db, `users/${OWNER}/notes/n1`)));
   });
 
+  it.each(["habits", "habit_checkins", "routines", "routine_runs", "focus_sessions", "reviews"])(
+    "keeps the new Life collection %s owner-scoped and writable",
+    async (name) => {
+      const ownerDb = asOwner();
+      const path = `users/${OWNER}/${name}/life-record`;
+      await assertSucceeds(setDoc(doc(ownerDb, path), validDoc({ title: "Private Life record" })));
+      await assertSucceeds(getDoc(doc(ownerDb, path)));
+      await assertFails(getDoc(doc(asIntruder(), path)));
+      await assertSucceeds(updateDoc(doc(ownerDb, path), {
+        title: "Updated Life record",
+        updatedAt: Timestamp.fromMillis(1_700_000_000_100),
+      }));
+      await assertSucceeds(deleteDoc(doc(ownerDb, path)));
+    },
+  );
+
   it("DENIES another signed-in user reading the founder's data", async () => {
     await env.withSecurityRulesDisabled(async (ctx) => {
       await setDoc(doc(ctx.firestore(), `users/${OWNER}/notes/n1`), validDoc({ title: "Private" }));

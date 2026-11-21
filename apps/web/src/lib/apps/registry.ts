@@ -26,6 +26,8 @@ export interface NNApplication {
   icon: IconName;
   description: string;
   availability: "available" | "planned";
+  /** Depth of the shipped experience; a record scaffold is not a finished app. */
+  experience: "dedicated" | "records";
   /**
    * Operational route, present only when the application itself works.
    *
@@ -47,7 +49,7 @@ export interface NNApplication {
   overviewHref: string;
 }
 
-const REGISTERED: readonly NNApplication[] = [
+const REGISTERED: readonly Omit<NNApplication, "experience">[] = [
   { id: "life", name: "Life", group: "Life & wellbeing", icon: "calendar", description: "Calendar, tasks, reminders, notes, habits, goals and routines", availability: "available", overviewHref: "/apps/life", href: "/life", collections: ["tasks", "calendar_events", "reminders", "notes", "goals"] },
   { id: "soul", name: "Soul", group: "Life & wellbeing", icon: "flame", description: "Faith, purpose, gratitude and reflection", availability: "planned", overviewHref: "/apps/soul" },
   { id: "mind", name: "Mind", group: "Life & wellbeing", icon: "brain", description: "Focus, resilience, reflection and personal growth", availability: "planned", overviewHref: "/apps/mind" },
@@ -100,7 +102,11 @@ const REGISTERED: readonly NNApplication[] = [
  */
 export const APPLICATIONS: readonly NNApplication[] = REGISTERED.map((app) => {
   const sections = APP_SECTIONS[app.id];
-  if (!sections || sections.length === 0) return app;
+  const experience =
+    app.href !== undefined && app.href !== app.overviewHref ? "dedicated" : "records";
+
+  if (!sections || sections.length === 0) return { ...app, experience };
+
   // `overviewHref` is a plain string because it is derived from the id;
   // asserting it here is safe because /apps/[appId] is a real route and the
   // id came from this same array.
@@ -108,18 +114,19 @@ export const APPLICATIONS: readonly NNApplication[] = REGISTERED.map((app) => {
   return {
     ...app,
     availability: "available",
+    experience,
     href,
     collections: app.collections ?? sections.map((section) => section.collection),
   };
 });
 
-const GROUP_DETAILS: ReadonlyArray<{ name: NNAppGroup; detail: string; icon: IconName }> = [
-  { name: "Life & wellbeing", detail: "Plan, organise and live well", icon: "calendar" },
-  { name: "Education", detail: "Learn, practise and master", icon: "book" },
-  { name: "Money & work", detail: "Build, manage and measure", icon: "wallet" },
-  { name: "Creation & communication", detail: "Create, write and communicate", icon: "sparkle" },
-  { name: "Knowledge & insight", detail: "Store, recall and understand", icon: "folder" },
-  { name: "System", detail: "Control, search and protect NN", icon: "settings" },
+const GROUP_DETAILS: ReadonlyArray<{ name: NNAppGroup; label: string; detail: string; icon: IconName }> = [
+  { name: "Life & wellbeing", label: "Life", detail: "Plan, organise and live well", icon: "calendar" },
+  { name: "Education", label: "Learn", detail: "Learn, practise and master", icon: "book" },
+  { name: "Money & work", label: "Work", detail: "Build, manage and measure", icon: "wallet" },
+  { name: "Creation & communication", label: "Create", detail: "Create, write and communicate", icon: "sparkle" },
+  { name: "Knowledge & insight", label: "Knowledge", detail: "Store, recall and understand", icon: "folder" },
+  { name: "System", label: "System", detail: "Control, search and protect NN", icon: "settings" },
 ];
 
 /**

@@ -1,16 +1,16 @@
 .root {
   position: relative;
   min-height: 100dvh;
-  padding: 0 clamp(var(--space-5), 3vw, var(--space-11)) calc(var(--space-14) + var(--space-8));
+  padding: 0 clamp(var(--space-5), 3vw, var(--space-11)) calc(var(--space-14) + var(--space-8) + env(safe-area-inset-bottom, 0px));
 }
 
 .bar {
   position: sticky;
   top: 0;
   z-index: 6;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(142px, 210px) minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-6);
   height: 60px;
   margin-bottom: var(--space-6);
@@ -37,11 +37,16 @@
   cursor: pointer;
 }
 
+.brand > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .brand:hover { background: var(--glass-hover); }
 .brand i { color: var(--text-muted); font-style: normal; }
 .brand strong { font-weight: var(--weight-semibold); }
 
+.islandClearance { min-width: 0; }
+
 .barRight {
+  justify-self: end;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-5);
@@ -73,30 +78,88 @@
 
 .body { padding-bottom: var(--space-11); }
 
-.dock {
-  position: fixed;
-  z-index: 8;
-  left: 50%;
-  bottom: max(var(--space-7), env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%);
-  padding: var(--space-3);
-  border: 1px solid var(--glass-2-border);
-  border-radius: var(--radius-2xl);
-  background: color-mix(in srgb, var(--surface-base) 62%, transparent);
-  backdrop-filter: blur(var(--glass-2-blur));
-  -webkit-backdrop-filter: blur(var(--glass-2-blur));
-  box-shadow: var(--shadow-4);
-  /* 100dvw, not 100vw: on a desktop with a classic scrollbar 100vw includes
-     it, and the dock would sit a scrollbar's width past the right edge. */
-  max-width: min(calc(100dvw - var(--space-7)), 1180px);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-
-.dock::-webkit-scrollbar { display: none; }
 
 @media (max-width: 700px) {
+  .brand { gap: 8px; padding-inline: 0; margin-left: 0; }
   .search span { display: none; }
   .search { padding: 0; width: 44px; justify-content: center; }
+}
+
+
+/* Shared spatial atmosphere — restrained light, with content remaining the focus. */
+.root {
+  position: relative;
+  isolation: isolate;
+}
+.root::before,
+.root::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  width: min(62vw, 760px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(clamp(72px, 12vw, 170px));
+  opacity: .34;
+  transform: translate3d(0, 0, 0);
+  animation: nn-shell-drift 28s ease-in-out infinite alternate;
+}
+.root::before {
+  top: -26vw;
+  left: -25vw;
+  background: radial-gradient(circle, rgb(52 133 226 / 27%), rgb(52 133 226 / 0%) 68%);
+}
+.root::after {
+  right: -30vw;
+  bottom: -30vw;
+  background: radial-gradient(circle, rgb(111 103 226 / 19%), rgb(111 103 226 / 0%) 68%);
+  animation-delay: -13s;
+}
+.bar {
+  top: max(8px, env(safe-area-inset-top, 0px));
+  height: 56px;
+  margin: 8px auto var(--space-6);
+  padding: 0 clamp(8px, 1.2vw, 16px);
+  border: 1px solid rgb(202 226 255 / 16%);
+  border-top-color: rgb(255 255 255 / 25%);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgb(226 242 255 / 8%), transparent 56%),
+    color-mix(in srgb, var(--surface-base) 68%, transparent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 13%), 0 12px 32px rgb(0 0 0 / 12%);
+}
+.body {
+  position: relative;
+  z-index: 0;
+}
+@keyframes nn-shell-drift {
+  from { transform: translate3d(-1.5%, -1%, 0) scale(.96); }
+  to { transform: translate3d(2%, 2.5%, 0) scale(1.04); }
+}
+@media (max-width: 700px) {
+  .bar {
+    grid-template-columns: minmax(0, 1fr) minmax(142px, 45vw) 44px;
+    gap: 4px;
+    height: 52px;
+    margin-top: 6px;
+    border-radius: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .root::before,
+  .root::after { animation: none; }
+}
+
+/* Keep the app header in normal flow. A sticky header sat over the Dynamic
+   Island's expanded surface and intercepted taps while the panel was open.
+   The island is the persistent top-level control; the page header must never
+   become a second fixed layer above the workspace. */
+.root {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.bar {
+  position: relative;
+  top: auto;
+  z-index: 1;
 }

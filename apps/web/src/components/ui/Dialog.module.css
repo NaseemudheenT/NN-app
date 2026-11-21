@@ -30,12 +30,42 @@
 @keyframes nn-fade { from { opacity: 0; } }
 @keyframes nn-rise { from { opacity: 0; transform: translateY(14px) scale(0.985); } }
 
-@media (prefers-reduced-motion: reduce) {
-  .backdrop, .panel { animation-duration: 1ms; }
-}
+@media (prefers-reduced-motion: reduce) { .backdrop, .panel { animation: none; } }
 :global(html[data-motion="reduced"]) .backdrop,
-:global(html[data-motion="reduced"]) .panel { animation-duration: 1ms; }
+:global(html[data-motion="reduced"]) .panel { animation: none; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .backdrop { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgb(3 7 14 / 82%); }
+  .panel { backdrop-filter: none; -webkit-backdrop-filter: none; background: color-mix(in srgb, var(--surface-raised) 98%, transparent); }
+}
 
 
 /* Dialogs are solid enough to read, but retain the NN glass edge. */
 .panel { border-color:rgb(215 235 255 / 42%);background:linear-gradient(145deg,rgb(255 255 255 / 14%),transparent 30%),var(--glass-3-bg);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 44%),inset 0 -2px 0 rgb(0 0 0 / 28%),0 1px 0 rgb(177 211 255 / 22%),0 4px 0 rgb(3 10 27 / 76%),0 16px 34px rgb(0 0 0 / 34%),0 34px 72px rgb(0 0 0 / 30%); }
+
+/* Keep reduced-transparency fallbacks after the final visual treatment. */
+@media (prefers-reduced-transparency: reduce) {
+  .backdrop { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(3 7 14 / 82%); }
+  .panel { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--surface-raised) 98%, transparent); }
+}
+
+
+/* Bottom-sheet recipe: same modal focus contract, anchored to the viewport edge. */
+.backdrop[data-placement="bottom"] {
+  align-items: end;
+  padding: 0;
+}
+.backdrop[data-placement="bottom"] .panel {
+  width: min(720px, 100%);
+  max-height: min(88dvh, 760px);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+@media (max-width: 700px) {
+  .backdrop[data-placement="bottom"] .panel {
+    width: 100%;
+    max-height: 90dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}

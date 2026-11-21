@@ -1,0 +1,127 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { getApplication } from "@/lib/apps/registry";
+import { DOMAIN_BLUEPRINTS, inferDomainLayout, NNDomainBlueprint, type DomainModule } from "./NNDomainBlueprint";
+
+vi.mock("@/components/ui/Icon", () => ({
+  Icon: ({ name }: { name: string }) => <span aria-hidden="true">{name}</span>,
+}));
+
+const college = getApplication("college");
+const academy = getApplication("academy");
+const formulaEngine = getApplication("formula-engine");
+const logicLab = getApplication("logic-lab");
+const learningVault = getApplication("learning-vault");
+if (!college || !academy || !formulaEngine || !logicLab || !learningVault) throw new Error("Education applications must exist in the registry");
+
+afterEach(cleanup);
+
+describe("NN feature spaces", () => {
+  it("selects a screen grammar from each feature rather than the app name", () => {
+    const feature = (id: string, title: string): DomainModule => ({
+      id, title, description: "", icon: "calendar", regions: [],
+    });
+    expect(inferDomainLayout("creator-studio", feature("calendar", "Calendar"))).toBe("timeline");
+    expect(inferDomainLayout("studio", feature("documents", "Documents"))).toBe("editor");
+    expect(inferDomainLayout("finance", feature("ledger", "Ledger"))).toBe("finance");
+    expect(inferDomainLayout("travel", feature("places", "Places"))).toBe("map");
+  });
+
+  it("assigns a purpose-built screen grammar to every domain module", () => {
+    expect(Object.keys(DOMAIN_BLUEPRINTS)).toHaveLength(31);
+    for (const [appId, modules] of Object.entries(DOMAIN_BLUEPRINTS)) {
+      for (const featureModule of modules) {
+        const layout = inferDomainLayout(appId, featureModule);
+        expect(layout, `${appId}/${featureModule.id} should have a domain layout`).not.toBe("dashboard");
+      }
+    }
+  });
+  it("renders the specialist learning tools through their own screen grammars", () => {
+    const cases = [
+      { app: formulaEngine, layout: "calculator", tab: "Compute" },
+      { app: logicLab, layout: "board", tab: "Challenges" },
+      { app: learningVault, layout: "cards", tab: "Recall" },
+    ];
+    for (const item of cases) {
+      const { unmount } = render(<NNDomainBlueprint app={item.app} />);
+      fireEvent.click(screen.getByRole("tab", { name: item.tab }));
+      expect(document.querySelector(`[data-layout="${item.layout}"]`)).toBeInTheDocument();
+      unmount();
+    }
+  });
+
+  it("renders a dedicated canvas for every specialised domain layout", () => {
+    const rendered = new Set<string>();
+    for (const [appId, modules] of Object.entries(DOMAIN_BLUEPRINTS)) {
+      if (appId === "college" || appId === "academy") continue;
+      const app = getApplication(appId);
+      if (!app) throw new Error(`Missing app registry entry: ${appId}`);
+      for (const featureModule of modules) {
+        const layout = inferDomainLayout(appId, featureModule);
+        if (rendered.has(layout)) continue;
+        const { unmount } = render(<NNDomainBlueprint app={app} />);
+        fireEvent.click(screen.getByRole("tab", { name: featureModule.title }));
+        expect(document.querySelector(`[data-layout-surface="${layout}"]`), `${appId}/${featureModule.id}`).toBeInTheDocument();
+        unmount();
+        rendered.add(layout);
+      }
+    }
+    expect([...rendered].sort()).toEqual([
+      "analytics", "board", "calculator", "cards", "editor", "finance", "flow",
+      "inbox", "library", "map", "media", "navigator", "planner", "reader",
+      "roadmap", "security", "settings", "timeline",
+    ]);
+  });
+
+  it("renders purpose-built semester, exam preparation and question bank screens", () => {
+    const { unmount } = render(<NNDomainBlueprint app={college} />);
+    expect(document.querySelector('[data-education-screen="semester"]')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Question Bank" }));
+    expect(document.querySelector('[data-education-screen="question-bank"]')).toBeInTheDocument();
+    expect(screen.getByText("Your question bank is empty")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Exam Prep" }));
+    expect(document.querySelector('[data-education-screen="exam-prep"]')).toBeInTheDocument();
+    expect(screen.getByText("No exams scheduled")).toBeInTheDocument();
+    unmount();
+  });
+
+  it("renders dedicated Academy course, lesson and mastery workspaces", () => {
+    const { unmount } = render(<NNDomainBlueprint app={academy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Courses" }));
+    expect(document.querySelector('[data-education-screen="academy-courses"]')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Lesson" }));
+    expect(document.querySelector('[data-education-screen="academy-lesson"]')).toBeInTheDocument();
+    expect(screen.getByText("Choose a lesson to begin")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Mastery" }));
+    expect(document.querySelector('[data-education-screen="academy-mastery"]')).toBeInTheDocument();
+    expect(screen.getByText("NO PRACTICE DATA")).toBeInTheDocument();
+    unmount();
+  });
+
+  it("supports horizontal arrow navigation and associates the selected preview", () => {
+    render(<NNDomainBlueprint app={college} />);
+    const rail = screen.getByRole("tablist", { name: "College spaces" });
+    const semester = within(rail).getByRole("tab", { name: "Semester" });
+    expect(semester).toHaveAttribute("aria-selected", "true");
+
+    fireEvent.keyDown(semester, { key: "ArrowRight" });
+
+    const syllabus = within(rail).getByRole("tab", { name: "Syllabus" });
+    expect(syllabus).toHaveAttribute("aria-selected", "true");
+    expect(syllabus).toHaveFocus();
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "college-space-syllabus");
+  });
+
+  it("resets the selected space when the founder opens another application", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<NNDomainBlueprint app={college} />);
+    await user.click(screen.getByRole("tab", { name: "Syllabus" }));
+    expect(screen.getByRole("tab", { name: "Syllabus" })).toHaveAttribute("aria-selected", "true");
+
+    rerender(<NNDomainBlueprint app={academy} />);
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "Paths" })).toHaveAttribute("aria-selected", "true");
+    });
+  });
+});

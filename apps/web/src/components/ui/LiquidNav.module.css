@@ -184,3 +184,12 @@
 @media (prefers-reduced-motion: reduce) {
   .glyph svg { transition-duration: 1ms; }
 }
+
+@media (prefers-reduced-motion: reduce) { .glyph svg { transition: none; } }
+:global(html[data-motion="reduced"]) .glyph svg { transition: none; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--surface-raised) 98%, transparent); }
+  .water { display: none; }
+  .drop { display: block; background: color-mix(in srgb, var(--nn-icy) 34%, var(--surface-raised)); }
+}

@@ -47,8 +47,11 @@ describe("Settings", () => {
 
   it("changes the theme and the motion setting for real", async () => {
     render(<NNSettings />);
-    await userEvent.click(within(screen.getByRole("group", { name: "Theme" })).getByText("Light"));
-    expect(theme.setTheme).toHaveBeenCalledWith("light");
+    const themeControls = screen.getByRole("group", { name: "Theme" });
+    await userEvent.click(within(themeControls).getByRole("switch", { name: "Dark appearance" }));
+    expect(theme.setTheme).toHaveBeenNthCalledWith(1, "light");
+    await userEvent.click(within(themeControls).getByRole("button", { name: "Auto" }));
+    expect(theme.setTheme).toHaveBeenNthCalledWith(2, "system");
     await userEvent.click(within(screen.getByRole("group", { name: "Motion" })).getByText("Reduced"));
     expect(theme.setMotion).toHaveBeenCalledWith("reduced");
   });

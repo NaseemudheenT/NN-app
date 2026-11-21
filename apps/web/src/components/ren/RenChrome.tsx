@@ -18,13 +18,12 @@ export function RenChrome() {
   /*
    * The launcher is how you reach REN from somewhere else.
    *
-   * So it hides on REN's own surfaces — both of them — and on the dashboard,
-   * where the navigation already carries REN as one of its four items. A
-   * floating orb over a tab bar that holds the same orb is two identities on
-   * one screen, and on a phone it lands on the content as well.
+   * It hides on REN's own surfaces, where the mark has moved into the header.
+   * Home is now an application launcher rather than a dashboard with REN in
+   * its navigation, so the assistant launcher remains available there too.
    */
   const carried = pathname === "/" || pathname === "/sign-in"
-    || pathname === "/home" || pathname.startsWith("/ren");
+    || pathname.startsWith("/ren");
 
   /*
    * The palette is everywhere the launcher is not — and everywhere it is.

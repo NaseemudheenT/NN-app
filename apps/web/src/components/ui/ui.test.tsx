@@ -264,7 +264,7 @@ describe("Dock", () => {
   it("marks the active item and reports selection", async () => {
     const onSelect = vi.fn();
     render(<Dock items={items} activeId="ren" onSelect={onSelect} />);
-    expect(screen.getByRole("button", { name: "REN" })).toHaveAttribute("aria-current", "true");
+    expect(screen.getByRole("button", { name: "REN" })).toHaveAttribute("aria-current", "page");
     await userEvent.click(screen.getByRole("button", { name: "NN Life" }));
     expect(onSelect).toHaveBeenCalledWith("life");
   });

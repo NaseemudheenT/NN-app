@@ -1,11 +1,24 @@
 .panel {
   position: relative;
-  border-radius: var(--radius-lg);
+  isolation: isolate;
+  overflow: hidden;
+  transform-style: preserve-3d;
   border: 1px solid var(--tier-border);
-  background: var(--tier-bg);
-  backdrop-filter: blur(var(--tier-blur)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--tier-blur)) saturate(140%);
-  box-shadow: inset 0 1px 0 var(--glass-sheen), var(--tier-shadow);
+  border-top-color: rgb(255 255 255 / 38%);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 15%), transparent 36%),
+    var(--tier-bg);
+  -webkit-backdrop-filter: blur(var(--tier-blur)) saturate(155%);
+  backdrop-filter: blur(var(--tier-blur)) saturate(155%);
+  box-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 48%),
+    inset 1px 0 0 rgb(255 255 255 / 10%),
+    inset 0 -2px 0 rgb(0 0 0 / 25%),
+    0 1px 0 rgb(190 220 255 / 24%),
+    0 3px 0 rgb(3 10 27 / 68%),
+    0 12px 24px rgb(0 0 0 / 24%),
+    0 24px 44px rgb(0 0 0 / 24%);
   transition:
     background-color var(--dur-base) var(--ease-standard),
     border-color var(--dur-base) var(--ease-standard),
@@ -13,37 +26,139 @@
     transform var(--dur-base) var(--ease-standard);
 }
 
-.t1 { --tier-bg: var(--glass-1-bg); --tier-border: var(--glass-1-border); --tier-blur: var(--glass-1-blur); --tier-shadow: var(--shadow-2); }
-.t2 { --tier-bg: var(--glass-2-bg); --tier-border: var(--glass-2-border); --tier-blur: var(--glass-2-blur); --tier-shadow: var(--shadow-3); }
-.t3 { --tier-bg: var(--glass-3-bg); --tier-border: var(--glass-3-border); --tier-blur: var(--glass-3-blur); --tier-shadow: var(--shadow-4); }
+.t1 {
+  --tier-bg: var(--glass-1-bg);
+  --tier-border: var(--glass-1-border);
+  --tier-blur: var(--glass-1-blur);
+  --tier-shadow: var(--shadow-2);
+}
+
+.t2 {
+  --tier-bg: var(--glass-2-bg);
+  --tier-border: var(--glass-2-border);
+  --tier-blur: var(--glass-2-blur);
+  --tier-shadow: var(--shadow-3);
+}
+
+.t3 {
+  --tier-bg: var(--glass-3-bg);
+  --tier-border: var(--glass-3-border);
+  --tier-blur: var(--glass-3-blur);
+  --tier-shadow: var(--shadow-4);
+}
 
 .p0 { padding: 0; }
 .pSm { padding: var(--space-5); }
 .pMd { padding: var(--space-7); }
 .pLg { padding: var(--space-9); }
 
-.interactive { cursor: pointer; }
-.interactive:hover { border-color: var(--border-strong); transform: translateY(-1px); }
-.interactive:active { transform: translateY(0); }
-
-@media (prefers-reduced-motion: reduce) { .interactive:hover { transform: none; } }
-:global(html[data-motion="reduced"]) .interactive:hover { transform: none; }
-
-
-/* Shared content panel — visibly laminated edge and contact shadow. */
-.panel {
-  isolation:isolate;transform-style:preserve-3d;border-color:rgb(210 231 255 / 34%);
-  box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 38%),inset 1px 0 0 rgb(255 255 255 / 9%),inset 0 -2px 0 rgb(0 0 0 / 24%),0 1px 0 rgb(177 211 255 / 20%),0 3px 0 rgb(3 10 27 / 66%),0 9px 18px rgb(0 0 0 / 21%),0 22px 40px rgb(0 0 0 / 22%);
+/* A quiet laminated highlight; the content always remains above the sheen. */
+.panel::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    122deg,
+    rgb(255 255 255 / 13%),
+    transparent 36%,
+    transparent 74%,
+    rgb(var(--nn-spectrum-blue) / 8%)
+  );
 }
-.panel::after { content:"";position:absolute;inset:1px;z-index:-1;border-radius:inherit;pointer-events:none;background:linear-gradient(120deg,rgb(255 255 255 / 12%),transparent 32%,transparent 72%,rgb(var(--nn-spectrum-blue) / 7%)); }
-.interactive:hover { transform:perspective(1000px) translate3d(0,-4px,5px) rotateX(1deg); }
-.interactive:active { transform:translate3d(0,1px,0) scale(.99); }
-:global(html[data-theme="light"]) .panel { border-color:rgb(91 137 192 / 24%); }
-@media(prefers-reduced-motion:reduce){.interactive:hover,.interactive:active{transform:none;}}
 
-/* Shared content panel: thick edge, translucent face, controlled depth. */
-.panel{isolation:isolate;transform-style:preserve-3d;border-color:rgb(210 231 255 / 38%);background:linear-gradient(145deg,rgb(255 255 255 / 15%),transparent 36%),var(--tier-bg);-webkit-backdrop-filter:blur(var(--tier-blur)) saturate(155%);backdrop-filter:blur(var(--tier-blur)) saturate(155%);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),inset 1px 0 0 rgb(255 255 255 / 10%),inset 0 -2px 0 rgb(0 0 0 / 25%),0 1px 0 rgb(190 220 255 / 24%),0 3px 0 rgb(3 10 27 / 68%),0 12px 24px rgb(0 0 0 / 24%),0 24px 44px rgb(0 0 0 / 24%)}
-.panel::after{content:"";position:absolute;inset:1px;z-index:-1;border-radius:inherit;pointer-events:none;background:linear-gradient(122deg,rgb(255 255 255 / 13%),transparent 36%,transparent 74%,rgb(var(--nn-spectrum-blue) / 8%))}
-.interactive:hover{transform:perspective(1000px) translate3d(0,-4px,5px) rotateX(1deg)}.interactive:active{transform:translate3d(0,1px,0) scale(.99)}
-:global(html[data-theme="light"]) .panel{border-color:rgb(91 137 192 / 26%)}
-@media(prefers-reduced-motion:reduce){.interactive:hover,.interactive:active{transform:none}}
+.interactive {
+  cursor: pointer;
+}
+
+.interactive::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-125%) skewX(-18deg);
+  background: linear-gradient(
+    105deg,
+    transparent 28%,
+    rgb(231 246 255 / 7%) 43%,
+    rgb(231 246 255 / 20%) 50%,
+    rgb(231 246 255 / 7%) 57%,
+    transparent 72%
+  );
+  transition:
+    transform 760ms var(--ease-entrance),
+    opacity var(--dur-base) var(--ease-standard);
+}
+
+.interactive:hover {
+  border-color: var(--border-strong);
+  transform: perspective(1000px) translate3d(0, -3px, 4px) rotateX(0.7deg);
+}
+
+.interactive:hover::before {
+  opacity: 1;
+  transform: translateX(125%) skewX(-18deg);
+}
+
+.interactive:active {
+  transform: translate3d(0, 1px, 0) scale(0.99);
+}
+
+:global(html[data-theme="light"]) .panel {
+  border-color: rgb(91 137 192 / 26%);
+  border-top-color: rgb(255 255 255 / 78%);
+  box-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 72%),
+    inset 0 -1px 0 rgb(48 82 126 / 10%),
+    0 1px 0 rgb(91 137 192 / 12%),
+    0 8px 22px rgb(30 58 92 / 10%),
+    0 20px 40px rgb(30 58 92 / 9%);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .panel {
+    background: color-mix(in srgb, var(--surface-raised) 94%, transparent);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .panel {
+    background: color-mix(in srgb, var(--surface-raised) 96%, transparent);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .interactive::before {
+    transition: none;
+  }
+
+  .interactive:hover,
+  .interactive:active {
+    transform: none;
+  }
+
+  .interactive::before {
+    display: none;
+  }
+}
+
+:global(html[data-motion="reduced"]) .panel,
+:global(html[data-motion="reduced"]) .interactive::before {
+  transition: none;
+}
+
+:global(html[data-motion="reduced"]) .interactive:hover,
+:global(html[data-motion="reduced"]) .interactive:active {
+  transform: none;
+}
+
+:global(html[data-motion="reduced"]) .interactive::before {
+  display: none;
+}

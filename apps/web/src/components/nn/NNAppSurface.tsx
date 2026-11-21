@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { WaveCard, WaveChip } from "@/components/ui/WaveCard";
 import { useRecords, useRecordWriter, type NNRecord, type RecordFault } from "@/lib/nn/records";
 import { relativeTime, useClock } from "@/lib/clock";
 import type { NNApplication } from "@/lib/apps/registry";
 import type { AppField, AppSection } from "@/lib/apps/sections";
+import { toDateInputValue, parseRecordField } from "@/lib/apps/record-fields";
 import styles from "./NNAppSurface.module.css";
+import { NNDomainBlueprint } from "@/components/nn/NNDomainBlueprint";
 
 /**
  * The work surface every NN application gets.
@@ -42,11 +44,11 @@ function fieldValue(record: NNRecord, field: AppField): string | null {
   const value = record[field.key];
   if (value === undefined || value === null || value === "") return null;
   if (field.type === "date") {
-    const date =
-      value && typeof value === "object" && "toDate" in value
-        ? (value as { toDate: () => Date }).toDate()
-        : new Date(value as string | number);
-    return Number.isNaN(date.getTime()) ? null : date.toLocaleDateString();
+    const inputDate = toDateInputValue(value);
+    if (!inputDate) return null;
+    const [year, month, day] = inputDate.split("-").map(Number);
+    if (!year || !month || !day) return null;
+    return new Date(year, month - 1, day).toLocaleDateString();
   }
   if (field.type === "number") {
     return typeof value === "number" ? String(value) : null;
@@ -71,7 +73,7 @@ function isDone(record: NNRecord): boolean {
   return ["done", "finished", "paid", "published", "final", "delivered", "closed", "reached", "answered", "solved", "passed"].includes(status);
 }
 
-function SectionPanel({ section, appName }: { section: AppSection; appName: string }) {
+function SectionPanel({ section }: { section: AppSection }) {
   const records = useRecords(section.collection, { limit: 120 });
   const writer = useRecordWriter();
   const now = useClock();
@@ -80,13 +82,48 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<Record<string, string>>({});
 
   const title = draft.title?.trim() ?? "";
 
-  const open = useMemo(() => records.items.filter((r) => !isDone(r)), [records.items]);
-  const done = useMemo(() => records.items.filter(isDone), [records.items]);
+  const activeRecords = useMemo(() => records.items.filter((record) => !isDone(record)), [records.items]);
+  const completedRecords = useMemo(() => records.items.filter(isDone), [records.items]);
 
   const reset = useCallback(() => { setDraft({}); setAdding(false); }, []);
+  const beginEdit = (record: NNRecord) => {
+    const next: Record<string, string> = { title: titleOf(record) };
+    for (const field of section.fields) {
+      const value = record[field.key];
+      if (value === undefined || value === null) continue;
+      if (field.type === "date") {
+        next[field.key] = toDateInputValue(value);
+      } else if (typeof value === "string" || typeof value === "number") next[field.key] = String(value);
+    }
+    setEditingId(record.id);
+    setEditDraft(next);
+    setAdding(false);
+    setProblem(null);
+  };
+  const saveEdit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!editingId || !editDraft.title?.trim() || !writer.ready || busy) return;
+    const payload: Record<string, unknown> = { title: editDraft.title.trim() };
+    for (const field of section.fields) {
+      const raw = editDraft[field.key]?.trim() ?? "";
+      const parsed = parseRecordField(field, raw);
+      if (!parsed.ok) { setProblem(parsed.error); return; }
+      payload[field.key] = parsed.value;
+    }
+    setBusy(true); setProblem(null);
+    try {
+      await writer.update(section.collection, editingId, payload);
+      setEditingId(null); setEditDraft({});
+    } catch (error) {
+      setProblem(error instanceof Error ? `Not updated. ${error.message}` : "Not updated. NN could not save those changes.");
+    } finally { setBusy(false); }
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -98,14 +135,9 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
     for (const field of section.fields) {
       const raw = draft[field.key]?.trim();
       if (!raw) continue;
-      if (field.type === "number") {
-        const n = Number(raw);
-        // A field the founder typed into must not silently become nothing.
-        if (!Number.isFinite(n)) { setProblem(`${field.label} must be a number.`); setBusy(false); return; }
-        payload[field.key] = n;
-      } else {
-        payload[field.key] = raw;
-      }
+      const parsed = parseRecordField(field, raw ?? "");
+      if (!parsed.ok) { setProblem(parsed.error); setBusy(false); return; }
+      if (parsed.value !== null) payload[field.key] = parsed.value;
     }
 
     try {
@@ -145,20 +177,22 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
     }
   };
 
-  const rows = [...open, ...done];
+  const rows = useMemo(() => {
+    const all = [...activeRecords, ...completedRecords];
+    const needle = search.trim().toLocaleLowerCase();
+    if (!needle) return all;
+    return all.filter((record) => {
+      const searchable = [titleOf(record), ...section.fields.map((field) => fieldValue(record, field) ?? "")]
+        .join(" ")
+        .toLocaleLowerCase();
+      return searchable.includes(needle);
+    });
+  }, [activeRecords, completedRecords, search, section.fields]);
 
   return (
     <div className={styles.section}>
       <header className={styles.sectionTop}>
-        <div>
-          <h2>{section.name}</h2>
-          <p>{section.hint}</p>
-        </div>
-        <p className={styles.tally}>
-          {records.fault || records.loading
-            ? "—"
-            : `${open.length} open${done.length ? ` · ${done.length} done` : ""}`}
-        </p>
+        <h2>{section.name}</h2>
       </header>
 
       {problem ? (
@@ -166,6 +200,39 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
           <Icon name="shield" size={15} />
           {problem}
         </p>
+      ) : null}
+
+      {records.items.length > 0 ? (
+        <label className={styles.search}>
+          <Icon name="search" size={16} />
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={`Search ${section.name.toLocaleLowerCase()}…`}
+            aria-label={`Search ${section.name}`}
+          />
+          {search ? (
+            <button type="button" onClick={() => setSearch("")} aria-label="Clear search">
+              <Icon name="close" size={14} />
+            </button>
+          ) : null}
+        </label>
+      ) : null}
+
+      {editingId ? (
+        <form className={styles.form} onSubmit={(event) => void saveEdit(event)} aria-label={`Edit ${section.noun}`}>
+          <label className={styles.field}><span>Title</span><input autoFocus value={editDraft.title ?? ""} onChange={(event) => setEditDraft((draft) => ({ ...draft, title: event.target.value }))} maxLength={200} required /></label>
+          {section.fields.map((field) => (
+            <label className={styles.field} key={field.key} data-wide={field.type === "longtext"}>
+              <span>{field.label}{field.hint ? <em>{field.hint}</em> : null}</span>
+              {field.type === "longtext" ? <textarea rows={3} value={editDraft[field.key] ?? ""} onChange={(event) => setEditDraft((draft) => ({ ...draft, [field.key]: event.target.value }))} maxLength={4000} /> :
+               field.type === "choice" ? <select value={editDraft[field.key] ?? field.choices?.[0] ?? ""} onChange={(event) => setEditDraft((draft) => ({ ...draft, [field.key]: event.target.value }))}>{(field.choices ?? []).map((choice) => <option key={choice} value={choice}>{choice}</option>)}</select> :
+               <input type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"} step={field.type === "number" ? "any" : undefined} value={editDraft[field.key] ?? ""} onChange={(event) => setEditDraft((draft) => ({ ...draft, [field.key]: event.target.value }))} maxLength={field.type === "text" ? 200 : undefined} />}
+            </label>
+          ))}
+          <div className={styles.formActions}><button type="submit" disabled={!editDraft.title?.trim() || busy || !writer.ready}>{busy ? "Saving…" : "Save changes"}</button><button type="button" className={styles.ghost} onClick={() => { setEditingId(null); setEditDraft({}); }}>Cancel</button></div>
+        </form>
       ) : null}
 
       {adding ? (
@@ -248,7 +315,9 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
         <div className={styles.skeleton} aria-hidden="true"><span /><span /><span /></div>
       ) : rows.length === 0 ? (
         <p className={styles.empty}>
-          Nothing here yet. {appName} will hold {section.noun} once you add one.
+          {search.trim()
+            ? `No match for “${search.trim()}”.`
+            : `No ${section.name.toLocaleLowerCase()} yet.`}
         </p>
       ) : (
         <ul className={styles.rows}>
@@ -288,6 +357,8 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
                   })()}
                 </span>
 
+                <button type="button" className={styles.edit} aria-label={`Edit ${titleOf(record)}`} onClick={() => beginEdit(record)} disabled={!writer.ready || busy}><Icon name="pen" size={14} /></button>
+
                 <button
                   type="button"
                   className={styles.remove}
@@ -308,23 +379,24 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
 
 export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
   const [active, setActive] = useState(0);
+  useEffect(() => setActive(0), [app.id]);
   const section = sections[active] ?? sections[0];
   if (!section) return null;
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-domain={app.group} data-app={app.id}>
       <WaveCard tone="tide" className={styles.banner}>
         <div className={styles.bannerInner}>
           <div>
-            <p className={styles.group}>{app.group}</p>
             <h1>{app.name}</h1>
-            <p className={styles.description}>{app.description}</p>
           </div>
           <WaveChip className={styles.bannerChip}>
             <Icon name={app.icon} size={22} />
           </WaveChip>
         </div>
       </WaveCard>
+
+      <NNDomainBlueprint app={app} />
 
       {sections.length > 1 ? (
         <div className={styles.tabs} role="tablist" aria-label={`${app.name} sections`}>
@@ -365,7 +437,7 @@ export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
         {/* Keyed on the collection so switching tabs mounts a fresh
             subscription rather than painting one section's records into
             another's list while the new query resolves. */}
-        <SectionPanel key={section.collection} section={section} appName={app.name} />
+        <SectionPanel key={section.collection} section={section} />
       </div>
     </div>
   );

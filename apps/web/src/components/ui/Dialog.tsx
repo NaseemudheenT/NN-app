@@ -11,6 +11,8 @@ export interface DialogProps {
   description?: string;
   children?: ReactNode;
   footer?: ReactNode;
+  /** Centered modal by default; bottom placement is the mobile sheet recipe. */
+  placement?: "center" | "bottom";
 }
 
 const FOCUSABLE =
@@ -21,9 +23,11 @@ const FOCUSABLE =
  * element that opened it. Escape and backdrop click both close. Background
  * scrolling is locked. Rendered in a portal so no ancestor can clip it.
  */
-export function Dialog({ open, onClose, title, description, children, footer }: DialogProps) {
+export function Dialog({ open, onClose, title, description, children, footer, placement = "center" }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreTo = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const id = useId();
   const titleId = `${id}-title`;
   const descId = `${id}-desc`;
@@ -32,7 +36,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
     (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== "Tab") return;
@@ -56,7 +60,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
         first.focus();
       }
     },
-    [onClose],
+    [],
   );
 
   useEffect(() => {
@@ -67,6 +71,13 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKeyDown);
+    const onFocusIn = (event: FocusEvent) => {
+      const panel = panelRef.current;
+      if (!panel || panel.contains(event.target as Node)) return;
+      const first = panel.querySelector<HTMLElement>(FOCUSABLE) ?? panel;
+      first.focus();
+    };
+    document.addEventListener("focusin", onFocusIn);
 
     // Focus the first control, or the panel itself if there is nothing to focus.
     const panel = panelRef.current;
@@ -75,8 +86,10 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
       document.body.style.overflow = overflow;
       restoreTo.current?.focus();
+      restoreTo.current = null;
     };
   }, [open, onKeyDown]);
 
@@ -85,8 +98,9 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
   return createPortal(
     <div
       className={styles.backdrop}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+      data-placement={placement}
+      onPointerDown={(e) => {
+        if (e.target === e.currentTarget) onCloseRef.current();
       }}
     >
       <div

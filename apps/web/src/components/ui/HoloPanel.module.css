@@ -62,3 +62,7 @@
 
 /* Preserve the physical panel's own stacking context for its glass bevel. */
 .panel { transform-style:preserve-3d;isolation:isolate; }
+
+@media (prefers-reduced-motion: reduce) { .panel { transition: none; } }
+:global(html[data-motion="reduced"]) .panel { transition: none; }
+@media (prefers-reduced-transparency: reduce) { .panel { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--surface-raised) 96%, transparent); } }

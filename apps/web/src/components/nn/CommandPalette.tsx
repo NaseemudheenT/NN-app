@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useAppTransition } from "@/components/nn/AppTransition";
 import type { Route } from "next";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { destinations } from "@/lib/nn/destinations";
@@ -102,12 +102,13 @@ export function rank(all: readonly Command[], query: string): readonly Command[]
 }
 
 export function CommandPalette() {
-  const router = useRouter();
+  const travel = useAppTransition();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [at, setAt] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
   const all = useMemo(() => commands(), []);
   const shown = useMemo(() => rank(all, query), [all, query]);
@@ -121,8 +122,8 @@ export function CommandPalette() {
   const go = useCallback((command: Command | undefined) => {
     if (command?.route === undefined) return;
     close();
-    router.push(command.route);
-  }, [close, router]);
+    travel.open(command.route, command.label);
+  }, [close, travel]);
 
   /* The keys, globally. */
   useEffect(() => {
@@ -138,19 +139,30 @@ export function CommandPalette() {
       if (!meta) return;
       // Direct keys. Each one is a place that exists; none of them is a
       // shortcut to something NN cannot actually open.
-      const direct: Record<string, string> = { j: "/ren", h: "/home", ",": "/settings" };
-      const to = direct[key];
-      if (to !== undefined) {
+      const direct: Record<string, { href: Route; label: string }> = {
+        j: { href: "/ren" as Route, label: "REN" },
+        h: { href: "/home" as Route, label: "Today" },
+        ",": { href: "/settings" as Route, label: "Settings" },
+      };
+      const destination = direct[key];
+      if (destination !== undefined) {
         event.preventDefault();
-        router.push(to as Route);
+        travel.open(destination.href, destination.label);
       }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [router]);
+  }, [travel]);
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
+    if (!open) return;
+    returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    inputRef.current?.focus();
+    return () => {
+      const previous = returnFocusRef.current;
+      if (previous?.isConnected) previous.focus();
+      returnFocusRef.current = null;
+    };
   }, [open]);
 
   useEffect(() => { setAt(0); }, [query]);
@@ -170,6 +182,11 @@ export function CommandPalette() {
   if (!open) return null;
 
   const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      inputRef.current?.focus();
+      return;
+    }
     if (event.key === "Escape") { event.preventDefault(); close(); return; }
     if (event.key === "ArrowDown") {
       event.preventDefault();
