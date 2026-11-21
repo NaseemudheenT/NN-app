@@ -69,10 +69,13 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Today, Calendar, Tasks, Reminders, Notes and Goals tabs exist.
 - [x] Monthly calendar grid, local date keys, event markers, day selection and month navigation.
 - [x] Goal progress controls and task/note/event/reminder/goal create flows.
-- [x] Add labelled design-preview interfaces for Habits, Routines, Focus and Reviews; no fake records or connected-backend claims.
-- [ ] Connect those interfaces to Claude's approved domain contracts and add their real interaction flows.
-- [ ] Add consistent detail/edit/confirmation sheets and empty/error/offline states.
-- [ ] Separate reminder scheduling UI from actual notification delivery capability.
+- [x] Implement owner-scoped habit creation and dated check-ins with duplicate-per-day protection.
+- [x] Implement routine creation, ordered steps and explicit completion records.
+- [x] Implement persistent focus sessions with planned duration, live countdown, completion and cancellation.
+- [x] Implement weekly reflections with saved wins, lessons and next steps.
+- [x] Keep notification scheduling distinct from delivery; reminders are stored, not claimed delivered.
+- [ ] Add detail/edit flows and a full offline write queue; current offline mode is read/cache-aware, not a guaranteed mutation queue.
+- [ ] Add emulator-backed integration tests for the new Life collections and device QA.
 
 ### Phase E — College and Academy interfaces
 - [x] College blueprint: semester dashboard, syllabus navigator, question-bank library and exam planner layouts.

@@ -1,3 +1,18 @@
+## 2026-11-21 · Phase D — NN Life real workflows (first implementation milestone)
+
+**Branch:** `gt/nn-liquid-glass-unified`
+
+- Replaced the four preview-only Life sections with owner-scoped Firestore workflows: habit creation and dated check-ins, routines with ordered steps and completion records, persisted focus sessions with a live countdown and explicit finish/cancel actions, and weekly reflections.
+- Added new records to the existing `users/{uid}/{collection}` ownership model. Existing default-deny, owner-scoped Firestore rules already cover these collections; no broad rule or privilege changes were made.
+- Added validation for habit cadence, focus duration (1–180 minutes), required reflection content, and duplicate same-day habit check-ins.
+- All writes use the shared save/error/reload path. No sample records, fabricated streaks or delivered-notification claims.
+- Reminder scheduling remains explicitly separate from notification delivery.
+- Remaining Phase D work: edit/detail workflows, richer recurrence/history, offline mutation queue, and Firebase emulator integration tests.
+
+**Verification:** CI is required on the exact commit before this milestone is accepted. No production data migration or production deployment.
+
+---
+
 ## 2026-11-21 · Phase B — spatial-glass design system complete
 
 **Branch:** `gt/nn-liquid-glass-unified`  

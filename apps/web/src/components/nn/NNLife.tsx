@@ -20,7 +20,7 @@ import { buildCalendarGrid, calendarDateKey } from "@/lib/nn/calendar-grid";
 type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals" | "habits" | "routines" | "focus" | "reviews";
 export type LifePreviewTab = "habits" | "routines" | "focus" | "reviews";
 type RecordData = Record<string, unknown> & { id: string };
-type LifeData = { tasks: RecordData[]; calendar_events: RecordData[]; reminders: RecordData[]; notes: RecordData[]; goals: RecordData[] };
+type LifeData = { tasks: RecordData[]; calendar_events: RecordData[]; reminders: RecordData[]; notes: RecordData[]; goals: RecordData[]; habits: RecordData[]; habit_checkins: RecordData[]; routines: RecordData[]; routine_runs: RecordData[]; focus_sessions: RecordData[]; reviews: RecordData[] };
 type CollectionName = keyof LifeData;
 const TABS: readonly { id: LifeTab; label: string; icon: IconName }[] = [
   { id: "today", label: "Today", icon: "grid" },
@@ -161,7 +161,7 @@ function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
   );
 }
 
-const EMPTY: LifeData = { tasks: [], calendar_events: [], reminders: [], notes: [], goals: [] };
+const EMPTY: LifeData = { tasks: [], calendar_events: [], reminders: [], notes: [], goals: [], habits: [], habit_checkins: [], routines: [], routine_runs: [], focus_sessions: [], reviews: [] };
 const metadata = () => ({ schemaVersion: 1, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
 const localDateTime = (date = new Date()) => {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -253,6 +253,16 @@ function LifeSurface() {
   const [goalTarget, setGoalTarget] = useState("1");
   const [goalUnit, setGoalUnit] = useState("");
   const [reminderAt, setReminderAt] = useState("");
+  const [habitTitle, setHabitTitle] = useState("");
+  const [habitCadence, setHabitCadence] = useState("daily");
+  const [routineTitle, setRoutineTitle] = useState("");
+  const [routineSteps, setRoutineSteps] = useState("");
+  const [focusIntention, setFocusIntention] = useState("");
+  const [focusMinutes, setFocusMinutes] = useState("25");
+  const [reviewWins, setReviewWins] = useState("");
+  const [reviewLessons, setReviewLessons] = useState("");
+  const [reviewNext, setReviewNext] = useState("");
+  const [focusTick, setFocusTick] = useState(0);
   // Null until mounted. Everything below that depends on what time it is
   // reads this, so the server and the browser's first render always agree.
   const clock = useClock(60_000);
@@ -321,7 +331,7 @@ function LifeSurface() {
     setLoading(true); setError(null);
     try {
       const db = getFirebase().db;
-      const names: CollectionName[] = ["tasks", "calendar_events", "reminders", "notes", "goals"];
+      const names: CollectionName[] = ["tasks", "calendar_events", "reminders", "notes", "goals", "habits", "habit_checkins", "routines", "routine_runs", "focus_sessions", "reviews"];
       const results = await Promise.all(names.map((name) => readCollection(db, uid, name)));
       const next = { ...EMPTY };
       let cacheOnly = false;
@@ -467,6 +477,86 @@ function LifeSurface() {
     );
   };
 
+  const createHabit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const title = habitTitle.trim();
+    if (!title || !uid) return;
+    void save(() => addDoc(collection(getFirebase().db, "users", uid, "habits"), {
+      ...metadata(), title, cadence: habitCadence, status: "active",
+    }), "Habit created.").then((saved) => { if (saved) setHabitTitle(""); });
+  };
+
+  const checkInHabit = (habit: RecordData) => {
+    if (!uid || !clock) return;
+    const dateKey = calendarDateKey(new Date(clock));
+    const alreadyChecked = data.habit_checkins.some((entry) => entry.habitId === habit.id && entry.dateKey === dateKey);
+    if (alreadyChecked) { setNotice("This habit is already checked in for today."); return; }
+    void save(() => addDoc(collection(getFirebase().db, "users", uid, "habit_checkins"), {
+      ...metadata(), habitId: habit.id, dateKey, checkedAt: Timestamp.fromDate(new Date(clock)), status: "completed",
+    }), "Habit checked in for today.");
+  };
+
+  const createRoutine = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const title = routineTitle.trim();
+    if (!title || !uid) return;
+    const steps = routineSteps.split("\\n").map((step) => step.trim()).filter(Boolean).slice(0, 20);
+    void save(() => addDoc(collection(getFirebase().db, "users", uid, "routines"), {
+      ...metadata(), title, steps, status: "active",
+    }), "Routine saved.").then((saved) => { if (saved) { setRoutineTitle(""); setRoutineSteps(""); } });
+  };
+
+  const runRoutine = (routine: RecordData) => {
+    if (!uid) return;
+    void save(() => addDoc(collection(getFirebase().db, "users", uid, "routine_runs"), {
+      ...metadata(), routineId: routine.id, title: titleOf(routine), startedAt: Timestamp.now(), status: "completed", completedAt: Timestamp.now(),
+    }), "Routine completion recorded.");
+  };
+
+  const startFocusSession = () => {
+    const minutes = Number(focusMinutes);
+    if (!uid || !focusIntention.trim() || !Number.isInteger(minutes) || minutes < 1 || minutes > 180) {
+      setError("Enter a focus intention and a duration between 1 and 180 minutes."); return;
+    }
+    const startedAt = new Date();
+    void save(() => addDoc(collection(getFirebase().db, "users", uid, "focus_sessions"), {
+      ...metadata(), intention: focusIntention.trim(), plannedMinutes: minutes, startedAt: Timestamp.fromDate(startedAt),
+      endsAt: Timestamp.fromDate(new Date(startedAt.getTime() + minutes * 60_000)), status: "active",
+    }), "Focus session started.").then((saved) => { if (saved) setFocusIntention(""); });
+  };
+
+  const finishFocusSession = (session: RecordData, status: "completed" | "cancelled") => {
+    if (!uid) return;
+    const endedAt = new Date();
+    const startedAt = asDate(session.startedAt);
+    const actualMinutes = startedAt ? Math.max(0, Math.round((endedAt.getTime() - startedAt.getTime()) / 60_000)) : 0;
+    void save(() => updateDoc(doc(getFirebase().db, "users", uid, "focus_sessions", session.id), {
+      status, endedAt: Timestamp.fromDate(endedAt), actualMinutes, updatedAt: serverTimestamp(),
+    }), status === "completed" ? "Focus session completed." : "Focus session cancelled.");
+  };
+
+  const createReview = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!uid || (!reviewWins.trim() && !reviewLessons.trim() && !reviewNext.trim())) {
+      setError("Add at least one reflection before saving."); return;
+    }
+    void save(() => addDoc(collection(getFirebase().db, "users", uid, "reviews"), {
+      ...metadata(), cadence: "weekly", periodKey: new Date().toISOString().slice(0, 10),
+      wins: reviewWins.trim(), lessons: reviewLessons.trim(), nextStep: reviewNext.trim(),
+    }), "Reflection saved.").then((saved) => { if (saved) { setReviewWins(""); setReviewLessons(""); setReviewNext(""); } });
+  };
+
+  const activeFocus = data.focus_sessions.find((session) => session.status === "active");
+  const focusEnd = activeFocus ? asDate(activeFocus.endsAt) : null;
+  const focusRemaining = focusEnd ? Math.max(0, Math.ceil((focusEnd.getTime() - focusTick) / 1000)) : 0;
+  useEffect(() => {
+    if (!activeFocus) return;
+    const update = () => setFocusTick(Date.now());
+    update();
+    const interval = window.setInterval(update, 1000);
+    return () => window.clearInterval(interval);
+  }, [activeFocus?.id]);
+
   const firstName = ownerFirstName(user?.displayName);
   // "Welcome back" until the browser says what time it is there — which is
   // also what the server renders, so the two always agree on first paint.
@@ -566,7 +656,36 @@ function LifeSurface() {
         <div className={styles.list}>{data.reminders.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("reminders", item.id, "Reminder deleted.")}><article className={`${styles.record} nn-glass-card`}><span className={styles.recordGlyph}><Icon name="clock" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.fireAt)} · {formatTime(item.fireAt)}</small></div><span className={styles.priority}>{typeof item.state === "string" ? item.state : "scheduled"}</span></article></SwipeToDelete>)}{data.reminders.length === 0 ? <EmptyState icon="clock" title="No reminders yet." body="Add a reminder and it will be stored in your private NN account. Delivery requires the notification service."/> : null}</div>
       </GlassPanel></section> : null}
       {!loading && tab === "notes" ? <section className={styles.notesLayout}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>QUICK NOTE</p><h2>Save the thought.</h2><form className={styles.noteForm} onSubmit={createNote}><input value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="Give this note a title" aria-label="Note title" required maxLength={160}/><textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="Write freely. Your original note is kept in NN." aria-label="Note content" rows={7}/><button disabled={busy || !noteTitle.trim()}><Icon name="plus" size={16}/> Save note</button></form></GlassPanel><div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR NOTES</p><h2>Thoughts, collected.</h2></div><span className={styles.count}>{data.notes.length} LOADED</span></div>{data.notes.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("notes", item.id, "Note deleted.")}><GlassPanel tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(item)}</strong><p>{typeof item.body === "string" ? item.body : ""}</p><small>{formatDate(item.updatedAt)}</small></GlassPanel></SwipeToDelete>)}{data.notes.length === 0 ? <EmptyState icon="file" title="Your notes begin here." body="The first note you save will appear in this space."/> : null}</div></section> : null}
-      {(["habits", "routines", "focus", "reviews"] as const).includes(tab as LifePreviewTab) ? <LifeDesignPreview module={tab as LifePreviewTab}/> : null}
+      {!loading && tab === "habits" ? <section className={styles.singleColumn}>
+        <GlassPanel tier={2} padding="lg" className={styles.panel}>
+          <div className={styles.panelHead}><div><p className={styles.label}>DAILY PRACTICE</p><h2>Small actions, repeated.</h2></div><span className={styles.count}>{data.habits.filter((habit) => habit.status !== "archived").length} HABITS</span></div>
+          <form className={styles.captureForm} onSubmit={createHabit}>
+            <input value={habitTitle} onChange={(e) => setHabitTitle(e.target.value)} placeholder="Name a habit" aria-label="Habit name" required maxLength={120}/>
+            <select value={habitCadence} onChange={(e) => setHabitCadence(e.target.value)} aria-label="Habit cadence"><option value="daily">Daily</option><option value="weekdays">Weekdays</option><option value="weekly">Weekly</option></select>
+            <button disabled={busy || !habitTitle.trim()}><Icon name="plus" size={16}/> Add habit</button>
+          </form>
+          <div className={styles.list}>{data.habits.filter((habit) => habit.status !== "archived").map((habit) => {
+            const dateKey = clock === null ? "" : calendarDateKey(new Date(clock));
+            const checked = data.habit_checkins.some((entry) => entry.habitId === habit.id && entry.dateKey === dateKey);
+            const count = data.habit_checkins.filter((entry) => entry.habitId === habit.id).length;
+            return <article className={styles.record} key={habit.id}><span className={styles.recordGlyph}><Icon name="check" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(habit)}</strong><small>{String(habit.cadence ?? "daily")} · {count} recorded check-ins</small></div><button type="button" className={styles.inlineAction} disabled={busy || checked} onClick={() => checkInHabit(habit)}>{checked ? "Done today" : "Check in"}</button></article>;
+          })}{data.habits.length === 0 ? <EmptyState icon="check" title="Start with one practice." body="Create a habit, then record each real check-in. NN does not generate streaks or past activity."/> : null}</div>
+        </GlassPanel>
+      </section> : null}
+      {!loading && tab === "routines" ? <section className={styles.notesLayout}>
+        <GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>REPEATABLE SYSTEMS</p><h2>Build a useful rhythm.</h2><form className={styles.noteForm} onSubmit={createRoutine}><input value={routineTitle} onChange={(e) => setRoutineTitle(e.target.value)} placeholder="Routine name" aria-label="Routine name" required maxLength={120}/><textarea value={routineSteps} onChange={(e) => setRoutineSteps(e.target.value)} placeholder={"One step per line\\nPrepare\\nExecute\\nReview"} aria-label="Routine steps" rows={5}/><button disabled={busy || !routineTitle.trim()}><Icon name="plus" size={16}/> Save routine</button></form></GlassPanel>
+        <div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR ROUTINES</p><h2>Ready when you are.</h2></div><span className={styles.count}>{data.routines.length} SAVED</span></div>{data.routines.map((routine) => {const steps = Array.isArray(routine.steps) ? routine.steps.filter((step): step is string => typeof step === "string") : []; const runs = data.routine_runs.filter((run) => run.routineId === routine.id).length; return <GlassPanel key={routine.id} tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(routine)}</strong><ol className={styles.routineList}>{steps.map((step,index) => <li key={index}>{step}</li>)}</ol><small>{runs} recorded completions</small><button type="button" className={styles.inlineAction} disabled={busy} onClick={() => runRoutine(routine)}>Mark complete</button></GlassPanel>;})}{data.routines.length === 0 ? <EmptyState icon="calendar" title="Design your first routine." body="Add a short sequence you can repeat. Completions are recorded only when you mark them."/> : null}</div>
+      </section> : null}
+      {!loading && tab === "focus" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>ATTENTION SPACE</p><h2>Protect time for one thing.</h2>
+        {activeFocus ? <div className={styles.focusSession} role="status"><span className={styles.focusCountdown}>{String(Math.floor(focusRemaining / 60)).padStart(2,"0")}:{String(focusRemaining % 60).padStart(2,"0")}</span><strong>{String(activeFocus.intention ?? "Focus session")}</strong><small>{focusRemaining === 0 ? "Planned time reached — finish when ready." : "Session in progress"}</small><div className={styles.focusActions}><button type="button" disabled={busy} onClick={() => finishFocusSession(activeFocus,"completed")}>Complete</button><button type="button" className={styles.inlineAction} disabled={busy} onClick={() => finishFocusSession(activeFocus,"cancelled")}>Cancel</button></div></div>
+        : <form className={styles.captureForm} onSubmit={(event) => { event.preventDefault(); startFocusSession(); }}><input value={focusIntention} onChange={(e) => setFocusIntention(e.target.value)} placeholder="What will you focus on?" aria-label="Focus intention" required maxLength={160}/><select value={focusMinutes} onChange={(e) => setFocusMinutes(e.target.value)} aria-label="Focus duration"><option value="15">15 minutes</option><option value="25">25 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select><button disabled={busy || !focusIntention.trim()}><Icon name="play" size={16}/> Start focus</button></form>}
+        <div className={styles.list}>{data.focus_sessions.filter((session) => session.status !== "active").slice(0,12).map((session) => <article className={styles.record} key={session.id}><span className={styles.recordGlyph}><Icon name="clock" size={17}/></span><div className={styles.recordMain}><strong>{String(session.intention ?? "Focus session")}</strong><small>{String(session.status ?? "saved")} · {Number(session.actualMinutes ?? 0)} minutes recorded</small></div></article>)}</div>
+      </GlassPanel></section> : null}
+      {!loading && tab === "reviews" ? <section className={styles.notesLayout}>
+        <GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>WEEKLY REFLECTION</p><h2>Notice what matters.</h2><form className={styles.noteForm} onSubmit={createReview}><textarea value={reviewWins} onChange={(e) => setReviewWins(e.target.value)} placeholder="Wins — what moved forward?" aria-label="Review wins" rows={3}/><textarea value={reviewLessons} onChange={(e) => setReviewLessons(e.target.value)} placeholder="Lessons — what did you learn?" aria-label="Review lessons" rows={3}/><textarea value={reviewNext} onChange={(e) => setReviewNext(e.target.value)} placeholder="Next step — what matters now?" aria-label="Review next step" rows={3}/><button disabled={busy || (!reviewWins.trim() && !reviewLessons.trim() && !reviewNext.trim())}><Icon name="plus" size={16}/> Save reflection</button></form></GlassPanel>
+        <div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>PAST REFLECTIONS</p><h2>Your own words.</h2></div><span className={styles.count}>{data.reviews.length} SAVED</span></div>{data.reviews.map((review) => <GlassPanel key={review.id} tier={2} padding="md" className={styles.noteCard}><small>{String(review.periodKey ?? "Reflection")}</small>{typeof review.wins === "string" && review.wins ? <p><strong>Wins</strong><br/>{review.wins}</p> : null}{typeof review.lessons === "string" && review.lessons ? <p><strong>Lessons</strong><br/>{review.lessons}</p> : null}{typeof review.nextStep === "string" && review.nextStep ? <p><strong>Next step</strong><br/>{review.nextStep}</p> : null}</GlassPanel>)}{data.reviews.length === 0 ? <EmptyState icon="file" title="Make space to reflect." body="Your saved reflections will appear here. No sample entries are added."/> : null}</div>
+      </section> : null}
+
       {!loading && tab === "goals" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>LONG-TERM DIRECTION</p><h2>Progress with purpose.</h2></div><span className={styles.count}>{data.goals.length} GOALS</span></div><form className={styles.captureForm} onSubmit={createGoal}><input value={goalTitle} onChange={(e) => setGoalTitle(e.target.value)} placeholder="What are you working towards?" aria-label="Goal title" required maxLength={160}/><input type="number" min="0.01" step="any" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)} aria-label="Goal target" required/><input value={goalUnit} onChange={(e) => setGoalUnit(e.target.value)} placeholder="Unit (optional)" aria-label="Goal unit" maxLength={32}/><button disabled={busy || !goalTitle.trim()}><Icon name="plus" size={16}/> Add goal</button></form><div className={styles.list}>{data.goals.map((item) => { const progress = typeof item.progress === "number" ? item.progress : 0; const target = typeof item.target === "number" ? item.target : 0; const pct = target > 0 ? Math.min(100, Math.max(0, progress / target * 100)) : 0; return <SwipeToDelete key={item.id} onDelete={() => deleteRecord("goals", item.id, "Goal deleted.")}><article className={styles.goal}><div className={styles.goalTop}><strong>{titleOf(item)}</strong><small>{progress} / {target || "—"} {typeof item.unit === "string" ? item.unit : ""}</small></div><div className={styles.progress} role="progressbar" aria-label={`${titleOf(item)} progress`} aria-valuemin={0} aria-valuemax={target || 1} aria-valuenow={Math.min(progress, target || progress)}><span style={{ width: `${pct}%` }}/></div><div className={styles.goalActions}><button type="button" aria-label={`Decrease ${titleOf(item)} progress`} disabled={busy || progress <= 0} onClick={() => adjustGoal(item, -1)}>−</button><span>UPDATE PROGRESS</span><button type="button" aria-label={`Increase ${titleOf(item)} progress`} disabled={busy} onClick={() => adjustGoal(item, 1)}>+</button></div></article></SwipeToDelete>; })}{data.goals.length === 0 ? <EmptyState icon="graph" title="Give your ambition a shape." body="Goals you create in NN will be tracked here. No sample goals are inserted."/> : null}</div></GlassPanel></section> : null}
       <footer className={styles.footer}><span>NN LIFE · PERSONAL OPERATING ENVIRONMENT</span><span>{offline ? "LOCAL CACHE / SYNC PENDING" : "OWNER-SCOPED FIRESTORE DATA"}</span></footer>
     </div>

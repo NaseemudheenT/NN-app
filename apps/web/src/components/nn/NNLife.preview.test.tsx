@@ -23,7 +23,7 @@ describe("NN Life design canvases", () => {
     }
   });
 
-  it("does not fabricate completed check-ins, running sessions or review records", () => {
+  it("keeps all four previously preview-only modules distinct while real workflows are added", () => {
     const { rerender } = render(<LifePreviewCanvas module="habits" />);
     expect(screen.getByText("Check-in matrix")).toBeInTheDocument();
     expect(document.querySelectorAll('[data-preview="habits"] [data-habit-day] i')).toHaveLength(7);

@@ -627,3 +627,11 @@
 :global(html[data-motion="reduced"]) .previewIcon img,
 :global(html[data-motion="reduced"]) .previewFeatureIcon img,
 :global(html[data-motion="reduced"]) .previewFeature { transition: none !important; }
+
+.routineList{margin:12px 0 14px;padding-left:20px;color:var(--text-secondary);font-size:11px;line-height:1.9}
+.focusSession{display:grid;justify-items:center;gap:12px;padding:28px 16px;margin:16px 0;border:1px solid var(--nn-spectrum-border);border-radius:20px;background:var(--nn-glass-primary);text-align:center}
+.focusCountdown{font-variant-numeric:tabular-nums;font-size:clamp(42px,8vw,68px);font-weight:300;letter-spacing:-.06em;color:var(--nn-white)}
+.focusSession strong{font-size:15px}.focusSession small{color:var(--text-muted);font-size:10px}
+.focusActions{display:flex;align-items:center;gap:10px;margin-top:8px}
+.focusActions button{min-height:38px;padding:0 16px;border:1px solid var(--glass-2-border);border-radius:999px;background:var(--nn-glass-float);color:var(--text-primary);cursor:pointer}
+.focusActions button:first-child{background:var(--nn-glass-primary);border-color:var(--nn-spectrum-border)}
