@@ -635,3 +635,21 @@
 .focusActions{display:flex;align-items:center;gap:10px;margin-top:8px}
 .focusActions button{min-height:38px;padding:0 16px;border:1px solid var(--glass-2-border);border-radius:999px;background:var(--nn-glass-float);color:var(--text-primary);cursor:pointer}
 .focusActions button:first-child{background:var(--nn-glass-primary);border-color:var(--nn-spectrum-border)}
+
+
+/* NN Icon renders a lit image object, not an inline SVG. */
+.tab img[data-nn-icon], .tab svg[data-nn-icon] {
+  transition: transform 220ms var(--ease-spring), filter 220ms ease;
+}
+.tab:hover img[data-nn-icon], .tab:hover svg[data-nn-icon],
+.tabActive img[data-nn-icon], .tabActive svg[data-nn-icon] {
+  transform: translateY(-1px) scale(1.08);
+  filter: drop-shadow(0 2px 5px rgb(140 199 255 / 42%));
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab img[data-nn-icon], .tab svg[data-nn-icon] { transition: none !important; }
+  .tab:hover img[data-nn-icon], .tab:hover svg[data-nn-icon],
+  .tabActive img[data-nn-icon], .tabActive svg[data-nn-icon] { transform: none; }
+}
+:global(html[data-motion="reduced"]) .tab img[data-nn-icon],
+:global(html[data-motion="reduced"]) .tab svg[data-nn-icon] { transition: none !important; }

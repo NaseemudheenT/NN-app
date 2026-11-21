@@ -272,3 +272,18 @@ layer, light and dark themes.
 - The four unconnected modules now state “Preview only” clearly. Repeated “backend pending” labels were removed; no sample habits, routines, sessions or reviews were invented.
 
 **Phase D remains open:** edit/detail sheets, the real Habits/Routines/Focus/Reviews workflows and reminder-delivery integration are not complete.
+
+
+## 2026-11-21 · Phase D — core Life workflows connected
+
+**Commit:** `cf989951de6d4739b67bf1f85f645c260b3f2318`  
+**CI:** [GitHub Actions run 44895176530](https://github.com/NaseemudheenT/NN-app/actions/runs/44895176530) — success.
+
+- Habits: create habits with cadence, record one check-in per habit per local date, and show real check-in history.
+- Routines: save ordered steps, parse and cap the step list, and record completions against the routine.
+- Focus: create an owner-scoped session, calculate a live countdown from its persisted end time, and record complete/cancel outcomes and actual minutes.
+- Reviews: save weekly reflection entries and display only records that exist.
+- The ten Life navigation glyphs are distinct; icon motion now targets NN's rendered image glyphs as well as SVG fallback and respects reduced motion.
+- Reminder records remain schedules only; notification delivery is explicitly not claimed.
+
+**Still open:** shared edit/detail sheets, guided routine execution, focus pause/resume, stronger end-to-end CRUD coverage and notification delivery integration. Phase D is not complete.
