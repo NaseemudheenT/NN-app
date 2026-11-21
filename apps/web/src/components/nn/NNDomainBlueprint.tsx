@@ -303,6 +303,25 @@ function EducationCanvas({ app, module }: { app: NNApplication; module: DomainMo
           <div className={styles.educationList}><span>{isCollege ? "QUESTION COLLECTION" : "COURSE LIBRARY"}</span>{regions.map((region,index)=><div className={styles.educationListRow} key={region}><span>{String(index+1).padStart(2,"0")}</span><strong>{region}</strong><i/></div>)}</div>
         </div>
       ) : null}
+      {kind === "library" && app.id === "academy" && module.id === "courses" ? (
+        <div className={styles.academyCatalog} data-education-screen="academy-courses">
+          <header><div><span>LEARNING LIBRARY</span><strong>Course catalogue</strong></div><small>NO COURSES ADDED</small></header>
+          <div className={styles.academyCourseGrid}>{regions.map((region,index)=><article key={region}><span>{String(index+1).padStart(2,"0")}</span><strong>{region}</strong><i/><small>COURSE SPACE</small></article>)}</div>
+        </div>
+      ) : null}
+      {kind === "reader" && app.id === "academy" ? (
+        <div className={styles.academyLesson} data-education-screen="academy-lesson">
+          <aside><span>LESSON OUTLINE</span>{regions.map((region,index)=><div key={region} data-active={index===0}><span>{String(index+1).padStart(2,"0")}</span><strong>{region}</strong></div>)}</aside>
+          <section><header><span>LESSON READER</span><small>NO LESSON SELECTED</small></header><div className={styles.academyLessonEmpty}><span>01</span><strong>Choose a lesson to begin</strong><small>Lesson content, practice activities and saved notes will appear in this workspace</small></div><footer><span>PRACTICE AREA</span><i/><i/><i/></footer></section>
+        </div>
+      ) : null}
+      {kind === "analytics" && app.id === "academy" ? (
+        <div className={styles.academyMastery} data-education-screen="academy-mastery">
+          <header><div><span>SKILL REVIEW</span><strong>Mastery overview</strong></div><small>NO PRACTICE DATA</small></header>
+          <div className={styles.academyMasteryGrid}>{regions.map((region,index)=><article key={region}><span>{String(index+1).padStart(2,"0")}</span><strong>{region}</strong><div><i/></div><small>AWAITING ACTUAL PRACTICE</small></article>)}</div>
+          <footer>Progress is calculated only from recorded practice</footer>
+        </div>
+      ) : null}
       {kind === "roadmap" ? (
         <div className={styles.educationRoadmap}><span>LEARNING PATH</span><div className={styles.pathNodes}>{regions.map((region,index)=><div key={region} data-step={index===0?"active":"future"}><i>{String(index+1).padStart(2,"0")}</i><strong>{region}</strong></div>)}</div></div>
       ) : null}
