@@ -168,6 +168,38 @@ export function useRenOperator(): RenOperator {
           : { ok: false, said: "I could not open search." };
       }
 
+      case "inspect": {
+        const { collection, text } = plan.args;
+        if (!collection) return { ok: false, said: "I need a workspace collection to inspect." };
+        if (!user) return { ok: false, said: "Sign in before I inspect your workspace records." };
+        const { items, fault } = await readRecordsOnce(user.uid, collection, { limit: 200 });
+        if (fault) return { ok: false, said: `I could not read ${collection}. ${fault.message}` };
+        const needle = (text ?? "").trim().toLowerCase();
+        const matches = needle
+          ? items.filter((record) => JSON.stringify(record).toLowerCase().includes(needle))
+          : items;
+        const rows = matches.slice(0, 12).map((record) => {
+          const safe: Record<string, string | number | boolean> = {};
+          for (const [key, value] of Object.entries(record)) {
+            if (key === "id" || key.startsWith("_")) continue;
+            if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+              safe[key] = typeof value === "string" ? value.slice(0, 500) : value;
+            } else if (value instanceof Date) {
+              safe[key] = value.toISOString();
+            } else if (value && typeof value === "object" && "toDate" in value && typeof value.toDate === "function") {
+              safe[key] = (value.toDate() as Date).toISOString();
+            }
+          }
+          return safe;
+        });
+        return {
+          ok: true,
+          said: matches.length === 0
+            ? `No records matched in ${collection}.`
+            : `Read ${matches.length} matching record(s) from ${collection}. Showing ${rows.length}: ${JSON.stringify(rows)}`,
+        };
+      }
+
       case "capture": {
         const { collection, title } = plan.args;
         if (!collection || !title) return { ok: false, said: "I need a title and somewhere to put it." };
