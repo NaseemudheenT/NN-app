@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import styles from "./AppLogo.module.css";
 
 export interface AppLogoProps {
@@ -25,7 +26,7 @@ export function AppLogo({ id, name, tone = "blue", size = 44, className }: AppLo
       className={[styles.logo, className ?? ""].filter(Boolean).join(" ")}
       data-app-logo={id}
       data-tone={tone}
-      style={{ "--app-logo-size": `${size}px` } as React.CSSProperties}
+      style={{ "--app-logo-size": `${size}px` } as CSSProperties}
       role="img"
       aria-label={`${name} app`}
     >
