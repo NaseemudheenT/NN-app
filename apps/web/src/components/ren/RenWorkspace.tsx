@@ -42,7 +42,7 @@ const OPENERS = [
   { icon: "check", text: "Add a task to my day", hint: "REN writes it into NN itself" },
 ] as const;
 
-export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId?: string; handoffId?: string; returnId?: string }) {
+export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId?: string | undefined; handoffId?: string | undefined; returnId?: string | undefined }) {
   const router = useRouter();
   const { user } = useAuth();
   const firstName = ownerFirstName(user?.displayName);
