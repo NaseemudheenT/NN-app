@@ -147,7 +147,8 @@ function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
           <span><strong>Design complete in progress.</strong> This screen is a visual handoff for Claude. No records, schedules or activity are being simulated.</span>
         </div>
       </GlassPanel>
-      <LifePreviewCanvas module={module}/>\n      <div className={styles.previewGrid}>
+      <LifePreviewCanvas module={module}/>
+      <div className={styles.previewGrid}>
         {preview.features.map((feature) => (
           <GlassPanel key={feature.title} tier={2} padding="lg" className={styles.previewFeature}>
             <span className={styles.previewFeatureIcon}><Icon name={feature.icon} size={18}/></span>
