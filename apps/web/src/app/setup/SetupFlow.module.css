@@ -162,3 +162,88 @@
 .choice[aria-pressed=true]{border-color:color-mix(in srgb,var(--nn-ios-blue) 55%,var(--border-normal));background:var(--glass-active)}
 .onward{border:0;border-radius:13px;background:#0a84ff;color:white}
 .back{border:1px solid var(--border-normal);border-radius:13px;background:var(--surface-elevated)}
+
+
+/* A native-feeling setup header: quiet brand on the left, clear progress on
+   the right. It keeps the setup flow recognisable as NN without competing
+   with the choice being made. */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 32px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.brand > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.brand strong {
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .12em;
+}
+.brand small {
+  color: var(--text-muted);
+  font-size: 7px;
+  font-weight: 650;
+  letter-spacing: .12em;
+}
+.stepCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .05em;
+}
+.stepCount i { color: var(--text-muted); font-style: normal; }
+.progress {
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-elevated) 82%, transparent);
+}
+.tick {
+  height: 4px;
+  border-radius: 999px;
+  transition: background-color 220ms ease, opacity 220ms ease;
+}
+.tick[data-at="done"] { background: var(--nn-ios-blue); opacity: 1; }
+.tick[data-at="now"] { background: var(--nn-ios-blue); opacity: .48; }
+.choice { transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease; }
+.choice:focus-visible,.onward:focus-visible,.back:focus-visible {
+  outline: 2px solid var(--nn-ios-blue);
+  outline-offset: 3px;
+}
+.choice:active,.onward:active,.back:active { transform: scale(.985); }
+.onward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  box-shadow: 0 6px 16px rgb(10 132 255 / 22%);
+  transition: filter 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+.onward:hover { filter: brightness(1.08); box-shadow: 0 8px 22px rgb(10 132 255 / 28%); }
+@media (max-width: 520px) {
+  .page { align-content: start; padding-top: max(20px, env(safe-area-inset-top)); }
+  .card { width: 100%; gap: 22px; padding: 22px 18px; border-radius: 22px; }
+  .cardHeader { min-height: 30px; }
+  .brand small { font-size: 6px; }
+  .stepCount { font-size: 9px; }
+  .title { font-size: clamp(27px, 8vw, 34px); }
+  .said { font-size: 14px; line-height: 1.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tick,.choice,.onward,.back { transition: none; }
+}
