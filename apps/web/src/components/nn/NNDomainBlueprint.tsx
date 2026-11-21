@@ -270,6 +270,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
             <span className={styles.screenMode}>CONCEPT LAYOUT</span>
           </div>
           {app.group === "Education" ? <EducationCanvas app={app} module={selected}/> : (
+        <>
         <div className={styles.screenBody}>
             <aside className={styles.screenRail} aria-hidden="true">
               <span className={styles.railMark}/>
@@ -301,6 +302,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
             </aside>
           </div>
           <div className={styles.screenFooter}><span>STRUCTURE ONLY · NO SAMPLE RECORDS</span><span>RESPONSIVE LAYOUT</span></div>
+        </>
         )}
         </div>
         <div className={styles.regions}>
