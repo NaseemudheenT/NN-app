@@ -64,3 +64,6 @@ export type { FolderCardProps, FolderSheet } from "./FolderCard";
 
 export { LogoReveal } from "./LogoReveal";
 export type { LogoRevealProps } from "./LogoReveal";
+
+export { FeedbackState } from "./FeedbackState";
+export type { FeedbackStateProps, FeedbackStateKind } from "./FeedbackState";
