@@ -1,205 +1,367 @@
-/* The dynamic panel. See NNPanel.tsx. */
+/* One continuous piece of glass: the island is the collapsed state of this panel. */
 
 .host {
   position: fixed;
   z-index: var(--z-dock, 40);
-  /* Desktop: against the left edge, vertically centred — the position a
-     hand rests at on a trackpad and the eye returns to. */
-  left: max(14px, env(safe-area-inset-left, 0px));
-  top: 50%;
-  transform: translateY(-50%);
+  left: 50%;
+  top: max(8px, calc(env(safe-area-inset-top, 0px) - 46px));
+  transform: translateX(-50%);
   display: grid;
-  justify-items: start;
+  justify-items: center;
 }
 
-/* ---- collapsed: the island ---------------------------------------------- */
+/* Collapsed Dynamic Island ------------------------------------------------ */
 
 .island {
   composes: nn-liquid from global;
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 142px;
+  max-width: min(210px, calc(100vw - 28px));
+  height: 42px;
+  padding: 0 15px;
   border-radius: var(--radius-full);
   color: var(--text-secondary);
-  /* The one transition that carries the whole effect: the island grows into
-     the panel rather than being replaced by it. */
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
   transition:
-    width var(--dur-slow) var(--ease-entrance),
-    height var(--dur-slow) var(--ease-entrance),
-    border-radius var(--dur-slow) var(--ease-entrance),
-    transform var(--dur-base) var(--ease-spring);
+    opacity 220ms var(--ease-standard),
+    transform 420ms var(--ease-entrance),
+    filter 260ms var(--ease-standard);
+  animation: nn-island-arrive 520ms var(--ease-entrance) both;
+}
+ .island[aria-hidden="true"] {
+  animation: none;
+  opacity: 0;
+  transform: scale(.78);
+  filter: blur(5px);
+  pointer-events: none;
+}
+.island:active:not([aria-hidden="true"]) { transform: scale(.96); }
+
+.islandBrand {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 22px;
+  color: var(--text-primary);
+}
+.islandLabel {
+  min-width: 0;
+  max-width: 138px;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: .015em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.islandSignal {
+  width: 5px;
+  height: 5px;
+  margin-left: 2px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: rgb(var(--nn-spectrum-aqua));
+  box-shadow: 0 0 9px rgb(var(--nn-spectrum-aqua) / 72%);
+  
+}
+@keyframes nn-island-arrive {
+  from { opacity: 0; transform: translateY(5px) scale(.92); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
-.island:active { transform: scale(0.94); }
-
-/* ---- expanded: the chooser ---------------------------------------------- */
+/* Expanded glass panel ---------------------------------------------------- */
 
 .panel {
   position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(292px, calc(100vw - 28px));
-  max-height: min(68vh, 560px);
+  left: 50%;
+  top: calc(100% + 10px);
+  transform: translate(-50%, -12px) scale(.9, .84);
+  transform-origin: top center;
+  width: min(388px, calc(100vw - 28px));
+  max-height: min(78dvh, 680px);
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto auto 1fr auto;
   overflow: hidden;
-  border: var(--card-edge) solid var(--glass-2-border);
-  border-radius: var(--radius-xl);
-  background: var(--glass-3-bg);
-  -webkit-backdrop-filter: blur(34px) saturate(175%);
-  backdrop-filter: blur(34px) saturate(175%);
-  box-shadow: var(--card-lift);
-  animation: nn-panel-open var(--dur-slow) var(--ease-entrance) both;
+  border: 1px solid rgb(218 237 255 / 38%);
+  border-radius: 30px;
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 17%), transparent 38%),
+    color-mix(in srgb, var(--glass-3-bg) 88%, rgb(8 20 42 / 12%));
+  -webkit-backdrop-filter: blur(42px) saturate(185%);
+  backdrop-filter: blur(42px) saturate(185%);
+  box-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 48%),
+    inset 1px 0 0 rgb(255 255 255 / 12%),
+    inset 0 -2px 0 rgb(0 0 0 / 22%),
+    0 2px 0 rgb(180 218 255 / 18%),
+    0 5px 0 rgb(3 10 27 / 58%),
+    0 20px 44px rgb(0 0 0 / 34%),
+    0 42px 88px rgb(0 0 0 / 22%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  filter: blur(9px);
+  transition:
+    opacity 220ms var(--ease-standard),
+    transform 680ms cubic-bezier(.18, .92, .22, 1),
+    filter 300ms var(--ease-standard),
+    visibility 0s linear 560ms;
 }
-
-/*
- * Opening from the island's own size rather than from nothing.
- *
- * A panel that fades in is a different object arriving. A panel that grows
- * out of the control you pressed is the same object changing shape, which
- * is the whole of what makes a Dynamic Island read as physical.
- */
-@keyframes nn-panel-open {
-  from {
-    opacity: 0;
-    transform: translateY(-50%) scale(0.82);
-    filter: blur(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(-50%) scale(1);
-    filter: blur(0);
-  }
+.panel[data-open] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0) scale(1);
+  filter: blur(0);
+  transition:
+    opacity 220ms var(--ease-standard),
+    transform 720ms cubic-bezier(.18, .92, .22, 1),
+    filter 360ms var(--ease-standard),
+    visibility 0s;
+}
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 55% at 0% 0%, rgb(255 255 255 / 20%), transparent 62%),
+    linear-gradient(112deg, transparent 28%, rgb(255 255 255 / 7%) 48%, transparent 66%);
+  opacity: .9;
 }
 
 .head {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 13px 14px;
-  border-bottom: 1px solid var(--border-subtle);
+  min-height: 62px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgb(220 237 255 / 15%);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 10%);
 }
-
+.headMark { display: grid; place-items: center; width: 28px; height: 28px; flex: none; }
 .headName {
   flex: 1;
   min-width: 0;
+  color: var(--text-primary);
   font-size: var(--text-label-size);
   font-weight: var(--weight-medium);
-  color: var(--text-primary);
 }
-
+.headStatus {
+  color: var(--text-muted);
+  font-size: 9px;
+  letter-spacing: .13em;
+  white-space: nowrap;
+}
 .close {
   composes: nn-liquid from global;
-  /* Measured at 37px on a phone. Every control in this panel is reached by
-     a thumb, and the one that dismisses it is not an exception. */
   width: 44px;
   height: 44px;
   display: grid;
   place-items: center;
+  flex: none;
   border-radius: var(--radius-full);
   color: var(--text-muted);
 }
 
-/* ---- the list ----------------------------------------------------------- */
+.quickAccess {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 13px 8px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.quickAccess::-webkit-scrollbar { display: none; }
+.quickItem {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  flex: 0 0 62px;
+  min-height: 76px;
+  padding: 7px 4px 6px;
+  border: 1px solid rgb(215 234 255 / 15%);
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 0%, rgb(255 255 255 / 15%), transparent 66%), linear-gradient(145deg, rgb(232 244 255 / 9%), rgb(17 35 73 / 18%));
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 9px;
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: transform 220ms var(--ease-spring), background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.quickItem:hover { transform: translateY(-3px); border-color: rgb(174 220 255 / 42%); background: linear-gradient(145deg, rgb(77 153 255 / 20%), rgb(130 88 234 / 14%)); box-shadow: 0 8px 20px rgb(38 112 255 / 13%); }
+.quickItem:active { transform: scale(.94); }
+.quickItem:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.quickItem[aria-current="page"] { border-color: rgb(var(--nn-spectrum-aqua) / 48%); background: linear-gradient(145deg, rgb(var(--nn-spectrum-blue) / 22%), rgb(var(--nn-spectrum-violet) / 17%)); color: var(--text-primary); }
+.quickItem span { max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .list {
   margin: 0;
-  padding: 7px;
+  padding: 9px;
   list-style: none;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
 }
-
 .group {
   padding: 11px 10px 5px;
-  font-size: var(--text-micro-size);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--text-muted);
+  font-size: var(--text-micro-size);
+  letter-spacing: .1em;
+  text-transform: uppercase;
 }
-
 .item {
   display: flex;
   align-items: center;
   gap: 11px;
   width: 100%;
-  /* A thumb, not a cursor. */
   min-height: 48px;
   padding: 8px 10px;
   border: 0;
   border-radius: var(--radius-md);
-  background: none;
+  background: transparent;
   color: var(--text-secondary);
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard);
+  transition:
+    background 180ms var(--ease-standard),
+    color 180ms var(--ease-standard),
+    transform 240ms var(--ease-spring);
 }
-
 .item:hover { background: var(--glass-hover); color: var(--text-primary); }
-.item:active { background: var(--glass-active); }
+.item:active { background: var(--glass-active); transform: scale(.985); }
 .item:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
-
 .item[aria-current="page"] {
-  background: var(--glass-active);
+  background: linear-gradient(110deg, rgb(var(--nn-spectrum-aqua) / 13%), rgb(255 255 255 / 7%));
   color: var(--text-primary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%);
 }
-
 .itemBody { display: grid; gap: 1px; min-width: 0; flex: 1; }
-
-.itemName {
-  font-size: var(--text-label-size);
-  font-weight: var(--weight-medium);
-}
-
+.itemName { font-size: var(--text-label-size); font-weight: var(--weight-medium); }
 .itemHint {
   overflow: hidden;
+  color: var(--text-muted);
   font-size: var(--text-micro-size);
   line-height: 1.3;
-  color: var(--text-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.panelFoot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px 13px;
+  border-top: 1px solid rgb(220 237 255 / 13%);
+  color: var(--text-muted);
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+.panelFootDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgb(var(--nn-spectrum-aqua));
+  box-shadow: 0 0 8px rgb(var(--nn-spectrum-aqua) / 70%);
+}
 
-/* ---- the phone ----------------------------------------------------------
-   The left edge is where nothing can be reached one-handed. On a phone the
-   island sits at the bottom, in the thumb's own arc, and the panel grows
-   upward from it. */
+/* Phone: the panel rises from the island's bottom anchor. ----------------- */
 @media (max-width: 719px) {
   .host {
-    left: max(14px, env(safe-area-inset-left, 0px));
+    left: 50%;
     right: auto;
-    top: auto;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
-    transform: none;
+    top: max(8px, calc(env(safe-area-inset-top, 0px) - 46px));
+    bottom: auto;
+    transform: translateX(-50%);
   }
-
   .panel {
-    left: 0;
-    top: auto;
-    bottom: 0;
-    transform: none;
-    width: min(300px, calc(100vw - 28px));
-    max-height: min(62vh, 480px);
-    animation-name: nn-panel-open-up;
+    left: 50%;
+    right: auto;
+    top: calc(100% + 10px);
+    bottom: auto;
+    transform: translate(-50%, -8px) scale(.82);
+    transform-origin: top center;
+    width: min(340px, calc(100vw - 24px));
+    max-height: min(72dvh, 560px);
   }
-
-  @keyframes nn-panel-open-up {
-    from { opacity: 0; transform: scale(0.84) translateY(14px); filter: blur(6px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-  }
-
+  .panel[data-open] { transform: translate(-50%, 0) scale(1); }
   .item { min-height: 52px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel { animation: none; }
-  .island { transition: none; }
+  .panel, .island, .item { transition: none; }
+  .island { animation: none; }
 }
+:global(html[data-motion="reduced"]) .panel,
+:global(html[data-motion="reduced"]) .island,
+:global(html[data-motion="reduced"]) .item { transition: none; }
+:global(html[data-motion="reduced"]) .island { animation: none; }
 
-:root[data-motion="reduced"] .panel { animation: none; }
-:root[data-motion="reduced"] .island { transition: none; }
+
+/* Phone-first discovery inside the expanded Dynamic Island. */
+.filter {
+  position: relative; z-index: 1; display: flex; align-items: center; gap: 9px;
+  min-height: 44px; margin: 9px 12px 0; padding: 0 11px;
+  border: 1px solid rgb(220 237 255 / 18%); border-radius: 15px;
+  background: rgb(4 13 32 / 24%); color: var(--text-muted);
+}
+.filter:focus-within { border-color: var(--focus-ring); box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus-ring) 18%, transparent); }
+.filter input { width: 100%; min-width: 0; min-height: 42px; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 14px; }
+.filter input::placeholder { color: var(--text-muted); }
+.clear { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--glass-hover); color: var(--text-secondary); cursor: pointer; }
+.resultCount { position: relative; z-index: 1; margin: 7px 17px 0; color: var(--text-muted); font: 9px/1.3 var(--font-mono); letter-spacing: .08em; }
+.groupList { margin: 0; padding: 0; list-style: none; }
+.noResults { padding: 28px 12px; color: var(--text-muted); font-size: var(--text-caption-size); text-align: center; }
+
+
+/* The island's signal breathes; destination glyphs respond to touch. */
+.islandSignal { position: relative; }
+.islandSignal::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid rgb(var(--nn-spectrum-aqua) / 45%);
+  border-radius: 50%;
+  animation: nn-island-pulse 2.8s ease-out infinite;
+}
+@keyframes nn-island-pulse {
+  0% { opacity: .65; transform: scale(.55); }
+  75%, 100% { opacity: 0; transform: scale(2.15); }
+}
+.item img[data-nn-icon], .item svg[data-nn-icon] {
+  transition: transform 220ms var(--ease-spring), filter 220ms ease;
+}
+.item:hover img[data-nn-icon], .item:hover svg[data-nn-icon] {
+  transform: translateY(-1px) scale(1.08);
+  filter: drop-shadow(0 2px 6px rgb(137 211 255 / 38%));
+}
+.item:active img[data-nn-icon], .item:active svg[data-nn-icon] {
+  transform: scale(.86) rotate(-6deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .islandSignal::after { animation: none; }
+  .item img[data-nn-icon], .item svg[data-nn-icon] { transition: none; }
+}
+:global(html[data-motion="reduced"]) .islandSignal::after { animation: none; }
+:global(html[data-motion="reduced"]) .item img[data-nn-icon],
+:global(html[data-motion="reduced"]) .item svg[data-nn-icon] { transition: none; }
+
+
+/* Five deliberate rows: title, filter, count, scrollable destinations, footer. */
+.panel { grid-template-rows: auto auto auto minmax(0, 1fr) auto; }
+.list { min-height: 0; }
