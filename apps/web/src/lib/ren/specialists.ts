@@ -56,7 +56,7 @@ export function specialistAllows(
 ): boolean {
   const agent = specialistForApp(appId);
   if (!agent || agent.status !== "active") return false;
-  if (!["capture", "complete", "discard"].includes(capability)) return false;
+  if (!["inspect", "capture", "complete", "discard"].includes(capability)) return false;
   return Boolean(collection && agent.collections.includes(collection));
 }
 
