@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Icon, type IconName } from "./Icon";
+import { NNAppIcon } from "./NNAppIcon";
 import { prefersReducedMotion } from "@/lib/motion";
 import styles from "./Coverflow.module.css";
 
@@ -27,6 +28,7 @@ export interface CoverflowCard {
   title: string;
   subtitle?: string;
   icon: IconName;
+  appId?: string;
   meta?: readonly { label: string; value: string }[];
 }
 
@@ -332,7 +334,7 @@ export function Coverflow({
               >
                 <span className={styles.sheen} aria-hidden="true" />
                 <span className={styles.cardIcon}>
-                  <Icon name={card.icon} size={34} />
+                  {card.appId ? <NNAppIcon appId={card.appId} icon={card.icon} size={48} /> : <Icon name={card.icon} size={34} />}
                 </span>
                 <span className={styles.cardTitle}>{card.title}</span>
                 {card.subtitle !== undefined ? (
