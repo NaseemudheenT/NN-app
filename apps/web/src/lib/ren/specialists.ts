@@ -1,5 +1,4 @@
 import { APPLICATIONS, type NNApplication } from "@/lib/apps/registry";
-import { REN_TOOLS, type RenTool } from "./tools";
 
 /**
  * One domain specialist per NN application. The application registry is the
@@ -49,38 +48,16 @@ export function specialistForRoute(route: string): WorkspaceSpecialist | null {
   return specialist?.status === "active" ? specialist : null;
 }
 
-/**
- * Workspace specialists receive only record-writing tools for collections
- * owned by their own workspace. They do not get REN's global navigation,
- * global search, appearance, voice, or cross-workspace reporting tools.
- */
-export function toolsForSpecialist(agent: WorkspaceSpecialist): readonly RenTool[] {
-  if (agent.status !== "active" || agent.collections.length === 0) return [];
-  const allowed = new Set(agent.collections);
-  return REN_TOOLS.filter((tool) =>
-    ["capture_record", "complete_record", "discard_record"].includes(tool.name),
-  ).flatMap((tool) => {
-    const properties = tool.schema["properties"];
-    if (!properties || typeof properties !== "object") return [];
-    const collection = (properties as Record<string, unknown>)["collection"];
-    if (!collection || typeof collection !== "object") return [];
-    const choices = (collection as Record<string, unknown>)["enum"];
-    if (!Array.isArray(choices)) return [];
-    const scoped = choices.filter((value): value is string =>
-      typeof value === "string" && allowed.has(value),
-    );
-    if (scoped.length === 0) return [];
-    return [{
-      ...tool,
-      schema: {
-        ...tool.schema,
-        properties: {
-          ...(properties as Record<string, unknown>),
-          collection: { ...(collection as Record<string, unknown>), enum: scoped },
-        },
-      },
-    }];
-  });
+/** Validate an agent action again in the browser before execution. */
+export function specialistAllows(
+  appId: string,
+  capability: string,
+  collection?: string,
+): boolean {
+  const agent = specialistForApp(appId);
+  if (!agent || agent.status !== "active") return false;
+  if (!["capture", "complete", "discard"].includes(capability)) return false;
+  return Boolean(collection && agent.collections.includes(collection));
 }
 
 export function specialistInstructions(agent: WorkspaceSpecialist): string {
