@@ -118,3 +118,7 @@
 :root[data-motion="reduced"] .back { transform: none; opacity: 0; }
 :root[data-motion="reduced"] .scene[data-flipped="true"] .front { opacity: 0; }
 :root[data-motion="reduced"] .scene[data-flipped="true"] .back { opacity: 1; }
+
+:root[data-motion="reduced"] .scene:hover .pane,
+:root[data-motion="reduced"] .scene[data-flipped="true"]:hover .pane { transform: none; }
+:root[data-motion="reduced"] .back { transition: none; }

@@ -599,3 +599,17 @@ canvas.sheetArt[data-ready] {
   .key:hover,
   .key:active { transform: none; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .tilt, .shadow, .art, .sheet, .sheetArt, .front, .frontRim path { transition: none !important; }
+  .root:hover, .root:focus-within { --fc-hinge: 0deg; --fc-lift: 0px; --fc-spread: 0px; --fc-fan: 0deg; }
+}
+:global(html[data-motion="reduced"]) .tilt,
+:global(html[data-motion="reduced"]) .shadow,
+:global(html[data-motion="reduced"]) .art,
+:global(html[data-motion="reduced"]) .sheet,
+:global(html[data-motion="reduced"]) .sheetArt,
+:global(html[data-motion="reduced"]) .front,
+:global(html[data-motion="reduced"]) .frontRim path { transition: none !important; }
+:global(html[data-motion="reduced"]) .root:hover,
+:global(html[data-motion="reduced"]) .root:focus-within { --fc-hinge: 0deg; --fc-lift: 0px; --fc-spread: 0px; --fc-fan: 0deg; }

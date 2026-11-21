@@ -181,3 +181,7 @@
 @supports not (backdrop-filter: blur(1px)) {
   :root[data-theme="light"] .chip { background: rgb(246 251 255 / 94%); }
 }
+
+:root[data-motion="reduced"] .band { animation-play-state: paused; }
+:root[data-motion="reduced"] .interactive:hover,
+:root[data-motion="reduced"] .interactive:focus-within { transform: none; }

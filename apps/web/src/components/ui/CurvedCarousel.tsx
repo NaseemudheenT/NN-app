@@ -60,6 +60,10 @@ export interface CurvedCarouselProps {
 /* ---------------------------------------------------------------- motion -- */
 
 /** Wraps any index into 0..n-1, including negatives. */
+export function motionReduced(systemPreference: boolean, appPreference?: string): boolean {
+  return systemPreference || appPreference === "reduced";
+}
+
 export function wrapIndex(i: number, n: number): number {
   return n > 0 ? ((i % n) + n) % n : 0;
 }
@@ -459,6 +463,7 @@ export function CurvedCarousel({
     if (!gl) { setHasGL(false); return; }
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const isReduced = () => motionReduced(reduced.matches, document.documentElement.dataset.motion);
 
     /* The water's own clock. Accumulated from frame deltas rather than read
        off the wall, so a stack that was scrolled away does not come back to
@@ -565,7 +570,7 @@ export function CurvedCarousel({
     let position = 0;
     let velocity = 0;
     let target = 0;
-    let intro = reduced.matches ? 1 : 0;
+    let intro = isReduced() ? 1 : 0;
     let introStart = -1;
     let dragging = false;
     let travelled = 0;
@@ -601,7 +606,7 @@ export function CurvedCarousel({
       gl.uniform2f(u.uRes!, stageW, stageH);
       gl.uniform2f(u.uSize!, cardW, cardH);
       gl.uniform1f(u.uBend!, bend);
-      gl.uniform1f(u.uVel!, reduced.matches ? 0 : Math.max(-1, Math.min(1, velocity * 0.12)));
+      gl.uniform1f(u.uVel!, isReduced() ? 0 : Math.max(-1, Math.min(1, velocity * 0.12)));
       gl.uniform1f(u.uTime!, clock);
       gl.uniform3f(u.uGround!, ground[0], ground[1], ground[2]);
       gl.uniform1f(u.uLight!, light);
@@ -643,7 +648,7 @@ export function CurvedCarousel({
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
       last = now;
 
-      clock += reduced.matches ? 0 : dt;
+      clock += isReduced() ? 0 : dt;
       if (intro < 1) {
         if (introStart < 0) introStart = now;
         intro = Math.min(1.5, (now - introStart) / 1100);
@@ -651,7 +656,7 @@ export function CurvedCarousel({
       }
 
       if (!dragging) {
-        if (reduced.matches) { position = target; velocity = 0; }
+        if (isReduced()) { position = target; velocity = 0; }
         else [position, velocity] = springStep(position, velocity, target, dt);
       }
 
@@ -675,7 +680,7 @@ export function CurvedCarousel({
         Math.abs(target - position) < 0.0005 &&
         Math.abs(velocity) < 0.001 &&
         intro >= 1;
-      const settled = still && reduced.matches;
+      const settled = still && isReduced();
 
       if (settled) { position = target; draw(); last = 0; }
       else if (visible) raf = requestAnimationFrame(frame);
@@ -746,8 +751,20 @@ export function CurvedCarousel({
     canvas.addEventListener("pointermove", onMove);
     canvas.addEventListener("pointerup", onUp);
     canvas.addEventListener("pointercancel", onUp);
-    const onMotion = () => kick();
+    const onMotion = () => {
+      if (isReduced()) {
+        position = target;
+        velocity = 0;
+        intro = 1;
+        introStart = -1;
+        dragging = false;
+        last = 0;
+      }
+      kick();
+    };
     reduced.addEventListener("change", onMotion);
+    const motionWatch = new MutationObserver(onMotion);
+    motionWatch.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
 
     const ro = new ResizeObserver((entries) => {
       const box = entries[0]?.contentRect;
@@ -766,6 +783,7 @@ export function CurvedCarousel({
       cancelAnimationFrame(raf);
       ro.disconnect();
       themeWatch.disconnect();
+      motionWatch.disconnect();
       io.disconnect();
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointermove", onMove);
