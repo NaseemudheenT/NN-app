@@ -52,7 +52,7 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
   const activeId = dockItems.find((item) => item.id === pathname)?.id ?? "/home";
 
   return (
-    <div className={styles.root}>
+    <div className={`${styles.root} nn-ios-app-shell`}>
       <header className={styles.bar}>
         <button
           type="button"
@@ -83,7 +83,7 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
 
       {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
 
-      <div className={styles.body}>{children}</div>
+      <div className={styles.body}><div className="nn-ios-workspace">{children}</div></div>
 
       {/* The Dock already wears the holographic chamfer. Repeating `nn-holo`
           on this wrapper also brought `position: relative` from the global
