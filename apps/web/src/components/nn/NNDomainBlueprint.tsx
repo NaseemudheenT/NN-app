@@ -255,7 +255,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
         
       </header>
       <div className={styles.moduleGrid} role="tablist" aria-label={`${app.name} spaces`} aria-orientation="horizontal">
-        {modules.map((module) => (
+        {modules.map((module, index) => (
           <button
             type="button"
             key={module.id}
