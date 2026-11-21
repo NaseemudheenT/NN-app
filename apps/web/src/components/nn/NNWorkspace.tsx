@@ -133,6 +133,8 @@ export function NNWorkspace({
 
   const [view, setView] = useState<View>("today");
   const [material, setMaterial] = useState(() => normalise(glass));
+  const [materialReady, setMaterialReady] = useState(false);
+  const [localHour, setLocalHour] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [periodId, setPeriodId] = useState(initialPeriodId);
@@ -140,6 +142,34 @@ export function NNWorkspace({
   const [notice, setNotice] = useState("");
   const [renDraft, setRenDraft] = useState("");
   const narrow = useNarrow();
+
+  // Keep the founder's material preference across sessions without making
+  // browser storage part of the server render or risking a hydration mismatch.
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("nn.glass.v1");
+      if (saved) setMaterial(normalise(JSON.parse(saved) as Partial<GlassSettings>));
+    } catch {
+      // A blocked or malformed local preference falls back to the safe defaults.
+    }
+    setMaterialReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!materialReady) return;
+    try {
+      window.localStorage.setItem("nn.glass.v1", JSON.stringify(material));
+    } catch {
+      // NN remains usable when browser storage is unavailable.
+    }
+  }, [material, materialReady]);
+
+  useEffect(() => {
+    const syncHour = () => setLocalHour(new Date().getHours());
+    syncHour();
+    const timer = window.setInterval(syncHour, 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   // Focus the first control in the panel when it opens; return focus to the
   // trigger when it closes. A popover that steals focus and loses it is worse
@@ -593,7 +623,7 @@ export function NNWorkspace({
             <div className={styles.viewHeading}>
               <div>
                 <p className={styles.greeting}>
-                  {view === "today" ? `Good evening, ${userName}.` : "Your private workspace"}
+                  {view === "today" ? (localHour === null ? "Your private workspace" : `${localHour < 12 ? "Good morning" : localHour < 18 ? "Good afternoon" : "Good evening"}, ${userName}.`) : "Your private workspace"}
                 </p>
                 <h1>{VIEWS.find((v) => v.id === view)?.label ?? "Today"}</h1>
               </div>
