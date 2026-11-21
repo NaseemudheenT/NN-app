@@ -96,6 +96,9 @@ export function NNAppLauncher() {
             <section className={styles.group} key={group.slug} aria-labelledby={`group-${group.slug}`}>
               <header className={styles.groupHeader}>
                 <h2 id={`group-${group.slug}`}>{group.label}</h2>
+                <button type="button" className={styles.familyLink} aria-label={`View all ${group.label} applications`} onClick={() => travel.open(`/family/${group.slug}` as Route, group.label)}>
+                  Explore <span aria-hidden="true">→</span>
+                </button>
               </header>
 
               <div className={styles.grid}>
@@ -106,7 +109,7 @@ export function NNAppLauncher() {
                     key={app.id}
                     onClick={() => travel.open((app.href ?? app.overviewHref) as Route, app.name)}
                     style={{ animationDelay: `${Math.min(groupIndex * 45 + index * 28, 420)}ms` }}
-                    aria-label={`Open ${app.name}`}
+                    aria-label={`Open ${app.name} — ${app.experience === "dedicated" ? "dedicated app" : "record workspace"}`}
                   >
                     <span className={styles.iconWell}>
                       <Icon name={app.icon} size={24} solid tone="ice" />

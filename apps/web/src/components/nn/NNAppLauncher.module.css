@@ -379,3 +379,10 @@
   .app:active .iconWell img,
   .app:active .iconWell [data-nn-icon] { transform: scale(.88) rotate(-5deg); }
 }
+
+.familyLink{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 10px;border:1px solid rgb(205 229 255 / 13%);border-radius:999px;background:rgb(235 247 255 / 4%);color:var(--text-muted);font:inherit;font-size:10px;cursor:pointer;transition:color 180ms ease,border-color 180ms ease,background 180ms ease}
+.familyLink:hover{color:var(--text-primary);border-color:rgb(205 229 255 / 34%);background:rgb(235 247 255 / 8%)}
+.familyLink span{font-size:13px;transition:transform 180ms ease}
+.familyLink:hover span{transform:translateX(2px)}
+.familyLink:focus-visible{outline:2px solid var(--focus-ring);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.familyLink,.familyLink span{transition:none}}
