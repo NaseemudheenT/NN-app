@@ -1,7 +1,7 @@
 import { APPLICATIONS } from "@/lib/apps/registry";
 import { APP_SECTIONS } from "@/lib/apps/sections";
 import { plan, type CapabilityArgs, type CapabilityId, type RenPlan } from "./capabilities";
-import { specialistAllows, type WorkspaceSpecialist } from "./specialists";
+import { specialistAllows, specialistForApp, WORKSPACE_SPECIALISTS, type WorkspaceSpecialist } from "./specialists";
 
 /**
  * REN's hands, described so a model can reach for them.
@@ -20,6 +20,7 @@ import { specialistAllows, type WorkspaceSpecialist } from "./specialists";
  */
 
 const APP_IDS = APPLICATIONS.map((app) => app.id);
+const ACTIVE_SPECIALIST_IDS = WORKSPACE_SPECIALISTS.filter((agent) => agent.status === "active").map((agent) => agent.appId);
 
 /**
  * Every collection NN can write to, from both places one is declared.
@@ -60,6 +61,20 @@ export const REN_TOOLS: readonly RenTool[] = [
     schema: object(
       { appId: { type: "string", enum: APP_IDS, description: "The application to open." } },
       ["appId"],
+    ),
+  },
+  {
+    name: "delegate_to_specialist",
+    description:
+      "Hand a workspace-specific NN task to that workspace's dedicated specialist. " +
+      "Use this when the request belongs to a particular NN application. The task is carried " +
+      "into that specialist's workspace chat; the specialist cannot operate outside its own domain.",
+    schema: object(
+      {
+        appId: { type: "string", enum: ACTIVE_SPECIALIST_IDS, description: "The specialist's workspace." },
+        text: { type: "string", description: "The complete task to hand to the specialist." },
+      },
+      ["appId", "text"],
     ),
   },
   {
@@ -166,6 +181,7 @@ export const REN_TOOLS: readonly RenTool[] = [
 /** The name a model uses → the capability NN runs. */
 const CAPABILITY_OF: Readonly<Record<string, CapabilityId>> = {
   open_application: "open",
+  delegate_to_specialist: "delegate",
   capture_record: "capture",
   search_records: "find",
   inspect_workspace_records: "inspect",
@@ -208,6 +224,16 @@ export function planFromToolCall(
   }
 
   const resolved: CapabilityArgs = {};
+
+  if (capability === "delegate") {
+    const agent = appId ? specialistForApp(appId) : null;
+    if (!agent || agent.status !== "active") {
+      return { ok: false, why: `There is no active specialist for "${appId ?? ""}".` };
+    }
+    if (!text) return { ok: false, why: "I need a task to hand to the specialist." };
+    resolved.appId = appId;
+    resolved.text = text;
+  }
 
   if (capability === "open") {
     if (!appId || !APP_IDS.includes(appId)) {
