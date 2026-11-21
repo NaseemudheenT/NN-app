@@ -38,7 +38,7 @@ function LauncherSurface() {
   };
 
   return (
-    <main className={styles.root}>
+    <main className={styles.root} aria-label="NN application launcher">
       <div className={styles.atmosphere} aria-hidden="true">
         <span className={styles.waveOne} />
         <span className={styles.waveTwo} />
@@ -102,7 +102,7 @@ function LauncherSurface() {
                     aria-label={`Open ${app.name}`}
                   >
                     <span className={styles.appMark} data-app={app.id}>
-                      <Icon name={app.icon} size={25} strokeWidth={1.65} />
+                      <Icon name={app.icon} size={25} />
                       <span className={styles.markReflection} />
                     </span>
                     <span className={styles.appName}>{app.name}</span>
