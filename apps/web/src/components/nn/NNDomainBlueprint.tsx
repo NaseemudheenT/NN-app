@@ -256,7 +256,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
           </button>
         ))}
       </div>
-      <article className={styles.detail} aria-live="polite">
+      <article className={styles.detail} aria-live="polite" key={selected.id}>
         <div className={styles.detailHead}>
           <h3>{selected.title}</h3>
           <span className={styles.pending}>PREVIEW</span>

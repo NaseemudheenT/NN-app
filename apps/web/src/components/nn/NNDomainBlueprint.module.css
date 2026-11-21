@@ -145,3 +145,15 @@
 .pending{padding:5px 8px;font-size:6px}
 .screenPreview{margin-top:11px}
 @media(max-width:640px){.moduleGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.module{gap:7px;padding:8px}.moduleCopy strong{font-size:10px}.detailHead{flex-direction:row;align-items:center}}
+
+/* Swipeable feature rail: the next module peeks in to invite horizontal navigation. */
+.moduleGrid{display:flex;gap:9px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:2px;scrollbar-width:none;padding:2px 2px 9px;-webkit-overflow-scrolling:touch}
+.moduleGrid::-webkit-scrollbar{display:none}
+.module{flex:0 0 clamp(190px,24%,235px);scroll-snap-align:start;transform-style:preserve-3d;background:radial-gradient(ellipse at 16% 0%,rgb(210 235 255 / 10%),transparent 55%),linear-gradient(145deg,rgb(230 243 255 / 7%),transparent 70%),rgb(8 20 43 / 15%);box-shadow:inset 0 1px 0 rgb(255 255 255 / 10%),0 8px 18px rgb(0 0 0 / 8%)}
+.module:hover{transform:perspective(800px) translateY(-3px) rotateX(2deg);box-shadow:inset 0 1px 0 rgb(255 255 255 / 18%),0 13px 24px rgb(0 0 0 / 15%)}
+.moduleIcon{background:radial-gradient(circle at 28% 16%,rgb(255 255 255 / 24%),transparent 45%),linear-gradient(145deg,rgb(135 191 255 / 20%),rgb(80 117 196 / 9%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 24%),0 5px 12px rgb(0 0 0 / 15%)}
+.detail{animation:module-detail-in 330ms var(--ease-entrance) both}
+@keyframes module-detail-in{from{opacity:0;transform:translateY(7px) scale(.992);filter:blur(2px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@media(max-width:640px){.module{flex-basis:78%;min-height:60px}.moduleGrid{gap:8px;padding-bottom:8px}}
+@media(prefers-reduced-motion:reduce){.module,.detail{animation:none;transition:none}.module:hover{transform:none}}
+:global(html[data-motion="reduced"]) .detail{animation:none}
