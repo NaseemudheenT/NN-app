@@ -1,24 +1,24 @@
 /**
  * NN service worker.
  *
- * Deliberately minimal. It exists so NN is installable and shows something
- * other than a browser error when offline — not to cache personal data.
- * Nothing under /api is ever cached: stale authentication or stale personal
- * records would be worse than an honest failure.
+ * Cache only the explicitly public application shell. Authenticated workspace
+ * documents and all API responses are network-only: private pages must never
+ * be persisted as offline HTML or replayed from a stale session.
  */
-const CACHE = "nn-shell-v1";
+const CACHE = "nn-shell-v2";
 const SHELL = ["/", "/sign-in", "/offline"];
+const CACHEABLE_DOCUMENTS = new Set(SHELL);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()),
+    caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()),
   );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
       .then(() => self.clients.claim()),
   );
 });
@@ -29,26 +29,28 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  // Never cache API responses, authentication or anything personal.
   if (url.pathname.startsWith("/api/")) return;
 
-  // Network first: the founder should always see live data when online.
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok && request.destination === "document") {
-          const copy = response.clone();
-          void caches.open(CACHE).then((c) => c.put(request, copy));
-        }
-        return response;
-      })
-      .catch(async () => {
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        if (request.destination === "document") {
-          return (await caches.match("/offline")) ?? Response.error();
-        }
-        return Response.error();
-      }),
-  );
+  if (request.destination === "document") {
+    // Private routes are deliberately network-only. If offline, show the
+    // generic offline page rather than a cached authenticated document.
+    if (!CACHEABLE_DOCUMENTS.has(url.pathname)) {
+      event.respondWith(
+        fetch(request).catch(async () => (await caches.match("/offline")) ?? Response.error()),
+      );
+      return;
+    }
+
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            void caches.open(CACHE).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(async () => (await caches.match(request)) ?? (await caches.match("/offline")) ?? Response.error()),
+    );
+  }
 });
