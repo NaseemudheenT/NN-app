@@ -365,3 +365,17 @@
   .iconWell::after { display: none; }
 }
 :global(html[data-motion="reduced"]) .searchAll, :global(html[data-motion="reduced"]) .iconWell::after, :global(html[data-motion="reduced"]) .iconWell img, :global(html[data-motion="reduced"]) .iconWell [data-nn-icon] { transition: none !important; }
+
+
+/* Tactile response: icons react on press as well as pointer hover. */
+.app:active .iconWell { transform: scale(.94); }
+.app:active .iconWell img,
+.app:active .iconWell [data-nn-icon] {
+  transform: scale(.88) rotate(-5deg);
+  filter: drop-shadow(0 2px 6px rgb(137 211 255 / 48%));
+}
+@media (hover: none) {
+  .app:active .iconWell { transform: scale(.94); }
+  .app:active .iconWell img,
+  .app:active .iconWell [data-nn-icon] { transform: scale(.88) rotate(-5deg); }
+}

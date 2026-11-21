@@ -293,3 +293,36 @@
 .resultCount { position: relative; z-index: 1; margin: 7px 17px 0; color: var(--text-muted); font: 9px/1.3 var(--font-mono); letter-spacing: .08em; }
 .groupList { margin: 0; padding: 0; list-style: none; }
 .noResults { padding: 28px 12px; color: var(--text-muted); font-size: var(--text-caption-size); text-align: center; }
+
+
+/* The island's signal breathes; destination glyphs respond to touch. */
+.islandSignal { position: relative; }
+.islandSignal::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid rgb(var(--nn-spectrum-aqua) / 45%);
+  border-radius: 50%;
+  animation: nn-island-pulse 2.8s ease-out infinite;
+}
+@keyframes nn-island-pulse {
+  0% { opacity: .65; transform: scale(.55); }
+  75%, 100% { opacity: 0; transform: scale(2.15); }
+}
+.item img[data-nn-icon], .item svg[data-nn-icon] {
+  transition: transform 220ms var(--ease-spring), filter 220ms ease;
+}
+.item:hover img[data-nn-icon], .item:hover svg[data-nn-icon] {
+  transform: translateY(-1px) scale(1.08);
+  filter: drop-shadow(0 2px 6px rgb(137 211 255 / 38%));
+}
+.item:active img[data-nn-icon], .item:active svg[data-nn-icon] {
+  transform: scale(.86) rotate(-6deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .islandSignal::after { animation: none; }
+  .item img[data-nn-icon], .item svg[data-nn-icon] { transition: none; }
+}
+:global(html[data-motion="reduced"]) .islandSignal::after { animation: none; }
+:global(html[data-motion="reduced"]) .item img[data-nn-icon],
+:global(html[data-motion="reduced"]) .item svg[data-nn-icon] { transition: none; }
