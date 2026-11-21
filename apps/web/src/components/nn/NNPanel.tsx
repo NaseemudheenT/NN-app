@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { RenMark } from "@/components/ui/RenMark";
+import { NNLogo } from "@/components/ui/NNLogo";
 import { currentDestination, destinations, type Destination } from "@/lib/nn/destinations";
 import s from "./NNPanel.module.css";
 
@@ -138,9 +139,10 @@ export function NNPanel() {
           aria-expanded={false}
           onClick={() => setOpen(true)}
         >
-          {here?.mark === "ren"
-            ? <RenMark size={24} />
-            : <Icon name={here?.icon ?? "grid"} size={24} />}
+          <span className={s.islandBrand} aria-hidden="true">
+            <NNLogo size={18} glow decorative />
+          </span>
+          <span className={s.islandLabel}>{here?.label ?? "NN"}</span>
         </button>
       )}
     </div>
