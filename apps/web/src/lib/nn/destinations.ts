@@ -34,8 +34,6 @@ export const PLACES: readonly Destination[] = [
   { id: "ren", label: "REN", hint: "Speak to your intelligence", icon: "sparkle", group: "NN", route: "/ren" as Route, mark: "ren", keys: "⌘J" },
   { id: "home", label: "Today", hint: "What NN has for you", icon: "calendar", group: "NN", route: "/home" as Route, keys: "⌘H" },
   { id: "workspace", label: "Workspace", hint: "Your study and your work", icon: "grid", group: "NN", route: "/workspace" as Route },
-  { id: "search", label: "Search", hint: "Everything you have kept", icon: "search", group: "NN", route: "/search" as Route },
-  { id: "files", label: "Files", hint: "Documents and media", icon: "folder", group: "NN", route: "/files" as Route },
   { id: "settings", label: "Settings", hint: "Appearance, REN, security", icon: "settings", group: "NN", route: "/settings" as Route, keys: "⌘," },
 ];
 

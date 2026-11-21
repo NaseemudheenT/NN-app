@@ -6,7 +6,7 @@ describe("the canonical NN destination map", () => {
   it("includes the six NN places and all 34 registered applications", () => {
     const all = destinations();
     expect(PLACES.map((place) => place.id)).toEqual([
-      "ren", "home", "workspace", "search", "files", "settings",
+      "ren", "home", "workspace", "settings",
     ]);
     expect(all.filter((place) => place.group === "Applications")).toHaveLength(34);
     expect(all.filter((place) => place.group === "Applications").map((place) => place.id))
@@ -29,6 +29,8 @@ describe("the canonical NN destination map", () => {
     expect(currentDestination("/ren/chat")?.id).toBe("ren");
     expect(currentDestination("/apps/finance")?.id).toBe("app-finance");
     expect(currentDestination("/life")?.id).toBe("app-life");
+    expect(currentDestination("/files")?.id).toBe("app-files");
+    expect(currentDestination("/search")?.id).toBe("app-search");
   });
 
   it("does not match route names that merely share a prefix", () => {
