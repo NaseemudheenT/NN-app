@@ -185,3 +185,10 @@
 :root[data-motion="reduced"] .band { animation-play-state: paused; }
 :root[data-motion="reduced"] .interactive:hover,
 :root[data-motion="reduced"] .interactive:focus-within { transform: none; }
+
+
+/* Reduced transparency keeps the card's hierarchy without asking the GPU to blur the moving field. */
+@media (prefers-reduced-transparency: reduce) {
+  .chip { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(18 27 60 / 94%); }
+  :root[data-theme="light"] .chip { background: rgb(255 255 255 / 97%); }
+}

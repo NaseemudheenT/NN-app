@@ -613,3 +613,11 @@ canvas.sheetArt[data-ready] {
 :global(html[data-motion="reduced"]) .frontRim path { transition: none !important; }
 :global(html[data-motion="reduced"]) .root:hover,
 :global(html[data-motion="reduced"]) .root:focus-within { --fc-hinge: 0deg; --fc-lift: 0px; --fc-spread: 0px; --fc-fan: 0deg; }
+
+
+/* Reduced transparency keeps the folder face and its action key distinct without backdrop blur. */
+@media (prefers-reduced-transparency: reduce) {
+  .front, .key { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .front { background: color-mix(in srgb, var(--surface-raised) 96%, transparent); }
+  .key { background: color-mix(in srgb, var(--surface-raised) 98%, transparent); }
+}

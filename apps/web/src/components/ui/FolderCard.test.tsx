@@ -135,3 +135,14 @@ describe("LogoReveal", () => {
     expect(screen.getAllByLabelText("NN")).toHaveLength(1);
   });
 });
+
+describe("FolderCard material preferences", () => {
+  it("keeps the front and action key legible without backdrop blur", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { resolve } = await import("node:path");
+    const css = readFileSync(resolve(process.cwd(), "src/components/ui/FolderCard.module.css"), "utf8");
+    expect(css).toContain("@media (prefers-reduced-transparency: reduce)");
+    expect(css).toMatch(/prefers-reduced-transparency[\\s\\S]*?backdrop-filter:\\s*none/);
+    expect(css).toMatch(/prefers-reduced-transparency[\\s\\S]*?\.front[\\s\\S]*?background:/);
+  });
+});

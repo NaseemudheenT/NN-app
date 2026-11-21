@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { WaveCard, WaveChip } from "./WaveCard";
@@ -88,5 +90,15 @@ describe("WaveChip", () => {
   it("renders its content", () => {
     render(<WaveChip>Focus</WaveChip>);
     expect(screen.getByText("Focus")).toBeVisible();
+  });
+});
+
+describe("WaveCard material preferences", () => {
+  it("provides an opaque reduced-transparency chip without backdrop blur", () => {
+    const css = readFileSync(resolve(process.cwd(), "src/components/ui/WaveCard.module.css"), "utf8");
+    expect(css).toContain("@media (prefers-reduced-transparency: reduce)");
+    expect(css).toMatch(/prefers-reduced-transparency[\\s\\S]*?backdrop-filter:\\s*none/);
+    expect(css).toContain("rgb(18 27 60 / 94%)");
+    expect(css).toContain("rgb(255 255 255 / 97%)");
   });
 });
