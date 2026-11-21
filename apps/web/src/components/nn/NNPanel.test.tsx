@@ -32,9 +32,11 @@ describe("the island", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("says where you are, so it is not an anonymous dot", () => {
+  it("shows the official NN mark and the current destination in the collapsed island", () => {
     render(<NNPanel />);
-    expect(screen.getByRole("button", { name: /currently Today/ })).toBeInTheDocument();
+    const island = screen.getByRole("button", { name: /currently Today/ });
+    expect(island).toHaveTextContent("Today");
+    expect(island.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
   });
 
   it("knows where you are on a nested route", () => {
