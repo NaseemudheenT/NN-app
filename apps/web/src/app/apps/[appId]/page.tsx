@@ -44,4 +44,8 @@ export default async function ApplicationPage({ params }: PageProps) {
   return (
     <RequireOwner>
       <AppShell title={app.name} subtitle={app.description}>
-        {app.id === "college" ? <NNCollegeWorkspa...[truncated]
+        {app.id === "college" ? <NNCollegeWorkspace app={app} sections={sections} /> : app.id === "finance" ? <NNFinanceWorkspace app={app} sections={sections} /> : app.id === "projects" ? <NNProjectsWorkspace app={app} sections={sections} /> : app.id === "academy" ? <NNAcademyWorkspace app={app} sections={sections} /> : <NNAppSurface app={app} sections={sections} />}
+      </AppShell>
+    </RequireOwner>
+  );
+}
