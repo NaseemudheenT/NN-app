@@ -42,14 +42,7 @@ export function NNNexus() {
   useEffect(() => {
     if (!running) return;
     const id = window.setInterval(() => {
-      setRemaining((value) => {
-        if (value <= 1) {
-          window.clearInterval(id);
-          setRunning(false);
-          return 0;
-        }
-        return value - 1;
-      });
+      setRemaining((value) => Math.max(0, value - 1));
     }, 1000);
     return () => window.clearInterval(id);
   }, [running]);
@@ -85,8 +78,12 @@ export function NNNexus() {
   }
 
   function toggleTimer() {
-    if (timerDone) setRemaining(25 * 60);
-    setRunning((value) => !value && !timerDone);
+    if (timerDone) {
+      setRemaining(25 * 60);
+      setRunning(true);
+      return;
+    }
+    setRunning((value) => !value);
   }
 
   function resetTimer() {
