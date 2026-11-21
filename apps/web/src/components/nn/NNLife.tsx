@@ -161,6 +161,8 @@ function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
   );
 }
 
+export function parseRoutineSteps(value: string): string[] { return value.split(/\r?\n/).map((step) => step.trim()).filter(Boolean).slice(0, 20); }
+export function focusRemainingSeconds(end: Date, now: number): number { return Math.max(0, Math.ceil((end.getTime() - now) / 1000)); }
 const EMPTY: LifeData = { tasks: [], calendar_events: [], reminders: [], notes: [], goals: [], habits: [], habit_checkins: [], routines: [], routine_runs: [], focus_sessions: [], reviews: [] };
 const metadata = () => ({ schemaVersion: 1, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
 const localDateTime = (date = new Date()) => {
@@ -500,7 +502,7 @@ function LifeSurface() {
     event.preventDefault();
     const title = routineTitle.trim();
     if (!title || !uid) return;
-    const steps = routineSteps.split("\\n").map((step) => step.trim()).filter(Boolean).slice(0, 20);
+    const steps = parseRoutineSteps(routineSteps);
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "routines"), {
       ...metadata(), title, steps, status: "active",
     }), "Routine saved.").then((saved) => { if (saved) { setRoutineTitle(""); setRoutineSteps(""); } });
@@ -548,14 +550,15 @@ function LifeSurface() {
 
   const activeFocus = data.focus_sessions.find((session) => session.status === "active");
   const focusEnd = activeFocus ? asDate(activeFocus.endsAt) : null;
-  const focusRemaining = focusEnd ? Math.max(0, Math.ceil((focusEnd.getTime() - focusTick) / 1000)) : 0;
+  const focusRemaining = focusEnd ? focusRemainingSeconds(focusEnd, focusTick) : 0;
+  const activeFocusId = activeFocus?.id;
   useEffect(() => {
-    if (!activeFocus) return;
+    if (!activeFocusId) return;
     const update = () => setFocusTick(Date.now());
     update();
     const interval = window.setInterval(update, 1000);
     return () => window.clearInterval(interval);
-  }, [activeFocus?.id]);
+  }, [activeFocusId]);
 
   const firstName = ownerFirstName(user?.displayName);
   // "Welcome back" until the browser says what time it is there — which is
@@ -673,7 +676,7 @@ function LifeSurface() {
         </GlassPanel>
       </section> : null}
       {!loading && tab === "routines" ? <section className={styles.notesLayout}>
-        <GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>REPEATABLE SYSTEMS</p><h2>Build a useful rhythm.</h2><form className={styles.noteForm} onSubmit={createRoutine}><input value={routineTitle} onChange={(e) => setRoutineTitle(e.target.value)} placeholder="Routine name" aria-label="Routine name" required maxLength={120}/><textarea value={routineSteps} onChange={(e) => setRoutineSteps(e.target.value)} placeholder={"One step per line\\nPrepare\\nExecute\\nReview"} aria-label="Routine steps" rows={5}/><button disabled={busy || !routineTitle.trim()}><Icon name="plus" size={16}/> Save routine</button></form></GlassPanel>
+        <GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>REPEATABLE SYSTEMS</p><h2>Build a useful rhythm.</h2><form className={styles.noteForm} onSubmit={createRoutine}><input value={routineTitle} onChange={(e) => setRoutineTitle(e.target.value)} placeholder="Routine name" aria-label="Routine name" required maxLength={120}/><textarea value={routineSteps} onChange={(e) => setRoutineSteps(e.target.value)} placeholder={"One step per line\nPrepare\nExecute\nReview"} aria-label="Routine steps" rows={5}/><button disabled={busy || !routineTitle.trim()}><Icon name="plus" size={16}/> Save routine</button></form></GlassPanel>
         <div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR ROUTINES</p><h2>Ready when you are.</h2></div><span className={styles.count}>{data.routines.length} SAVED</span></div>{data.routines.map((routine) => {const steps = Array.isArray(routine.steps) ? routine.steps.filter((step): step is string => typeof step === "string") : []; const runs = data.routine_runs.filter((run) => run.routineId === routine.id).length; return <GlassPanel key={routine.id} tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(routine)}</strong><ol className={styles.routineList}>{steps.map((step,index) => <li key={index}>{step}</li>)}</ol><small>{runs} recorded completions</small><button type="button" className={styles.inlineAction} disabled={busy} onClick={() => runRoutine(routine)}>Mark complete</button></GlassPanel>;})}{data.routines.length === 0 ? <EmptyState icon="calendar" title="Design your first routine." body="Add a short sequence you can repeat. Completions are recorded only when you mark them."/> : null}</div>
       </section> : null}
       {!loading && tab === "focus" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>ATTENTION SPACE</p><h2>Protect time for one thing.</h2>
