@@ -32,13 +32,13 @@ describe("NN application launcher", () => {
     expect(screen.queryByText("Open tasks")).toBeNull();
   });
 
-  it("shows all 34 applications in their six canonical groups", () => {
+  it("shows all 34 applications in six concise launcher groups", () => {
     render(<NNHomePreview />);
     expect(APPLICATIONS).toHaveLength(34);
     expect(GROUPS).toHaveLength(6);
     expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(34);
     for (const group of GROUPS) {
-      expect(screen.getByRole("heading", { level: 2, name: group.name })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 2, name: group.label })).toBeInTheDocument();
     }
   });
 
