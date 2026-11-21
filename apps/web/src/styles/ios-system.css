@@ -167,3 +167,13 @@ button { -webkit-tap-highlight-color:transparent; }
 .nn-ios-app-shell .dock button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
 .nn-ios-app-shell .dock button span{display:block;color:inherit;font-size:8px;font-weight:550;line-height:1.1;letter-spacing:0;}
 .nn-ios-app-shell .dock button[aria-current="true"]{color:var(--nn-ios-blue);}
+
+/* Workspace typography and nested controls inherit the platform palette, not their former neon theme. */
+.nn-ios-workspace > main{color:var(--text-primary)!important;--accent:var(--nn-ios-blue);--muted:var(--text-muted);--line:var(--border-subtle)}
+.nn-ios-workspace > main :is(p,small){color:var(--text-secondary)!important}
+.nn-ios-workspace > main :is(h1,h2,h3,h4){color:var(--text-primary)!important}
+.nn-ios-workspace > main > section article{border-color:var(--border-subtle)!important;background:var(--surface-deep)!important;box-shadow:none!important}
+.nn-ios-workspace > main > section :is(button:not(:disabled)){border-color:var(--border-normal);background:var(--surface-elevated);color:var(--text-primary)}
+.nn-ios-workspace > main > section :is(button:not(:disabled):hover){border-color:color-mix(in srgb,var(--nn-ios-blue) 42%,var(--border-normal));background:var(--glass-active)}
+.nn-ios-workspace > main > section :is(button:disabled){opacity:.45}
+.nn-ios-workspace > main > section :is([class*="empty"],[class*="Empty"]){color:var(--text-muted)!important}
