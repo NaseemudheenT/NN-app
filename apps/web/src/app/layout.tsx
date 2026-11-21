@@ -2,11 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import { AppTransitionProvider } from "@/components/nn/AppTransition";
-import { Room } from "@/components/nn/Room";
 import { RenProvider } from "@/components/ren/RenProvider";
 import { RenChrome } from "@/components/ren/RenChrome";
 import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
-import { Lightfall } from "@/components/nn/Lightfall";
 import { IconDefs } from "@/components/ui/IconDefs";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
@@ -53,16 +51,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={inter.variable}>
         <ThemeProvider>
-          {/* The room, behind everything, for the life of the session. */}
-          <Room />
-          {/* The light field over it. It has a layer of its own because the
-              ribbons run off every edge and something has to contain them. */}
-          <div className="nn-atmosphere" aria-hidden="true" />
           {/* One displacement map, shared by every liquid surface in NN. */}
           <LiquidGlassDefs />
-          {/* One pointer listener for the whole document, lighting whichever
-              glass surface the founder is actually touching. */}
-          <Lightfall />
           {/* One light, shared by every icon. Mounted once rather than per
               glyph: NN draws several hundred of them on some screens. */}
           <IconDefs />
