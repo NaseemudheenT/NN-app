@@ -316,9 +316,6 @@ function EducationCanvas({ app, module }: { app: NNApplication; module: DomainMo
 function DomainCanvas({ app, module }: { app: NNApplication; module: DomainModule }) {
   const layout = inferDomainLayout(app.id, module);
   const regions = module.regions;
-  const Region = ({ index }: { index: number }) => (
-    <span className={styles.domainRegion}>{regions[index] ?? module.title}</span>
-  );
   const rows = regions.map((region, index) => ({ region, index }));
 
   return (
@@ -370,7 +367,7 @@ function DomainCanvas({ app, module }: { app: NNApplication; module: DomainModul
 
       {layout === "media" ? (
         <div className={styles.domainMedia} data-structure="media">
-          {rows.map(({ region, index }) => <div className={styles.domainMediaTile} key={region}><span className={styles.domainMediaGlyph}><Icon name={index === 0 ? "image" : "layers"} size={20} solid tone="ice"/></span><strong>{region}</strong><small>ASSET SPACE</small></div>)}
+          {rows.map(({ region, index }) => <div className={styles.domainMediaTile} key={region}><span className={styles.domainMediaGlyph}><Icon name={index === 0 ? "camera" : "layers"} size={20} solid tone="ice"/></span><strong>{region}</strong><small>ASSET SPACE</small></div>)}
         </div>
       ) : null}
 
