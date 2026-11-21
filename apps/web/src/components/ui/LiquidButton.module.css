@@ -28,8 +28,8 @@
 /* The global focus rule squares off pill controls; keep the control's shape. */
 .liquid:focus-visible { border-radius: inherit; outline-offset: 4px; }
 
-.liquid:hover:not(:disabled) { transform: scale(1.05); }
-.liquid:active:not(:disabled) { transform: scale(0.97); }
+ .liquid:hover:not(:disabled) { transform: translateY(-2px) scale(1.015); }
+.liquid:active:not(:disabled) { transform: translateY(1px) scale(0.975); }
 .liquid:disabled { cursor: not-allowed; opacity: 0.45; }
 
 /* Layer 1 — the edge. Nine shadows, no background: pure material. */
@@ -52,6 +52,19 @@
   backdrop-filter: var(--liquid-refraction);
   -webkit-backdrop-filter: var(--liquid-refraction);
 }
+.refraction::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(115% 90% at 18% 0%, rgb(255 255 255 / 28%), transparent 58%),
+    linear-gradient(118deg, transparent 25%, rgb(255 255 255 / 9%) 48%, transparent 68%);
+  opacity: .56;
+  transition: opacity var(--dur-base) var(--ease-standard);
+}
+.liquid:hover:not(:disabled) .refraction::after { opacity: .95; }
+.liquid:active:not(:disabled) .refraction::after { opacity: .34; }
 
 /* Layer 3 — the label, floating clear of both plates. */
 .label {
@@ -65,12 +78,12 @@
 }
 
 /* ---- sizes --------------------------------------------------------------- */
-.sm  { height: 32px; padding: 0 var(--space-6);  font-size: var(--text-caption-size); gap: var(--space-3); }
-.md  { height: 36px; padding: 0 var(--space-6);  font-size: var(--text-label-size); }
-.lg  { height: 40px; padding: 0 var(--space-8);  font-size: var(--text-body-size); }
-.xl  { height: 48px; padding: 0 var(--space-9);  font-size: var(--text-lg-size); }
-.xxl { height: 56px; padding: 0 var(--space-10); font-size: var(--text-lg-size); }
-.icon { height: 36px; width: 36px; padding: 0; }
+ .sm  { min-height: 44px; height: 44px; padding: 0 var(--space-6); font-size: var(--text-caption-size); gap: var(--space-3); }
+.md  { min-height: 44px; height: 44px; padding: 0 var(--space-6); font-size: var(--text-label-size); }
+.lg  { min-height: 48px; height: 48px; padding: 0 var(--space-8); font-size: var(--text-body-size); }
+.xl  { min-height: 52px; height: 52px; padding: 0 var(--space-9); font-size: var(--text-lg-size); }
+.xxl { min-height: 56px; height: 56px; padding: 0 var(--space-10); font-size: var(--text-lg-size); }
+.icon { min-height: 44px; min-width: 44px; height: 44px; width: 44px; padding: 0; }
 
 /* ---- variants ------------------------------------------------------------
    Clear is the material by itself. The tinted variants add a wash *under* the
