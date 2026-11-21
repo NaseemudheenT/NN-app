@@ -7,6 +7,7 @@ import { RequireOwner } from "@/components/auth/RequireOwner";
 import { useAppTransition } from "@/components/nn/AppTransition";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
+import { NNInstallPrompt } from "@/components/nn/NNInstallPrompt";
 import { useAuth } from "@/lib/auth";
 import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
 import { ownerFirstName } from "@/lib/nn/owner";
@@ -72,6 +73,8 @@ function LauncherSurface() {
             </button>
           ) : <kbd>⌘ K</kbd>}
         </label>
+
+        <NNInstallPrompt />
 
         <div className={styles.groups}>
           {visibleGroups.map((group) => (
