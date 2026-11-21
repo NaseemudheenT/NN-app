@@ -63,6 +63,7 @@ function toneFor(destination: Destination): GlassIconTone {
   if (destination.group === "NN") return destination.id === "settings" ? "slate" : "cyan";
   const app = getApplication(destination.id.slice(4));
   return app ? APP_ICON_TONES[app.id] ?? "blue" : "blue";
+}
 
 export function NNPanel() {
   const travel = useAppTransition();
