@@ -70,7 +70,7 @@ const LIFE_PREVIEWS: Record<LifePreviewTab, {
     icon: "clock",
     features: [
       { icon: "clock", title: "Session timer", description: "A distraction-light timer with clear pause and finish states." },
-      { icon: "target", title: "Session intention", description: "Keep one task or outcome in view while you work." },
+      { icon: "compass", title: "Session intention", description: "Keep one task or outcome in view while you work." },
       { icon: "graph", title: "Focus history", description: "Review only sessions that were actually recorded." },
     ],
   },
@@ -100,7 +100,7 @@ function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
         <h2 id={`life-preview-${module}`}>{preview.title}</h2>
         <p className={styles.previewDescription}>{preview.description}</p>
         <div className={styles.previewNotice} role="status">
-          <Icon name="info" size={16}/>
+          <Icon name="shield" size={16}/>
           <span><strong>Design complete in progress.</strong> This screen is a visual handoff for Claude. No records, schedules or activity are being simulated.</span>
         </div>
       </GlassPanel>
