@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import { ServiceWorker } from "@/components/ServiceWorker";
 import { AppTransitionProvider } from "@/components/nn/AppTransition";
 import { RenProvider } from "@/components/ren/RenProvider";
@@ -9,12 +8,6 @@ import { IconDefs } from "@/components/ui/IconDefs";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
 import "@/styles/global.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
 
 export const metadata: Metadata = {
   title: { default: "NN", template: "%s · NN" },
@@ -49,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Applies the stored theme before first paint so there is no flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
-      <body className={inter.variable}>
+      <body>
         <ThemeProvider>
           {/* One displacement map, shared by every liquid surface in NN. */}
           <LiquidGlassDefs />
