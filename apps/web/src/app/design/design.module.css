@@ -1,8 +1,8 @@
-.page { min-height: 100dvh; padding: var(--space-11) var(--space-9) var(--space-14); }
+.page { min-height: 100dvh; padding: 76px 82px var(--space-14); }
 .wrap { max-width: 1180px; margin: 0 auto; }
 
 .topbar {
-  position: sticky; top: var(--space-5); z-index: var(--z-nav);
+  position: sticky; top: 66px; z-index: var(--z-nav);
   display: flex; align-items: center; gap: var(--space-6);
   margin-bottom: var(--space-11);
   padding: var(--space-4) var(--space-4) var(--space-4) var(--space-7);
@@ -32,7 +32,8 @@
 .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-6); }
 @media (max-width: 1000px) { .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 680px) {
-  .page { padding: var(--space-8) var(--space-6) var(--space-12); }
+  .page { padding: 70px var(--space-5) 96px; }
+  .topbar { top: 62px; }
   .grid2, .grid3, .grid4 { grid-template-columns: minmax(0, 1fr); }
   .h1 { font-size: 30px; }
 }
