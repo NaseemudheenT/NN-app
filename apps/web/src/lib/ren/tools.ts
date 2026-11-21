@@ -231,7 +231,7 @@ export function planFromToolCall(
       return { ok: false, why: `There is no active specialist for "${appId ?? ""}".` };
     }
     if (!text) return { ok: false, why: "I need a task to hand to the specialist." };
-    resolved.appId = appId;
+    resolved.appId = agent.appId;
     resolved.text = text;
   }
 
