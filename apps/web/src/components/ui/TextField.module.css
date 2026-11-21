@@ -8,7 +8,8 @@
 
 .field {
   width: 100%;
-  height: 42px;
+  height: 44px;
+  min-height: 44px;
   padding: 0 var(--space-6);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-normal);
@@ -32,3 +33,13 @@
 
 .hint { font-size: var(--text-caption-size); color: var(--text-muted); }
 .error { font-size: var(--text-caption-size); color: var(--status-err); }
+
+@media (prefers-reduced-motion: reduce) { .field { transition: none; } }
+:global(html[data-motion="reduced"]) .field { transition: none; }
+@media (prefers-reduced-transparency: reduce) {
+  .field {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: color-mix(in srgb, var(--surface-raised) 96%, transparent);
+  }
+}

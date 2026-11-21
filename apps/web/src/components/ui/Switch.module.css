@@ -27,3 +27,10 @@
 .input:focus-visible + .track { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 .label { font-size: var(--text-body-size); color: var(--text-primary); }
+
+@media (prefers-reduced-motion: reduce) { .track, .thumb { transition: none; } }
+:global(html[data-motion="reduced"]) .track,
+:global(html[data-motion="reduced"]) .thumb { transition: none; }
+@media (prefers-reduced-transparency: reduce) {
+  .track { background: color-mix(in srgb, var(--surface-raised) 96%, transparent); }
+}
