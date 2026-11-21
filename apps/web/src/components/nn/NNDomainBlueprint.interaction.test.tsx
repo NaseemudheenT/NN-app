@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getApplication } from "@/lib/apps/registry";
-import { inferDomainLayout, NNDomainBlueprint, type DomainModule } from "./NNDomainBlueprint";
+import { DOMAIN_BLUEPRINTS, inferDomainLayout, NNDomainBlueprint, type DomainModule } from "./NNDomainBlueprint";
 
 vi.mock("@/components/ui/Icon", () => ({
   Icon: ({ name }: { name: string }) => <span aria-hidden="true">{name}</span>,
@@ -23,6 +23,16 @@ describe("NN feature spaces", () => {
     expect(inferDomainLayout("studio", feature("documents", "Documents"))).toBe("editor");
     expect(inferDomainLayout("finance", feature("ledger", "Ledger"))).toBe("finance");
     expect(inferDomainLayout("travel", feature("places", "Places"))).toBe("map");
+  });
+
+  it("assigns a purpose-built screen grammar to every domain module", () => {
+    expect(Object.keys(DOMAIN_BLUEPRINTS)).toHaveLength(31);
+    for (const [appId, modules] of Object.entries(DOMAIN_BLUEPRINTS)) {
+      for (const module of modules) {
+        const layout = inferDomainLayout(appId, module);
+        expect(layout, `${appId}/${module.id} should have a domain layout`).not.toBe("dashboard");
+      }
+    }
   });
   it("supports horizontal arrow navigation and associates the selected preview", () => {
     render(<NNDomainBlueprint app={college} />);

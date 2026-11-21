@@ -16,8 +16,42 @@ export interface DomainModule {
   regions: readonly string[];
 }
 
+const APP_LAYOUTS: Readonly<Record<string, Readonly<Record<string, DomainLayout>>>> = {
+  soul: { reflections: "editor", gratitude: "timeline", principles: "cards" },
+  mind: { focus: "timeline", journal: "editor", growth: "roadmap" },
+  body: { training: "timeline", nutrition: "editor", recovery: "analytics" },
+  contacts: { people: "cards", dates: "timeline", followups: "board" },
+  "nature-universe": { observations: "map", questions: "navigator", fieldnotes: "editor" },
+  "peace-mode": { quiet: "timeline", environment: "settings", reflection: "editor" },
+  "formula-engine": { library: "library", workspace: "calculator", converter: "calculator" },
+  "logic-lab": { challenges: "board", aptitude: "analytics", review: "reader" },
+  "learning-vault": { library: "library", sources: "reader", recall: "cards" },
+  finance: { overview: "finance", transactions: "finance", budgets: "finance", reports: "analytics" },
+  invest: { watchlists: "finance", research: "reader", portfolio: "finance", performance: "analytics" },
+  business: { ventures: "board", validation: "roadmap", operations: "board", decisions: "editor" },
+  freelance: { clients: "cards", proposals: "editor", delivery: "board" },
+  career: { skills: "roadmap", portfolio: "library", interviews: "timeline" },
+  projects: { boards: "board", timeline: "timeline", retrospective: "editor" },
+  achievements: { milestones: "roadmap", certificates: "library", evidence: "library" },
+  "creator-studio": { calendar: "timeline", media: "media", production: "board" },
+  studio: { documents: "editor", templates: "library", publishing: "media" },
+  mail: { inbox: "inbox", compose: "editor", followups: "timeline" },
+  english: { plan: "roadmap", listening: "media", speaking: "timeline", writing: "editor" },
+  memory: { capture: "editor", connections: "navigator", review: "timeline" },
+  "life-archive": { timeline: "timeline", collections: "library", search: "navigator" },
+  analytics: { overview: "analytics", trends: "analytics", reports: "analytics" },
+  travel: { trips: "planner", places: "map", planning: "timeline" },
+  simulator: { scenarios: "roadmap", model: "calculator", results: "analytics" },
+  "command-centre": { overview: "settings", activity: "timeline", integrations: "flow" },
+  "automation-studio": { workflows: "flow", approvals: "security", runs: "timeline" },
+  "security-centre": { access: "security", sessions: "security", audit: "timeline" },
+  "control-room": { environment: "settings", preferences: "settings", data: "security" },
+};
+
 export function inferDomainLayout(appId: string, module: DomainModule): DomainLayout {
   if (module.layout) return module.layout;
+  const appLayout = APP_LAYOUTS[appId]?.[module.id];
+  if (appLayout) return appLayout;
   const key = `${module.id} ${module.title}`.toLowerCase();
   if (/(ledger|budget|transaction|watchlist|investment|cash-flow|billing|invoice|account|holding)/.test(key)) return "finance";
   if (/(inbox|mail|message|follow-up|draft|compose)/.test(key)) return "inbox";
