@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
-import { LiquidToggle } from "@/components/ui/liquid-glass-toggle";
+import { LiquidToggle, NimbusToggleIcons } from "@/components/ui/liquid-glass-toggle";
 import { TextField } from "@/components/ui/TextField";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { fetchRecoveryState, setRecoveryPassword, useAuth } from "@/lib/auth";
@@ -98,10 +98,7 @@ function ThemeToggleRow({ theme, resolvedTheme, onChange }: {
         tone={resolvedTheme}
         size={36}
         label="Dark appearance"
-        icons={{
-          off: <Icon name="sun" size={16} />,
-          on: <Icon name="moon" size={16} />,
-        }}
+        icons={NimbusToggleIcons}
       />
     </div>
   );
