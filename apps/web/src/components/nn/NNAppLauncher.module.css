@@ -386,3 +386,53 @@
 .familyLink:hover span{transform:translateX(2px)}
 .familyLink:focus-visible{outline:2px solid var(--focus-ring);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.familyLink,.familyLink span{transition:none}}
+
+
+/* NEXUS home: give the launcher a lived-in spatial environment without
+   sacrificing legibility or turning the cards into a wall of widgets. */
+.root::before { opacity: .52; }
+.root::after { opacity: .42; }
+.content { position: relative; z-index: 1; }
+.welcome { position: relative; }
+.welcome::after {
+  content: "";
+  display: block;
+  width: min(260px, 64vw);
+  height: 2px;
+  margin-top: 15px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgb(90 193 255 / 82%), rgb(147 119 255 / 56%), transparent);
+  box-shadow: 0 0 18px rgb(93 171 255 / 36%);
+}
+.app {
+  border-color: color-mix(in srgb, var(--app-card-tone, #75baff) 26%, rgb(211 234 255 / 22%));
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--app-card-tone, #75baff) 19%, transparent), transparent 62%),
+    radial-gradient(ellipse at 92% 96%, rgb(155 132 255 / 14%), transparent 49%),
+    linear-gradient(152deg, rgb(235 247 255 / 12%), rgb(85 130 203 / 7%) 48%, rgb(5 17 43 / 74%));
+}
+.app:has([data-tone="green"]) { --app-card-tone: #20c98a; }
+.app:has([data-tone="amber"]) { --app-card-tone: #e8a844; }
+.app:has([data-tone="violet"]) { --app-card-tone: #9873ff; }
+.app:has([data-tone="red"]) { --app-card-tone: #f06476; }
+.app:has([data-tone="cyan"]), .app:has([data-tone="aqua"]) { --app-card-tone: #20c9d9; }
+.app:has([data-tone="slate"]), .app:has([data-tone="ice"]) { --app-card-tone: #8da9c9; }
+.app:has([data-tone="blue"]) { --app-card-tone: #3f9bff; }
+.iconWell { width: 58px; height: 58px; border-radius: 19px; }
+.iconWell [data-app-logo] { transition: transform 280ms var(--ease-spring), filter 280ms ease; }
+.app:hover .iconWell [data-app-logo] { transform: translateY(-2px) scale(1.08) rotate(-2deg); filter: drop-shadow(0 8px 14px color-mix(in srgb, var(--app-card-tone, #75baff) 40%, transparent)); }
+@media (max-width: 620px) {
+  .topbar { position: relative; z-index: 1; }
+  .content { padding-top: 22px; }
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .app { min-height: 108px; }
+  .iconWell { width: 48px; height: 48px; border-radius: 16px; }
+  .appName { overflow-wrap: break-word; word-break: normal; hyphens: auto; }
+}
+@media (max-width: 360px) {
+  .content { padding-inline: 11px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app:hover .iconWell [data-app-logo] { transform: none; }
+}
