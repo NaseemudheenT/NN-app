@@ -169,19 +169,21 @@ function LifeSurface() {
   }, [data.calendar_events, clock]);
   const completedTasks = data.tasks.filter((item) => item.status === "done" || item.status === "completed").length;
 
-  const save = async (action: () => Promise<unknown>, success: string) => {
-    if (!uid) return;
+  const save = async (action: () => Promise<unknown>, success: string): Promise<boolean> => {
+    if (!uid) return false;
     if (!navigator.onLine) {
       setError("You are offline. NN can show cached records, but reconnect before creating or changing data so the save can be confirmed.");
-      return;
+      return false;
     }
     setBusy(true); setError(null); setNotice(null);
     try {
       await action();
       setNotice(success);
       await load();
+      return true;
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "NN could not save this item. Nothing was reported as saved.");
+      return false;
     } finally { setBusy(false); }
   };
   const createTask = (event: FormEvent<HTMLFormElement>) => {
@@ -191,8 +193,9 @@ function LifeSurface() {
     const dueAt = taskDue ? Timestamp.fromDate(new Date(taskDue)) : null;
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "tasks"), {
       ...metadata(), title, status: "open", priority: "normal", dueAt, estimateMinutes: null, parentId: null, dependsOn: [],
-    }), "Task added to NN Life.");
-    setTaskTitle(""); setTaskDue("");
+    }), "Task added to NN Life.").then((saved) => {
+      if (saved) { setTaskTitle(""); setTaskDue(""); }
+    });
   };
   const createNote = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -200,8 +203,9 @@ function LifeSurface() {
     if (!title || !uid) return;
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "notes"), {
       ...metadata(), title, format: "markdown", body: noteBody.trim(), folderId: null, tags: [], pinned: false, linkedIds: [],
-    }), "Note saved to NN Life.");
-    setNoteTitle(""); setNoteBody("");
+    }), "Note saved to NN Life.").then((saved) => {
+      if (saved) { setNoteTitle(""); setNoteBody(""); }
+    });
   };
   const createEvent = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -215,8 +219,9 @@ function LifeSurface() {
       ...metadata(), calendarId: null, title, start: Timestamp.fromDate(start), end: Timestamp.fromDate(end),
       allDay: false, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, rrule: null, exdates: [],
       location: null, travelMinutes: 0, status: "scheduled",
-    }), "Event added to your calendar.");
-    setEventTitle("");
+    }), "Event added to your calendar.").then((saved) => {
+      if (saved) setEventTitle("");
+    });
   };
   const createReminder = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -227,8 +232,9 @@ function LifeSurface() {
       ...metadata(), title, fireAt: Timestamp.fromDate(fireAt), rrule: null,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, state: "scheduled", attempts: 0,
       snoozedUntil: null, escalation: null,
-    }), "Reminder saved in NN Life. Delivery is not enabled until the notification service is connected.");
-    setReminderTitle("");
+    }), "Reminder saved in NN Life. Delivery is not enabled until the notification service is connected.").then((saved) => {
+      if (saved) setReminderTitle("");
+    });
   };
   const createGoal = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -240,8 +246,9 @@ function LifeSurface() {
     }
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "goals"), {
       ...metadata(), title, progress: 0, target, unit: goalUnit.trim(), status: "active",
-    }), "Goal created in NN Life.");
-    setGoalTitle(""); setGoalTarget("1"); setGoalUnit("");
+    }), "Goal created in NN Life.").then((saved) => {
+      if (saved) { setGoalTitle(""); setGoalTarget("1"); setGoalUnit(""); }
+    });
   };
   const deleteRecord = (name: CollectionName, id: string, success: string) => {
     if (!uid) return;
@@ -250,8 +257,8 @@ function LifeSurface() {
   const confirmDelete = () => {
     if (!uid || !pendingDelete || busy) return;
     const selected = pendingDelete;
-    setPendingDelete(null);
-    void save(() => deleteDoc(doc(getFirebase().db, "users", uid, selected.name, selected.id)), selected.success);
+    void save(() => deleteDoc(doc(getFirebase().db, "users", uid, selected.name, selected.id)), selected.success)
+      .then((saved) => { if (saved) setPendingDelete(null); });
   };
 
   const toggleTask = (item: RecordData) => {
