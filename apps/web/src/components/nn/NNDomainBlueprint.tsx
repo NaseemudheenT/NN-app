@@ -83,25 +83,6 @@ export function inferDomainLayout(appId: string, module: DomainModule): DomainLa
   return appDefaults[appId] ?? "dashboard";
 }
 
-function iconForRegion(region: string, fallback: IconName): IconName {
-  const key = region.toLowerCase();
-  if (/(date|calendar|timeline|schedule|timetable)/.test(key)) return "calendar";
-  if (/(search|question|filter|query)/.test(key)) return "search";
-  if (/(note|document|writing|editor|lesson|reader|journal|reflection)/.test(key)) return "file";
-  if (/(task|action|check|milestone|delivery|approval|exercise)/.test(key)) return "check";
-  if (/(budget|ledger|account|holding|invoice|billing)/.test(key)) return "wallet";
-  if (/(security|access|audit|permission|device)/.test(key)) return "shield";
-  if (/(project|workflow|process|operation|board|production)/.test(key)) return "layers";
-  if (/(people|contact|client|relationship)/.test(key)) return "people";
-  if (/(map|place|location|travel|trip)/.test(key)) return "globe";
-  if (/(time|session|focus|activity|history|reminder)/.test(key)) return "clock";
-  if (/(path|skill|roadmap|growth|learning)/.test(key)) return "compass";
-  if (/(course|book|library|formula|syllabus)/.test(key)) return "book";
-  if (/(media|asset|camera|content|image)/.test(key)) return "camera";
-  if (/(mail|message|inbox|compose)/.test(key)) return "mail";
-  if (/(result|metric|trend|analytics|report|mastery)/.test(key)) return "graph";
-  return fallback;
-}
 
 export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>> = {
   soul: [
@@ -400,7 +381,7 @@ function DomainCanvas({ app, module }: { app: NNApplication; module: DomainModul
 
       {layout === "board" ? (
         <div className={styles.domainBoard} data-structure="board">
-          {rows.map(({ region, index }) => <div className={styles.domainBoardColumn} key={region}><strong>{region}</strong><small>WORKSPACE</small><i/><i/></div>)}
+          {rows.map(({ region }) => <div className={styles.domainBoardColumn} key={region}><strong>{region}</strong><small>WORKSPACE</small><i/><i/></div>)}
         </div>
       ) : null}
 
