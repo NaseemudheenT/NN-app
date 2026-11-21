@@ -326,3 +326,8 @@
 :global(html[data-motion="reduced"]) .islandSignal::after { animation: none; }
 :global(html[data-motion="reduced"]) .item img[data-nn-icon],
 :global(html[data-motion="reduced"]) .item svg[data-nn-icon] { transition: none; }
+
+
+/* Five deliberate rows: title, filter, count, scrollable destinations, footer. */
+.panel { grid-template-rows: auto auto auto minmax(0, 1fr) auto; }
+.list { min-height: 0; }
