@@ -914,7 +914,7 @@
   }
   .renField { padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5); }
   .renField input { font-size: var(--text-label-size); }
-  .toast { max-width: calc(100% - var(--space-9)); white-space: normal; }
+  .toast { max-width: calc(100% - var(--space-9)); white-space: normal; bottom: calc(76px + env(safe-area-inset-bottom)); }
 }
 
 /* Where the material cannot be rendered, fall back to a solid pane rather
