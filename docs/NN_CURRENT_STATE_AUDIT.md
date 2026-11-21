@@ -3,7 +3,7 @@
 **Audit date:** 2026-11-21  
 **Repository:** `NaseemudheenT/NN-app`  
 **Audited branch:** `gt/nn-liquid-glass-unified`  
-**Audited HEAD:** `2e93c5c010c40b783592a8d503a0ab6a790c14bc`  
+**Audited HEAD:** `649001301e669958e7664c0de435375b11888ed4` (baseline for the 2026-11-21 frontend design pass)  
 **Purpose:** Record repository and deployment evidence before the next implementation phase. This is not a declaration that NN is complete.
 
 ## Executive result
@@ -23,7 +23,7 @@ The latest integration commit passed the repository's GitHub Actions workflow fo
 | NN Life | `apps/web/src/components/nn/NNLife.tsx` has tasks, calendar events, reminders, notes and goals surfaces. | Partially implemented; reminder delivery and several full Life modules remain dependencies/gaps. |
 | NN Study | A dedicated Study surface exists on the current integration branch. | Partial; syllabus, question banks, assignment and exam workflows need a full audit. |
 | Home | `NNHome.tsx` renders `NNDashboard`; dashboard includes Today, Applications, REN and Activity views, plus live record summaries. | Implemented shell; conflicts with the later frontend direction that Home should be a simple app launcher. |
-| Navigation | Shared `AppShell` uses `LiquidNav`; `NNPanel` provides the persistent Dynamic Island navigation surface. | Implemented on current branch; navigation composition needs founder-approved final reconciliation. |
+| Navigation | Shared `AppShell` has a quiet top bar; `NNPanel` provides the Dynamic Island navigation surface. | Core surfaces exist; reconcile global return, search and REN so no route has duplicate navigation. |
 | Mobile workspace | Shared safe-area spacing, horizontal section tabs, 44px touch targets and mobile input sizing have been added. | Implemented in CSS; actual iOS/Android device QA remains outstanding. |
 | Security | Authentication, Firebase rules, security package and emulator tests exist in the repository; prior progress log records emulator-based rules tests. | Code/tests present; current branch CI is not a substitute for a fresh security audit or deployed verification. |
 | REN | REN routes, UI and server-side integration code are present in the repository. Provider credentials and actual end-to-end tool execution must be checked separately. | Do not claim configured intelligence or successful tool execution without live evidence. |
@@ -45,6 +45,10 @@ The latest integration commit passed the repository's GitHub Actions workflow fo
 2. **Persistent navigation:** the frontend programme's latest direction removes persistent side rail, bottom dock and duplicate navigation bars, keeping REN as the persistent assistant entry point. Current code still has a LiquidNav dock on application surfaces. The final shell must reconcile this before release; do not add more competing navigation.
 3. **Application completion semantics:** the generic section/record surface makes many app routes openable, but does not implement each app's domain-specific workflows. Availability labels and progress reports must distinguish a generic record scaffold from a completed application.
 4. **Planning document freshness:** `MASTER_IMPLEMENTATION_PLAN.md` contains a baseline marked awaiting approval that predates substantial code. Use current code, CI and this audit rather than repeating that historical baseline as present fact. Keep its approval/cost gates for infrastructure and production decisions.
+
+## Frontend phase tracking
+
+The active seven-phase design/interface tracker is `docs/NN_FRONTEND_PHASE_TRACKER.md`. It supersedes stale design-stage assumptions in older roadmap documents. Current scope is frontend interface completion and Claude handoff, not backend completion.
 
 ## Vercel deployment evidence
 

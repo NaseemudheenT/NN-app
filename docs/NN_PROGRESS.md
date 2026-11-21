@@ -1,3 +1,20 @@
+## 2026-11-21 · Frontend design completion programme opened
+
+**Scope clarified by founder:** complete the NN operating-system interface and design handoff. Claude will continue deeper application engineering after the interface is complete.
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Verified HEAD before this design pass:** `649001301e669958e7664c0de435375b11888ed4`  
+**CI:** GitHub Actions run 44877215503 — success, including typecheck, lint, unit tests and Next.js production build.
+
+**Added in this pass:**
+- A seven-phase frontend completion tracker with explicit exit criteria.
+- A clearer ChatGPT/Claude ownership boundary: this lane owns all interface design; Claude owns deeper application logic and backend engineering.
+- Shared ambient spatial lighting and floating glass treatments for app shell and records-based surfaces.
+
+**Not claimed:** all 34 apps are not complete. Most currently use a shared records interface. Mobile device QA, complete domain-specific screens and the final Claude handoff remain open.
+
+---
+
 ## 2026-11-09 · CI foundation merged and main verified
 
 **Merged:** PR #1 (CI: add automated typecheck, lint, test and build gate) into

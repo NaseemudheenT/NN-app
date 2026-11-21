@@ -5,10 +5,13 @@
 ## Founder-approved work split
 
 ### ChatGPT lane — product design and frontend
+ChatGPT owns the complete frontend design and interface handoff. The goal is to finish the visual operating system so Claude can continue deeper product engineering on a stable, consistent interface.
+
 ChatGPT owns:
 - NN visual system, responsive UI and CSS Modules.
 - Shared application shell, navigation, launcher and command surfaces.
-- All application screen layouts and frontend interaction states.
+- All 34 application interface layouts, screen hierarchies and frontend interaction states.
+- Design-only preview states where backend workflows are not yet implemented, clearly labelled so they cannot be mistaken for live functionality.
 - Integration of the five supplied visual references: Liquid Glass Button, Glass Fold, Coverflow Carousel, Perspective Tunnel Hero and Adjustable Glass Dashboard.
 - Frontend accessibility, reduced-motion behaviour, device adaptation and visual QA.
 - Frontend commits on `design/nn-frontend-system`.
