@@ -43,19 +43,17 @@ export function NNPanel() {
   const [open, setOpen] = useState(false);
   const hostRef = useRef<HTMLDivElement>(null);
   const islandRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   const here = currentDestination(pathname);
   const places = destinations().filter((d) => d.route !== undefined && d.group === "NN");
   const apps = destinations().filter((d) => d.route !== undefined && d.group === "Applications");
 
   /*
-   * Focus has to go back to the island, and the island does not exist yet.
-   *
-   * The panel replaces it rather than covering it, so at the moment `close`
-   * runs there is nothing to focus — the ref still points at an element
-   * React has already unmounted. Calling `.focus()` there does nothing
-   * silently, and a keyboard user is left with focus on the document body
-   * with no way back. The restore has to wait for the next render.
+   * The island and its expanded panel stay mounted as two visual states of
+   * one control. Focus moves into the panel when it opens and returns to the
+   * island after an explicit close; outside clicks leave focus with the
+   * control the user deliberately chose.
    */
   const restoring = useRef(false);
 
@@ -65,7 +63,11 @@ export function NNPanel() {
   }, []);
 
   useEffect(() => {
-    if (open || !restoring.current) return;
+    if (open) {
+      closeRef.current?.focus();
+      return;
+    }
+    if (!restoring.current) return;
     restoring.current = false;
     islandRef.current?.focus();
   }, [open]);
@@ -144,7 +146,7 @@ export function NNPanel() {
           <span className={s.headMark}><NNLogo size={18} glow decorative /></span>
           <span className={s.headName}>{here?.label ?? "NN"}</span>
           <span className={s.headStatus}>NN SYSTEM</span>
-          <button type="button" className={s.close} aria-label="Close" onClick={close}>
+          <button ref={closeRef} type="button" className={s.close} aria-label="Close" onClick={close}>
             <Icon name="expand" size={15} />
           </button>
         </div>
