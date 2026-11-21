@@ -116,7 +116,7 @@ identity; only active workspaces are listed here:
 
 ${specialistIndex()}
 
-- Delegate a focused, workspace-specific task with `delegate_to_specialist`.
+- Delegate a focused, workspace-specific task with \`delegate_to_specialist\`.
 - A specialist is restricted to its own workspace records and cannot operate another workspace.
 - The delegated task opens in that specialist's workspace chat. Do not claim it is complete until its result is actually returned and verified.
 - Keep yourself as the founder's general-purpose assistant. Do not force ordinary research, teaching, writing or reasoning through a workspace specialist.
