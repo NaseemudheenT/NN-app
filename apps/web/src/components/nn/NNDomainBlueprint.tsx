@@ -312,6 +312,130 @@ function EducationCanvas({ app, module }: { app: NNApplication; module: DomainMo
   );
 }
 
+
+function DomainCanvas({ app, module }: { app: NNApplication; module: DomainModule }) {
+  const layout = inferDomainLayout(app.id, module);
+  const regions = module.regions;
+  const Region = ({ index }: { index: number }) => (
+    <span className={styles.domainRegion}>{regions[index] ?? module.title}</span>
+  );
+  const rows = regions.map((region, index) => ({ region, index }));
+
+  return (
+    <div className={styles.domainCanvas} data-layout={layout} data-layout-surface={layout} aria-label={`${module.title} ${layout} layout preview`}>
+      <div className={styles.domainCanvasHead}>
+        <span>{app.name.toUpperCase()} / {module.title.toUpperCase()}</span>
+        <span>DESIGN PREVIEW</span>
+      </div>
+
+      {layout === "timeline" || layout === "planner" || layout === "roadmap" ? (
+        <div className={styles.domainTimeline} data-structure={layout}>
+          {rows.map(({ region, index }) => (
+            <div className={styles.domainTimelineRow} key={region}>
+              <span className={styles.domainTimelineMarker}>{String(index + 1).padStart(2, "0")}</span>
+              <div><strong>{region}</strong><i/><small>{layout === "roadmap" ? "MILESTONE SPACE" : layout === "planner" ? "PLANNING AREA" : "ENTRY SPACE"}</small></div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {layout === "finance" ? (
+        <div className={styles.domainFinance} data-structure="finance">
+          <div className={styles.domainFinanceSummary}><span>ACCOUNT SUMMARY</span><strong>—</strong><small>Connect a verified data source</small><div className={styles.domainSparkline}><i/><i/><i/><i/><i/><i/><i/></div></div>
+          <div className={styles.domainLedger}>
+            {rows.map(({ region, index }) => <div key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong><i/><small>NO RECORDS</small></div>)}
+          </div>
+        </div>
+      ) : null}
+
+      {layout === "inbox" ? (
+        <div className={styles.domainInbox} data-structure="inbox">
+          <div className={styles.domainInboxRail}><span>MAILBOX</span><i/><i/><i/></div>
+          <div className={styles.domainInboxList}>{rows.map(({ region, index }) => <div key={region}><span className={styles.domainAvatar}>{String(index + 1).padStart(2, "0")}</span><div><strong>{region}</strong><i/><small>MESSAGE PREVIEW</small></div><span>—</span></div>)}</div>
+        </div>
+      ) : null}
+
+      {layout === "flow" ? (
+        <div className={styles.domainFlow} data-structure="flow">
+          {rows.map(({ region, index }) => <div className={styles.domainFlowNode} key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong><small>{index === 0 ? "TRIGGER" : index === rows.length - 1 ? "RESULT" : "ACTION"}</small></div>)}
+        </div>
+      ) : null}
+
+      {layout === "security" ? (
+        <div className={styles.domainSecurity} data-structure="security">
+          <div className={styles.domainSecurityHeader}><span className={styles.domainShield}><Icon name="shield" size={22} solid tone="ice"/></span><div><strong>Security controls</strong><small>Connect a verified security provider to inspect live state</small></div></div>
+          {rows.map(({ region, index }) => <div className={styles.domainSettingRow} key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong><small>NOT CONNECTED</small></div>)}
+        </div>
+      ) : null}
+
+      {layout === "media" ? (
+        <div className={styles.domainMedia} data-structure="media">
+          {rows.map(({ region, index }) => <div className={styles.domainMediaTile} key={region}><span className={styles.domainMediaGlyph}><Icon name={index === 0 ? "image" : "layers"} size={20} solid tone="ice"/></span><strong>{region}</strong><small>ASSET SPACE</small></div>)}
+        </div>
+      ) : null}
+
+      {layout === "calculator" ? (
+        <div className={styles.domainCalculator} data-structure="calculator">
+          <div className={styles.domainCalcDisplay}><span>COMPUTATION WORKSPACE</span><strong>—</strong><small>Enter inputs to calculate</small></div>
+          <div className={styles.domainCalcFields}>{rows.map(({ region, index }) => <div key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong><i/></div>)}</div>
+        </div>
+      ) : null}
+
+      {layout === "map" ? (
+        <div className={styles.domainMap} data-structure="map">
+          <div className={styles.domainMapCanvas}><span/><span/><span/><i/><i/><i/><small>MAP DATA NOT CONNECTED</small></div>
+          <div className={styles.domainMapPlaces}>{rows.map(({ region, index }) => <div key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong></div>)}</div>
+        </div>
+      ) : null}
+
+      {layout === "editor" || layout === "reader" ? (
+        <div className={styles.domainDocument} data-structure={layout}>
+          <div className={styles.domainDocumentPage}><span>{layout === "reader" ? "READING VIEW" : "DOCUMENT CANVAS"}</span><strong>{module.title}</strong><div className={styles.domainDocumentLines}><i/><i/><i/><i/><i/><i/></div><div className={styles.domainDocumentCallout}/><div className={styles.domainDocumentLines}><i/><i/><i/></div></div>
+          <aside className={styles.domainDocumentAside}>{rows.map(({ region, index }) => <div key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong></div>)}</aside>
+        </div>
+      ) : null}
+
+      {layout === "settings" ? (
+        <div className={styles.domainSettings} data-structure="settings">
+          {rows.map(({ region, index }) => <div className={styles.domainSettingRow} key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong><i aria-hidden="true"/></div>)}
+        </div>
+      ) : null}
+
+      {layout === "board" ? (
+        <div className={styles.domainBoard} data-structure="board">
+          {rows.map(({ region, index }) => <div className={styles.domainBoardColumn} key={region}><strong>{region}</strong><small>WORKSPACE</small><i/><i/></div>)}
+        </div>
+      ) : null}
+
+      {layout === "cards" || layout === "library" ? (
+        <div className={styles.domainCards} data-structure={layout}>
+          {rows.map(({ region, index }) => <div className={styles.domainCard} key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong><i/><small>{layout === "library" ? "RESOURCE DETAIL" : "PERSONAL SPACE"}</small></div>)}
+        </div>
+      ) : null}
+
+      {layout === "analytics" ? (
+        <div className={styles.domainAnalytics} data-structure="analytics">
+          <div className={styles.domainChart}><span>DATA VISUALISATION</span><div className={styles.domainChartGrid}><i/><i/><i/><i/></div><small>NO SOURCE DATA</small></div>
+          <div className={styles.domainAnalyticsLegend}>{rows.map(({ region, index }) => <div key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong></div>)}</div>
+        </div>
+      ) : null}
+
+      {layout === "navigator" ? (
+        <div className={styles.domainNavigator} data-structure="navigator">
+          <aside>{rows.map(({ region, index }) => <div key={region} data-active={index === 0}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong></div>)}</aside>
+          <div><span>SELECTED NODE</span><strong>{module.title}</strong><i/><i/><i/><small>Choose a node to inspect its connections</small></div>
+        </div>
+      ) : null}
+
+      {layout === "dashboard" ? (
+        <div className={styles.domainCards} data-structure="dashboard">
+          {rows.map(({ region, index }) => <div className={styles.domainCard} key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong><i/><small>OVERVIEW PANEL</small></div>)}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function NNDomainBlueprint({ app }: { app: NNApplication }) {
   const modules = DOMAIN_BLUEPRINTS[app.id];
   const [selectedId, setSelectedId] = useState(modules?.[0]?.id ?? "");
@@ -392,15 +516,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
                 <span className={styles.screenTitle}>{selected.title}</span>
                 <span className={styles.screenSubline}/>
               </div>
-              <div className={styles.screenWidgets} data-layout={inferDomainLayout(app.id, selected)}>
-                {selected.regions.map((region, index) => (
-                  <div className={styles.screenWidget} data-layout={index === 0 ? "primary" : index === 1 ? "secondary" : "tertiary"} key={region}>
-                    <span className={styles.widgetIcon}><Icon name={iconForRegion(region, selected.icon)} size={14} solid tone="ice"/></span>
-                    <span className={styles.widgetName}>{region}</span>
-                    <span className={styles.widgetLines}><i/><i/><i/></span>
-                  </div>
-                ))}
-              </div>
+              <DomainCanvas app={app} module={selected}/>
             </div>
             <aside className={styles.screenContext}>
               <span className={styles.contextDot}/>
