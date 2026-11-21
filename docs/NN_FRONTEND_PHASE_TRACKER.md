@@ -78,7 +78,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [ ] System: Command Centre, Search, Automation Studio, Security Centre, Control Room, Files and REN surfaces.
 - [x] Domain-specific module maps and structural screen compositions for all 31 records-based applications.
 - [x] Replace long module labels with concise feature names; remove repeated explanatory copy from app previews.
-- [x] Place the feature rail above the live record workspace so each application opens on its domain-specific interface.\n- [ ] Complete per-app navigation, real empty/loading/error states, detail screens and interaction prototypes.
+- [x] Place the feature rail above the live record workspace so each application opens on its domain-specific interface.\n- [x] Add distinct visual grammars for finance, inbox, flow, security, media, calculator, map, editor, settings, board and contact-card spaces.\n- [x] Reset selected record tabs when navigating between applications.\n- [ ] Complete per-app navigation, real empty/loading/error states, detail screens and interaction prototypes.
 - [ ] Never show fabricated finance, attendance, analytics, market, device, security, AI or integration data.
 
 ### Phase G — Verification and Claude handoff

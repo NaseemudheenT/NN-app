@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getApplication } from "@/lib/apps/registry";
-import { NNDomainBlueprint } from "./NNDomainBlueprint";
+import { inferDomainLayout, NNDomainBlueprint, type DomainModule } from "./NNDomainBlueprint";
 
 vi.mock("@/components/ui/Icon", () => ({
   Icon: ({ name }: { name: string }) => <span aria-hidden="true">{name}</span>,
@@ -15,6 +15,15 @@ if (!college || !academy) throw new Error("Education applications must exist in 
 afterEach(cleanup);
 
 describe("NN feature spaces", () => {
+  it("selects a screen grammar from each feature rather than the app name", () => {
+    const feature = (id: string, title: string): DomainModule => ({
+      id, title, description: "", icon: "calendar", regions: [],
+    });
+    expect(inferDomainLayout("creator-studio", feature("calendar", "Calendar"))).toBe("timeline");
+    expect(inferDomainLayout("studio", feature("documents", "Documents"))).toBe("editor");
+    expect(inferDomainLayout("finance", feature("ledger", "Ledger"))).toBe("finance");
+    expect(inferDomainLayout("travel", feature("places", "Places"))).toBe("map");
+  });
   it("supports horizontal arrow navigation and associates the selected preview", () => {
     render(<NNDomainBlueprint app={college} />);
     const rail = screen.getByRole("tablist", { name: "College spaces" });

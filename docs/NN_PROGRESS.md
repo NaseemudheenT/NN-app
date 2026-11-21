@@ -1,3 +1,12 @@
+## 2026-11-21 · Distinct application screen grammars
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Change:** Expanded the shared preview engine from a small set of generic layouts to domain-specific compositions: finance, inbox, flow, security, media, calculator, map, editor, settings, board, contact cards, timeline, library, roadmap, analytics and navigation. Feature-level matching now takes precedence over the app name, so a calendar inside Creator Studio receives a timeline layout rather than inheriting a media layout. Added tests for these routing rules, restored region-aware object icons, added visible flow connectors and reset the active record tab when moving between applications.
+
+**Verification:** CI for the prior revision passed all checks and production build. This expanded composition revision requires a fresh full CI run.
+
+---
+
 ## 2026-11-21 · Domain object-icon pass
 
 **Branch:** `gt/nn-liquid-glass-unified`  

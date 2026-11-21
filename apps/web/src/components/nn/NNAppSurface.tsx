@@ -379,6 +379,7 @@ function SectionPanel({ section }: { section: AppSection }) {
 
 export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
   const [active, setActive] = useState(0);
+  useEffect(() => setActive(0), [app.id]);
   const section = sections[active] ?? sections[0];
   if (!section) return null;
 

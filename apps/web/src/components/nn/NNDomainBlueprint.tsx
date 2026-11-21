@@ -18,44 +18,55 @@ export interface DomainModule {
 
 export function inferDomainLayout(appId: string, module: DomainModule): DomainLayout {
   if (module.layout) return module.layout;
-  const key = `${appId} ${module.id} ${module.title}`.toLowerCase();
-  if (/(ledger|budget|transaction|portfolio|watchlist|investment|cash-flow|billing|invoice)/.test(key)) return "finance";
+  const key = `${module.id} ${module.title}`.toLowerCase();
+  if (/(ledger|budget|transaction|watchlist|investment|cash-flow|billing|invoice|account|holding)/.test(key)) return "finance";
   if (/(inbox|mail|message|follow-up|draft|compose)/.test(key)) return "inbox";
   if (/(workflow|automation|approval|integration|execution|runs|process)/.test(key)) return "flow";
   if (/(security|access|audit|device|session|permission)/.test(key)) return "security";
-  if (/(media|creator|publishing|production|studio|content)/.test(key)) return "media";
+  if (/(media|creator|publishing|production|content|asset|camera)/.test(key)) return "media";
   if (/(formula|compute|converter|calculation|model)/.test(key)) return "calculator";
   if (/(travel|trip|place|itinerary|map)/.test(key)) return "map";
   if (/(board|project|task|milestone|operations|deliverable)/.test(key)) return "board";
   if (/(contact|people|profile|relationship|client)/.test(key)) return "cards";
-  if (/(preference|environment|control|setting)/.test(key)) return "settings";
-  if (/(lesson|journal|writing|compose|document|reflection|notes|retrospective)/.test(key)) return "editor";
-  if (/(date|timeline|calendar|session|schedule|interview|practice|activity)/.test(key)) return "timeline";
-  if (/(library|archive|collection|card|vault|portfolio|evidence)/.test(key)) return "library";
+  if (/(preference|environment|control|setting|data)/.test(key)) return "settings";
+  if (/(lesson|journal|writing|document|reflection|notes|retrospective|editor)/.test(key)) return "editor";
+  if (/(date|timeline|calendar|session|focus|schedule|interview|practice|activity|training)/.test(key)) return "timeline";
+  if (/(library|archive|collection|card|vault|portfolio|evidence|course|book)/.test(key)) return "library";
   if (/(path|roadmap|scenario|skill)/.test(key)) return "roadmap";
-  if (/(trend|analytics|mastery|metric|report|result|growth)/.test(key)) return "analytics";
-  if (/(syllabus|navigator|structure|graph|connection|question-bank)/.test(key)) return "navigator";
-  return "dashboard";
+  if (/(trend|analytics|mastery|metric|report|result|growth|recovery)/.test(key)) return "analytics";
+  if (/(syllabus|navigator|structure|graph|connection|question|unit)/.test(key)) return "navigator";
+  const appDefaults: Partial<Record<string, DomainLayout>> = {
+    finance: "finance",
+    invest: "finance",
+    analytics: "analytics",
+    travel: "map",
+    "security-centre": "security",
+    "control-room": "settings",
+    "automation-studio": "flow",
+    "command-centre": "flow",
+    "creator-studio": "media",
+  };
+  return appDefaults[appId] ?? "dashboard";
 }
 
-const REGION_ICON_HINTS: ReadonlyArray<[RegExp, IconName]> = [
-  [/calendar|date|schedule|timeline|history/i, "calendar"],
-  [/finance|ledger|budget|transaction|payment|invoice|portfolio/i, "wallet"],
-  [/search|question|research|source|archive/i, "search"],
-  [/security|access|audit|permission|session/i, "shield"],
-  [/workflow|automation|approval|integration|process/i, "circuit"],
-  [/media|image|video|production|content|publishing/i, "sparkle"],
-  [/formula|compute|calculation|unit|result/i, "formula"],
-  [/map|place|location|trip|travel/i, "globe"],
-  [/writing|editor|document|notes|journal|reflection/i, "file"],
-  [/people|contact|person|client|relationship/i, "people"],
-  [/settings|preference|environment|control/i, "sliders"],
-  [/task|board|milestone|project|deliverable/i, "check"],
-  [/book|course|lesson|library|reader|syllabus/i, "book"],
-];
-
 function iconForRegion(region: string, fallback: IconName): IconName {
-  return REGION_ICON_HINTS.find(([pattern]) => pattern.test(region))?.[1] ?? fallback;
+  const key = region.toLowerCase();
+  if (/(date|calendar|timeline|schedule|timetable)/.test(key)) return "calendar";
+  if (/(search|question|filter|query)/.test(key)) return "search";
+  if (/(note|document|writing|editor|lesson|reader|journal|reflection)/.test(key)) return "file";
+  if (/(task|action|check|milestone|delivery|approval|exercise)/.test(key)) return "check";
+  if (/(budget|ledger|account|holding|invoice|billing)/.test(key)) return "wallet";
+  if (/(security|access|audit|permission|device)/.test(key)) return "shield";
+  if (/(project|workflow|process|operation|board|production)/.test(key)) return "layers";
+  if (/(people|contact|client|relationship)/.test(key)) return "people";
+  if (/(map|place|location|travel|trip)/.test(key)) return "globe";
+  if (/(time|session|focus|activity|history|reminder)/.test(key)) return "clock";
+  if (/(path|skill|roadmap|growth|learning)/.test(key)) return "compass";
+  if (/(course|book|library|formula|syllabus)/.test(key)) return "book";
+  if (/(media|asset|camera|content|image)/.test(key)) return "camera";
+  if (/(mail|message|inbox|compose)/.test(key)) return "mail";
+  if (/(result|metric|trend|analytics|report|mastery)/.test(key)) return "graph";
+  return fallback;
 }
 
 export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>> = {
