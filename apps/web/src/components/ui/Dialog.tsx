@@ -24,6 +24,8 @@ const FOCUSABLE =
 export function Dialog({ open, onClose, title, description, children, footer }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreTo = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const id = useId();
   const titleId = `${id}-title`;
   const descId = `${id}-desc`;
@@ -32,7 +34,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
     (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== "Tab") return;
@@ -56,7 +58,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
         first.focus();
       }
     },
-    [onClose],
+    [],
   );
 
   useEffect(() => {
@@ -77,6 +79,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = overflow;
       restoreTo.current?.focus();
+      restoreTo.current = null;
     };
   }, [open, onKeyDown]);
 
@@ -85,8 +88,8 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
   return createPortal(
     <div
       className={styles.backdrop}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+      onPointerDown={(e) => {
+        if (e.target === e.currentTarget) onCloseRef.current();
       }}
     >
       <div

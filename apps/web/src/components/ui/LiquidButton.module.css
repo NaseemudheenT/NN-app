@@ -126,13 +126,26 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .liquid, .edge, .refraction::after, .label { transition: none; }
   .liquid:hover:not(:disabled),
   .liquid:active:not(:disabled) { transform: none; }
-  .loading .edge::after { animation-duration: 3400ms; }
+  .loading .edge::after { animation: none; opacity: .24; }
 }
+:global(html[data-motion="reduced"]) .liquid,
+:global(html[data-motion="reduced"]) .edge,
+:global(html[data-motion="reduced"]) .refraction::after,
+:global(html[data-motion="reduced"]) .label { transition: none; }
 :global(html[data-motion="reduced"]) .liquid:hover:not(:disabled),
 :global(html[data-motion="reduced"]) .liquid:active:not(:disabled) { transform: none; }
-:global(html[data-motion="reduced"]) .loading .edge::after { animation-duration: 3400ms; }
+:global(html[data-motion="reduced"]) .loading .edge::after { animation: none; opacity: .24; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .refraction {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: color-mix(in srgb, var(--surface-raised) 96%, transparent);
+  }
+}
 
 /* The shared filter definition occupies no space and is never painted. */
 .defs {
