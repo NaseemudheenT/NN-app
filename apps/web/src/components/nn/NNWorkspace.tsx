@@ -188,6 +188,12 @@ export function NNWorkspace({
   }, [settingsOpen]);
 
   useEffect(() => {
+    if (accountOpen) {
+      root.current?.querySelector<HTMLButtonElement>('[aria-label="Close account menu"]')?.focus();
+    }
+  }, [accountOpen]);
+
+  useEffect(() => {
     if (!notice) return;
     const timer = window.setTimeout(() => setNotice(""), 3200);
     return () => window.clearTimeout(timer);
@@ -594,9 +600,9 @@ export function NNWorkspace({
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           if (settingsOpen) closeSettings();
+          else if (accountOpen) accountTrigger.current?.focus();
           setAlertsOpen(false);
           setAccountOpen(false);
-          accountTrigger.current?.focus();
         }
       }}
     >
@@ -628,7 +634,6 @@ export function NNWorkspace({
               className={styles.avatar}
               title={userName}
               aria-label="Account menu"
-              aria-haspopup="menu"
               aria-expanded={accountOpen}
               onClick={() => {
                 setAccountOpen((open) => !open);
@@ -957,7 +962,7 @@ export function NNWorkspace({
         ) : null}
 
         {accountOpen ? (
-          <aside className={[styles.notifications, styles.glass].join(" ")} aria-label="Account menu" role="menu">
+          <aside className={[styles.notifications, styles.glass].join(" ")} aria-label="Account controls">
             <div>
               <h2>{userName}</h2>
               <button type="button" aria-label="Close account menu" onClick={() => { setAccountOpen(false); accountTrigger.current?.focus(); }}>

@@ -114,8 +114,11 @@
   border: 1px solid var(--border-normal);
   border-radius: var(--radius-full);
   background: var(--glass-2-bg);
+  font-family: inherit;
   font-size: var(--text-caption-size);
   font-weight: var(--weight-semibold);
+  line-height: 1;
+  padding: 0;
   color: var(--text-primary);
   cursor: pointer;
   transition: transform var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);

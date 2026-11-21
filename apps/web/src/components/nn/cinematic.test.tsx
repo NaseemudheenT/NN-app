@@ -165,6 +165,18 @@ describe("NNWorkspace", () => {
     expect(screen.getByRole("complementary", { name: "Glass appearance" })).toBeInTheDocument();
   });
 
+  it("keeps account controls separate from notifications", async () => {
+    render(<NNWorkspace />);
+    await userEvent.click(screen.getByRole("button", { name: "Account menu" }));
+    expect(screen.getByRole("complementary", { name: "Account controls" })).toBeInTheDocument();
+    expect(screen.getByText("Session controls are available in the signed-in workspace.")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Notifications" }));
+    expect(screen.queryByRole("complementary", { name: "Account controls" })).not.toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "Notifications" })).toBeInTheDocument();
+    expect(screen.queryByText("Session controls are available in the signed-in workspace.")).not.toBeInTheDocument();
+  });
+
   it("changes view from the dock", async () => {
     render(<NNWorkspace />);
     const docks = screen.getAllByRole("button", { name: "Insight" });
