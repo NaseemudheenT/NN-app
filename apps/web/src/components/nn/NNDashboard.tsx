@@ -7,6 +7,7 @@ import {
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { NNLogo } from "@/components/ui/NNLogo";
 import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
 import { LiquidNav, type LiquidNavItem } from "@/components/ui/LiquidNav";
 import { CurvedCarousel, type CarouselSlide } from "@/components/ui/CurvedCarousel";
@@ -338,6 +339,31 @@ function TodayView({ firstName }: { firstName: string }) {
 
         <section className={styles.panel}>
           <header className={styles.panelTop}>
+            <h3>Tasks</h3>
+            <span className={styles.small}><Count state={tasks} /> open</span>
+          </header>
+          <Stateful state={tasks} empty="No tasks yet.">
+            {() => openTasks.length === 0 ? (
+              <p className={styles.empty}>Everything is clear. No open tasks.</p>
+            ) : (
+              <ul className={styles.rows}>
+                {openTasks.slice(0, 5).map((task) => (
+                  <li key={task.id}>
+                    <span className={styles.rowIcon}><GlassIcon name="check" tone="green" size={34} /></span>
+                    <span className={styles.rowBody}>
+                      <strong>{text(task, "title", "name", "summary") ?? "Untitled task"}</strong>
+                      <span>{text(task, "priority") ?? "Open task"}</span>
+                    </span>
+                    <span className={styles.rowMeta}>{text(task, "dueLabel", "dueDate") ?? ""}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Stateful>
+        </section>
+
+        <section className={styles.panel}>
+          <header className={styles.panelTop}>
             <h3>Goals</h3>
             <span className={styles.small}>
               <Count state={goals} /> tracked
@@ -392,7 +418,7 @@ function ApplicationsView() {
         kicker: app.group,
         caption: app.description,
         icon: app.icon,
-        ready: app.href !== undefined,
+        ready: app.experience === "dedicated",
       })),
     [],
   );
@@ -401,8 +427,8 @@ function ApplicationsView() {
     (slide: CarouselSlide) => {
       const app = APPLICATIONS.find((entry) => entry.id === slide.id);
       if (!app) return;
-      // A real destination either way: the application when it exists, its
-      // honest overview when it does not.
+      // Every route opens, but the launcher only marks dedicated workflows
+      // as ready. A shared record scaffold is not a finished application.
       travel.open((app.href ?? app.overviewHref) as Route, app.name);
     },
     [travel],
@@ -531,10 +557,17 @@ export function NNDashboard({
               the door — repeating it here, beside the word it spells, was the
               same name said twice. The tagline went with it: the founder does
               not need to be told what NN is on the screen they are using. */}
-          <strong>NN</strong>
+          <NNLogo size={30} glow decorative />
+          <span className={styles.brandWord}><strong>NN</strong><small>PERSONAL OS</small></span>
         </div>
 
         <div className={styles.toolbar}>
+          <button type="button" className={styles.iconButton} aria-label="Search NN" title="Search NN" onClick={() => router.push("/search" as Route)}>
+            <Icon name="search" size={17} />
+          </button>
+          <button type="button" className={styles.iconButton} aria-label="Open REN" title="Open REN" onClick={() => router.push("/ren" as Route)}>
+            <Icon name="sparkle" size={17} />
+          </button>
           <button
             type="button"
             className={styles.avatar}
