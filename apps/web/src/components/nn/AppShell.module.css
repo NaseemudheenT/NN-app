@@ -139,3 +139,10 @@
 @media (prefers-reduced-motion: reduce) {
   .dock { scroll-behavior: auto; }
 }
+
+
+.agent{display:flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 14px;border:1px solid color-mix(in srgb,#0a84ff 24%,var(--border-normal));border-radius:999px;background:color-mix(in srgb,#0a84ff 8%,var(--surface-raised));color:var(--text-accent);font-size:12px;font-weight:620;white-space:nowrap;cursor:pointer;transition:background 160ms ease,border-color 160ms ease,transform 160ms ease}
+.agent:hover{background:color-mix(in srgb,#0a84ff 14%,var(--surface-raised));border-color:color-mix(in srgb,#0a84ff 42%,var(--border-normal))}
+.agent:active{transform:scale(.98)}
+@media(max-width:700px){.agent{width:42px;min-width:42px;padding:0}.agent span{display:none}}
+@media(prefers-reduced-motion:reduce){.agent{transition:none}}
