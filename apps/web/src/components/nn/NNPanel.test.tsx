@@ -50,6 +50,7 @@ describe("the island", () => {
     render(<NNPanel />);
     await userEvent.click(screen.getByRole("button", { name: /Go to/ }));
     expect(screen.getByRole("dialog", { name: "Go to" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Go to/ , hidden: true })).toHaveAttribute("aria-expanded", "true");
   });
 });
 
