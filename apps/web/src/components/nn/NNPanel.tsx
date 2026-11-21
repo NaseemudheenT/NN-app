@@ -66,7 +66,7 @@ export function NNPanel() {
     destinations: apps.filter((destination) => {
       const app = getApplication(destination.id.slice(4));
       return app?.group === group.name
-        && (!needle || (destination.label + " " + destination.hint + " " + group.label).toLowerCase().includes(needle));
+        && (!needle || (destination.label + " " + destination.hint + " " + group.label + " " + group.name).toLowerCase().includes(needle));
     }),
   })).filter((group) => group.destinations.length > 0), [apps, needle]);
   const resultCount = visiblePlaces.length + visibleGroups.reduce((total, group) => total + group.destinations.length, 0);

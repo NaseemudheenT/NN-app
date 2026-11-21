@@ -105,6 +105,10 @@ describe("choosing somewhere", () => {
     expect(screen.getByText("1 destination")).toBeInTheDocument();
     await userEvent.clear(search);
     expect(screen.getByRole("button", { name: /College/ })).toBeInTheDocument();
+    await userEvent.clear(search);
+    await userEvent.type(search, "education");
+    expect(screen.getByRole("button", { name: /College/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Academy/ })).toBeInTheDocument();
   });
 
   it("offers only what NN can actually open", async () => {
