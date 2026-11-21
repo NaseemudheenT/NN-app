@@ -483,7 +483,31 @@ export function LiquidNav({
   useEffect(() => {
     const s = state.current;
     const nav = navRef.current;
-    s.reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncReducedMotion = () => {
+      const reduced = motionQuery.matches || document.documentElement.dataset.motion === "reduced";
+      s.reduce = reduced;
+      if (reduced) {
+        s.a.x = s.target.x;
+        s.b.x = s.target.x;
+        s.a.v = 0;
+        s.b.v = 0;
+        s.sy.s = 1;
+        s.sy.v = 0;
+        s.q = s.target.q;
+        s.satellites = [];
+        s.ripples = [];
+        s.mouse.on = false;
+        s.mouse.s = 0;
+        s.moving = false;
+        s.split = false;
+      }
+      loop();
+    };
+    syncReducedMotion();
+    motionQuery.addEventListener("change", syncReducedMotion);
+    const motionObserver = new MutationObserver(syncReducedMotion);
+    motionObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
 
     const canvas = canvasRef.current;
     s.gl = canvas ? initGL(canvas) : null;
@@ -515,6 +539,8 @@ export function LiquidNav({
 
     return () => {
       canvas?.removeEventListener("webglcontextlost", onLost);
+      motionQuery.removeEventListener("change", syncReducedMotion);
+      motionObserver.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       cancelAnimationFrame(s.raf);
