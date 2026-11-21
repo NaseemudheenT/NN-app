@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { GUEST_NAME, OWNER_NAME, ownerFirstName, ownerFullName, ownerInitial } from "./owner";
+import {
+  GUEST_NAME, OWNER_NAME, ownerFirstName, ownerFullName, ownerGivenName, ownerInitial,
+} from "./owner";
 
 /**
  * NN belongs to one person, and it should say their name.
@@ -10,13 +12,18 @@ import { GUEST_NAME, OWNER_NAME, ownerFirstName, ownerFullName, ownerInitial } f
  */
 
 describe("who NN belongs to", () => {
-  it("greets the owner by name when the account carries none", () => {
-    // The normal path: a session minted from a custom token has no
-    // displayName, so this is what the founder actually sees.
-    expect(ownerFirstName(null)).toBe("Naseemudheen");
-    expect(ownerFirstName(undefined)).toBe("Naseemudheen");
-    expect(ownerFirstName("")).toBe("Naseemudheen");
-    expect(ownerFirstName("   ")).toBe("Naseemudheen");
+  it("addresses the founder by title, not by their given name", () => {
+    /*
+     * Reversed deliberately, at the founder's instruction: "only profile
+     * top alone N, other than [that] the system can call me founder".
+     *
+     * An operating environment using your given name in every panel reads
+     * as a product performing intimacy. The title reads as the thing you
+     * own addressing its owner — and the initial in the profile is identity
+     * rather than address, which is why that stays a letter of the name.
+     */
+    expect(ownerFirstName(null)).toBe("Founder");
+    expect(ownerFirstName("Naseemudheen T.")).toBe("Founder");
   });
 
   it("puts N in the avatar, not F", () => {
@@ -24,10 +31,16 @@ describe("who NN belongs to", () => {
     expect(ownerInitial("")).toBe("N");
   });
 
-  it("prefers a real display name over its own idea of the owner", () => {
-    expect(ownerFirstName("Naseemudheen T.")).toBe("Naseemudheen");
-    expect(ownerFirstName("Ada Lovelace")).toBe("Ada");
+  it("takes the initial from the real name, never from the title", () => {
+    // Otherwise the avatar reads "F" again, which is the bug this began as.
     expect(ownerInitial("Ada Lovelace")).toBe("A");
+    expect(ownerInitial(null)).toBe("N");
+    expect(ownerInitial(null)).not.toBe("F");
+  });
+
+  it("still knows the given name where NN names the account rather than speaks to it", () => {
+    expect(ownerGivenName(null)).toBe("Naseemudheen");
+    expect(ownerGivenName("Ada Lovelace")).toBe("Ada");
   });
 
   it("shows the full name beside the avatar", () => {
@@ -35,11 +48,11 @@ describe("who NN belongs to", () => {
     expect(ownerFullName("Ada Lovelace")).toBe("Ada Lovelace");
   });
 
-  it("never calls the owner Founder", () => {
-    // The literal that caused it, kept out by test rather than by memory.
+  it("never puts the title where the account's own name belongs", () => {
+    // Settings names the account; it must not say "Founder" there.
     for (const name of [null, undefined, "", "  "]) {
-      expect(ownerFirstName(name)).not.toBe("Founder");
       expect(ownerFullName(name)).not.toBe("Founder");
+      expect(ownerFullName(name)).toContain("Naseemudheen");
     }
   });
 

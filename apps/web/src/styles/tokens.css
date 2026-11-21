@@ -375,3 +375,20 @@
   --dur-instant: 1ms; --dur-fast: 1ms; --dur-base: 1ms;
   --dur-slow: 1ms;    --dur-slower: 1ms;
 }
+
+/* ==========================================================================
+   THE PHONE'S OWN TYPE RAMP
+   The phone reads at arm's length, not at desk distance. Ten pieces of text
+   on the dashboard measured 11px on a 375px screen — the greeting and every
+   navigation label among them. 11px is a caption on a monitor and a squint
+   on a phone, and the phone is the device the founder actually uses.
+
+   Only the two smallest steps move. Body and headings are already right,
+   and lifting those as well would reflow every surface for no gain.
+   ========================================================================== */
+@media (max-width: 719px) {
+  :root {
+    --text-micro-size: 12.5px;
+    --text-caption-size: 13.5px;
+  }
+}

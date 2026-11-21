@@ -224,3 +224,50 @@ describe("finishing and removing things", () => {
     if (result.kind === "plan") expect(result.plan.capability).toBe("capture");
   });
 });
+
+/* ------------------------------------------------------------------ voice -- */
+
+describe("changing REN's voice", () => {
+  it("hears a request for a male voice", () => {
+    for (const said of ["change to a male voice", "speak in a male voice", "use a man's voice"]) {
+      const out = understand(said);
+      expect(out.kind, said).toBe("plan");
+      if (out.kind === "plan") {
+        expect(out.plan.capability, said).toBe("voice");
+        expect(out.plan.args.voice, said).toBe("male");
+      }
+    }
+  });
+
+  it("hears a request for a female voice, and does not read it as male", () => {
+    // "female" contains "male". The order of the checks is the whole test.
+    for (const said of ["change to a female voice", "speak in a female voice"]) {
+      const out = understand(said);
+      expect(out.kind, said).toBe("plan");
+      if (out.kind === "plan") expect(out.plan.args.voice, said).toBe("female");
+    }
+  });
+
+  it("gives the device its own voice back", () => {
+    const out = understand("use the default voice");
+    if (out.kind !== "plan") throw new Error("expected a plan");
+    expect(out.plan.args.voice).toBe("system");
+  });
+
+  it("asks which one when the founder only says 'change your voice'", () => {
+    expect(understand("change your voice").kind).toBe("question");
+  });
+
+  it("does not confuse a voice with a theme", () => {
+    // Both start with "change to a…"; the noun is what separates them.
+    const theme = understand("change to a dark theme");
+    if (theme.kind === "plan") expect(theme.plan.capability).toBe("appearance");
+    const voice = understand("change to a male voice");
+    if (voice.kind === "plan") expect(voice.plan.capability).toBe("voice");
+  });
+
+  it("costs nothing, so it is never held for confirmation", () => {
+    const out = understand("speak in a female voice");
+    if (out.kind === "plan") expect(out.plan.consequence).toBe("none");
+  });
+});

@@ -18,9 +18,10 @@ import {
   type WorkspacePeriod,
 } from "./workspaceContent";
 import styles from "./NNWorkspace.module.css";
-import { ownerFirstName as _of } from "@/lib/nn/owner";
+import { ownerFirstName as _of, ownerInitial } from "@/lib/nn/owner";
 import { FlipCard, FlipLift } from "@/components/ui/FlipCard";
 const OWNER_FIRST = _of(null);
+const OWNER_INITIAL = ownerInitial(null);
 
 /**
  * The NN workspace.
@@ -610,7 +611,7 @@ export function NNWorkspace({
               <i />
             </button>
             <span className={styles.avatar} title={userName}>
-              {userName.slice(0, 1).toUpperCase()}
+              {OWNER_INITIAL}
             </span>
           </div>
         </header>

@@ -117,6 +117,23 @@ export const REN_TOOLS: readonly RenTool[] = [
     ),
   },
   {
+    name: "set_voice",
+    description:
+      "Change the voice REN speaks in. Use this when the founder asks for a male or female "
+      + "voice, or for the device's own. NN refuses if the device has no such voice installed, "
+      + "and says so rather than changing nothing silently.",
+    schema: object(
+      {
+        voice: {
+          type: "string",
+          enum: ["system", "female", "male"],
+          description: "The voice to speak in.",
+        },
+      },
+      ["voice"],
+    ),
+  },
+  {
     name: "set_appearance",
     description: "Change how NN looks: dark, light, or follow the founder's device.",
     schema: object(
@@ -141,6 +158,7 @@ const CAPABILITY_OF: Readonly<Record<string, CapabilityId>> = {
   discard_record: "discard",
   report_state: "report",
   set_appearance: "appearance",
+  set_voice: "voice",
 };
 
 /**
@@ -197,6 +215,14 @@ export function planFromToolCall(
   if (capability === "find") {
     if (!text) return { ok: false, why: "There is nothing to search for." };
     resolved.text = text;
+  }
+
+  if (capability === "voice") {
+    const allowed = ["system", "female", "male"] as const;
+    const voice = typeof args["voice"] === "string" ? args["voice"] : undefined;
+    const match = allowed.find((value) => value === voice);
+    if (!match) return { ok: false, why: `REN has no "${voice ?? ""}" voice.` };
+    resolved.voice = match;
   }
 
   if (capability === "appearance") {

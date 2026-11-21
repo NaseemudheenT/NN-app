@@ -83,3 +83,17 @@
   backdrop-filter: blur(30px) saturate(160%);
   transform-style: preserve-3d;
 }
+
+/* REN's own mark was 34px wide on a phone. It is the one control that is
+   always on screen, and it floats over content — a near-miss there taps
+   whatever is underneath, which is worse than nothing happening. */
+@media (max-width: 719px) {
+  .launcher {
+    min-width: 48px;
+    min-height: 48px;
+    justify-content: center;
+    padding: var(--space-2);
+    /* Clear of the home indicator on a modern iPhone. */
+    bottom: max(var(--space-7), calc(env(safe-area-inset-bottom, 0px) + var(--space-5)));
+  }
+}

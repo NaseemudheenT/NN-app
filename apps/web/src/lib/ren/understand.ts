@@ -141,6 +141,27 @@ export function understand(raw: string): Understanding {
     }
   }
 
+  /* ---- voice -------------------------------------------------------------
+     Checked before appearance: "change to a male voice" starts with the same
+     verbs as "change to a dark theme", and the noun is what separates them. */
+  if (/\bvoice\b|\bspeak\b|\bsound like\b|\baccent\b/.test(text)) {
+    if (/\bfemale\b|\bwoman\b|\bher\b/.test(text)) {
+      return { kind: "plan", plan: plan("voice", { voice: "female" }) };
+    }
+    // After female, always: "female" contains "male".
+    if (/\bmale\b|\bman\b|\bhis\b/.test(text)) {
+      return { kind: "plan", plan: plan("voice", { voice: "male" }) };
+    }
+    if (/\bdefault\b|\bnormal\b|\bsystem\b|\bown\b/.test(text)) {
+      return { kind: "plan", plan: plan("voice", { voice: "system" }) };
+    }
+    return {
+      kind: "question",
+      ask: "Which voice should I use?",
+      hint: "Say a male voice, a female voice, or this device's own.",
+    };
+  }
+
   /* ---- report ---------------------------------------------------------- */
   if (REPORT.test(text)) return { kind: "plan", plan: plan("report", {}) };
 

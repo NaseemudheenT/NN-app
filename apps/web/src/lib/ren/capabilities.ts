@@ -43,6 +43,7 @@ export type CapabilityId =
   | "report"
   | "appearance"
   | "complete"
+  | "voice"
   | "discard";
 
 export interface CapabilitySpec {
@@ -75,6 +76,8 @@ export interface CapabilityArgs {
   appearance?: "dark" | "light" | "system" | "calm" | "vivid";
   /** A record id, for completing or discarding. */
   recordId?: string;
+  /** Which voice REN should speak in. */
+  voice?: "system" | "female" | "male";
 }
 
 export const CAPABILITIES: Readonly<Record<CapabilityId, CapabilitySpec>> = {
@@ -93,6 +96,13 @@ export const CAPABILITIES: Readonly<Record<CapabilityId, CapabilitySpec>> = {
   appearance: {
     id: "appearance", verb: "Retheme", consequence: "none",
     describes: (a) => `Change NN's appearance to ${a.appearance ?? "its default"}`,
+  },
+  voice: {
+    id: "voice", verb: "Speak", consequence: "none",
+    describes: (a) =>
+      a.voice === "system"
+        ? "Use this device's own voice"
+        : `Speak in a ${a.voice ?? "different"} voice`,
   },
   capture: {
     id: "capture", verb: "Add", consequence: "writes",

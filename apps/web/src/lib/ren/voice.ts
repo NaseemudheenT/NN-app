@@ -1,5 +1,7 @@
 "use client";
 
+import { listVoices, pickVoice, readVoicePreference, type VoicePreference } from "./voices";
+
 /**
  * REN's ears and voice.
  *
@@ -216,6 +218,8 @@ export interface SaidOptions {
   onDone?: () => void;
   rate?: number;
   pitch?: number;
+  /** Overrides the founder's stored choice, for previewing one. */
+  preference?: VoicePreference;
 }
 
 /**
@@ -234,6 +238,22 @@ export function say(text: string, options: SaidOptions = {}): void {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = options.rate ?? 0.98;
   utterance.pitch = options.pitch ?? 1;
+
+  /*
+   * The founder's chosen voice, if this device has one.
+   *
+   * Left unset when it does not: an unset `voice` lets the platform pick its
+   * own default, which is a better outcome than forcing a voice in the wrong
+   * language because it was the only one whose name looked right.
+   */
+  const want = options.preference ?? readVoicePreference();
+  const chosen = pickVoice(listVoices(), want);
+  if (chosen !== null) {
+    const match = window.speechSynthesis.getVoices()
+      .find((candidate) => candidate.name === chosen.name);
+    if (match) utterance.voice = match;
+  }
+
   utterance.onend = () => options.onDone?.();
   utterance.onerror = () => options.onDone?.();
   window.speechSynthesis.speak(utterance);

@@ -14,7 +14,7 @@ import {
 } from "@/lib/ren/conversation";
 import { useAuth } from "@/lib/auth";
 import styles from "./RenWorkspace.module.css";
-import { ownerFirstName } from "@/lib/nn/owner";
+import { ownerFirstName, ownerInitial } from "@/lib/nn/owner";
 
 /**
  * REN, full screen.
@@ -232,7 +232,7 @@ export function RenWorkspace() {
             <TurnView
               key={turn.id}
               turn={turn}
-              firstName={firstName}
+              initial={ownerInitial(user?.displayName)}
               onApprove={(toolId) => ren.approve(turn.id, toolId)}
               onDecline={(toolId) => ren.decline(turn.id, toolId)}
             />
@@ -324,9 +324,10 @@ export function RenWorkspace() {
 
 /* ------------------------------------------------------------------ turn -- */
 
-function TurnView({ turn, firstName, onApprove, onDecline }: {
+function TurnView({ turn, initial, onApprove, onDecline }: {
   turn: Turn;
-  firstName: string;
+  /** The founder's own letter, for the turn they spoke. */
+  initial: string;
   onApprove: (toolId: string) => void;
   onDecline: (toolId: string) => void;
 }) {
@@ -350,7 +351,7 @@ function TurnView({ turn, firstName, onApprove, onDecline }: {
           ) : null}
           {turn.text ? <p>{turn.text}</p> : null}
         </div>
-        <span className={styles.who} aria-hidden="true">{firstName.slice(0, 1).toUpperCase()}</span>
+        <span className={styles.who} aria-hidden="true">{initial}</span>
       </article>
     );
   }

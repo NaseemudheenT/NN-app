@@ -798,3 +798,16 @@
   .family:hover { transform: none; }
   .track i { transition-duration: 1ms; }
 }
+
+/* ---- the phone's own thumb ------------------------------------------------
+   Measured on a 375px viewport against production: the profile control was
+   32px wide. It is the most-tapped thing on the dashboard and it was the
+   smallest, which is the wrong way round. 44 is Apple's floor, not a
+   suggestion — below it a thumb misses and the founder blames the app. */
+@media (max-width: 719px) {
+  .avatar {
+    width: 44px;
+    height: 44px;
+    font-size: var(--text-label-size);
+  }
+}

@@ -12,7 +12,7 @@ import { fetchRecoveryState, setRecoveryPassword, useAuth } from "@/lib/auth";
 import { assessRecoveryPassword } from "@nn/auth/recovery-policy";
 import { useTheme } from "@/lib/theme";
 import styles from "./NNSettings.module.css";
-import { ownerFirstName, ownerFullName } from "@/lib/nn/owner";
+import { ownerFullName, ownerInitial } from "@/lib/nn/owner";
 
 /**
  * NN's settings.
@@ -225,7 +225,6 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
 
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const firstName = ownerFirstName(user?.displayName);
 
   return (
     <div className={styles.root}>
@@ -240,7 +239,7 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
         aria-expanded={profileOpen}
         onClick={() => setProfileOpen((open) => !open)}
       >
-        <span className={styles.avatar}>{firstName.slice(0, 1).toUpperCase()}</span>
+        <span className={styles.avatar}>{ownerInitial(user?.displayName)}</span>
         <span className={styles.accountBody}>
           <strong>{ownerFullName(user?.displayName)}</strong>
           <span>{user ? "Owner · signed in with a passkey" : "Not signed in"}</span>

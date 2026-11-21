@@ -16,8 +16,9 @@ import { APPLICATIONS } from "@/lib/apps/registry";
 import { useRecords, type RecordFault, type RecordState } from "@/lib/nn/records";
 import { relativeTime, useClock } from "@/lib/clock";
 import styles from "./NNDashboard.module.css";
-import { ownerFirstName as _of } from "@/lib/nn/owner";
+import { ownerFirstName as _of, ownerInitial } from "@/lib/nn/owner";
 const OWNER_FIRST = _of(null);
+const OWNER_INITIAL = ownerInitial(null);
 
 /**
  * NN's dashboard.
@@ -541,7 +542,7 @@ export function NNDashboard({
             title={`${firstName} — profile and settings`}
             onClick={() => router.push("/settings" as Route)}
           >
-            {firstName.slice(0, 1).toUpperCase()}
+            {OWNER_INITIAL}
           </button>
         </div>
       </header>

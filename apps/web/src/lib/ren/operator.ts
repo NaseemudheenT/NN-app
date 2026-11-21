@@ -7,6 +7,7 @@ import { matchRecordByTitle, readRecordsOnce, useRecordWriter } from "@/lib/nn/r
 import { passkeysSupported, signInWithPasskey, useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
 import { routeFor, sectionName, needsReauthentication, type RenPlan } from "./capabilities";
+import { listVoices, pickVoice, writeVoicePreference } from "./voices";
 
 /**
  * REN's hands.
@@ -215,6 +216,31 @@ export function useRenOperator(): RenOperator {
         } catch (error) {
           return { ok: false, said: `I could not delete it. ${describe(error)}` };
         }
+      }
+
+      case "voice": {
+        const want = plan.args.voice ?? "system";
+        const voices = listVoices();
+        const chosen = pickVoice(voices, want);
+        if (want !== "system" && chosen === null) {
+          /*
+           * Said rather than silently ignored. The Web Speech API has no
+           * gender field, so NN infers from voice names — and a device
+           * genuinely may not have one installed. Changing nothing and
+           * saying nothing is how an assistant teaches you not to trust it.
+           */
+          return {
+            ok: false,
+            said: `This device has no ${want} voice installed, so I have left mine as it is.`,
+          };
+        }
+        writeVoicePreference(want);
+        return {
+          ok: true,
+          said: want === "system"
+            ? "I will use this device's own voice."
+            : `I will speak in a ${want} voice from now on.`,
+        };
       }
 
       case "appearance": {
