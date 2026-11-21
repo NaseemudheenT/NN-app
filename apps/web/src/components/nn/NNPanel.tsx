@@ -114,37 +114,53 @@ export function NNPanel() {
 
   return (
     <div className={s.host} ref={hostRef}>
-      {open ? (
-        <div className={s.panel} role="dialog" aria-modal="false" aria-label="Go to">
-          <div className={s.head}>
-            <span className={s.headName}>{here?.label ?? "NN"}</span>
-            <button type="button" className={s.close} aria-label="Close" onClick={close}>
-              <Icon name="expand" size={15} />
-            </button>
-          </div>
-          <ul className={s.list}>
-            {places.map(row)}
-            {apps.length > 0 ? (
-              <li className={s.group} aria-hidden="true">Applications</li>
-            ) : null}
-            {apps.map(row)}
-          </ul>
+      <button
+        ref={islandRef}
+        type="button"
+        className={s.island}
+        aria-label={`Go to — currently ${here?.label ?? "NN"}`}
+        aria-expanded={open}
+        aria-hidden={open}
+        tabIndex={open ? -1 : 0}
+        onClick={() => setOpen(true)}
+      >
+        <span className={s.islandBrand} aria-hidden="true">
+          <NNLogo size={18} glow decorative />
+        </span>
+        <span className={s.islandLabel}>{here?.label ?? "NN"}</span>
+        <span className={s.islandSignal} aria-hidden="true" />
+      </button>
+
+      <div
+        className={s.panel}
+        data-open={open || undefined}
+        role="dialog"
+        aria-modal="false"
+        aria-label="Go to"
+        aria-hidden={!open}
+        inert={!open}
+      >
+        <div className={s.head}>
+          <span className={s.headMark}><NNLogo size={18} glow decorative /></span>
+          <span className={s.headName}>{here?.label ?? "NN"}</span>
+          <span className={s.headStatus}>NN SYSTEM</span>
+          <button type="button" className={s.close} aria-label="Close" onClick={close}>
+            <Icon name="expand" size={15} />
+          </button>
         </div>
-      ) : (
-        <button
-          ref={islandRef}
-          type="button"
-          className={s.island}
-          aria-label={`Go to — currently ${here?.label ?? "NN"}`}
-          aria-expanded={false}
-          onClick={() => setOpen(true)}
-        >
-          <span className={s.islandBrand} aria-hidden="true">
-            <NNLogo size={18} glow decorative />
-          </span>
-          <span className={s.islandLabel}>{here?.label ?? "NN"}</span>
-        </button>
-      )}
+        <ul className={s.list}>
+          {places.map(row)}
+          {apps.length > 0 ? (
+            <li className={s.group} aria-hidden="true">Applications</li>
+          ) : null}
+          {apps.map(row)}
+        </ul>
+        <div className={s.panelFoot}>
+          <span>PRIVATE ENVIRONMENT</span>
+          <span className={s.panelFootDot} />
+          <span>READY</span>
+        </div>
+      </div>
     </div>
   );
 }
