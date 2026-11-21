@@ -77,37 +77,6 @@ export function LifePreviewCanvas({ module }: { module: LifePreviewTab }) {
   );
 }
 
-function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
-  const preview = LIFE_PREVIEWS[module];
-  return (
-    <section className={styles.previewPage} aria-labelledby={`life-preview-${module}`}>
-      <GlassPanel tier={2} padding="lg" className={styles.previewHero}>
-        <div className={styles.previewHeroTop}>
-          <span className={styles.previewIcon}><Icon name={preview.icon} size={22}/></span>
-          <span className={styles.previewBadge}>DESIGN PREVIEW</span>
-        </div>
-        <p className={styles.label}>{preview.eyebrow}</p>
-        <h2 id={`life-preview-${module}`}>{preview.title}</h2>
-        <p className={styles.previewDescription}>{preview.description}</p>
-        <div className={styles.previewNotice} role="status">
-          <Icon name="shield" size={16}/>
-          <span><strong>Preview only.</strong> This visual blueprint does not save or display personal records yet.</span>
-        </div>
-      </GlassPanel>
-      <LifePreviewCanvas module={module}/>
-      <div className={styles.previewGrid}>
-        {preview.features.map((feature) => (
-          <GlassPanel key={feature.title} tier={2} padding="lg" className={styles.previewFeature}>
-            <span className={styles.previewFeatureIcon}><Icon name={feature.icon} size={18}/></span>
-            <h3>{feature.title}</h3>
-            <p>{feature.description}</p>
-          </GlassPanel>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 export function parseRoutineSteps(value: string): string[] { return value.split(/\r?\n/).map((step) => step.trim()).filter(Boolean).slice(0, 20); }
 export function focusRemainingSeconds(end: Date, now: number): number { return Math.max(0, Math.ceil((end.getTime() - now) / 1000)); }
 const EMPTY: LifeData = { tasks: [], calendar_events: [], reminders: [], notes: [], goals: [], habits: [], habit_checkins: [], routines: [], routine_runs: [], focus_sessions: [], reviews: [] };
