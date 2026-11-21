@@ -653,3 +653,6 @@
 }
 :global(html[data-motion="reduced"]) .tab img[data-nn-icon],
 :global(html[data-motion="reduced"]) .tab svg[data-nn-icon] { transition: none !important; }
+
+.editAction{min-height:30px;padding:0 10px;border:1px solid var(--glass-2-border);border-radius:999px;background:var(--nn-glass-primary);color:var(--nn-icy);font-size:10px;cursor:pointer}
+.editAction:focus-visible{outline:2px solid var(--nn-icy);outline-offset:2px}
