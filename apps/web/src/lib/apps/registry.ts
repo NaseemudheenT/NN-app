@@ -120,13 +120,13 @@ export const APPLICATIONS: readonly NNApplication[] = REGISTERED.map((app) => {
   };
 });
 
-const GROUP_DETAILS: ReadonlyArray<{ name: NNAppGroup; detail: string; icon: IconName }> = [
-  { name: "Life & wellbeing", detail: "Plan, organise and live well", icon: "calendar" },
-  { name: "Education", detail: "Learn, practise and master", icon: "book" },
-  { name: "Money & work", detail: "Build, manage and measure", icon: "wallet" },
-  { name: "Creation & communication", detail: "Create, write and communicate", icon: "sparkle" },
-  { name: "Knowledge & insight", detail: "Store, recall and understand", icon: "folder" },
-  { name: "System", detail: "Control, search and protect NN", icon: "settings" },
+const GROUP_DETAILS: ReadonlyArray<{ name: NNAppGroup; label: string; detail: string; icon: IconName }> = [
+  { name: "Life & wellbeing", label: "Life", detail: "Plan, organise and live well", icon: "calendar" },
+  { name: "Education", label: "Learn", detail: "Learn, practise and master", icon: "book" },
+  { name: "Money & work", label: "Work", detail: "Build, manage and measure", icon: "wallet" },
+  { name: "Creation & communication", label: "Create", detail: "Create, write and communicate", icon: "sparkle" },
+  { name: "Knowledge & insight", label: "Knowledge", detail: "Store, recall and understand", icon: "folder" },
+  { name: "System", label: "System", detail: "Control, search and protect NN", icon: "settings" },
 ];
 
 /**

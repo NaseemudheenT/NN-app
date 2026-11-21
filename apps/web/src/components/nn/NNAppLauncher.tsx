@@ -74,7 +74,7 @@ export function NNAppLauncher() {
           {visibleGroups.map((group, groupIndex) => (
             <section className={styles.group} key={group.slug} aria-labelledby={`group-${group.slug}`}>
               <header className={styles.groupHeader}>
-                <h2 id={`group-${group.slug}`}>{group.name}</h2>
+                <h2 id={`group-${group.slug}`}>{group.label}</h2>
               </header>
 
               <div className={styles.grid}>
