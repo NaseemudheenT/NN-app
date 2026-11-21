@@ -14,6 +14,7 @@ import { NNVaultWorkspace } from "@/components/nn/NNVaultWorkspace";
 import { NNLogicWorkspace } from "@/components/nn/NNLogicWorkspace";
 import { NNStudioWorkspace } from "@/components/nn/NNStudioWorkspace";
 import { NNBusinessWorkspace } from "@/components/nn/NNBusinessWorkspace";
+import { NNCareerWorkspace } from "@/components/nn/NNCareerWorkspace";
 
 type PageProps = { params: Promise<{ appId: string }> };
 
