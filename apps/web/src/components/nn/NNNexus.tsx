@@ -152,6 +152,7 @@ export function NNNexus() {
               key={item.href}
               className={styles.railLink}
               data-active={pathname === item.href}
+              aria-current={pathname === item.href ? "page" : undefined}
               title={item.label}
               aria-label={item.label}
               onClick={() => { setRailExpanded(false); setExpanded(false); }}
