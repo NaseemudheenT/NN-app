@@ -1,3 +1,24 @@
+## 2026-11-21 · NN Study — first academic workspace slice
+
+**Development commit:** `20fd65bee393acfd1c4a7b35b8b774b3a17e3e9f` on `nn-nexus-interface`.
+
+**Built:**
+- Added the authenticated `/study` route and owner-scoped Firestore subject collection.
+- Added bounded live subject loading (40 records), subject creation with schema metadata, text search and semester filtering.
+- Added loading, empty, permission-denied, retryable error and write-error states.
+- Added responsive tablet/phone layouts and reduced-motion support.
+- Added tests for owner-scoped query shape, subject creation and filtering.
+- Added Study to the persistent NEXUS navigation and keyboard quick-navigation palette.
+
+**Latest automated verification — GitHub Actions run [44867642056](https://github.com/NaseemudheenT/NN-app/actions/runs/44867642056):**
+- Type-check and lint: passed.
+- Unit/rules tests: **291 passed** (88 Firebase rules, 34 security, 30 auth, 11 Firebase package, 128 web).
+- Next.js production build: passed.
+
+**Not complete:** Study still needs syllabus/unit management, question banks, assignments, timetable, attendance, marks and revision plans. Life still needs Calendar, reminders, notes/version history, habits, goals, routines and reviews. The backend audit trigger and other shared services remain required before production acceptance. Both app slices are code-verified but have not been visually inspected in a deployed browser.
+
+---
+
 ## 2026-11-21 · NN Life — first data-backed application slice
 
 **Development commit:** `427c49d6432fca91396efd882a21cfacb8d0f35d` on `nn-nexus-interface`.
