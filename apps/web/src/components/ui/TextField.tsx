@@ -32,7 +32,7 @@ export function TextField({
 
   const describedBy = [
     invalid ? errId : null,
-    typeof hint === "string" && hint.length > 0 ? hintId : null,
+    !invalid && typeof hint === "string" && hint.length > 0 ? hintId : null,
   ]
     .filter((v): v is string => v !== null)
     .join(" ");
