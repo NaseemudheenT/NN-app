@@ -17,7 +17,8 @@ import styles from "./NNLife.module.css";
 import { ownerFirstName } from "@/lib/nn/owner";
 import { buildCalendarGrid, calendarDateKey } from "@/lib/nn/calendar-grid";
 
-type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals";
+type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals" | "habits" | "routines" | "focus" | "reviews";
+type LifePreviewTab = "habits" | "routines" | "focus" | "reviews";
 type RecordData = Record<string, unknown> & { id: string };
 type LifeData = { tasks: RecordData[]; calendar_events: RecordData[]; reminders: RecordData[]; notes: RecordData[]; goals: RecordData[] };
 type CollectionName = keyof LifeData;
@@ -28,7 +29,95 @@ const TABS: readonly { id: LifeTab; label: string; icon: IconName }[] = [
   { id: "reminders", label: "Reminders", icon: "clock" },
   { id: "notes", label: "Notes", icon: "file" },
   { id: "goals", label: "Goals", icon: "graph" },
+  { id: "habits", label: "Habits", icon: "check" },
+  { id: "routines", label: "Routines", icon: "calendar" },
+  { id: "focus", label: "Focus", icon: "clock" },
+  { id: "reviews", label: "Reviews", icon: "graph" },
 ];
+const LIFE_PREVIEWS: Record<LifePreviewTab, {
+  eyebrow: string;
+  title: string;
+  description: string;
+  icon: IconName;
+  features: { icon: IconName; title: string; description: string }[];
+}> = {
+  habits: {
+    eyebrow: "DAILY PRACTICE",
+    title: "Make consistency feel natural.",
+    description: "A calm space for the practices you choose to repeat. Habit records and check-in logic are not connected yet.",
+    icon: "check",
+    features: [
+      { icon: "calendar", title: "Flexible cadence", description: "Daily, selected weekdays or a schedule that fits the habit." },
+      { icon: "check", title: "Simple check-ins", description: "A clear completion interaction with room for missed days." },
+      { icon: "graph", title: "Consistency history", description: "A readable history built from real check-ins, never invented streaks." },
+    ],
+  },
+  routines: {
+    eyebrow: "REPEATABLE SYSTEMS",
+    title: "Give your day a considered rhythm.",
+    description: "Design repeatable sequences for the parts of life you want to make easier. Routine storage and scheduling are not connected yet.",
+    icon: "calendar",
+    features: [
+      { icon: "check", title: "Ordered steps", description: "A sequence you can follow and adjust without rebuilding it." },
+      { icon: "clock", title: "Time windows", description: "Optional timing that respects your actual calendar." },
+      { icon: "graph", title: "Completion review", description: "See what happened after routine execution is connected." },
+    ],
+  },
+  focus: {
+    eyebrow: "ATTENTION SPACE",
+    title: "Protect a little time for deep work.",
+    description: "A focused session environment with a timer, intention and session history. Timer persistence and session records are not connected yet.",
+    icon: "clock",
+    features: [
+      { icon: "clock", title: "Session timer", description: "A distraction-light timer with clear pause and finish states." },
+      { icon: "target", title: "Session intention", description: "Keep one task or outcome in view while you work." },
+      { icon: "graph", title: "Focus history", description: "Review only sessions that were actually recorded." },
+    ],
+  },
+  reviews: {
+    eyebrow: "REFLECTION",
+    title: "Notice what is moving forward.",
+    description: "A structured space for daily, weekly and monthly reflection. Review templates and saved entries are not connected yet.",
+    icon: "file",
+    features: [
+      { icon: "calendar", title: "Review rhythm", description: "Choose a cadence that supports reflection without noise." },
+      { icon: "file", title: "Wins and lessons", description: "Capture what worked, what did not and what you learned." },
+      { icon: "graph", title: "Next priorities", description: "Turn reflection into a small, deliberate next step." },
+    ],
+  },
+};
+
+function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
+  const preview = LIFE_PREVIEWS[module];
+  return (
+    <section className={styles.previewPage} aria-labelledby={`life-preview-${module}`}>
+      <GlassPanel tier={2} padding="lg" className={styles.previewHero}>
+        <div className={styles.previewHeroTop}>
+          <span className={styles.previewIcon}><Icon name={preview.icon} size={22}/></span>
+          <span className={styles.previewBadge}>INTERFACE PREVIEW</span>
+        </div>
+        <p className={styles.label}>{preview.eyebrow}</p>
+        <h2 id={`life-preview-${module}`}>{preview.title}</h2>
+        <p className={styles.previewDescription}>{preview.description}</p>
+        <div className={styles.previewNotice} role="status">
+          <Icon name="info" size={16}/>
+          <span><strong>Design complete in progress.</strong> This screen is a visual handoff for Claude. No records, schedules or activity are being simulated.</span>
+        </div>
+      </GlassPanel>
+      <div className={styles.previewGrid}>
+        {preview.features.map((feature) => (
+          <GlassPanel key={feature.title} tier={2} padding="lg" className={styles.previewFeature}>
+            <span className={styles.previewFeatureIcon}><Icon name={feature.icon} size={18}/></span>
+            <h3>{feature.title}</h3>
+            <p>{feature.description}</p>
+            <span className={styles.previewFeatureState}>BACKEND CONNECTION PENDING</span>
+          </GlassPanel>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 const EMPTY: LifeData = { tasks: [], calendar_events: [], reminders: [], notes: [], goals: [] };
 const metadata = () => ({ schemaVersion: 1, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
 const localDateTime = (date = new Date()) => {
@@ -434,6 +523,7 @@ function LifeSurface() {
         <div className={styles.list}>{data.reminders.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("reminders", item.id, "Reminder deleted.")}><article className={`${styles.record} nn-glass-card`}><span className={styles.recordGlyph}><Icon name="clock" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.fireAt)} · {formatTime(item.fireAt)}</small></div><span className={styles.priority}>{typeof item.state === "string" ? item.state : "scheduled"}</span></article></SwipeToDelete>)}{data.reminders.length === 0 ? <EmptyState icon="clock" title="No reminders yet." body="Add a reminder and it will be stored in your private NN account. Delivery requires the notification service."/> : null}</div>
       </GlassPanel></section> : null}
       {!loading && tab === "notes" ? <section className={styles.notesLayout}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>QUICK NOTE</p><h2>Save the thought.</h2><form className={styles.noteForm} onSubmit={createNote}><input value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="Give this note a title" aria-label="Note title" required maxLength={160}/><textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="Write freely. Your original note is kept in NN." aria-label="Note content" rows={7}/><button disabled={busy || !noteTitle.trim()}><Icon name="plus" size={16}/> Save note</button></form></GlassPanel><div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR NOTES</p><h2>Thoughts, collected.</h2></div><span className={styles.count}>{data.notes.length} LOADED</span></div>{data.notes.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("notes", item.id, "Note deleted.")}><GlassPanel tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(item)}</strong><p>{typeof item.body === "string" ? item.body : ""}</p><small>{formatDate(item.updatedAt)}</small></GlassPanel></SwipeToDelete>)}{data.notes.length === 0 ? <EmptyState icon="file" title="Your notes begin here." body="The first note you save will appear in this space."/> : null}</div></section> : null}
+      {(["habits", "routines", "focus", "reviews"] as const).includes(tab as LifePreviewTab) ? <LifeDesignPreview module={tab as LifePreviewTab}/> : null}
       {!loading && tab === "goals" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>LONG-TERM DIRECTION</p><h2>Progress with purpose.</h2></div><span className={styles.count}>{data.goals.length} GOALS</span></div><form className={styles.captureForm} onSubmit={createGoal}><input value={goalTitle} onChange={(e) => setGoalTitle(e.target.value)} placeholder="What are you working towards?" aria-label="Goal title" required maxLength={160}/><input type="number" min="0.01" step="any" value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)} aria-label="Goal target" required/><input value={goalUnit} onChange={(e) => setGoalUnit(e.target.value)} placeholder="Unit (optional)" aria-label="Goal unit" maxLength={32}/><button disabled={busy || !goalTitle.trim()}><Icon name="plus" size={16}/> Add goal</button></form><div className={styles.list}>{data.goals.map((item) => { const progress = typeof item.progress === "number" ? item.progress : 0; const target = typeof item.target === "number" ? item.target : 0; const pct = target > 0 ? Math.min(100, Math.max(0, progress / target * 100)) : 0; return <SwipeToDelete key={item.id} onDelete={() => deleteRecord("goals", item.id, "Goal deleted.")}><article className={styles.goal}><div className={styles.goalTop}><strong>{titleOf(item)}</strong><small>{progress} / {target || "—"} {typeof item.unit === "string" ? item.unit : ""}</small></div><div className={styles.progress} role="progressbar" aria-label={`${titleOf(item)} progress`} aria-valuemin={0} aria-valuemax={target || 1} aria-valuenow={Math.min(progress, target || progress)}><span style={{ width: `${pct}%` }}/></div><div className={styles.goalActions}><button type="button" aria-label={`Decrease ${titleOf(item)} progress`} disabled={busy || progress <= 0} onClick={() => adjustGoal(item, -1)}>−</button><span>UPDATE PROGRESS</span><button type="button" aria-label={`Increase ${titleOf(item)} progress`} disabled={busy} onClick={() => adjustGoal(item, 1)}>+</button></div></article></SwipeToDelete>; })}{data.goals.length === 0 ? <EmptyState icon="graph" title="Give your ambition a shape." body="Goals you create in NN will be tracked here. No sample goals are inserted."/> : null}</div></GlassPanel></section> : null}
       <footer className={styles.footer}><span>NN LIFE · PERSONAL OPERATING ENVIRONMENT</span><span>{offline ? "LOCAL CACHE / SYNC PENDING" : "OWNER-SCOPED FIRESTORE DATA"}</span></footer>
     </div>

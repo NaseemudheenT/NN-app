@@ -1,3 +1,14 @@
+## 2026-11-21 · NN Life interface expansion — design handoff
+
+**Commit:** pending CI on the active integration branch.  
+**Change:** Added four visible NN Life design-preview modules: Habits, Routines, Focus and Reviews. Each module has its own purpose, feature hierarchy and spatial-glass layout. All four are explicitly labelled as interface previews with backend connection pending. No sample habits, routine schedules, focus sessions or review records are fabricated.
+
+**Existing live modules retained:** Today, Calendar, Tasks, Reminders, Notes and Goals.
+
+**Verification:** CI is required before treating this milestone as verified.
+
+---
+
 ## 2026-11-21 · Frontend design completion programme opened
 
 **Scope clarified by founder:** complete the NN operating-system interface and design handoff. Claude will continue deeper application engineering after the interface is complete.

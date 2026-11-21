@@ -52,7 +52,8 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Today, Calendar, Tasks, Reminders, Notes and Goals tabs exist.
 - [x] Monthly calendar grid, local date keys, event markers, day selection and month navigation.
 - [x] Goal progress controls and task/note/event/reminder/goal create flows.
-- [ ] Design and implement visible Habits, Routines, Focus and Reviews interfaces.
+- [x] Add labelled design-preview interfaces for Habits, Routines, Focus and Reviews; no fake records or connected-backend claims.
+- [ ] Connect those interfaces to Claude's approved domain contracts and add their real interaction flows.
 - [ ] Add consistent detail/edit/confirmation sheets and empty/error/offline states.
 - [ ] Separate reminder scheduling UI from actual notification delivery capability.
 
