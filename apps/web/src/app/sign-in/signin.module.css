@@ -218,3 +218,19 @@
   .mark > * { min-height: 96px; }
   .card { gap: var(--space-4); padding-block: 22px; }
 }
+
+
+/* NN system refinement: quiet, legible, trustworthy entry. */
+.page{background:var(--surface-base);padding:max(24px,env(safe-area-inset-top)) 20px max(24px,env(safe-area-inset-bottom))}
+.aurora{inset:0;background:radial-gradient(ellipse 58% 42% at 50% 0%,rgb(10 132 255 / 9%),transparent 76%);filter:none;animation:none}
+.card{width:min(420px,100%);gap:25px;padding:clamp(30px,6vw,48px);border:1px solid var(--border-normal);border-radius:26px;background:var(--surface-raised);box-shadow:0 24px 80px rgb(0 0 0 / 18%);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.mark{max-height:116px;overflow:hidden}
+.mark>*{max-height:116px}
+.enter{min-height:52px;border:0;border-radius:14px;background:#0a84ff;color:#fff;box-shadow:0 4px 12px rgb(10 132 255 / 20%);font-weight:650}
+.enter:hover:not(:disabled){filter:brightness(1.06)}
+.enter:disabled{opacity:.48}
+.secret{gap:16px}
+.note{font-size:13px}
+.error{border-radius:13px}
+@media(max-width:520px){.page{padding-inline:16px}.card{gap:22px;border-radius:23px}.mark,.mark>*{max-height:100px}}
+@media(prefers-reduced-motion:reduce){.aurora,.card{animation:none}}
