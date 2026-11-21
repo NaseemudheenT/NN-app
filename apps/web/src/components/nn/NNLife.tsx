@@ -47,9 +47,15 @@ export function NNLife() {
   const [error, setError] = useState("");
   const [view, setView] = useState<"today" | "tasks">("today");
   const [hour, setHour] = useState<number | null>(null);
+  const [dateLabel, setDateLabel] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
-    const sync = () => setHour(new Date().getHours());
+    const sync = () => {
+      const now = new Date();
+      setHour(now.getHours());
+      setDateLabel(new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "numeric", month: "long" }).format(now));
+    };
     sync();
     const timer = window.setInterval(sync, 60_000);
     return () => window.clearInterval(timer);
@@ -89,14 +95,11 @@ export function NNLife() {
       setError("NN's data connection is not configured.");
     }
     return () => unsubscribe?.();
-  }, [uid]);
+  }, [uid, retryKey]);
 
   const openTasks = useMemo(() => tasks.filter((task) => task.status !== "done"), [tasks]);
   const completedTasks = useMemo(() => tasks.filter((task) => task.status === "done"), [tasks]);
   const greeting = hour === null ? "Your day, in one place" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  const dateLabel = new Intl.DateTimeFormat("en-IN", {
-    weekday: "long", day: "numeric", month: "long",
-  }).format(new Date());
 
   async function createTask(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -165,7 +168,7 @@ export function NNLife() {
 
         <section className={styles.hero}>
           <div>
-            <p className={styles.date}>{dateLabel}</p>
+            <p className={styles.date}>{dateLabel || "Today"}</p>
             <h1>{view === "today" ? greeting : "Your tasks"}</h1>
             <p className={styles.lede}>
               {view === "today" ? "A clear view of what matters today." : "Keep the next action visible. The rest can wait."}
@@ -234,6 +237,9 @@ export function NNLife() {
                 <span className={styles.emptyIcon}><Icon name="shield" size={22} /></span>
                 <h3>{loadState === "denied" ? "Access needs attention" : loadState === "unconfigured" ? "Data connection unavailable" : "Could not load tasks"}</h3>
                 <p>{error || "NN could not connect to your private task records."}</p>
+                {loadState === "error" ? (
+                  <button className={styles.retry} type="button" onClick={() => { setLoadState("loading"); setError(""); setRetryKey((value) => value + 1); }}>Try again</button>
+                ) : null}
               </div>
             ) : openTasks.length === 0 ? (
               <div className={styles.emptyState}>
@@ -266,7 +272,7 @@ export function NNLife() {
 
             {view === "today" && openTasks.length > 8 ? (
               <button className={styles.viewAll} type="button" onClick={() => setView("tasks")}>
-                View all {openTasks.length} tasks <Icon name="arrow-right" size={15} />
+                View all {openTasks.length} tasks <Icon name="expand" size={15} />
               </button>
             ) : null}
           </section>
