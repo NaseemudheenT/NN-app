@@ -503,3 +503,12 @@
 
 /* The operating-system shell owns global navigation; Life must not add a second dock. */
 .dock { display: none !important; }
+
+/* Goal progress is a real control, not a decorative completion bar. */
+.goalTop{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.goalActions{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-top:10px}
+.goalActions span{color:var(--text-muted);font:8px var(--font-mono);letter-spacing:.1em}
+.goalActions button{width:34px;height:34px;border:1px solid var(--glass-2-border);border-radius:11px;background:var(--glass-1-bg);color:var(--nn-icy);font-size:19px;line-height:1;cursor:pointer;transition:background var(--dur-fast),border-color var(--dur-fast),transform var(--dur-fast)}
+.goalActions button:hover:not(:disabled){border-color:#9cc8ff75;background:var(--glass-hover);transform:translateY(-1px)}
+.goalActions button:disabled{opacity:.35;cursor:not-allowed}
+.goalActions button:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
