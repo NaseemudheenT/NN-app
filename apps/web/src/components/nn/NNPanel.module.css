@@ -365,3 +365,15 @@
 /* Five deliberate rows: title, filter, count, scrollable destinations, footer. */
 .panel { grid-template-rows: auto auto auto minmax(0, 1fr) auto; }
 .list { min-height: 0; }
+
+/* Respect the device's real top safe area. The previous negative offset
+   placed the island inside the notch/status region on some phones, while
+   the sticky app header occupied the same vertical band. */
+.host {
+  top: max(8px, calc(env(safe-area-inset-top, 0px) + 8px));
+}
+@media (max-width: 719px) {
+  .host {
+    top: max(8px, calc(env(safe-area-inset-top, 0px) + 8px));
+  }
+}
