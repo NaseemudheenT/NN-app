@@ -205,3 +205,33 @@
  .screenWidgets[data-layout="map"] .screenWidget:first-child{min-height:135px}
  .screenWidgets[data-layout="editor"]{grid-template-columns:minmax(0,1.4fr) minmax(54px,.7fr)}
 }
+
+
+/* Refined layout-specific hierarchy and depth. */
+.screenWidgets[data-layout="finance"] .screenWidget:first-child .widgetLines{height:42px;align-items:flex-end;gap:6px}
+.screenWidgets[data-layout="finance"] .screenWidget:first-child .widgetLines i{height:var(--bar-height,45%);min-width:5px;flex:1}
+.screenWidgets[data-layout="finance"] .screenWidget:first-child .widgetLines i:nth-child(1){height:34%}
+.screenWidgets[data-layout="finance"] .screenWidget:first-child .widgetLines i:nth-child(2){height:62%}
+.screenWidgets[data-layout="finance"] .screenWidget:first-child .widgetLines i:nth-child(3){height:86%}
+.screenWidgets[data-layout="flow"] .screenWidget{overflow:visible;z-index:1}
+.screenWidgets[data-layout="flow"] .screenWidget:not(:last-child):after{content:"";position:absolute;top:50%;right:-10px;width:11px;height:1px;background:rgb(165 210 255 / 48%);box-shadow:0 0 8px rgb(119 177 255 / 22%)}
+.screenWidgets[data-layout="flow"] .screenWidget:not(:last-child):before{content:"";position:absolute;top:calc(50% - 2px);right:-10px;width:4px;height:4px;border-top:1px solid rgb(165 210 255 / 62%);border-right:1px solid rgb(165 210 255 / 62%);transform:rotate(45deg)}
+.screenWidgets[data-layout="timeline"] .screenWidget{background:linear-gradient(90deg,rgb(128 182 255 / 7%),transparent 70%),rgb(173 209 255 / 3%)}
+.screenWidgets[data-layout="timeline"] .screenWidget:first-child{border-color:rgb(177 214 255 / 30%)}
+.screenWidgets[data-layout="inbox"] .screenWidget{background:linear-gradient(90deg,rgb(128 182 255 / 7%),transparent 78%),rgb(173 209 255 / 3%)}
+.screenWidgets[data-layout="inbox"] .screenWidget:before{box-shadow:0 0 8px rgb(119 177 255 / 30%)}
+.screenWidgets[data-layout="security"] .screenWidget{background:linear-gradient(145deg,rgb(139 188 255 / 8%),transparent 78%),rgb(173 209 255 / 3%)}
+.screenWidgets[data-layout="security"] .screenWidget:first-child{display:grid;grid-template-columns:22px 1fr;align-items:center}
+.screenWidgets[data-layout="security"] .screenWidget:first-child .widgetLines{grid-column:2}
+.screenWidgets[data-layout="map"] .screenWidget:first-child:after{content:"";position:absolute;inset:15% 12%;border:1px dashed rgb(157 204 255 / 22%);border-radius:48% 35% 52% 38%;transform:rotate(-17deg);pointer-events:none}
+.screenWidgets[data-layout="editor"] .screenWidget:first-child .widgetLines i:nth-child(1){width:94%}
+.screenWidgets[data-layout="editor"] .screenWidget:first-child .widgetLines i:nth-child(2){width:82%}
+.screenWidgets[data-layout="editor"] .screenWidget:first-child .widgetLines i:nth-child(3){width:68%}
+.screenWidgets[data-layout="calculator"] .screenWidget:not(:first-child){min-height:56px;align-content:center}
+.screenWidgets[data-layout="settings"] .screenWidget{background:linear-gradient(90deg,rgb(219 239 255 / 5%),transparent 80%)}
+.screenWidgets[data-layout="board"] .screenWidget{border-top:2px solid rgb(163 206 255 / 22%)}
+.screenWidgets[data-layout="cards"] .screenWidget{background:radial-gradient(circle at 85% 8%,rgb(140 190 255 / 10%),transparent 48%),rgb(173 209 255 / 3%)}
+@media(max-width:640px){
+ .screenWidgets[data-layout="flow"] .screenWidget:not(:last-child):after{top:auto;bottom:-9px;right:50%;width:1px;height:9px}
+ .screenWidgets[data-layout="flow"] .screenWidget:not(:last-child):before{top:auto;bottom:-9px;right:calc(50% - 2px);transform:rotate(135deg)}
+}

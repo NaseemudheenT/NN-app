@@ -395,7 +395,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
               <div className={styles.screenWidgets} data-layout={inferDomainLayout(app.id, selected)}>
                 {selected.regions.map((region, index) => (
                   <div className={styles.screenWidget} data-layout={index === 0 ? "primary" : index === 1 ? "secondary" : "tertiary"} key={region}>
-                    <span className={styles.widgetIcon}><Icon name={iconForRegion(region, selected.icon)} size={13}/></span>
+                    <span className={styles.widgetIcon}><Icon name={iconForRegion(region, selected.icon)} size={14} solid tone="ice"/></span>
                     <span className={styles.widgetName}>{region}</span>
                     <span className={styles.widgetLines}><i/><i/><i/></span>
                   </div>
