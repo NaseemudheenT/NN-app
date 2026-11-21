@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
 import { AppLogo } from "@/components/ui/AppLogo";
-import type { IconName } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAppTransition } from "@/components/nn/AppTransition";
 import { GROUPS, matchApplications } from "@/lib/apps/registry";
