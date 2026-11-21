@@ -150,3 +150,16 @@
   .root::before,
   .root::after { animation: none; }
 }
+
+/* Keep the app header in normal flow. A sticky header sat over the Dynamic
+   Island's expanded surface and intercepted taps while the panel was open.
+   The island is the persistent top-level control; the page header must never
+   become a second fixed layer above the workspace. */
+.root {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.bar {
+  position: relative;
+  top: auto;
+  z-index: 1;
+}
