@@ -1,4 +1,4 @@
-.row { display: inline-flex; align-items: center; gap: var(--space-5); cursor: pointer; }
+.row { display: inline-flex; align-items: center; gap: var(--space-5); min-height: 44px; cursor: pointer; }
 .row:has(.input:disabled) { cursor: not-allowed; opacity: 0.45; }
 
 .input { position: absolute; opacity: 0; width: 0; height: 0; }
