@@ -1,3 +1,14 @@
+## 2026-11-21 · Liquid appearance control and CI repair
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Change:** Added an NN-native liquid-glass appearance switch with sun/moon object icons, controlled and uncontrolled state, native switch semantics, keyboard activation, disabled state and reduced-motion handling. Integrated it into Settings while preserving the device-following Auto mode. The implementation uses NN's CSS-module/token system and adds no dependency; it avoids the reference's hidden interactive input nested inside a button and its per-instance global style injection.
+
+**Reliability repair:** Renamed the record grouping selectors in `NNAppSurface` to explicit `activeRecords` and `completedRecords` after CI reported a TypeScript name-resolution failure in the prior revision. Added component tests for controlled, uncontrolled, disabled and keyboard operation.
+
+**Verification:** CI run 44880798321 failed at typecheck before lint/tests/build; this commit is intended to correct that regression. A fresh CI run must pass before this work is marked verified.
+
+---
+
 ## 2026-11-21 · NN interface simplification and motion refinement
 
 **Branch:** `gt/nn-liquid-glass-unified`  

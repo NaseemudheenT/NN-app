@@ -88,8 +88,8 @@ function SectionPanel({ section }: { section: AppSection }) {
 
   const title = draft.title?.trim() ?? "";
 
-  const open = useMemo(() => records.items.filter((record) => !isDone(record)), [records.items]);
-  const done = useMemo(() => records.items.filter(isDone), [records.items]);
+  const activeRecords = useMemo(() => records.items.filter((record) => !isDone(record)), [records.items]);
+  const completedRecords = useMemo(() => records.items.filter(isDone), [records.items]);
 
   const reset = useCallback(() => { setDraft({}); setAdding(false); }, []);
   const beginEdit = (record: NNRecord) => {
@@ -178,7 +178,7 @@ function SectionPanel({ section }: { section: AppSection }) {
   };
 
   const rows = useMemo(() => {
-    const all = [...open, ...done];
+    const all = [...activeRecords, ...completedRecords];
     const needle = search.trim().toLocaleLowerCase();
     if (!needle) return all;
     return all.filter((record) => {
@@ -187,7 +187,7 @@ function SectionPanel({ section }: { section: AppSection }) {
         .toLocaleLowerCase();
       return searchable.includes(needle);
     });
-  }, [done, open, search, section.fields]);
+  }, [activeRecords, completedRecords, search, section.fields]);
 
   return (
     <div className={styles.section}>

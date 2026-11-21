@@ -38,6 +38,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Floating glass treatment added to records-based app banners and sections.
 - [x] Refine app cards, icon wells, record tabs and panel transitions with reduced-motion fallbacks.
 - [ ] Complete component recipes for menus, sheets, dialogs, lists, empty/loading/error/permission states.
+- [x] Add an accessible animated liquid switch for appearance, with native button semantics and reduced-motion fallback.
 - [ ] Standardise hover, focus, pressed, selected, disabled, busy, success and failure states.
 - [ ] Check blur, animation and WebGL fallbacks on low-power/mobile layouts.
 

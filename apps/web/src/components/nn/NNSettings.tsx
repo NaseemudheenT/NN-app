@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
+import { LiquidToggle } from "@/components/ui/liquid-glass-toggle";
 import { TextField } from "@/components/ui/TextField";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { fetchRecoveryState, setRecoveryPassword, useAuth } from "@/lib/auth";
@@ -69,7 +70,42 @@ const TONE = {
   green: "green", amber: "amber", red: "red",
 } as const satisfies Record<string, GlassIconTone>;
 
-/** A row that holds a switch. The whole row is the control's label. */
+/** A compact appearance control with an explicit system-following mode. */
+function ThemeToggleRow({ theme, resolvedTheme, onChange }: {
+  theme: "dark" | "light" | "system";
+  resolvedTheme: "dark" | "light";
+  onChange: (next: "dark" | "light" | "system") => void;
+}) {
+  const automatic = theme === "system";
+  return (
+    <div className={styles.row} data-static>
+      <Tile icon="sparkle" tone={TONE.violet} />
+      <span className={styles.label}>
+        Dark appearance
+        <small>{automatic ? "Following device" : resolvedTheme === "dark" ? "On" : "Off"}</small>
+      </span>
+      <button
+        type="button"
+        className={styles.choice}
+        aria-pressed={automatic}
+        onClick={() => onChange("system")}
+      >
+        Auto
+      </button>
+      <LiquidToggle
+        checked={resolvedTheme === "dark"}
+        onCheckedChange={(checked) => onChange(checked ? "dark" : "light")}
+        tone={resolvedTheme}
+        size={36}
+        label="Dark appearance"
+        icons={{
+          off: <Icon name="sun" size={16} />,
+          on: <Icon name="moon" size={16} />,
+        }}
+      />
+    </div>
+  );
+}
 
 /** A row of mutually exclusive choices. */
 function ChoiceRow<T extends string>({ icon, tone, label, value, choices, onChange }: {
@@ -215,7 +251,7 @@ export interface NNSettingsProps {
 
 export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) {
   const { user } = useAuth();
-  const { theme, setTheme, motion, setMotion } = useTheme();
+  const { theme, resolvedTheme, setTheme, motion, setMotion } = useTheme();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [changesOpen, setChangesOpen] = useState(false);
@@ -277,15 +313,7 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
         title="Appearance"
         footer="Kept on this device rather than on your account: the right answer depends on the screen you are looking at, not on who you are."
       >
-        <ChoiceRow
-          icon="sparkle" tone={TONE.violet} label="Theme" value={theme}
-          choices={[
-            { id: "system", label: "Auto" },
-            { id: "dark", label: "Dark" },
-            { id: "light", label: "Light" },
-          ]}
-          onChange={setTheme}
-        />
+        <ThemeToggleRow theme={theme} resolvedTheme={resolvedTheme} onChange={setTheme} />
         <ChoiceRow
           icon="clock" tone={TONE.slate} label="Motion" value={motion}
           choices={[

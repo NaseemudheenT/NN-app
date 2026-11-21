@@ -345,3 +345,11 @@
   color: var(--text-secondary);
   text-wrap: pretty;
 }
+
+
+/* --------------------------------------------------------- liquid toggle -- */
+.choice[aria-pressed="true"] {
+  background: var(--glass-active);
+  color: var(--text-primary);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 13%);
+}
