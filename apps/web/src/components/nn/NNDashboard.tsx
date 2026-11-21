@@ -392,7 +392,7 @@ function ApplicationsView() {
         kicker: app.group,
         caption: app.description,
         icon: app.icon,
-        ready: app.href !== undefined,
+        ready: app.experience === "dedicated",
       })),
     [],
   );
@@ -401,8 +401,8 @@ function ApplicationsView() {
     (slide: CarouselSlide) => {
       const app = APPLICATIONS.find((entry) => entry.id === slide.id);
       if (!app) return;
-      // A real destination either way: the application when it exists, its
-      // honest overview when it does not.
+      // Every route opens, but the launcher only marks dedicated workflows
+      // as ready. A shared record scaffold is not a finished application.
       travel.open((app.href ?? app.overviewHref) as Route, app.name);
     },
     [travel],
