@@ -90,3 +90,37 @@
 .retry:hover { border-color: var(--nn-icy); }
 
 .task[data-completed="true"] .taskCopy strong { color: var(--text-muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+/* Phone ergonomics: generous hit areas, compact vertical rhythm and safe-area
+   clearance for the persistent NEXUS dock. */
+@media (max-width: 620px) {
+  .page {
+    padding-top: max(72px, calc(env(safe-area-inset-top, 0px) + 62px));
+    padding-right: max(14px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(124px, calc(env(safe-area-inset-bottom, 0px) + 112px));
+    padding-left: max(14px, env(safe-area-inset-left, 0px));
+  }
+  .header { margin-bottom: 30px; }
+  .hero { gap: 18px; margin-bottom: 22px; }
+  .hero h1 { font-size: clamp(32px, 9vw, 42px); }
+  .lede { max-width: 34ch; font-size: 13px; }
+  .tabs { width: 100%; }
+  .tabs button { flex: 1; min-height: 44px; }
+  .createForm input { min-height: 48px; font-size: 16px; }
+  .createForm button { min-height: 48px; }
+  .complete {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    margin-left: -11px;
+    border-color: transparent;
+  }
+  .task { min-height: 68px; }
+  .taskCopy strong { white-space: normal; line-height: 1.4; }
+  .retry { min-height: 44px; padding-inline: 16px; }
+}
+@media (max-width: 360px) {
+  .summary { gap: 7px; }
+  .summary > div { min-width: 0; padding: 10px 11px; }
+  .panelHeading h2 { font-size: 20px; }
+}
