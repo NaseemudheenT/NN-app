@@ -15,6 +15,7 @@ import { firebaseAvailable, getFirebase } from "@/lib/firebase";
 import { useClock } from "@/lib/clock";
 import styles from "./NNLife.module.css";
 import { ownerFirstName } from "@/lib/nn/owner";
+import { buildCalendarGrid, calendarDateKey } from "@/lib/nn/calendar-grid";
 
 type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals";
 type RecordData = Record<string, unknown> & { id: string };
@@ -72,6 +73,9 @@ function LifeSurface() {
   const { user } = useAuth();
   const uid = user?.uid;
   const [tab, setTab] = useState<LifeTab>("today");
+  const [calendarOffset, setCalendarOffset] = useState(0);
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState("");
+
   const swipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
   const moveTab = (direction: -1 | 1) => {
     const currentIndex = TABS.findIndex((item) => item.id === tab);
@@ -120,6 +124,55 @@ function LifeSurface() {
   // Null until mounted. Everything below that depends on what time it is
   // reads this, so the server and the browser's first render always agree.
   const clock = useClock(60_000);
+  const calendarAnchor = clock === null ? null : new Date(clock);
+  const calendarMonth = calendarAnchor
+    ? new Date(calendarAnchor.getFullYear(), calendarAnchor.getMonth() + calendarOffset, 1)
+    : null;
+  const calendarMonthLabel = calendarMonth
+    ? new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(calendarMonth)
+    : "Calendar";
+  const calendarDays = useMemo(() => {
+    if (!calendarMonth || !calendarAnchor) return [];
+    const eventDates = data.calendar_events
+      .map((item) => asDate(item.start))
+      .filter((date): date is Date => date !== null);
+    return buildCalendarGrid(calendarMonth.getFullYear(), calendarMonth.getMonth(), calendarAnchor, eventDates);
+  }, [clock, calendarOffset, data.calendar_events]);
+  const selectedDateKey = selectedCalendarDay || (calendarAnchor ? calendarDateKey(calendarAnchor) : "");
+  const selectedCalendarEvents = useMemo(() => data.calendar_events
+    .filter((item) => {
+      const date = asDate(item.start);
+      return date !== null && calendarDateKey(date) === selectedDateKey;
+    })
+    .sort((a, b) => (asDate(a.start)?.getTime() ?? 0) - (asDate(b.start)?.getTime() ?? 0)),
+  [data.calendar_events, selectedDateKey]);
+  const selectedDateParts = selectedDateKey.split("-").map(Number);
+  const selectedDateLabel = selectedDateParts.length === 3 && selectedDateParts.every(Number.isFinite)
+    ? new Date(selectedDateParts[0] ?? 0, (selectedDateParts[1] ?? 1) - 1, selectedDateParts[2] ?? 1)
+      .toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })
+    : "Select a day";
+  const shiftCalendarMonth = (direction: -1 | 1) => {
+    if (!calendarAnchor) return;
+    const nextMonth = new Date(
+      calendarAnchor.getFullYear(),
+      calendarAnchor.getMonth() + calendarOffset + direction,
+      1,
+    );
+    setCalendarOffset((current) => current + direction);
+    setSelectedCalendarDay(calendarDateKey(nextMonth));
+  };
+  const selectCalendarDay = (key: string, year: number, month: number) => {
+    if (calendarAnchor) {
+      const offset = (year - calendarAnchor.getFullYear()) * 12 + month - calendarAnchor.getMonth();
+      setCalendarOffset(offset);
+    }
+    setSelectedCalendarDay(key);
+  };
+  const resetCalendar = () => {
+    setCalendarOffset(0);
+    setSelectedCalendarDay(calendarAnchor ? calendarDateKey(calendarAnchor) : "");
+  };
+
 
   useEffect(() => {
     const hour = new Date(Date.now() + 60 * 60 * 1000);
@@ -340,7 +393,39 @@ function LifeSurface() {
       </section> : null}
       {!loading && tab === "calendar" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>CALENDAR</p><h2>Make room for what matters.</h2></div><span className={styles.count}>{data.calendar_events.length} EVENTS LOADED</span></div>
         <form className={styles.captureForm} onSubmit={createEvent}><input value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} placeholder="Event title" aria-label="Event title" required maxLength={160}/><input type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} aria-label="Event starts" required/><input type="datetime-local" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} aria-label="Event ends" required/><button disabled={busy || !eventTitle.trim()}><Icon name="plus" size={16}/> Add event</button></form>
-        <div className={styles.list}>{data.calendar_events.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("calendar_events", item.id, "Calendar event deleted.")}><article className={`${styles.record} nn-glass-card`}><span className={styles.recordGlyph+" "+styles.iconSurface}><Icon name="calendar" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.start)} · {formatTime(item.start)} — {formatTime(item.end)}</small></div><span className={styles.priority}>{typeof item.status === "string" ? item.status : "scheduled"}</span></article></SwipeToDelete>)}{data.calendar_events.length === 0 ? <EmptyState icon="calendar" title="Your calendar is open." body="Create your first event. It will be stored in your private NN account."/> : null}</div>
+        <section className={styles.calendarSurface} aria-label="Monthly calendar">
+          <div className={styles.calendarToolbar}>
+            <button type="button" aria-label="Previous month" onClick={() => shiftCalendarMonth(-1)}>‹</button>
+            <h3>{calendarMonthLabel}</h3>
+            <button type="button" aria-label="Next month" onClick={() => shiftCalendarMonth(1)}>›</button>
+            <button type="button" className={styles.calendarToday} onClick={resetCalendar}>Today</button>
+          </div>
+          <div className={styles.calendarWeekdays} aria-hidden="true">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => <span key={day}>{day}</span>)}
+          </div>
+          <div className={styles.calendarGrid} role="grid" aria-label={calendarMonthLabel}>
+            {calendarDays.map((day) => <button
+              type="button"
+              role="gridcell"
+              key={day.key}
+              className={styles.calendarDay}
+              data-outside={!day.inMonth || undefined}
+              data-selected={selectedDateKey === day.key || undefined}
+              data-today={day.isToday || undefined}
+              aria-selected={selectedDateKey === day.key}
+              aria-label={dateLabel(day.date) + (day.eventCount ? ", " + day.eventCount + " events" : "")}
+              onClick={() => selectCalendarDay(day.key, day.date.getFullYear(), day.date.getMonth())}
+            >
+              <span>{day.day}</span>
+              {day.eventCount > 0 ? <small>{day.eventCount}</small> : <i/>}
+            </button>)}
+          </div>
+        </section>
+        <div className={styles.calendarEventsHead}>
+          <div><p className={styles.label}>SELECTED DAY</p><h3>{selectedDateLabel}</h3></div>
+          <span className={styles.count}>{selectedCalendarEvents.length} EVENTS</span>
+        </div>
+        <div className={styles.list}>{selectedCalendarEvents.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("calendar_events", item.id, "Calendar event deleted.")}><article className={styles.record + " nn-glass-card"}><span className={styles.recordGlyph + " " + styles.iconSurface}><Icon name="calendar" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.start)} · {formatTime(item.start)} — {formatTime(item.end)}</small></div><span className={styles.priority}>{typeof item.status === "string" ? item.status : "scheduled"}</span></article></SwipeToDelete>)}{selectedCalendarEvents.length === 0 ? <EmptyState icon="calendar" title="Nothing scheduled for this day." body="Choose another date or add an event to this day. Your other events remain on the calendar."/> : null}</div>
       </GlassPanel></section> : null}
       {!loading && tab === "reminders" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><div className={styles.panelHead}><div><p className={styles.label}>REMINDERS</p><h2>Remember at the right moment.</h2></div><span className={styles.count}>{data.reminders.length} SAVED</span></div>
         <form className={styles.captureForm} onSubmit={createReminder}><input value={reminderTitle} onChange={(e) => setReminderTitle(e.target.value)} placeholder="What should NN remind you?" aria-label="Reminder title" required maxLength={160}/><input type="datetime-local" value={reminderAt} onChange={(e) => setReminderAt(e.target.value)} aria-label="Reminder time" required/><button disabled={busy || !reminderTitle.trim()}><Icon name="plus" size={16}/> Save reminder</button></form>
