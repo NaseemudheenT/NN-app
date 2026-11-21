@@ -56,8 +56,9 @@ describe("NN workspace specialist registry", () => {
       args: { appId: "finance" },
     });
 
+    const inactiveId = WORKSPACE_SPECIALISTS.find((agent) => agent.status === "planned")?.appId ?? "not-an-app";
     expect(planFromToolCall("delegate_to_specialist", {
-      appId: "soul",
+      appId: inactiveId,
       text: "Review my records",
     }).ok).toBe(false);
   });
