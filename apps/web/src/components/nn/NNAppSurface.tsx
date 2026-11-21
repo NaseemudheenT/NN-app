@@ -80,6 +80,7 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [search, setSearch] = useState("");
 
   const title = draft.title?.trim() ?? "";
 
@@ -145,7 +146,17 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
     }
   };
 
-  const rows = [...open, ...done];
+  const rows = useMemo(() => {
+    const all = [...open, ...done];
+    const needle = search.trim().toLocaleLowerCase();
+    if (!needle) return all;
+    return all.filter((record) => {
+      const searchable = [titleOf(record), ...section.fields.map((field) => fieldValue(record, field) ?? "")]
+        .join(" ")
+        .toLocaleLowerCase();
+      return searchable.includes(needle);
+    });
+  }, [done, open, search, section.fields]);
 
   return (
     <div className={styles.section}>
@@ -166,6 +177,24 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
           <Icon name="shield" size={15} />
           {problem}
         </p>
+      ) : null}
+
+      {records.items.length > 0 ? (
+        <label className={styles.search}>
+          <Icon name="search" size={16} />
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={`Search ${section.name.toLocaleLowerCase()}…`}
+            aria-label={`Search ${section.name}`}
+          />
+          {search ? (
+            <button type="button" onClick={() => setSearch("")} aria-label="Clear search">
+              <Icon name="close" size={14} />
+            </button>
+          ) : null}
+        </label>
       ) : null}
 
       {adding ? (
@@ -248,7 +277,9 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
         <div className={styles.skeleton} aria-hidden="true"><span /><span /><span /></div>
       ) : rows.length === 0 ? (
         <p className={styles.empty}>
-          Nothing here yet. {appName} will hold {section.noun} once you add one.
+          {search.trim()
+            ? `No ${section.name.toLocaleLowerCase()} match “${search.trim()}”. Try another search.`
+            : `Nothing here yet. ${appName} will hold ${section.noun} once you add one.`}
         </p>
       ) : (
         <ul className={styles.rows}>
