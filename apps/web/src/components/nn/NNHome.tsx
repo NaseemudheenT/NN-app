@@ -42,7 +42,7 @@ function LauncherSurface() {
     <main className={`${styles.root} nn-ios-home`} aria-label="NN application launcher">
       <header className={styles.topbar}>
         <button className={styles.brand} type="button" onClick={() => router.push("/home")} aria-label="NN Home">
-          <NNLogo size={27} glow decorative />
+          <NNLogo size={27} decorative />
           <span>NN</span>
         </button>
         <div className={styles.systemLabel}>PERSONAL OPERATING ENVIRONMENT</div>
