@@ -1,3 +1,21 @@
+## 2026-11-21 · Phase D — NN Life workflows and record editing
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Code commit:** `a4cce201c7f4f74074905d0fec1823127c1292e2`  
+**CI:** [Run 44896017827](https://github.com/NaseemudheenT/NN-app/actions/runs/44896017827) — success (typecheck, lint, unit tests and Next.js production build).
+
+- Implemented real owner-scoped Habits, Routines, Focus and Reviews workflows; removed the disconnected preview-only wrapper.
+- Added validated edit dialogs for Tasks, Calendar events, Reminders, Notes, Goals, Habits, Routines and Reviews.
+- Added daily, weekdays and weekly habit period logic, duplicate-period protection, and Monday-keyed weekly reflections.
+- Added tests for edit validation, routine parsing, focus countdown and cadence rules.
+- Offline writes are blocked until reconnection so the UI does not claim an unconfirmed save. A durable offline mutation queue is not implemented.
+- Reminder records are scheduled in Firestore; notification delivery remains a separate service and is not claimed as active.
+- Added emulator-backed owner-scope tests for each new Life collection.
+
+**Remaining:** Full offline write queue, detail/history refinement, physical-device QA and final Phase G verification. No production deployment or data migration.
+
+---
+
 ## 2026-11-21 · Phase D — NN Life real workflows (first implementation milestone)
 
 **Branch:** `gt/nn-liquid-glass-unified`

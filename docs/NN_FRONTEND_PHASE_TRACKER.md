@@ -73,9 +73,13 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Implement routine creation, ordered steps and explicit completion records.
 - [x] Implement persistent focus sessions with planned duration, live countdown, completion and cancellation.
 - [x] Implement weekly reflections with saved wins, lessons and next steps.
+- [x] Add validated edit dialogs for tasks, events, reminders, notes, goals, habits, routines and reviews.
+- [x] Enforce daily, weekdays and weekly habit periods; weekly reviews use a stable Monday period key.
+- [x] Add unit tests for edit-patch validation, routine-step parsing, focus countdown and cadence boundaries.
 - [x] Keep notification scheduling distinct from delivery; reminders are stored, not claimed delivered.
-- [ ] Add detail/edit flows and a full offline write queue; current offline mode is read/cache-aware, not a guaranteed mutation queue.
-- [ ] Add emulator-backed integration tests for the new Life collections and device QA.
+- [x] Add emulator-backed owner-scope CRUD tests for the new Life collections.
+- [ ] Add a full offline write queue; current offline mode is read/cache-aware and blocks unconfirmed writes.
+- [ ] Complete device QA and review the full edit/detail flows.
 
 ### Phase E — College and Academy interfaces
 - [x] College blueprint: semester dashboard, syllabus navigator, question-bank library and exam planner layouts.
