@@ -73,24 +73,6 @@
 
 .body { padding-bottom: var(--space-11); }
 
-.dock {
-  position: fixed;
-  z-index: 8;
-  left: 50%;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-7));
-  transform: translateX(-50%);
-  /* The LiquidNav owns the glass. This wrapper is only a scroll viewport;
-     a second frosted plate here would make the water look double-glazed. */
-  width: max-content;
-  max-width: min(calc(100dvw - var(--space-7)), 1180px);
-  padding: 14px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-
-.dock::-webkit-scrollbar { display: none; }
 
 @media (max-width: 700px) {
   .search span { display: none; }
