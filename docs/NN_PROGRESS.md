@@ -1,3 +1,25 @@
+## 2026-11-21 · Global quick-navigation milestone
+
+**Commit:** `8c500b4c731b563c5e8e948f48c38e882399f817` on `nn-nexus-interface`.
+
+**Implemented:**
+- Added a global NN quick-navigation palette, opened with `Ctrl + K` or `⌘ + K`.
+- Search filters the real, currently implemented destinations only: Home, Workspace, Design System and Sign in.
+- Added keyboard selection (↑/↓, Enter), Escape handling, focus restoration, focus trapping, empty results, responsive styling, dark/light support and reduced-motion handling.
+- Removed the conflicting shortcut from NEXUS; its own panel remains directly clickable and advertises the new shortcut.
+- Added dedicated component tests for opening, filtering, navigation and empty-state dismissal.
+
+**Latest automated verification — GitHub Actions run [44866542087](https://github.com/NaseemudheenT/NN-app/actions/runs/44866542087):**
+- Type-check and lint: passed.
+- Unit/rules tests: **285 passed** (88 Firebase rules, 34 security, 30 auth, 11 Firebase package, 122 web).
+- Next.js production build: passed.
+
+**Scope boundary:** the palette is quick navigation, not yet the full permission-aware global search or action-executing command system. It only exposes real routes already implemented.
+
+**Deployment:** no current-branch preview or production deployment. Vercel's free daily deployment API allowance remains exhausted; see `docs/DEPLOYMENT_STATUS.md`.
+
+---
+
 ## 2026-11-21 · Frontend operating-shell and recovery milestone
 
 **Branch:** `nn-nexus-interface` · **Verified head at this entry:** `7336407d1e65df358048f6208dce5fce3ba5bcde`
