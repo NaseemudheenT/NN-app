@@ -71,10 +71,6 @@ export function NNNexus() {
         setExpanded(false);
         setRailExpanded(false);
       }
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        setExpanded((value) => !value);
-      }
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -176,7 +172,6 @@ export function NNNexus() {
           aria-expanded={expanded}
           aria-controls="nn-nexus-panel"
           aria-label={expanded ? "Collapse NN NEXUS" : "Expand NN NEXUS"}
-          aria-keyshortcuts="Control+K Meta+K"
           onClick={() => setExpanded((value) => !value)}
         >
           <span className={styles.brand}>
@@ -282,7 +277,7 @@ export function NNNexus() {
           </div>
           <footer className={styles.panelFooter}>
             <span><i /> NN SYSTEM</span>
-            <span>Private by design</span>
+            <span>⌘K / Ctrl K · Search NN</span>
           </footer>
         </section>
       ) : null}

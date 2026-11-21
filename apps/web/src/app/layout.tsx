@@ -6,6 +6,7 @@ import { RenProvider } from "@/components/ren/RenProvider";
 import { RenLauncher } from "@/components/ren/RenLauncher";
 import { RenPanel } from "@/components/ren/RenPanel";
 import { NNNexus } from "@/components/nn/NNNexus";
+import { NNCommandPalette } from "@/components/nn/NNCommandPalette";
 import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <RenLauncher />
               <RenPanel />
               <NNNexus />
+              <NNCommandPalette />
             </RenProvider>
           </AuthProvider>
           <ServiceWorker />
