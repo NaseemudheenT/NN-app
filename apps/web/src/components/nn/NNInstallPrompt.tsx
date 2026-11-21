@@ -16,10 +16,10 @@ export function NNInstallPrompt(){
   window.addEventListener("beforeinstallprompt",onPrompt);
   return()=>window.removeEventListener("beforeinstallprompt",onPrompt);
  },[]);
- const install=async()=>{if(!installEvent||busy)return;setBusy(true);try{await installEvent.prompt();await installEvent.userChoice;setInstallEvent(null);setMode("fallback");}finally{setBusy(false)}};
+ const install=async()=>{if(!installEvent||busy)return;setBusy(true);try{await installEvent.prompt();await installEvent.userChoice;setInstallEvent(null);setMode("fallback");}catch{setMode("fallback");}finally{setBusy(false)}};
  if(mode==="hidden")return null;
  return <section className={styles.root} aria-label="Install NN">
-  <div className={styles.copy}><span className={styles.icon}><Icon name="smartphone" size={19}/></span><div><strong>Take NN with you</strong><p>Install NN on your device for a focused, app-like experience.</p></div></div>
+  <div className={styles.copy}><span className={styles.icon}><Icon name="grid" size={19}/></span><div><strong>Take NN with you</strong><p>Install NN on your device for a focused, app-like experience.</p></div></div>
   <div className={styles.actions}>
    {mode==="prompt"?<button type="button" onClick={()=>void install()} disabled={busy}>{busy?"Opening…":"Install NN"}</button>:<button type="button" onClick={()=>setOpen(v=>!v)} aria-expanded={open}>{open?"Close":"How to install"}</button>}
    <button className={styles.dismiss} type="button" aria-label="Dismiss install guide" onClick={()=>setMode("hidden")}><Icon name="close" size={15}/></button>
