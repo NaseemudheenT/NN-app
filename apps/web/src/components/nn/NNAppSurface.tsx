@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type CSSProperties, type FormEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { WaveCard, WaveChip } from "@/components/ui/WaveCard";
 import { useRecords, useRecordWriter, type NNRecord, type RecordFault } from "@/lib/nn/records";
 import { relativeTime, useClock } from "@/lib/clock";
 import type { NNApplication } from "@/lib/apps/registry";
@@ -306,69 +305,100 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
   );
 }
 
+type AppIdentity = { mark: string; discipline: string; tagline: string; hue: number };
+const APP_IDENTITIES: Record<string, AppIdentity> = {
+  life:{mark:"LF",discipline:"Personal operating system",tagline:"Your days, intentionally arranged.",hue:194},
+  soul:{mark:"SL",discipline:"Life & wellbeing",tagline:"A private space for purpose and reflection.",hue:34},
+  mind:{mark:"MN",discipline:"Life & wellbeing",tagline:"Make room for focus, clarity and growth.",hue:267},
+  body:{mark:"BD",discipline:"Life & wellbeing",tagline:"Understand the habits that support your energy.",hue:8},
+  contacts:{mark:"CT",discipline:"Life & wellbeing",tagline:"Keep the people who matter within reach.",hue:202},
+  "nature-universe":{mark:"NU",discipline:"Life & wellbeing",tagline:"A field notebook for a curious mind.",hue:157},
+  "peace-mode":{mark:"PM",discipline:"Life & wellbeing",tagline:"A quieter place to pause and reset.",hue:224},
+  college:{mark:"CL",discipline:"Education",tagline:"Bring your semester, subjects and preparation into focus.",hue:210},
+  academy:{mark:"AC",discipline:"Education",tagline:"Build skills through deliberate practice.",hue:185},
+  "formula-engine":{mark:"FE",discipline:"Education",tagline:"A precise library of expressions and principles.",hue:46},
+  "logic-lab":{mark:"LL",discipline:"Education",tagline:"Train the reasoning behind every answer.",hue:274},
+  "learning-vault":{mark:"LV",discipline:"Education",tagline:"A considered home for what you learn.",hue:320},
+  finance:{mark:"FN",discipline:"Money & work",tagline:"See the structure behind your money.",hue:148},
+  invest:{mark:"IV",discipline:"Money & work",tagline:"Research holdings with discipline and context.",hue:169},
+  business:{mark:"BS",discipline:"Money & work",tagline:"Turn decisions into deliberate execution.",hue:29},
+  freelance:{mark:"FR",discipline:"Money & work",tagline:"Keep clients, delivery and billing in order.",hue:195},
+  career:{mark:"CR",discipline:"Money & work",tagline:"Make progress visible through evidence.",hue:215},
+  projects:{mark:"PJ",discipline:"Money & work",tagline:"Move important work from plan to completion.",hue:246},
+  achievements:{mark:"AH",discipline:"Money & work",tagline:"Keep a record of outcomes worth remembering.",hue:42},
+  "creator-studio":{mark:"CS",discipline:"Creation & communication",tagline:"Shape ideas into finished work.",hue:333},
+  studio:{mark:"ST",discipline:"Creation & communication",tagline:"A focused space for writing and documents.",hue:286},
+  mail:{mark:"ML",discipline:"Creation & communication",tagline:"Prepare thoughtful communication, on your terms.",hue:204},
+  english:{mark:"EN",discipline:"Creation & communication",tagline:"Practise the language, one skill at a time.",hue:174},
+  memory:{mark:"MM",discipline:"Knowledge & insight",tagline:"Keep useful knowledge connected to its source.",hue:250},
+  "life-archive":{mark:"LA",discipline:"Knowledge & insight",tagline:"A personal timeline of meaningful moments.",hue:22},
+  analytics:{mark:"AN",discipline:"Knowledge & insight",tagline:"Read the patterns in the measures you track.",hue:190},
+  travel:{mark:"TR",discipline:"Knowledge & insight",tagline:"Collect destinations, plans and the details between.",hue:180},
+  simulator:{mark:"SM",discipline:"Knowledge & insight",tagline:"Explore scenarios with assumptions made visible.",hue:262},
+  "command-centre":{mark:"CC",discipline:"System",tagline:"A clear record of requests and outcomes.",hue:207},
+  search:{mark:"SR",discipline:"System",tagline:"Find what matters across your NN workspace.",hue:191},
+  "automation-studio":{mark:"AS",discipline:"System",tagline:"Design automations with explicit control.",hue:158},
+  "security-centre":{mark:"SC",discipline:"System",tagline:"Keep the security posture understandable.",hue:224},
+  "control-room":{mark:"CO",discipline:"System",tagline:"A measured view of system checks and signals.",hue:279},
+  files:{mark:"FI",discipline:"System",tagline:"A deliberate home for your files and folders.",hue:215}
+};
+function identityFor(app: NNApplication): AppIdentity {
+  return APP_IDENTITIES[app.id] ?? {mark:app.name.slice(0,2).toUpperCase(),discipline:app.group,tagline:app.description,hue:205};
+}
 export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
-  const [active, setActive] = useState(0);
-  const section = sections[active] ?? sections[0];
-  if (!section) return null;
-
+  const [active,setActive]=useState(0);
+  const section=sections[active]??sections[0];
+  const identity=identityFor(app);
+  if(!section)return null;
+  const rootStyle={"--app-hue":identity.hue} as CSSProperties;
+  const moveSection=(next:number)=>{
+    setActive(next);
+    document.getElementById("workspace-tab-"+sections[next]!.collection)?.focus();
+  };
   return (
-    <div className={styles.root}>
-      <WaveCard tone="tide" className={styles.banner}>
-        <div className={styles.bannerInner}>
-          <div>
-            <p className={styles.group}>{app.group}</p>
-            <h1>{app.name}</h1>
-            <p className={styles.description}>{app.description}</p>
+    <main className={styles.root} data-app={app.id} data-family={app.group} style={rootStyle}>
+      <section className={styles.hero} aria-labelledby="nn-workspace-title">
+        <div className={styles.heroAtmosphere} aria-hidden="true"><span className={styles.heroOrb}/><span className={styles.heroRing}/><span className={styles.heroHorizon}/></div>
+        <div className={styles.heroContent}>
+          <div className={styles.heroMeta}><span>NN / APPLICATION WORKSPACE</span><span className={styles.privateLabel}><i/> PRIVATE SPACE</span></div>
+          <div className={styles.heroIdentity}>
+            <div className={styles.appSeal} aria-label={app.name+" app mark"}><span>{identity.mark}</span><i/></div>
+            <div className={styles.heroTitles}><p className={styles.group}>{identity.discipline}</p><h1 id="nn-workspace-title">{app.name}</h1><p className={styles.tagline}>{identity.tagline}</p></div>
           </div>
-          <WaveChip className={styles.bannerChip}>
-            <Icon name={app.icon} size={22} />
-          </WaveChip>
+          <p className={styles.description}>{app.description}</p>
         </div>
-      </WaveCard>
-
-      {sections.length > 1 ? (
-        <div className={styles.tabs} role="tablist" aria-label={`${app.name} sections`}>
-          {sections.map((entry, index) => (
-            <button
-              key={entry.collection}
-              type="button"
-              role="tab"
-              id={`tab-${entry.collection}`}
-              aria-selected={index === active}
-              aria-controls={`panel-${entry.collection}`}
-              tabIndex={index === active ? 0 : -1}
-              onKeyDown={(event) => {
-                const last = sections.length - 1;
-                let next = -1;
-                if (event.key === "ArrowRight") next = active === last ? 0 : active + 1;
-                else if (event.key === "ArrowLeft") next = active === 0 ? last : active - 1;
-                else if (event.key === "Home") next = 0;
-                else if (event.key === "End") next = last;
-                else return;
-                event.preventDefault();
-                setActive(next);
-                document.getElementById(`tab-${sections[next]!.collection}`)?.focus();
-              }}
-              onClick={() => setActive(index)}
-            >
-              {entry.name}
-            </button>
-          ))}
+        <div className={styles.heroIndex} aria-hidden="true"><span>NN</span><strong>{identity.mark}</strong><i/><small>WORKSPACE</small></div>
+      </section>
+      <section className={styles.workspace} aria-label={app.name+" workspace"}>
+        <aside className={styles.rail}>
+          <div className={styles.railHeading}><span>WORKSPACE</span><span>{String(sections.length).padStart(2,"0")} MODULES</span></div>
+          <div className={styles.sectionNav} role="tablist" aria-label={app.name+" modules"} aria-orientation="vertical">
+            {sections.map((entry,index)=>(
+              <button key={entry.collection} type="button" role="tab" id={"workspace-tab-"+entry.collection} aria-selected={index===active} aria-controls={"workspace-panel-"+entry.collection} tabIndex={index===active?0:-1} className={styles.sectionTab}
+                onKeyDown={event=>{
+                  const last=sections.length-1;let next=-1;
+                  if(event.key==="ArrowDown"||event.key==="ArrowRight")next=active===last?0:active+1;
+                  else if(event.key==="ArrowUp"||event.key==="ArrowLeft")next=active===0?last:active-1;
+                  else if(event.key==="Home")next=0;else if(event.key==="End")next=last;else return;
+                  event.preventDefault();moveSection(next);
+                }} onClick={()=>setActive(index)}>
+                <span className={styles.tabIndex}>{String(index+1).padStart(2,"0")}</span><span className={styles.tabLabel}>{entry.name}</span><span className={styles.tabArrow} aria-hidden="true">↗</span>
+              </button>
+            ))}
+          </div>
+          <div className={styles.railFoot}><span className={styles.railSignal}/><span>OWNER DATA</span><span>OWNER SCOPED</span></div>
+        </aside>
+        <div className={styles.workArea}>
+          <header className={styles.moduleHeader}>
+            <div><p className={styles.moduleEyebrow}>MODULE / {String(active+1).padStart(2,"0")}</p><h2>{section.name}</h2><p>{section.hint}</p></div>
+            <div className={styles.liveStatus}><i/> LIVE DATA</div>
+          </header>
+          <div role={sections.length>1?"tabpanel":undefined} id={"workspace-panel-"+section.collection} aria-labelledby={sections.length>1?"workspace-tab-"+section.collection:undefined} className={styles.modulePanel}>
+            <SectionPanel key={section.collection} section={section} appName={app.name}/>
+          </div>
         </div>
-      ) : null}
-
-      <div
-        role={sections.length > 1 ? "tabpanel" : undefined}
-        id={`panel-${section.collection}`}
-        aria-labelledby={sections.length > 1 ? `tab-${section.collection}` : undefined}
-      >
-        {/* Keyed on the collection so switching tabs mounts a fresh
-            subscription rather than painting one section's records into
-            another's list while the new query resolves. */}
-        <SectionPanel key={section.collection} section={section} appName={app.name} />
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
-
 export default NNAppSurface;
