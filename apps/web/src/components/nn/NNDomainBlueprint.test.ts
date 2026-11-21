@@ -6,6 +6,11 @@ describe("NN domain interface blueprints", () => {
     expect(Object.keys(DOMAIN_BLUEPRINTS)).toHaveLength(31);
   });
 
+  it("covers the core College and Academy workflows with dedicated modules", () => {
+    expect(DOMAIN_BLUEPRINTS.college?.map((blueprint) => blueprint.id)).toEqual(["semester", "syllabus", "question-bank", "exam-prep"]);
+    expect(DOMAIN_BLUEPRINTS.academy?.map((blueprint) => blueprint.id)).toEqual(["paths", "courses", "lesson", "mastery"]);
+  });
+
   it("gives every application at least three distinct modules with screen regions", () => {
     for (const [appId, modules] of Object.entries(DOMAIN_BLUEPRINTS)) {
       expect(modules.length, appId).toBeGreaterThanOrEqual(3);

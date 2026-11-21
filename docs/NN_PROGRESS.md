@@ -1,3 +1,15 @@
+## 2026-11-21 · Domain screen composition milestone
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Base commit:** `6cb2a08d6decc6930631133de5e5775958147e3f`  
+**Change:** Expanded the 31-app domain blueprint from a list of named regions into a visual screen composition: a floating glass frame, app rail, module heading, domain-region cards and contextual side rail. The wireframe is explicitly labelled as structure-only and contains no invented records or fake metrics. College and Academy core workflows are asserted in tests.
+
+**Verification before this commit:** CI run 44878939752 completed successfully on commit 6cb2a08d6decc6930631133de5e5775958147e3f (typecheck, lint, unit tests and production build).
+
+**Not claimed:** detailed individual route pages, complete app interaction prototypes, responsive browser/device QA or final Claude handoff are not complete.
+
+---
+
 ## 2026-11-21 · NN Life interface expansion — design handoff
 
 **Commit:** pending CI on the active integration branch.  

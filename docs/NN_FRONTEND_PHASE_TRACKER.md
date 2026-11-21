@@ -16,8 +16,8 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 | B | Spatial-glass design system | **In progress** | Shared tokens, floating materials, responsive components, motion and reduced-motion behaviour consistent across the app |
 | C | Home and global discovery | **Core implemented · polish open** | Minimal app launcher, all 34 discoverable, search, command/search surfaces and honest availability |
 | D | NN Life interface | **Partial** | Complete visual layouts for Today, Calendar, Tasks, Reminders, Notes, Habits, Goals, Routines, Focus and Reviews; real vs design-only states explicit |
-| E | College and Academy interfaces | **Not started as a complete design set** | College, Academy, Formula Engine, Logic Lab and Learning Vault screens designed for their core workflows |
-| F | Remaining application interfaces | **Major work remaining** | All registered apps have coherent domain-specific screens, not merely a generic list/form template |
+| E | College and Academy interfaces | **Core domain blueprints and visual screen compositions implemented · detailed route designs open** | College, Academy, Formula Engine, Logic Lab and Learning Vault screens designed for their core workflows |
+| F | Remaining application interfaces | **31 records-app domain blueprints implemented · detailed per-app screens open** | All registered apps have coherent domain-specific screens, not merely a generic list/form template |
 | G | Frontend verification and Claude handoff | **Not started** | Route-by-route visual audit, responsive/accessibility checks, CI, screenshots/evidence and a precise handoff brief |
 
 ## Phase definitions and acceptance checklist
@@ -58,8 +58,10 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [ ] Separate reminder scheduling UI from actual notification delivery capability.
 
 ### Phase E — College and Academy interfaces
-- [ ] College home, semester/subject overview, subject detail, syllabus, units, notes, question bank, assignments, timetable, attendance, marks and exam preparation.
-- [ ] Academy learning paths, course/lesson reader, exercises, progress and revision views.
+- [x] College blueprint: semester overview, subjects/syllabus, question bank and exam preparation screen structures.
+- [ ] Detail College into subject/unit/question/assignment/timetable/attendance/marks route-level screens.
+- [x] Academy blueprint: learning paths, course library, lesson workspace and mastery review screen structures.
+- [ ] Detail Academy into course reader, exercise, progress and revision route-level screens.
 - [ ] Formula Engine, Logic Lab and Learning Vault domain interfaces.
 - [ ] Source/provenance labels for uploaded materials and generated explanations.
 - [ ] Design-only states clearly identified until Claude wires backend logic.
@@ -70,7 +72,8 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [ ] Creation & communication: Creator Studio, Studio, Mail, English.
 - [ ] Knowledge & insight: Memory, Life Archive, Analytics, Travel, Simulator.
 - [ ] System: Command Centre, Search, Automation Studio, Security Centre, Control Room, Files and REN surfaces.
-- [ ] Domain-specific navigation, empty states, detail screens and interaction prototypes for each app.
+- [x] Domain-specific module maps and structural screen compositions for all 31 records-based applications.
+- [ ] Complete per-app navigation, real empty/loading/error states, detail screens and interaction prototypes.
 - [ ] Never show fabricated finance, attendance, analytics, market, device, security, AI or integration data.
 
 ### Phase G — Verification and Claude handoff

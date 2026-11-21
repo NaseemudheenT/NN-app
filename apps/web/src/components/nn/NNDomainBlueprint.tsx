@@ -215,6 +215,43 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
           <span className={styles.pending}>BACKEND NOT CONNECTED</span>
         </div>
         <p className={styles.detailDescription}>{selected.description}</p>
+        <div className={styles.screenPreview} aria-label={`${selected.title} interface layout preview`}>
+          <div className={styles.screenTop}>
+            <span className={styles.screenBrand}><Icon name={app.icon} size={13}/>{app.name}</span>
+            <span className={styles.screenMode}>CONCEPT LAYOUT</span>
+          </div>
+          <div className={styles.screenBody}>
+            <aside className={styles.screenRail} aria-hidden="true">
+              <span className={styles.railMark}/>
+              <span className={styles.railMark}/>
+              <span className={styles.railMark}/>
+              <span className={styles.railMark}/>
+            </aside>
+            <div className={styles.screenMain}>
+              <div className={styles.screenHeading}>
+                <span className={styles.screenKicker}>{app.name.toUpperCase()} / {selected.id.toUpperCase()}</span>
+                <span className={styles.screenTitle}>{selected.title}</span>
+                <span className={styles.screenSubline}/>
+              </div>
+              <div className={styles.screenWidgets}>
+                {selected.regions.map((region, index) => (
+                  <div className={styles.screenWidget} data-layout={index === 0 ? "primary" : index === 1 ? "secondary" : "tertiary"} key={region}>
+                    <span className={styles.widgetIndex}>{String(index + 1).padStart(2, "0")}</span>
+                    <span className={styles.widgetName}>{region}</span>
+                    <span className={styles.widgetLines}><i/><i/><i/></span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <aside className={styles.screenContext}>
+              <span className={styles.contextDot}/>
+              <span className={styles.contextLine}/>
+              <span className={styles.contextLine}/>
+              <span className={styles.contextLine}/>
+            </aside>
+          </div>
+          <div className={styles.screenFooter}><span>STRUCTURE ONLY · NO SAMPLE RECORDS</span><span>RESPONSIVE LAYOUT</span></div>
+        </div>
         <div className={styles.regions}>
           {selected.regions.map((region, index) => (
             <div className={styles.region} key={region}>

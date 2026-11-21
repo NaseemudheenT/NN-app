@@ -25,3 +25,35 @@
 .handoffNote{margin:14px 0 0;padding-top:11px;border-top:1px solid rgb(198 224 255 / 12%);color:var(--text-muted);font-size:9px;line-height:1.6}
 @media(max-width:640px){.root{padding:14px;border-radius:19px}.header{flex-direction:column;gap:10px}.moduleGrid{grid-template-columns:1fr}.regions{grid-template-columns:1fr}.region{grid-template-columns:24px 1fr;align-items:center;gap:8px}.detailHead{align-items:flex-start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){.module{transition:none}.module:hover{transform:none}}
+
+
+/* A visual screen composition: structural wireframe, never synthetic data. */
+.screenPreview{margin-top:17px;overflow:hidden;border:1px solid rgb(191 222 255 / 22%);border-radius:18px;background:radial-gradient(ellipse at 78% 0%,rgb(111 164 255 / 12%),transparent 48%),linear-gradient(145deg,rgb(224 241 255 / 7%),transparent 58%),rgb(4 13 31 / 35%);box-shadow:inset 0 1px 0 rgb(255 255 255 / 12%),0 12px 30px rgb(0 0 0 / 13%)}
+.screenTop{height:39px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 13px;border-bottom:1px solid rgb(201 226 255 / 12%);background:rgb(225 241 255 / 3%)}
+.screenBrand{display:flex;align-items:center;gap:7px;color:var(--text-secondary);font-size:9px;font-weight:600}
+.screenMode{color:var(--text-muted);font:7px var(--font-mono);letter-spacing:.1em}
+.screenBody{min-height:210px;display:grid;grid-template-columns:35px minmax(0,1fr) 68px;gap:11px;padding:13px}
+.screenRail{display:flex;flex-direction:column;align-items:center;gap:10px;padding:9px 0;border:1px solid rgb(196 223 255 / 11%);border-radius:12px;background:rgb(201 228 255 / 4%)}
+.railMark{width:13px;height:13px;border:1px solid rgb(194 221 255 / 26%);border-radius:5px;background:linear-gradient(145deg,rgb(198 225 255 / 18%),rgb(132 167 255 / 6%))}
+.railMark:first-child{border-color:rgb(186 220 255 / 52%);box-shadow:0 0 13px rgb(112 171 255 / 19%)}
+.screenMain{min-width:0;display:grid;align-content:start;gap:12px}
+.screenHeading{display:grid;gap:6px;padding:3px 2px}
+.screenKicker{color:var(--text-accent);font:7px var(--font-mono);letter-spacing:.11em}
+.screenTitle{color:var(--text-primary);font-size:14px;font-weight:620;letter-spacing:-.025em}
+.screenSubline{width:62%;height:4px;border-radius:9px;background:linear-gradient(90deg,rgb(191 220 255 / 23%),transparent)}
+.screenWidgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.screenWidget{min-width:0;min-height:64px;display:grid;align-content:start;gap:7px;padding:9px;border:1px solid rgb(195 224 255 / 14%);border-radius:11px;background:linear-gradient(145deg,rgb(223 241 255 / 7%),transparent 75%),rgb(173 209 255 / 3%)}
+.screenWidget[data-layout="primary"]{border-color:rgb(177 214 255 / 27%);background:linear-gradient(145deg,rgb(145 193 255 / 12%),rgb(172 199 255 / 3%))}
+.widgetIndex{color:var(--text-accent);font:7px var(--font-mono)}
+.widgetName{overflow:hidden;color:var(--text-secondary);font-size:8px;font-weight:560;text-overflow:ellipsis;white-space:nowrap}
+.widgetLines{display:flex;gap:4px}
+.widgetLines i{height:3px;flex:1;border-radius:8px;background:rgb(204 226 255 / 13%)}
+.widgetLines i:last-child{flex:.45}
+.screenContext{display:flex;flex-direction:column;gap:9px;padding:10px 7px;border:1px solid rgb(196 223 255 / 11%);border-radius:12px;background:rgb(201 228 255 / 4%)}
+.contextDot{width:18px;height:18px;border:1px solid rgb(188 220 255 / 35%);border-radius:50%;background:radial-gradient(circle at 35% 30%,rgb(230 244 255 / 34%),rgb(100 147 255 / 10%))}
+.contextLine{height:4px;border-radius:8px;background:rgb(204 226 255 / 15%)}
+.contextLine:nth-child(3){width:72%}
+.contextLine:nth-child(4){width:86%}
+.screenFooter{display:flex;justify-content:space-between;gap:10px;padding:9px 13px;border-top:1px solid rgb(201 226 255 / 11%);color:var(--text-muted);font:6px var(--font-mono);letter-spacing:.09em}
+@media(max-width:640px){.screenBody{grid-template-columns:25px minmax(0,1fr);gap:8px;padding:9px}.screenContext{display:none}.screenWidgets{grid-template-columns:1fr}.screenWidget{min-height:54px}.screenFooter{font-size:5.5px}}
+@media(prefers-reduced-motion:reduce){.screenPreview *{scroll-behavior:auto}}
