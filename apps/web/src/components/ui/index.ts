@@ -56,3 +56,6 @@ export type { GlassFoldProps } from "./GlassFold";
 
 export { Coverflow } from "./Coverflow";
 export type { CoverflowProps, CoverflowCard } from "./Coverflow";
+
+export { LiquidToggle, NimbusToggleIcons } from "./liquid-glass-toggle";
+export type { LiquidToggleProps } from "./liquid-glass-toggle";
