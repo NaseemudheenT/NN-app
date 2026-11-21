@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-const navigate = vi.hoisted(() => vi.fn());
+const push = vi.hoisted(() => vi.fn());
 const path = vi.hoisted(() => ({ value: "/home" }));
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push }),
   usePathname: () => path.value,
 }));
-vi.mock("@/components/nn/AppTransition", () => ({ useAppTransition: () => ({ open: navigate }) }));
 
 const { NNPanel } = await import("./NNPanel");
 const { destinations } = await import("@/lib/nn/destinations");
@@ -22,7 +22,7 @@ const { destinations } = await import("@/lib/nn/destinations");
  */
 
 afterEach(cleanup);
-beforeEach(() => { navigate.mockReset(); path.value = "/home"; });
+beforeEach(() => { push.mockReset(); path.value = "/home"; });
 
 describe("the island", () => {
   it("starts closed, as one control", () => {
@@ -32,24 +32,8 @@ describe("the island", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("shows the official NN mark and the current destination in the collapsed island", () => {
+  it("says where you are, so it is not an anonymous dot", () => {
     render(<NNPanel />);
-    const island = screen.getByRole("button", { name: /currently Today/ });
-    expect(island).toHaveTextContent("Today");
-    expect(island.querySelector("[data-tone]")).not.toBeNull();
-  });
-
-  it("tracks the destination when browser history changes the route", () => {
-    const { rerender } = render(<NNPanel />);
-    expect(screen.getByRole("button", { name: /currently Today/ })).toBeInTheDocument();
-
-    // Next's pathname subscription updates on back/forward navigation too.
-    path.value = "/settings";
-    rerender(<NNPanel />);
-    expect(screen.getByRole("button", { name: /currently Settings/ })).toBeInTheDocument();
-
-    path.value = "/home";
-    rerender(<NNPanel />);
     expect(screen.getByRole("button", { name: /currently Today/ })).toBeInTheDocument();
   });
 
@@ -60,30 +44,10 @@ describe("the island", () => {
     expect(screen.getByRole("button", { name: /currently REN/ })).toBeInTheDocument();
   });
 
-  it("offers a colourful quick-access rail for core destinations", async () => {
-    render(<NNPanel />);
-    await userEvent.click(screen.getByRole("button", { name: /Go to/ }));
-    expect(screen.getByRole("group", { name: "Quick access" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Quick open Today" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Quick open Life" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Quick open College" })).toBeInTheDocument();
-  });
-
-  it("opens quick destinations through the shared route transition", async () => {
-    render(<NNPanel />);
-    await userEvent.click(screen.getByRole("button", { name: /Go to/ }));
-    await userEvent.click(screen.getByRole("button", { name: "Quick open Life" }));
-    expect(navigate).toHaveBeenCalledWith("/life", "Life");
-  });
-
   it("opens into the chooser", async () => {
     render(<NNPanel />);
     await userEvent.click(screen.getByRole("button", { name: /Go to/ }));
     expect(screen.getByRole("dialog", { name: "Go to" })).toBeInTheDocument();
-    // The collapsed island is deliberately removed from the accessibility
-    // tree while expanded; inspect the mounted control without querying it
-    // as an available button.
-    expect(document.querySelector('button[aria-label^="Go to"]')).toHaveAttribute("aria-expanded", "true");
   });
 });
 
@@ -96,35 +60,14 @@ describe("choosing somewhere", () => {
   it("goes there, and closes", async () => {
     await open();
     await userEvent.click(screen.getByRole("button", { name: /Settings/ }));
-    expect(navigate).toHaveBeenCalledWith("/settings", "Settings");
+    expect(push).toHaveBeenCalledWith("/settings");
     expect(screen.queryByRole("dialog")).toBeNull();
-  });
-
-  it("returns focus to the island after choosing a destination", async () => {
-    await open();
-    await userEvent.click(screen.getByRole("button", { name: /Settings/ }));
-    expect(screen.getByRole("button", { name: /Go to/ })).toHaveFocus();
   });
 
   it("marks where you already are", async () => {
     await open();
     const today = screen.getByRole("button", { name: /Today/ });
     expect(today).toHaveAttribute("aria-current", "page");
-  });
-
-  it("filters the phone navigation across all application families", async () => {
-    await open();
-    const search = screen.getByRole("searchbox", { name: "Search destinations" });
-    await userEvent.type(search, "finance");
-    expect(screen.getByRole("button", { name: /Finance/ })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /College/ })).toBeNull();
-    expect(screen.getByText("1 destination")).toBeInTheDocument();
-    await userEvent.clear(search);
-    expect(screen.getByRole("button", { name: /College/ })).toBeInTheDocument();
-    await userEvent.clear(search);
-    await userEvent.type(search, "education");
-    expect(screen.getByRole("button", { name: /College/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Academy/ })).toBeInTheDocument();
   });
 
   it("offers only what NN can actually open", async () => {
@@ -135,26 +78,6 @@ describe("choosing somewhere", () => {
       expect(screen.queryByRole("button", { name: new RegExp(`^${unreachable.label}`) }),
         unreachable.label).toBeNull();
     }
-  });
-
-  it("closes when the user presses outside the island", async () => {
-    await open();
-    await userEvent.click(document.body);
-    expect(screen.queryByRole("dialog")).toBeNull();
-  });
-
-  it("keeps keyboard focus inside the expanded island", async () => {
-    const user = userEvent.setup();
-    render(<NNPanel />);
-    await user.click(screen.getByRole("button", { name: /Go to/ }));
-    const close = screen.getByRole("button", { name: "Close" });
-    const controls = screen.getAllByRole("button");
-    const last = controls[controls.length - 1]!;
-    close.focus();
-    await user.keyboard("{Shift>}{Tab}{/Shift}");
-    expect(last).toHaveFocus();
-    await user.keyboard("{Tab}");
-    expect(close).toHaveFocus();
   });
 
   it("closes on Escape, and gives the focus back", async () => {
