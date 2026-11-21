@@ -10,7 +10,7 @@ import { useRen } from "@/components/ren/RenProvider";
 import styles from "./NNNexus.module.css";
 
 const SYSTEM_LINKS = [
-  { href: "/", label: "Home", icon: "grid" as const },
+  { href: "/", label: "Home", icon: "calendar" as const },
   { href: "/workspace", label: "Workspace", icon: "grid" as const },
   { href: "/design", label: "Design", icon: "sparkle" as const },
 ];
@@ -67,7 +67,14 @@ export function NNNexus() {
       if (!rootRef.current?.contains(event.target as Node)) setExpanded(false);
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setExpanded(false);
+      if (event.key === "Escape") {
+        setExpanded(false);
+        setRailExpanded(false);
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setExpanded((value) => !value);
+      }
     };
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -93,6 +100,7 @@ export function NNNexus() {
   const renState = REN_STATUS[machine.state];
   const isRenActive = machine.state !== "idle";
   const timerDone = remaining === 0;
+  const routeLabel = pathname === "/workspace" ? "WORKSPACE" : pathname === "/design" ? "DESIGN" : pathname === "/" ? "HOME" : "NN";
 
   function startRen() {
     setExpanded(false);
@@ -167,6 +175,7 @@ export function NNNexus() {
           aria-expanded={expanded}
           aria-controls="nn-nexus-panel"
           aria-label={expanded ? "Collapse NN NEXUS" : "Expand NN NEXUS"}
+          aria-keyshortcuts="Control+K Meta+K"
           onClick={() => setExpanded((value) => !value)}
         >
           <span className={styles.brand}>
@@ -188,7 +197,7 @@ export function NNNexus() {
           ) : (
             <>
               <span className={styles.islandLabel}>NEXUS</span>
-              <span className={styles.islandHint}>Personal system</span>
+              <span className={styles.islandHint}>{routeLabel}</span>
             </>
           )}
           <span className={styles.expandGlyph}>
