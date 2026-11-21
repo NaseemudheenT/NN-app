@@ -215,7 +215,7 @@ function EducationCanvas({ app, module }: { app: NNApplication; module: DomainMo
       {kind === "reader" ? (
         <div className={styles.educationSplit}>
           <div className={styles.educationReader}><span>LESSON CONTENT</span><strong>{module.title}</strong><div className={styles.wireParagraph}><i/><i/><i/><i/><i/></div><div className={styles.wireCallout}/><div className={styles.wireParagraph}><i/><i/><i/></div></div>
-          <aside className={styles.educationTree}><span>STUDY PANEL</span>{regions.slice(1).map((region,index)=><div key={region}><i/>{region}</div>)}</aside>
+          <aside className={styles.educationTree}><span>STUDY PANEL</span>{regions.slice(1).map((region)=><div key={region}><i/>{region}</div>)}</aside>
         </div>
       ) : null}
       {kind === "analytics" ? (
