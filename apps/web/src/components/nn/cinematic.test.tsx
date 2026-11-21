@@ -127,7 +127,7 @@ describe("NNWorkspace", () => {
   it("opens on Today and says who it is for", () => {
     render(<NNWorkspace userName="Founder" />);
     expect(screen.getByRole("heading", { level: 1, name: "Today" })).toBeInTheDocument();
-    expect(screen.getByText("Good evening, Founder.")).toBeInTheDocument();
+    expect(screen.getByText(/Good (morning|afternoon|evening), Founder\\./)).toBeInTheDocument();
   });
 
   it("labels its sample content honestly", () => {
