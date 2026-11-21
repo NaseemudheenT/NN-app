@@ -656,3 +656,10 @@
 
 .editAction{min-height:30px;padding:0 10px;border:1px solid var(--glass-2-border);border-radius:999px;background:var(--nn-glass-primary);color:var(--nn-icy);font-size:10px;cursor:pointer}
 .editAction:focus-visible{outline:2px solid var(--nn-icy);outline-offset:2px}
+
+.noteActions{display:flex;align-items:center;gap:8px;margin-top:10px}
+.historyList{display:grid;gap:12px;max-height:min(60dvh,520px);overflow:auto}
+.historyEntry{padding:14px;border:1px solid var(--nn-spectrum-border);border-radius:14px;background:var(--nn-glass-primary)}
+.historyEntry>div{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.historyEntry strong{font-size:12px}.historyEntry small{color:var(--text-muted);font-size:9px;white-space:nowrap}
+.historyEntry p{margin:10px 0 0;color:var(--text-secondary);font-size:11px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}

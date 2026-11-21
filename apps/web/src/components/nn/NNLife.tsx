@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
-  addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query, Timestamp, updateDoc, serverTimestamp,
+  addDoc, collection, deleteDoc, doc, getDocs, limit, orderBy, query, Timestamp, updateDoc, serverTimestamp, writeBatch,
   type Firestore, type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { RequireOwner } from "@/components/auth/RequireOwner";
@@ -157,7 +157,10 @@ function LifeSurface() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ name: CollectionName; id: string; success: string } | null>(null);
-  const [pendingEdit, setPendingEdit] = useState<{ name: EditableLifeCollection; id: string } | null>(null);
+  const [pendingEdit, setPendingEdit] = useState<{ name: EditableLifeCollection; id: string; original: RecordData } | null>(null);
+  const [historyNote, setHistoryNote] = useState<RecordData | null>(null);
+  const [historyEntries, setHistoryEntries] = useState<RecordData[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [editDraft, setEditDraft] = useState<LifeEditDraft>(EMPTY_EDIT_DRAFT);
   const [offline, setOffline] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -372,7 +375,7 @@ function LifeSurface() {
   };
   const openEdit = (name: EditableLifeCollection, item: RecordData) => {
     const dateField = (value: unknown) => { const date = asDate(value); return date ? localDateTime(date) : ""; };
-    setPendingEdit({ name, id: item.id });
+    setPendingEdit({ name, id: item.id, original: item });
     setEditDraft({
       ...EMPTY_EDIT_DRAFT,
       title: titleOf(item),
@@ -394,11 +397,48 @@ function LifeSurface() {
   const submitEdit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!uid || !pendingEdit || busy) return;
-    const result = buildLifeEditPatch(pendingEdit.name, editDraft, Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const selected = pendingEdit;
+    const result = buildLifeEditPatch(selected.name, editDraft, Intl.DateTimeFormat().resolvedOptions().timeZone);
     if (!result.ok) { setError(result.error); return; }
-    void save(() => updateDoc(doc(getFirebase().db, "users", uid, pendingEdit.name, pendingEdit.id), {
-      ...result.patch, updatedAt: serverTimestamp(),
-    }), "Changes saved.").then((saved) => { if (saved) setPendingEdit(null); });
+    const saveEdit = () => {
+      const db = getFirebase().db;
+      const recordRef = doc(db, "users", uid, selected.name, selected.id);
+      if (selected.name === "notes") {
+        const batch = writeBatch(db);
+        const versionRef = doc(collection(db, "users", uid, "notes", selected.id, "versions"));
+        batch.set(versionRef, {
+          ...metadata(),
+          title: titleOf(selected.original),
+          body: typeof selected.original.body === "string" ? selected.original.body : "",
+          format: typeof selected.original.format === "string" ? selected.original.format : "markdown",
+        });
+        batch.update(recordRef, { ...result.patch, updatedAt: serverTimestamp() });
+        return batch.commit();
+      }
+      return updateDoc(recordRef, { ...result.patch, updatedAt: serverTimestamp() });
+    };
+    void save(saveEdit, selected.name === "notes" ? "Note updated. Previous version saved." : "Changes saved.")
+      .then((saved) => { if (saved) setPendingEdit(null); });
+  };
+
+  const openNoteHistory = async (note: RecordData) => {
+    if (!uid) return;
+    setHistoryNote(note);
+    setHistoryEntries([]);
+    setHistoryLoading(true);
+    try {
+      const db = getFirebase().db;
+      const versions = await getDocs(query(
+        collection(db, "users", uid, "notes", note.id, "versions"),
+        orderBy("createdAt", "desc"),
+        limit(20),
+      ));
+      setHistoryEntries(versions.docs.map((version) => ({ id: version.id, ...version.data() }) as RecordData));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "NN could not load this note's history.");
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
   const deleteRecord = (name: CollectionName, id: string, success: string) => {
@@ -615,7 +655,7 @@ function LifeSurface() {
         <form className={styles.captureForm} onSubmit={createReminder}><input value={reminderTitle} onChange={(e) => setReminderTitle(e.target.value)} placeholder="What should NN remind you?" aria-label="Reminder title" required maxLength={160}/><input type="datetime-local" value={reminderAt} onChange={(e) => setReminderAt(e.target.value)} aria-label="Reminder time" required/><button disabled={busy || !reminderTitle.trim()}><Icon name="plus" size={16}/> Save reminder</button></form>
         <div className={styles.list}>{data.reminders.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("reminders", item.id, "Reminder deleted.")}><article className={`${styles.record} nn-glass-card`}><span className={styles.recordGlyph}><Icon name="clock" size={17}/></span><div className={styles.recordMain}><strong>{titleOf(item)}</strong><small>{formatDate(item.fireAt)} · {formatTime(item.fireAt)}</small></div><button type="button" className={styles.inlineAction} onClick={() => openEdit("reminders", item)}>Edit</button><span className={styles.priority}>{typeof item.state === "string" ? item.state : "scheduled"}</span></article></SwipeToDelete>)}{data.reminders.length === 0 ? <EmptyState icon="clock" title="No reminders yet." body="Add a reminder and it will be stored in your private NN account. Delivery requires the notification service."/> : null}</div>
       </GlassPanel></section> : null}
-      {!loading && tab === "notes" ? <section className={styles.notesLayout}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>QUICK NOTE</p><h2>Save the thought.</h2><form className={styles.noteForm} onSubmit={createNote}><input value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="Give this note a title" aria-label="Note title" required maxLength={160}/><textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="Write freely. Your original note is kept in NN." aria-label="Note content" rows={7}/><button disabled={busy || !noteTitle.trim()}><Icon name="plus" size={16}/> Save note</button></form></GlassPanel><div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR NOTES</p><h2>Thoughts, collected.</h2></div><span className={styles.count}>{data.notes.length} LOADED</span></div>{data.notes.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("notes", item.id, "Note deleted.")}><GlassPanel tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(item)}</strong><p>{typeof item.body === "string" ? item.body : ""}</p><small>{formatDate(item.updatedAt)}</small><button type="button" className={styles.inlineAction} onClick={() => openEdit("notes", item)}>Edit</button></GlassPanel></SwipeToDelete>)}{data.notes.length === 0 ? <EmptyState icon="file" title="Your notes begin here." body="The first note you save will appear in this space."/> : null}</div></section> : null}
+      {!loading && tab === "notes" ? <section className={styles.notesLayout}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>QUICK NOTE</p><h2>Save the thought.</h2><form className={styles.noteForm} onSubmit={createNote}><input value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="Give this note a title" aria-label="Note title" required maxLength={160}/><textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="Write freely. Your original note is kept in NN." aria-label="Note content" rows={7}/><button disabled={busy || !noteTitle.trim()}><Icon name="plus" size={16}/> Save note</button></form></GlassPanel><div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR NOTES</p><h2>Thoughts, collected.</h2></div><span className={styles.count}>{data.notes.length} LOADED</span></div>{data.notes.map((item) => <SwipeToDelete key={item.id} onDelete={() => deleteRecord("notes", item.id, "Note deleted.")}><GlassPanel tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(item)}</strong><p>{typeof item.body === "string" ? item.body : ""}</p><small>{formatDate(item.updatedAt)}</small><div className={styles.noteActions}><button type="button" className={styles.inlineAction} onClick={() => openEdit("notes", item)}>Edit</button><button type="button" className={styles.inlineAction} onClick={() => void openNoteHistory(item)}>History</button></div></GlassPanel></SwipeToDelete>)}{data.notes.length === 0 ? <EmptyState icon="file" title="Your notes begin here." body="The first note you save will appear in this space."/> : null}</div></section> : null}
       {!loading && tab === "habits" ? <section className={styles.singleColumn}>
         <GlassPanel tier={2} padding="lg" className={styles.panel}>
           <div className={styles.panelHead}><div><p className={styles.label}>DAILY PRACTICE</p><h2>Small actions, repeated.</h2></div><span className={styles.count}>{data.habits.filter((habit) => habit.status !== "archived").length} HABITS</span></div>
@@ -653,6 +693,14 @@ function LifeSurface() {
     </div>
     <div className={styles.dock}><button onClick={() => router.push("/home")} aria-label="NN Home"><Icon name="grid" size={19}/></button><button className={styles.dockCurrent} aria-current="page"><Icon name="calendar" size={19}/><span>Life</span></button><button onClick={() => setTab("tasks")} aria-label="Tasks"><Icon name="check" size={19}/></button><button onClick={() => setTab("notes")} aria-label="Notes"><Icon name="file" size={19}/></button></div>
   </main>
+  <Dialog
+    open={historyNote !== null}
+    onClose={() => setHistoryNote(null)}
+    title="Note history"
+    description="Immutable snapshots are created before each saved edit. The latest version is the note currently open."
+  >
+    {historyLoading ? <div className={styles.loading}><span/><p>Loading note history…</p></div> : historyEntries.length ? <div className={styles.historyList}>{historyEntries.map((version) => <article key={version.id} className={styles.historyEntry}><div><strong>{titleOf(version)}</strong><small>{formatDate(version.createdAt)}</small></div><p>{typeof version.body === "string" ? version.body : ""}</p></article>)}</div> : <EmptyState icon="clock" title="No earlier versions." body="An earlier version will appear here after you edit and save this note."/>}
+  </Dialog>
   <Dialog
     open={pendingEdit !== null}
     onClose={() => setPendingEdit(null)}
