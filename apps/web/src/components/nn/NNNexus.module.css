@@ -1,0 +1,111 @@
+.root {
+  position: fixed;
+  z-index: 80;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  width: min(440px, calc(100vw - 28px));
+  transform: translateX(-50%);
+  pointer-events: none;
+  color: #f5f8ff;
+  font-variant-numeric: tabular-nums;
+}
+.islandWrap { display: flex; justify-content: center; }
+.island {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 194px;
+  min-height: 42px;
+  padding: 0 13px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 999px;
+  color: #f5f8ff;
+  background:
+    radial-gradient(110% 180% at 50% -80%, rgb(133 177 255 / 28%), transparent 64%),
+    linear-gradient(180deg, rgb(28 37 53 / 97%), rgb(5 10 19 / 96%));
+  box-shadow: 0 12px 38px rgb(0 0 0 / 34%), inset 0 1px 0 rgb(255 255 255 / 12%), inset 0 -1px 0 rgb(0 0 0 / 50%);
+  backdrop-filter: blur(28px) saturate(165%);
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+  cursor: pointer;
+  transition: min-width 420ms cubic-bezier(.2,.85,.2,1), border-radius 320ms ease, transform 320ms ease, box-shadow 320ms ease;
+  animation: nexus-arrive 700ms cubic-bezier(.16,1,.3,1) both;
+}
+.island:hover { transform: translateY(1px) scale(1.015); box-shadow: 0 16px 42px rgb(0 0 0 / 40%), inset 0 1px 0 rgb(255 255 255 / 15%); }
+.island:focus-visible, .closeButton:focus-visible, .timerActions button:focus-visible, .quickCard:focus-visible, .renCard:focus-visible { outline: 2px solid #a9cbff; outline-offset: 3px; }
+.brand { display: grid; place-items: center; width: 20px; height: 20px; color: #eaf2ff; }
+.islandDivider { width: 1px; height: 17px; background: rgb(255 255 255 / 17%); }
+.islandLabel { font-size: 10px; font-weight: 750; letter-spacing: .14em; }
+.islandHint, .stateLabel { color: #a8b7cd; font-size: 10px; white-space: nowrap; }
+.timerLabel { color: #c6e0ff; font-size: 12px; font-weight: 700; letter-spacing: .05em; }
+.liveDot { width: 7px; height: 7px; border-radius: 50%; background: #7ce5b0; box-shadow: 0 0 0 4px rgb(124 229 176 / 12%), 0 0 13px rgb(124 229 176 / 70%); animation: nexus-pulse 1.8s ease-in-out infinite; }
+.expandGlyph { display: grid; place-items: center; margin-left: auto; color: #9eacc0; transition: transform 240ms ease; }
+.island[data-expanded="true"] .expandGlyph { transform: rotate(45deg); }
+.panel {
+  pointer-events: auto;
+  margin-top: 10px;
+  padding: 17px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 27px;
+  background:
+    radial-gradient(100% 70% at 100% 0%, rgb(73 117 185 / 17%), transparent 72%),
+    linear-gradient(155deg, rgb(24 34 50 / 97%), rgb(7 13 23 / 98%) 70%);
+  box-shadow: 0 30px 90px rgb(0 0 0 / 52%), inset 0 1px 0 rgb(255 255 255 / 11%);
+  backdrop-filter: blur(34px) saturate(160%);
+  -webkit-backdrop-filter: blur(34px) saturate(160%);
+  transform-origin: top center;
+  animation: nexus-expand 360ms cubic-bezier(.2,.85,.2,1) both;
+}
+.panelHeader, .panelBrand, .dateCard, .renCard, .sectionHeading, .timerActions, .panelFooter { display: flex; align-items: center; }
+.panelHeader { justify-content: space-between; margin-bottom: 16px; }
+.panelBrand { gap: 10px; }
+.brandMark { display: grid; place-items: center; width: 37px; height: 37px; border-radius: 13px; color: #eff6ff; background: linear-gradient(145deg, #496b99, #1a2a43); box-shadow: inset 0 1px 0 rgb(255 255 255 / 27%), 0 5px 15px rgb(0 0 0 / 24%); }
+.eyebrow { color: #8397b4; font-size: 8px; font-weight: 750; letter-spacing: .16em; }
+.panelBrand h2 { margin-top: 3px; font-size: 15px; font-weight: 760; letter-spacing: .12em; }
+.closeButton, .secondaryAction { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgb(255 255 255 / 9%); border-radius: 50%; color: #b7c5d9; background: rgb(255 255 255 / 5%); cursor: pointer; }
+.dateCard { justify-content: space-between; padding: 14px 15px; border: 1px solid rgb(255 255 255 / 8%); border-radius: 17px; background: linear-gradient(120deg, rgb(255 255 255 / 7%), rgb(255 255 255 / 2%)); }
+.date { margin-top: 5px; color: #e9f1fd; font-size: 13px; font-weight: 600; }
+.clock { color: #d4e5ff; font-size: 23px; font-weight: 300; letter-spacing: -.05em; }
+.renCard { width: 100%; gap: 11px; margin-top: 10px; padding: 12px; text-align: left; border: 1px solid rgb(128 170 231 / 18%); border-radius: 17px; color: #eff5ff; background: linear-gradient(110deg, rgb(62 99 151 / 24%), rgb(255 255 255 / 3%)); cursor: pointer; transition: background 200ms ease, transform 200ms ease; }
+.renCard:hover { background: linear-gradient(110deg, rgb(62 99 151 / 34%), rgb(255 255 255 / 6%)); transform: translateY(-1px); }
+.renOrb { display: grid; place-items: center; flex: 0 0 38px; height: 38px; border-radius: 13px; color: #d5e7ff; background: radial-gradient(circle at 35% 25%, #719bd1, #293f60 75%); box-shadow: 0 0 23px rgb(93 150 225 / 24%), inset 0 1px 0 rgb(255 255 255 / 35%); }
+.renCopy { display: grid; flex: 1; gap: 3px; }
+.renCopy strong { font-size: 12px; font-weight: 700; }
+.renCopy span { color: #a3b5ce; font-size: 10px; }
+.sectionHeading { justify-content: space-between; margin: 17px 2px 8px; color: #9caec6; font-size: 8px; font-weight: 760; letter-spacing: .14em; }
+.sectionHeading span + span { color: #687e9c; font-weight: 650; }
+.timerCard { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 14px; border: 1px solid rgb(255 255 255 / 8%); border-radius: 17px; background: rgb(255 255 255 / 4%); }
+.timerFace { display: grid; gap: 3px; }
+.timerFace > span { color: #f2f7ff; font-size: 26px; font-weight: 350; letter-spacing: -.055em; }
+.timerFace small { color: #8195b1; font-size: 9px; }
+.timerFace[data-running="true"] > span { color: #b9dbff; }
+.timerActions { gap: 7px; }
+.primaryAction { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid rgb(166 202 255 / 25%); border-radius: 999px; color: #f5f9ff; background: linear-gradient(180deg, #5078ab, #31527f); box-shadow: inset 0 1px 0 rgb(255 255 255 / 24%), 0 4px 12px rgb(0 0 0 / 20%); font-size: 10px; font-weight: 700; cursor: pointer; }
+.primaryAction:hover { filter: brightness(1.12); }
+.secondaryAction { width: 34px; height: 34px; }
+.quickGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.quickCard { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 10px; border: 1px solid rgb(255 255 255 / 8%); border-radius: 15px; color: #edf4ff; text-decoration: none; background: rgb(255 255 255 / 4%); transition: transform 180ms ease, background 180ms ease, border-color 180ms ease; }
+.quickCard:hover { transform: translateY(-2px); background: rgb(255 255 255 / 8%); border-color: rgb(255 255 255 / 15%); }
+.quickIcon { display: grid; place-items: center; flex: 0 0 34px; height: 34px; border-radius: 11px; }
+.quickCard[data-tone="blue"] .quickIcon { color: #b9d8ff; background: linear-gradient(145deg, #315e91, #1a3657); box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%); }
+.quickCard[data-tone="violet"] .quickIcon { color: #d8c8ff; background: linear-gradient(145deg, #62508f, #342b58); box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%); }
+.quickText { display: grid; flex: 1; min-width: 0; gap: 3px; }
+.quickText strong { overflow: hidden; color: #edf4ff; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.quickText small { overflow: hidden; color: #8295af; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.quickCard > svg { flex: none; color: #748aa8; }
+.panelFooter { justify-content: space-between; margin-top: 14px; padding: 0 2px; color: #70839e; font-size: 8px; letter-spacing: .04em; }
+.panelFooter > span:first-child { display: flex; align-items: center; gap: 6px; }
+.panelFooter i { width: 6px; height: 6px; border-radius: 50%; background: #62d69d; box-shadow: 0 0 9px rgb(98 214 157 / 70%); }
+@keyframes nexus-arrive { from { opacity: 0; transform: translateY(-18px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes nexus-expand { from { opacity: 0; transform: translateY(-8px) scale(.94); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+@keyframes nexus-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .58; transform: scale(.82); } }
+@media (max-width: 480px) {
+  .root { width: min(390px, calc(100vw - 22px)); top: max(8px, env(safe-area-inset-top)); }
+  .panel { padding: 14px; border-radius: 23px; }
+  .date { font-size: 12px; }
+  .clock { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .island, .panel, .liveDot { animation: none; transition: none; }
+  .quickCard, .renCard { transition: none; }
+}
