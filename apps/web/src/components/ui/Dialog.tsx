@@ -69,6 +69,13 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKeyDown);
+    const onFocusIn = (event: FocusEvent) => {
+      const panel = panelRef.current;
+      if (!panel || panel.contains(event.target as Node)) return;
+      const first = panel.querySelector<HTMLElement>(FOCUSABLE) ?? panel;
+      first.focus();
+    };
+    document.addEventListener("focusin", onFocusIn);
 
     // Focus the first control, or the panel itself if there is nothing to focus.
     const panel = panelRef.current;
@@ -77,6 +84,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
       document.body.style.overflow = overflow;
       restoreTo.current?.focus();
       restoreTo.current = null;
