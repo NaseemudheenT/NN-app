@@ -293,7 +293,7 @@ export function planFromToolCall(
 }
 
 
-/** Narrow REN's write tools to the collections owned by one specialist. */
+/** Narrow REN's workspace tools to the collections owned by one specialist. */
 export function toolsForSpecialist(agent: WorkspaceSpecialist): readonly RenTool[] {
   if (agent.status !== "active" || agent.collections.length === 0) return [];
   const allowed = new Set(agent.collections);
