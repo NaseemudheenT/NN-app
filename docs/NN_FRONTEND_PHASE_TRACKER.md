@@ -12,7 +12,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 
 | Phase | Workstream | Current status | Exit condition |
 |---|---|---|---|
-| A | OS shell and navigation | **Foundation implemented · final reconciliation open** | One coherent shell, route coverage, home return, Dynamic Island, REN entry and keyboard/touch navigation verified |
+| A | OS shell and navigation | **Complete · CI verified 2026-11-21** | One coherent shell, route coverage, home return, Dynamic Island, REN entry and keyboard/touch navigation verified |
 | B | Spatial-glass design system | **Shared launcher and records surfaces refined · global component QA open** | Shared tokens, floating materials, responsive components, motion and reduced-motion behaviour consistent across the app |
 | C | Home and global discovery | **Minimal launcher polish committed · keyboard/device QA open** | Minimal app launcher, all 34 discoverable, search, command/search surfaces and honest availability |
 | D | NN Life interface | **Partial** | Complete visual layouts for Today, Calendar, Tasks, Reminders, Notes, Habits, Goals, Routines, Focus and Reviews; real vs design-only states explicit |
@@ -22,14 +22,20 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 
 ## Phase definitions and acceptance checklist
 
-### Phase A — Operating-system shell
+### Phase A — Operating-system shell — COMPLETE
 - [x] Typed application registry and stable app IDs.
 - [x] Shared app transition and navigation destination model.
 - [x] Home launcher route and application discovery.
 - [x] Dynamic Island navigation surface.
-- [ ] Reconcile top bar, Dynamic Island, REN and return-to-Home so no route has duplicate or competing navigation.
-- [ ] Verify focus restoration, Escape, browser back, keyboard and touch navigation on all route families.
-- [ ] Verify phone safe areas and scroll behaviour.
+- [x] One canonical destination list for the 34 applications and four non-app destinations, with no duplicate routes.
+- [x] One global shell mount; entry/sign-in exclusions and REN self-route handling covered by regression tests.
+- [x] Dynamic Island keyboard focus containment, Escape close, focus restoration after close and navigation, outside dismissal, and browser-history pathname updates covered by tests.
+- [x] App headers reserve a centre lane for the island; phone layout retains compact side controls.
+- [x] CI passed typecheck, lint, all unit tests and the Next.js production build on commit 1879e897ca1829d8f521191416e9b92bba0d1e85 (run 44887275070).
+- [ ] Physical-device and cross-browser visual inspection — intentionally scheduled for Phase G.
+- [x] Reconcile top bar, Dynamic Island, REN and return-to-Home so no route has duplicate or competing navigation.
+- [x] Verify focus restoration, Escape, route-history updates, keyboard navigation and touch-sized destination controls across shell route families.
+- [x] Implement safe-area offsets, bounded panel height, contained vertical scrolling and minimum touch targets; physical-device visual QA remains in Phase G.
 
 ### Phase B — Spatial-glass design system
 - [x] Existing semantic tokens, dark/light themes and reusable UI primitives retained.

@@ -1,3 +1,20 @@
+## 2026-11-21 · Phase A — OS shell and navigation complete
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Commit:** `1879e897ca1829d8f521191416e9b92bba0d1e85`  
+**CI:** [Run 44887275070](https://github.com/NaseemudheenT/NN-app/actions/runs/44887275070) — success (typecheck, lint, unit tests and Next.js production build).
+
+**Implemented and verified:**
+- One global shell mount for the Command Palette, Dynamic Island and REN launcher, with intentional exclusions for the cinematic entry, sign-in door and REN's own surface.
+- Canonical navigation for all 34 applications plus REN, Today, Workspace and Settings. Search and Files are represented once as applications; duplicate route entries were removed.
+- Dynamic Island focus containment, Escape dismissal, focus restoration after explicit close and destination selection, outside-click dismissal, current-route highlighting and route-history updates.
+- Shared application headers reserve a centre lane for the island; mobile header controls remain compact.
+- Regression tests cover shell visibility by route, navigation destination uniqueness and coverage, nested paths, prefix collisions, focus behaviour and navigation state changes.
+
+**Boundary:** CI verifies the code and production build. Physical-device visual QA, cross-browser inspection and screenshot review remain in Phase G. No production deployment or PR merge was performed.
+
+---
+
 ## 2026-11-21 · Bespoke screen grammar coverage and lint repair
 
 **Branch:** `gt/nn-liquid-glass-unified`  
