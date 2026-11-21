@@ -132,11 +132,13 @@ function LifeSurface() {
     ? new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(calendarMonth)
     : "Calendar";
   const calendarDays = useMemo(() => {
-    if (!calendarMonth || !calendarAnchor) return [];
+    if (clock === null) return [];
+    const anchor = new Date(clock);
+    const month = new Date(anchor.getFullYear(), anchor.getMonth() + calendarOffset, 1);
     const eventDates = data.calendar_events
       .map((item) => asDate(item.start))
       .filter((date): date is Date => date !== null);
-    return buildCalendarGrid(calendarMonth.getFullYear(), calendarMonth.getMonth(), calendarAnchor, eventDates);
+    return buildCalendarGrid(month.getFullYear(), month.getMonth(), anchor, eventDates);
   }, [clock, calendarOffset, data.calendar_events]);
   const selectedDateKey = selectedCalendarDay || (calendarAnchor ? calendarDateKey(calendarAnchor) : "");
   const selectedCalendarEvents = useMemo(() => data.calendar_events
