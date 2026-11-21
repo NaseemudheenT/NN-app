@@ -51,6 +51,29 @@ describe("NN feature spaces", () => {
     }
   });
 
+  it("renders a dedicated canvas for every specialised domain layout", () => {
+    const rendered = new Set<string>();
+    for (const [appId, modules] of Object.entries(DOMAIN_BLUEPRINTS)) {
+      if (appId === "college" || appId === "academy") continue;
+      const app = getApplication(appId);
+      if (!app) throw new Error(`Missing app registry entry: ${appId}`);
+      for (const featureModule of modules) {
+        const layout = inferDomainLayout(appId, featureModule);
+        if (rendered.has(layout)) continue;
+        const { unmount } = render(<NNDomainBlueprint app={app} />);
+        fireEvent.click(screen.getByRole("tab", { name: featureModule.title }));
+        expect(document.querySelector(`[data-layout-surface="${layout}"]`), `${appId}/${featureModule.id}`).toBeInTheDocument();
+        unmount();
+        rendered.add(layout);
+      }
+    }
+    expect([...rendered].sort()).toEqual([
+      "analytics", "board", "calculator", "cards", "editor", "finance", "flow",
+      "inbox", "library", "map", "media", "navigator", "planner", "reader",
+      "roadmap", "security", "settings", "timeline",
+    ]);
+  });
+
   it("supports horizontal arrow navigation and associates the selected preview", () => {
     render(<NNDomainBlueprint app={college} />);
     const rail = screen.getByRole("tablist", { name: "College spaces" });
