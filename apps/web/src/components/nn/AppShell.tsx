@@ -8,6 +8,7 @@ import { Dock } from "@/components/ui/Dock";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { openableApplications } from "@/lib/apps/registry";
+import { NNIsland } from "@/components/nn/NNIsland";
 import styles from "./AppShell.module.css";
 
 /**
@@ -62,6 +63,7 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
           </span>
         </button>
 
+        <NNIsland title={title} onHome={() => travel.open("/home" as Route, "NN Home")} onSearch={() => travel.open("/search" as Route, "Search")} />
         <div className={styles.barRight}>
           {actions}
           <button
