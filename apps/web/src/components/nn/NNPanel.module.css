@@ -377,3 +377,18 @@
     top: max(8px, calc(env(safe-area-inset-top, 0px) + 8px));
   }
 }
+
+
+/* The logo is the app's identity; do not fall back to generic glyphs. */
+.islandBrand [data-app-logo] { width: 28px; height: 28px; flex-basis: 28px; border-radius: 9px; }
+.headMark [data-app-logo] { width: 34px; height: 34px; flex-basis: 34px; border-radius: 11px; }
+.quickItem [data-app-logo] { width: 38px; height: 38px; flex-basis: 38px; border-radius: 12px; }
+.item [data-app-logo] { width: 38px; height: 38px; flex-basis: 38px; border-radius: 12px; }
+@media (max-width: 719px) {
+  .panel {
+    width: min(360px, calc(100vw - 20px));
+    max-height: min(76dvh, 640px);
+    max-height: min(76svh, 640px);
+  }
+  .list { overscroll-behavior: contain; }
+}
