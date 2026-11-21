@@ -29,6 +29,7 @@ function formatTime(seconds: number) {
 export function NNNexus() {
   const { machine, open: renOpen, summon } = useRen();
   const rootRef = useRef<HTMLDivElement>(null);
+  const deadlineRef = useRef<number | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [remaining, setRemaining] = useState(25 * 60);
@@ -41,9 +42,14 @@ export function NNNexus() {
 
   useEffect(() => {
     if (!running) return;
-    const id = window.setInterval(() => {
-      setRemaining((value) => Math.max(0, value - 1));
-    }, 1000);
+    const sync = () => {
+      const deadline = deadlineRef.current;
+      if (deadline === null) return;
+      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setRemaining((current) => (current === next ? current : next));
+    };
+    sync();
+    const id = window.setInterval(sync, 200);
     return () => window.clearInterval(id);
   }, [running]);
 
@@ -63,7 +69,10 @@ export function NNNexus() {
   }, []);
 
   useEffect(() => {
-    if (remaining === 0) setRunning(false);
+    if (remaining === 0) {
+      deadlineRef.current = null;
+      setRunning(false);
+    }
   }, [remaining]);
 
   const dateLabel = new Intl.DateTimeFormat("en-IN", {
@@ -83,14 +92,25 @@ export function NNNexus() {
 
   function toggleTimer() {
     if (timerDone) {
-      setRemaining(25 * 60);
+      const next = 25 * 60;
+      setRemaining(next);
+      deadlineRef.current = Date.now() + next * 1000;
       setRunning(true);
       return;
     }
-    setRunning((value) => !value);
+    if (running) {
+      const next = Math.max(0, Math.ceil(((deadlineRef.current ?? Date.now()) - Date.now()) / 1000));
+      setRemaining(next);
+      deadlineRef.current = null;
+      setRunning(false);
+      return;
+    }
+    deadlineRef.current = Date.now() + remaining * 1000;
+    setRunning(true);
   }
 
   function resetTimer() {
+    deadlineRef.current = null;
     setRunning(false);
     setRemaining(25 * 60);
   }
