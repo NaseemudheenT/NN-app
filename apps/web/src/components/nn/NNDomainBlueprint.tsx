@@ -262,6 +262,8 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
             id={`${app.id}-space-${module.id}`}
             className={styles.module}
             role="tab"
+            aria-label={module.title}
+            aria-describedby={`${app.id}-space-description-${module.id}`}
             data-selected={module.id === selected.id || undefined}
             aria-selected={module.id === selected.id}
             aria-controls={`${app.id}-space-preview`}
@@ -281,7 +283,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
             onClick={() => setSelectedId(module.id)}
           >
             <span className={styles.moduleIcon}><Icon name={module.icon} size={18}/></span>
-            <span className={styles.moduleCopy}><strong>{module.title}</strong><small>{module.description}</small></span>
+            <span className={styles.moduleCopy}><strong>{module.title}</strong><small id={`${app.id}-space-description-${module.id}`}>{module.description}</small></span>
             <Icon name="expand" size={14}/>
           </button>
         ))}
