@@ -200,7 +200,8 @@
 .screenWidgets[data-layout="cards"] .screenWidget{min-height:90px}
 @media(max-width:640px){
  .screenWidgets[data-layout="flow"],.screenWidgets[data-layout="media"],.screenWidgets[data-layout="board"]{grid-template-columns:1fr}
- .screenWidgets[data-layout="flow"] .screenWidget,.screenWidgets[data-layout="media"] .screenWidget,.screenWidgets[data-layout="board"] .screenWidget{min-height:48px}\n .screenWidgets[data-layout="flow"] .screenWidget:not(:last-child):after{top:auto;right:50%;bottom:-9px;width:1px;height:18px}
+ .screenWidgets[data-layout="flow"] .screenWidget,.screenWidgets[data-layout="media"] .screenWidget,.screenWidgets[data-layout="board"] .screenWidget{min-height:48px}
+ .screenWidgets[data-layout="flow"] .screenWidget:not(:last-child):after{top:auto;right:50%;bottom:-9px;width:1px;height:18px}
  .screenWidgets[data-layout="map"]{grid-template-columns:minmax(0,1.3fr) minmax(58px,.8fr)}
  .screenWidgets[data-layout="map"] .screenWidget:first-child{min-height:135px}
  .screenWidgets[data-layout="editor"]{grid-template-columns:minmax(0,1.4fr) minmax(54px,.7fr)}
