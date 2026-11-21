@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { LogoReveal } from "@/components/ui/LogoReveal";
+import { NNLogo } from "@/components/ui/NNLogo";
 import { useTheme } from "@/lib/theme";
 import { completeSetup } from "@/lib/nn/setup";
 import { say, silence } from "@/lib/ren/voice";
@@ -110,7 +111,22 @@ export function SetupFlow() {
   return (
     <main className={s.page}>
       <div className={s.card}>
-        <div className={s.progress} role="presentation">
+        <div className={s.cardHeader}>
+          <div className={s.brand}>
+            <NNLogo size={25} decorative />
+            <span><strong>NN</strong><small>PERSONAL ENVIRONMENT</small></span>
+          </div>
+          <span className={s.stepCount}>{String(at + 1).padStart(2, "0")} <i>/</i> {String(STEPS.length).padStart(2, "0")}</span>
+        </div>
+        <div
+          className={s.progress}
+          role="progressbar"
+          aria-label="Setup progress"
+          aria-valuemin={1}
+          aria-valuemax={STEPS.length}
+          aria-valuenow={at + 1}
+          aria-valuetext={`Step ${at + 1} of ${STEPS.length}`}
+        >
           {STEPS.map((id, index) => (
             <span
               key={id}
@@ -126,7 +142,7 @@ export function SetupFlow() {
             <span className={s.kicker}>First run</span>
             <h1 className={s.title}>This is NN.</h1>
             <p className={s.said}>
-              Four short questions about <strong>this device</strong> — how it should look,
+              Three quick choices about <strong>this device</strong> — how it should look,
               how much it should move, and how REN should sound on it. Each answer
               takes effect straight away, so you will see it before you agree to it.
             </p>
