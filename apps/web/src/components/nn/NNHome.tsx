@@ -8,6 +8,7 @@ import { useAppTransition } from "@/components/nn/AppTransition";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { NNInstallPrompt } from "@/components/nn/NNInstallPrompt";
+import { NNIsland } from "@/components/nn/NNIsland";
 import { useAuth } from "@/lib/auth";
 import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
 import { ownerFirstName } from "@/lib/nn/owner";
@@ -45,7 +46,13 @@ function LauncherSurface() {
           <NNLogo size={27} decorative />
           <span>NN</span>
         </button>
-        <div className={styles.systemLabel}>PERSONAL OPERATING ENVIRONMENT</div>
+        <NNIsland
+          title="NN HOME"
+          onHome={() => router.push("/home")}
+          onSearch={() => travel.open("/search" as Route, "Search")}
+          onSettings={() => travel.open("/settings" as Route, "Settings")}
+          onRen={() => travel.open("/ren/chat" as Route, "REN")}
+        />
         <button className={styles.profile} type="button" onClick={() => router.push("/settings")} aria-label="Profile and settings">
           {(firstName || "N").slice(0, 1).toUpperCase()}
         </button>
