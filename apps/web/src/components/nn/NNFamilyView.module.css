@@ -115,3 +115,12 @@
 @media (prefers-reduced-motion: reduce) {
   .row:hover { transform: none; }
 }
+
+
+/* Family records use the same neutral grouped-list material as Settings. */
+.row{border:1px solid var(--border-subtle);border-radius:16px;background:var(--surface-raised);box-shadow:var(--shadow-1);backdrop-filter:none;-webkit-backdrop-filter:none}
+.row:hover{transform:translateY(-1px);border-color:var(--border-normal);background:var(--surface-raised)}
+.glyph{border:0;border-radius:12px;background:var(--surface-elevated);color:var(--text-secondary)}
+.row[data-ready] .state{color:var(--text-secondary)}
+.row[data-ready] .state i{background:var(--nn-ios-green);box-shadow:none}
+@media(max-width:700px){.row{min-height:66px}}
