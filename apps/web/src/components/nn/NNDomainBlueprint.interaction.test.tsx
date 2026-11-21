@@ -28,9 +28,9 @@ describe("NN feature spaces", () => {
   it("assigns a purpose-built screen grammar to every domain module", () => {
     expect(Object.keys(DOMAIN_BLUEPRINTS)).toHaveLength(31);
     for (const [appId, modules] of Object.entries(DOMAIN_BLUEPRINTS)) {
-      for (const module of modules) {
-        const layout = inferDomainLayout(appId, module);
-        expect(layout, `${appId}/${module.id} should have a domain layout`).not.toBe("dashboard");
+      for (const featureModule of modules) {
+        const layout = inferDomainLayout(appId, featureModule);
+        expect(layout, `${appId}/${featureModule.id} should have a domain layout`).not.toBe("dashboard");
       }
     }
   });

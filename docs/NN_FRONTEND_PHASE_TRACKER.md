@@ -17,7 +17,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 | C | Home and global discovery | **Minimal launcher polish committed · keyboard/device QA open** | Minimal app launcher, all 34 discoverable, search, command/search surfaces and honest availability |
 | D | NN Life interface | **Partial** | Complete visual layouts for Today, Calendar, Tasks, Reminders, Notes, Habits, Goals, Routines, Focus and Reviews; real vs design-only states explicit |
 | E | College and Academy interfaces | **Core domain blueprints and visual screen compositions implemented · detailed route designs open** | College, Academy, Formula Engine, Logic Lab and Learning Vault screens designed for their core workflows |
-| F | Remaining application interfaces | **31 records-app domain blueprints implemented · detailed per-app screens open** | All registered apps have coherent domain-specific screens, not merely a generic list/form template |
+| F | Remaining application interfaces | **31 records-app domain blueprints and bespoke screen grammars implemented · detailed route interactions open** | All registered apps have coherent domain-specific screens, not merely a generic list/form template |
 | G | Frontend verification and Claude handoff | **Not started** | Route-by-route visual audit, responsive/accessibility checks, CI, screenshots/evidence and a precise handoff brief |
 
 ## Phase definitions and acceptance checklist
@@ -39,7 +39,8 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Refine app cards, icon wells, record tabs and panel transitions with reduced-motion fallbacks.
 - [ ] Complete component recipes for menus, sheets, dialogs, lists, empty/loading/error/permission states.
 - [x] Add an accessible animated liquid switch for appearance, with native button semantics and reduced-motion fallback.
-- [x] Use the existing rendered 3D object-icon system for feature-region controls instead of generic numeric markers.\n- [ ] Standardise hover, focus, pressed, selected, disabled, busy, success and failure states.
+- [x] Use the existing rendered 3D object-icon system for feature-region controls instead of generic numeric markers.
+- [ ] Standardise hover, focus, pressed, selected, disabled, busy, success and failure states.
 - [ ] Check blur, animation and WebGL fallbacks on low-power/mobile layouts.
 
 ### Phase C — Home and global discovery
@@ -48,7 +49,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Dedicated experience vs core-record surface is labelled honestly.
 - [x] Remove nonessential launcher copy, status jargon, counts and the unimplemented shortcut hint.
 - [x] Add concise Home/search hierarchy, dimensional icon wells, card sheen and restrained 3D hover motion.
-- [x] Add a swipeable, scroll-snapping feature rail with keyboard tab navigation and selected-screen transitions.\n- [ ] Finish keyboard-first and phone-first launcher polish.
+- [ ] Finish keyboard-first and phone-first launcher polish.
 - [ ] Audit global search, command palette, Settings, Files and REN entry consistency.
 - [ ] Ensure no dead or misleading controls remain.
 
@@ -78,7 +79,12 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [ ] System: Command Centre, Search, Automation Studio, Security Centre, Control Room, Files and REN surfaces.
 - [x] Domain-specific module maps and structural screen compositions for all 31 records-based applications.
 - [x] Replace long module labels with concise feature names; remove repeated explanatory copy from app previews.
-- [x] Place the feature rail above the live record workspace so each application opens on its domain-specific interface.\n- [x] Add distinct visual grammars for finance, inbox, flow, security, media, calculator, map, editor, settings, board and contact-card spaces.\n- [x] Reset selected record tabs when navigating between applications.\n- [ ] Complete per-app navigation, real empty/loading/error states, detail screens and interaction prototypes.
+- [x] Place the feature rail above the live record workspace so each application opens on its domain-specific interface.
+- [x] Add a swipeable, scroll-snapping feature rail with keyboard tab navigation and selected-screen transitions.
+- [x] Assign a domain-specific screen grammar to every module across all 31 records-based applications.
+- [x] Add distinct visual grammars for finance, inbox, flow, security, media, calculator, map, editor, settings, board and contact-card spaces.
+- [x] Reset selected record tabs when navigating between applications.
+- [ ] Complete per-app navigation, real empty/loading/error states, detail screens and interaction prototypes.
 - [ ] Never show fabricated finance, attendance, analytics, market, device, security, AI or integration data.
 
 ### Phase G — Verification and Claude handoff

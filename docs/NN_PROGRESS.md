@@ -1,3 +1,12 @@
+## 2026-11-21 · Bespoke screen grammar coverage and lint repair
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Change:** Every module across all 31 records-based apps now resolves to a deliberate visual grammar rather than falling back to the generic dashboard. The mapping is explicit per app and module, and a regression test checks the complete set. Refined finance, flow, timeline, inbox, security, map, editor, calculator, settings, board and contact-card visual hierarchy. TypeScript passed; CI then identified a lint naming collision in the new coverage test, now corrected.
+
+**Verification:** The current revision must pass lint, the complete unit suite and the production build before this milestone is considered verified.
+
+---
+
 ## 2026-11-21 · Distinct application screen grammars
 
 **Branch:** `gt/nn-liquid-glass-unified`  
