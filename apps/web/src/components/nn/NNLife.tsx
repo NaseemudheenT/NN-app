@@ -623,7 +623,7 @@ function LifeSurface() {
       <div className={styles.breadcrumb}><button onClick={() => router.push("/home")}>NN HOME</button><span>/</span><span>LIFE</span><span className={styles.date}>{clock === null ? "" : dateLabel(new Date(clock))}</span></div>
       <section className={`${styles.hero} nn-glass-card`}>
         <div className={styles.heroCopy}><p className={styles.kicker}>YOUR PERSONAL DAYSPACE</p><h1>{heading}<br/><em>{firstName}.</em></h1><p className={styles.sub}>A thoughtful place for what matters today—and the things you&apos;re building over time.</p></div>
-        <div className={styles.orbit} aria-hidden="true"><div className={styles.orbitRing}/><div className={styles.orbitCore+" "+styles.iconSurface}><Icon name="calendar" size={32}/></div><span className={styles.orbitDot}/></div>
+        <div className={styles.orbit} aria-hidden="true"><div className={styles.orbitRing}/><div className={styles.orbitCore+" "+styles.iconSurface}><AppLogo id="life" name="Life" tone="blue" size={54}/></div><span className={styles.orbitDot}/></div>
         <div className={styles.heroMeta}><span>01 <i>/</i> DAILY OVERVIEW</span><span>{offline ? "OFFLINE / CACHED" : "PERSONAL DATA SPACE"}</span></div>
       </section>
       <nav className={styles.tabs} aria-label="Life sections">
