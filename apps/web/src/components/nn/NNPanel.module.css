@@ -16,12 +16,17 @@
 
 .island {
   composes: nn-liquid from global;
-  display: grid;
-  place-items: center;
-  width: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 52px;
+  max-width: min(210px, calc(100vw - 28px));
   height: 52px;
+  padding: 0 16px;
   border-radius: var(--radius-full);
   color: var(--text-secondary);
+  animation: nn-island-arrive var(--dur-base) var(--ease-entrance) both;
   /* The one transition that carries the whole effect: the island grows into
      the panel rather than being replaced by it. */
   transition:
@@ -31,7 +36,34 @@
     transform var(--dur-base) var(--ease-spring);
 }
 
-.island:active { transform: scale(0.94); }
+.island:active { transform: scale(0.96); }
+
+.islandBrand {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 22px;
+  color: var(--text-primary);
+}
+
+.islandLabel {
+  min-width: 0;
+  max-width: 138px;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.015em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes nn-island-arrive {
+  from { opacity: 0; transform: translateY(5px) scale(0.92); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
 
 /* ---- expanded: the chooser ---------------------------------------------- */
 
@@ -198,8 +230,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .panel { animation: none; }
-  .island { transition: none; }
+  .island { transition: none; animation: none; }
 }
 
 :root[data-motion="reduced"] .panel { animation: none; }
-:root[data-motion="reduced"] .island { transition: none; }
+:root[data-motion="reduced"] .island { transition: none; animation: none; }
