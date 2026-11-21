@@ -36,7 +36,7 @@ describe("the island", () => {
     render(<NNPanel />);
     const island = screen.getByRole("button", { name: /currently Today/ });
     expect(island).toHaveTextContent("Today");
-    expect(island.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+    expect(island.querySelector("[data-tone]")).not.toBeNull();
   });
 
   it("tracks the destination when browser history changes the route", () => {
@@ -58,6 +58,22 @@ describe("the island", () => {
     path.value = "/ren/chat";
     render(<NNPanel />);
     expect(screen.getByRole("button", { name: /currently REN/ })).toBeInTheDocument();
+  });
+
+  it("offers a colourful quick-access rail for core destinations", async () => {
+    render(<NNPanel />);
+    await userEvent.click(screen.getByRole("button", { name: /Go to/ }));
+    expect(screen.getByRole("group", { name: "Quick access" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quick open Today" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quick open Life" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Quick open College" })).toBeInTheDocument();
+  });
+
+  it("opens quick destinations through the shared route transition", async () => {
+    render(<NNPanel />);
+    await userEvent.click(screen.getByRole("button", { name: /Go to/ }));
+    await userEvent.click(screen.getByRole("button", { name: "Quick open Life" }));
+    expect(navigate).toHaveBeenCalledWith("/life", "Life");
   });
 
   it("opens into the chooser", async () => {

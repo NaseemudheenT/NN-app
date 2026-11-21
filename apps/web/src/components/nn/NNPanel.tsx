@@ -4,8 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAppTransition } from "@/components/nn/AppTransition";
 import { Icon } from "@/components/ui/Icon";
+import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
 import { RenMark } from "@/components/ui/RenMark";
-import { NNLogo } from "@/components/ui/NNLogo";
+
 import { currentDestination, destinations, type Destination } from "@/lib/nn/destinations";
 import { getApplication, GROUPS } from "@/lib/apps/registry";
 import s from "./NNPanel.module.css";
@@ -42,6 +43,25 @@ import s from "./NNPanel.module.css";
 const ALL_DESTINATIONS = destinations();
 const NN_PLACES = ALL_DESTINATIONS.filter((destination) => destination.route !== undefined && destination.group === "NN");
 const APP_DESTINATIONS = ALL_DESTINATIONS.filter((destination) => destination.route !== undefined && destination.group === "Applications");
+const QUICK_IDS = ["home", "app-life", "app-college", "app-search", "ren"] as const;
+const QUICK_DESTINATIONS = QUICK_IDS.flatMap((id) => {
+  const destination = ALL_DESTINATIONS.find((entry) => entry.id === id);
+  return destination?.route !== undefined ? [destination] : [];
+});
+
+function toneFor(destination: Destination): GlassIconTone {
+  if (destination.mark === "ren") return "violet";
+  if (destination.group === "NN") return destination.id === "settings" ? "slate" : "cyan";
+  const app = getApplication(destination.id.slice(4));
+  switch (app?.group) {
+    case "Life & wellbeing": return "green";
+    case "Education": return "blue";
+    case "Money & work": return "amber";
+    case "Creation & communication": return "violet";
+    case "Knowledge & insight": return "cyan";
+    default: return "slate";
+  }
+}
 
 export function NNPanel() {
   const travel = useAppTransition();
@@ -145,8 +165,8 @@ export function NNPanel() {
         onClick={() => go(destination)}
       >
         {destination.mark === "ren"
-          ? <RenMark size={21} />
-          : <Icon name={destination.icon} size={21} />}
+          ? <RenMark size={25} />
+          : <GlassIcon name={destination.icon} tone={toneFor(destination)} size={38} />}
         <span className={s.itemBody}>
           <span className={s.itemName}>{destination.label}</span>
           <span className={s.itemHint}>{destination.hint}</span>
@@ -168,7 +188,11 @@ export function NNPanel() {
         onClick={() => setOpen(true)}
       >
         <span className={s.islandBrand} aria-hidden="true">
-          <NNLogo size={18} glow decorative />
+          {here?.mark === "ren"
+            ? <RenMark size={22} />
+            : here
+              ? <GlassIcon name={here.icon} tone={toneFor(here)} size={30} />
+              : <GlassIcon name="grid" tone="blue" size={30} />}
         </span>
         <span className={s.islandLabel}>{here?.label ?? "NN"}</span>
         <span className={s.islandSignal} aria-hidden="true" />
@@ -186,7 +210,11 @@ export function NNPanel() {
         inert={!open}
       >
         <div className={s.head}>
-          <span className={s.headMark}><NNLogo size={18} glow decorative /></span>
+          <span className={s.headMark}>{here?.mark === "ren"
+            ? <RenMark size={25} />
+            : here
+              ? <GlassIcon name={here.icon} tone={toneFor(here)} size={34} />
+              : <GlassIcon name="grid" tone="blue" size={34} />}</span>
           <span className={s.headName}>{here?.label ?? "NN"}</span>
           <span className={s.headStatus}>NN SYSTEM</span>
           <button ref={closeRef} type="button" className={s.close} aria-label="Close" onClick={close}>
@@ -218,6 +246,23 @@ export function NNPanel() {
             </button>
           ) : null}
         </label>
+        <div className={s.quickAccess} role="group" aria-label="Quick access">
+          {QUICK_DESTINATIONS.map((destination) => (
+            <button
+              type="button"
+              key={destination.id}
+              className={s.quickItem}
+              aria-label={`Quick open ${destination.label}`}
+              aria-current={here?.id === destination.id ? "page" : undefined}
+              onClick={() => go(destination)}
+            >
+              {destination.mark === "ren"
+                ? <RenMark size={27} />
+                : <GlassIcon name={destination.icon} tone={toneFor(destination)} size={38} />}
+              <span>{destination.label}</span>
+            </button>
+          ))}
+        </div>
         <p className={s.resultCount} role="status">
           {resultCount} {resultCount === 1 ? "destination" : "destinations"}
         </p>
