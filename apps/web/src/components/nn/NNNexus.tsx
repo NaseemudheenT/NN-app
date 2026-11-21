@@ -154,7 +154,7 @@ export function NNNexus() {
               data-active={pathname === item.href}
               title={item.label}
               aria-label={item.label}
-              onClick={() => setRailExpanded(false)}
+              onClick={() => { setRailExpanded(false); setExpanded(false); }}
             >
               <Icon name={item.icon} size={17} />
               <span>{item.label}</span>
