@@ -3,7 +3,7 @@
 .root {
   max-width: 1080px;
   margin: 0 auto;
-  padding: clamp(16px, 3vw, 36px) clamp(14px, 3vw, 28px) clamp(60px, 8vw, 110px);
+  padding: clamp(16px, 3vw, 36px) clamp(14px, 3vw, 28px) calc(clamp(60px, 8vw, 110px) + env(safe-area-inset-bottom, 0px));
 }
 
 .banner { margin-bottom: clamp(18px, 3vw, 28px); min-height: 160px; }
@@ -55,8 +55,13 @@
 
 .tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   margin-bottom: 18px;
   padding: 5px;
   border: 1px solid var(--border-subtle);
@@ -64,7 +69,11 @@
   background: rgb(232 244 255 / 4%);
 }
 
+.tabs::-webkit-scrollbar { display: none; }
+
 .tabs button {
+  flex: 0 0 auto;
+  min-height: 44px;
   padding: 9px 16px;
   border: 0;
   border-radius: var(--radius-full);
@@ -184,6 +193,7 @@
 .field textarea {
   width: 100%;
   box-sizing: border-box;
+  min-height: 44px;
   padding: 10px 12px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
@@ -255,8 +265,9 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
   margin-top: 1px;
 
   border-radius: var(--radius-xs);
@@ -300,8 +311,9 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
 
   border-radius: var(--radius-full);
 
@@ -380,6 +392,7 @@
   .bannerChip { width: 44px; height: 44px; }
   .sectionTop { flex-direction: column; gap: 8px; }
   .form { grid-template-columns: 1fr; }
+  .field input, .field select, .field textarea { font-size: 16px; }
   .rowWhen { display: none; }
 }
 
