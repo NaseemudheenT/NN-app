@@ -1,3 +1,21 @@
+## 2026-11-21 · Phase B — spatial-glass design system complete
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Commit:** `714eef07dabeec7689ea0892b11534df827061ef`  
+**CI:** [Run 44891313644](https://github.com/NaseemudheenT/NN-app/actions/runs/44891313644) — success (typecheck, lint, unit tests and Next.js production build).
+
+**Implemented and verified:**
+- Standardized shared glass materials, floating surfaces, control sizing, keyboard focus, pressed/selected/disabled/loading states, and system/app reduced-motion behaviour.
+- Added system-wide reduced-transparency fallbacks for global glass surfaces and liquid controls, plus component-level fallbacks for cards, panels, dialogs, navigation and fields.
+- Added accessible bottom-anchored `Sheet` using the existing modal focus trap, Escape/backdrop dismissal and focus restoration contract.
+- Added reusable `FeedbackState` for empty, loading, error, permission and success states, with appropriate live-region semantics and optional recovery action.
+- Hardened `GlassFold` fallback rendering: transparent drawing buffer preserves the CSS room if WebGL setup fails; partial shader/program allocations are cleaned up.
+- Added regression tests for reduced-transparency styles, feedback-state semantics, sheet behaviour and WebGL-unavailable fallback.
+
+**Boundary:** Phase B code acceptance is complete. Physical iPhone/Android/tablet/desktop inspection, cross-browser visual review and screenshot evidence remain in Phase G. No PR merge, production deployment or paid infrastructure change was performed.
+
+---
+
 ## 2026-11-21 · Phase A — OS shell and navigation complete
 
 **Branch:** `gt/nn-liquid-glass-unified`  

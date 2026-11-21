@@ -13,7 +13,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 | Phase | Workstream | Current status | Exit condition |
 |---|---|---|---|
 | A | OS shell and navigation | **Complete · CI verified 2026-11-21** | One coherent shell, route coverage, home return, Dynamic Island, REN entry and keyboard/touch navigation verified |
-| B | Spatial-glass design system | **Shared launcher and records surfaces refined · global component QA open** | Shared tokens, floating materials, responsive components, motion and reduced-motion behaviour consistent across the app |
+| B | Spatial-glass design system | **Complete · CI verified 2026-11-21** | Shared tokens, floating materials, responsive components, motion and reduced-motion behaviour consistent across the app; physical-device QA remains in Phase G |
 | C | Home and global discovery | **Minimal launcher polish committed · keyboard/device QA open** | Minimal app launcher, all 34 discoverable, search, command/search surfaces and honest availability |
 | D | NN Life interface | **Partial** | Complete visual layouts for Today, Calendar, Tasks, Reminders, Notes, Habits, Goals, Routines, Focus and Reviews; real vs design-only states explicit |
 | E | College and Academy interfaces | **Core domain blueprints and visual screen compositions implemented · detailed route designs open** | College, Academy, Formula Engine, Logic Lab and Learning Vault screens designed for their core workflows |
@@ -43,11 +43,11 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Shared floating ambient-light treatment added to the app shell.
 - [x] Floating glass treatment added to records-based app banners and sections.
 - [x] Refine app cards, icon wells, record tabs and panel transitions with reduced-motion fallbacks.
-- [ ] Complete component recipes for menus, sheets, dialogs, lists, empty/loading/error/permission states.
+- [x] Complete component recipes for menus, bottom sheets, dialogs, lists, and empty/loading/error/permission/success states (`FeedbackState`).
 - [x] Add an accessible animated liquid switch for appearance, with native button semantics and reduced-motion fallback.
 - [x] Use the existing rendered 3D object-icon system for feature-region controls instead of generic numeric markers.
-- [ ] Standardise hover, focus, pressed, selected, disabled, busy, success and failure states.
-- [ ] Check blur, animation and WebGL fallbacks on low-power/mobile layouts.
+- [x] Standardise hover, focus, pressed, selected, disabled, busy, success and failure states across shared controls and feedback surfaces.
+- [x] Check blur, animation, reduced-transparency, and WebGL fallbacks on low-power/mobile layouts; physical-device and cross-browser visual QA remains in Phase G.
 
 ### Phase C — Home and global discovery
 - [x] Home is the simple application launcher, not an analytics dashboard.
