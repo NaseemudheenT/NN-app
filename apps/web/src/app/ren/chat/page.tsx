@@ -17,10 +17,11 @@ export const metadata: Metadata = {
  * The same intelligence, identity, memory, permissions and task engine sit
  * under both. They are two interfaces to one assistant, not two assistants.
  */
-export default function RenChatPage() {
+export default async function RenChatPage({ searchParams }: { searchParams: Promise<{ workspace?: string }> }) {
+  const { workspace } = await searchParams;
   return (
     <RequireOwner>
-      <RenWorkspace />
+      <RenWorkspace workspaceId={workspace} />
     </RequireOwner>
   );
 }
