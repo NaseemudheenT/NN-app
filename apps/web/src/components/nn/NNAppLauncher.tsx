@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
+import { AppLogo } from "@/components/ui/AppLogo";
 import type { IconName } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAppTransition } from "@/components/nn/AppTransition";
@@ -123,7 +124,7 @@ export function NNAppLauncher() {
                     aria-label={`Open ${app.name}`}
                   >
                     <span className={styles.iconWell}>
-                      <Icon name={app.icon as IconName} size={24} solid tone={(APP_TONES[app.id] ?? (APP_TONES[app.group.toLowerCase().split(" ")[0] ?? ""]) ?? "ice") as "blue" | "cyan" | "aqua" | "violet" | "slate" | "green" | "amber" | "red" | "ice"} />
+                      <AppLogo id={app.id} name={app.name} size={48} tone={APP_TONES[app.id] ?? "ice"} />
                     </span>
                     <span className={styles.appName}>{app.name}</span>
                   </button>
