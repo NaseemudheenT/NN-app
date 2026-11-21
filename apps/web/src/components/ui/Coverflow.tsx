@@ -221,6 +221,7 @@ export function Coverflow({
     }
     event.currentTarget.setPointerCapture(event.pointerId);
     targetRef.current = posRef.current;
+    velocityRef.current = 0;
     dragRef.current = {
       id: event.pointerId,
       x: event.clientX,
