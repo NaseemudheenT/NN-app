@@ -134,6 +134,7 @@
   transition: transform 240ms cubic-bezier(.2,.85,.2,1), border-color 240ms ease;
 }
 .railToggle:hover { transform: scale(1.045); border-color: rgb(178 210 255 / 40%); }
+.railToggle:focus-visible, .railLink:focus-visible, .railAssistant:focus-visible { outline: 2px solid #a9cbff; outline-offset: 3px; }
 .railPulse {
   position: absolute;
   right: 7px;
