@@ -22,19 +22,22 @@ export function Dock({ items, activeId, onSelect, className }: DockProps) {
       className={["nn-holo", styles.dock, className ?? ""].filter(Boolean).join(" ")}
       aria-label="Application dock"
     >
-      {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className={styles.item}
-          aria-current={activeId === item.id}
-          aria-label={item.label}
-          title={item.label}
-          onClick={() => onSelect(item.id)}
-        >
-          <Icon name={item.icon} size={20} />
-        </button>
-      ))}
+      {items.map((item) => {
+        const isCurrent = activeId === item.id;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            className={styles.item}
+            aria-current={isCurrent ? "page" : undefined}
+            aria-label={item.label}
+            title={item.label}
+            onClick={() => onSelect(item.id)}
+          >
+            <Icon name={item.icon} size={20} />
+          </button>
+        );
+      })}
     </nav>
   );
 }
