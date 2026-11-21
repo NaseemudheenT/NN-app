@@ -306,10 +306,7 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
         </Group>
       ) : null}
 
-      <Group
-        title="Appearance"
-        footer="Kept on this device rather than on your account: the right answer depends on the screen you are looking at, not on who you are."
-      >
+      <Group title="Appearance">
         <ThemeToggleRow theme={theme} resolvedTheme={resolvedTheme} onChange={setTheme} />
         <ChoiceRow
           icon="clock" tone={TONE.slate} label="Motion" value={motion}
