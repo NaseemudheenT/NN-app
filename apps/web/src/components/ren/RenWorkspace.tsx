@@ -75,7 +75,7 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
       delegatedTaskStarted.current = true;
       ren.send(handoff.task.slice(0, 4000), []);
     } catch {
-      window.sessionStorage.removeItem(key);
+      try { window.sessionStorage.removeItem(key); } catch { /* storage unavailable */ }
     }
   }, [handoffId, workspaceId, ready, ren.busy, ren.send, ren.specialist]);
 
