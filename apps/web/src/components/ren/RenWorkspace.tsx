@@ -41,11 +41,11 @@ const OPENERS = [
   { icon: "check", text: "Add a task to my day", hint: "REN writes it into NN itself" },
 ] as const;
 
-export function RenWorkspace() {
+export function RenWorkspace({ workspaceId }: { workspaceId?: string }) {
   const router = useRouter();
   const { user } = useAuth();
   const firstName = ownerFirstName(user?.displayName);
-  const ren = useRenConversation(firstName);
+  const ren = useRenConversation(firstName, workspaceId);
 
   const [draft, setDraft] = useState("");
   const [files, setFiles] = useState<Attachment[]>([]);
@@ -134,11 +134,12 @@ export function RenWorkspace() {
    * below, and in the deployment guide, where an operator needs it.
    */
   const badge = useMemo(() => {
+    if (ren.specialist) return `${ren.specialist.workspace} specialist`;
     if (!ren.checked) return null;
     if (!ready) return "Language not connected";
     if (ren.busy) return last?.role === "ren" && last.text !== "" ? "Answering" : "Thinking";
     return "Ready";
-  }, [ren.busy, ren.checked, last, ready]);
+  }, [ren.busy, ren.checked, last, ready, ren.specialist]);
 
   return (
     <div className={styles.root}>
