@@ -13,3 +13,15 @@
   font-size: var(--text-label-size); text-align: left;
 }
 .secret { margin-top: var(--space-7); text-align: left; }
+
+
+@media (max-width: 520px) {
+  .page {
+    padding:
+      max(72px, calc(env(safe-area-inset-top) + 64px))
+      max(var(--space-5), env(safe-area-inset-right))
+      max(100px, calc(env(safe-area-inset-bottom) + 88px))
+      max(var(--space-5), env(safe-area-inset-left));
+  }
+  .card { text-align: center; }
+}
