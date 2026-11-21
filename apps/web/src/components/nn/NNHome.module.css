@@ -418,7 +418,7 @@
 .search button { width:32px; height:32px; display:grid; place-items:center; border:0; border-radius:9px; background:rgb(255 255 255 / 8%); color:#d8eaff; cursor:pointer; }
 .groups { display:grid; gap:39px; }
 .group { min-width:0; }
-.groupHeading { display:flex; justify-content:space-between; align-items:end; gap:16px; margin-bottom:15px; }
+.groupHeading { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:15px; }
 .groupHeading h2 { margin:0; color:#e9f3ff; font-size:16px; line-height:1.25; font-weight:620; letter-spacing:-.02em; }
 .groupHeading p { margin:5px 0 0; color:rgb(174 198 228 / 58%); font-size:11px; }
 .groupHeading>span { color:rgb(159 190 225 / 52%); font:10px/1 var(--font-mono); }
