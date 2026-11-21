@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { WaveCard, WaveChip } from "@/components/ui/WaveCard";
 import { useRecords, useRecordWriter, type NNRecord, type RecordFault } from "@/lib/nn/records";
