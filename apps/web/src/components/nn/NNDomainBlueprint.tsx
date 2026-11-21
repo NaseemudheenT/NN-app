@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import type { NNApplication } from "@/lib/apps/registry";
 import styles from "./NNDomainBlueprint.module.css";
@@ -14,6 +14,18 @@ export interface DomainModule {
   description: string;
   icon: IconName;
   regions: readonly string[];
+}
+
+function inferDomainLayout(appId: string, module: DomainModule): DomainLayout {
+  if (module.layout) return module.layout;
+  const key = `${appId} ${module.id} ${module.title}`.toLowerCase();
+  if (/(lesson|journal|writing|compose|document|reflection|notes|retrospective)/.test(key)) return "reader";
+  if (/(calendar|timeline|date|session|schedule|interview|follow|delivery|practice|trip|itinerary|activity)/.test(key)) return "planner";
+  if (/(library|archive|people|contact|asset|inbox|collection|card|vault|place|portfolio|evidence)/.test(key)) return "library";
+  if (/(path|flow|project|milestone|roadmap|workflow|scenario|skill|production)/.test(key)) return "roadmap";
+  if (/(trend|analytics|mastery|metric|report|finance|invest|result|growth|ledger|budget)/.test(key)) return "analytics";
+  if (/(syllabus|navigator|structure|graph|connection|question-bank)/.test(key)) return "navigator";
+  return "dashboard";
 }
 
 export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>> = {
@@ -219,9 +231,8 @@ function EducationCanvas({ app, module }: { app: NNApplication; module: DomainMo
         </div>
       ) : null}
       {kind === "analytics" ? (
-        <div className={styles.educationAnalytics}><span>MASTERY REVIEW · VISUAL STRUCTURE ONLY</span><div className={styles.masteryBars}>{regions.map((region,index)=><div key={region}><i style={{height:`${30 + index * 15}%`}}/><strong>{region}</strong></div>)}</div></div>
+        <div className={styles.educationAnalytics}><span>MASTERY</span><div className={styles.masteryBars}>{regions.map((region)=><div key={region}><i/><strong>{region}</strong></div>)}</div></div>
       ) : null}
-      <div className={styles.educationFootnote}>PREVIEW · NO LIVE DATA</div>
     </div>
   );
 }
@@ -229,6 +240,9 @@ function EducationCanvas({ app, module }: { app: NNApplication; module: DomainMo
 export function NNDomainBlueprint({ app }: { app: NNApplication }) {
   const modules = DOMAIN_BLUEPRINTS[app.id];
   const [selectedId, setSelectedId] = useState(modules?.[0]?.id ?? "");
+  useEffect(() => {
+    setSelectedId(modules?.[0]?.id ?? "");
+  }, [app.id, modules]);
   if (!modules?.length) return null;
   const selected = modules.find((module) => module.id === selectedId) ?? modules[0]!;
 
@@ -236,18 +250,34 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
     <section className={styles.root} aria-labelledby={`blueprint-${app.id}`}>
       <header className={styles.header}>
         <div>
-          <h2 id={`blueprint-${app.id}`}>Modules</h2>
+          <h2 id={`blueprint-${app.id}`}>Spaces</h2>
         </div>
         
       </header>
-      <div className={styles.moduleGrid}>
+      <div className={styles.moduleGrid} role="tablist" aria-label={`${app.name} spaces`} aria-orientation="horizontal">
         {modules.map((module) => (
           <button
             type="button"
             key={module.id}
+            id={`${app.id}-space-${module.id}`}
             className={styles.module}
+            role="tab"
             data-selected={module.id === selected.id || undefined}
-            aria-pressed={module.id === selected.id}
+            aria-selected={module.id === selected.id}
+            aria-controls={`${app.id}-space-preview`}
+            tabIndex={module.id === selected.id ? 0 : -1}
+            onKeyDown={(event) => {
+              let nextIndex = index;
+              if (event.key === "ArrowRight") nextIndex = (index + 1) % modules.length;
+              else if (event.key === "ArrowLeft") nextIndex = (index - 1 + modules.length) % modules.length;
+              else if (event.key === "Home") nextIndex = 0;
+              else if (event.key === "End") nextIndex = modules.length - 1;
+              else return;
+              event.preventDefault();
+              const next = modules[nextIndex]!;
+              setSelectedId(next.id);
+              document.getElementById(`${app.id}-space-${next.id}`)?.focus();
+            }}
             onClick={() => setSelectedId(module.id)}
           >
             <span className={styles.moduleIcon}><Icon name={module.icon} size={18}/></span>
@@ -256,7 +286,15 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
           </button>
         ))}
       </div>
-      <article className={styles.detail} aria-live="polite" key={selected.id}>
+      <article
+          className={styles.detail}
+          id={`${app.id}-space-preview`}
+          role="tabpanel"
+          aria-labelledby={`${app.id}-space-${selected.id}`}
+          tabIndex={0}
+          aria-live="polite"
+          key={selected.id}
+        >
         <div className={styles.detailHead}>
           <h3>{selected.title}</h3>
           <span className={styles.pending}>PREVIEW</span>
@@ -264,7 +302,6 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
         <div className={styles.screenPreview} aria-label={`${selected.title} interface layout preview`}>
           <div className={styles.screenTop}>
             <span className={styles.screenBrand}><Icon name={app.icon} size={13}/>{app.name}</span>
-            <span className={styles.screenMode}>PREVIEW</span>
           </div>
           {app.group === "Education" ? <EducationCanvas app={app} module={selected}/> : (
         <>
@@ -281,7 +318,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
                 <span className={styles.screenTitle}>{selected.title}</span>
                 <span className={styles.screenSubline}/>
               </div>
-              <div className={styles.screenWidgets} data-layout={selected.layout ?? "dashboard"}>
+              <div className={styles.screenWidgets} data-layout={inferDomainLayout(app.id, selected)}>
                 {selected.regions.map((region, index) => (
                   <div className={styles.screenWidget} data-layout={index === 0 ? "primary" : index === 1 ? "secondary" : "tertiary"} key={region}>
                     <span className={styles.widgetIndex}>{String(index + 1).padStart(2, "0")}</span>
@@ -298,7 +335,6 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
               <span className={styles.contextLine}/>
             </aside>
           </div>
-          <div className={styles.screenFooter}><span>PREVIEW · NO SAMPLE DATA</span></div>
         </>
         )}
         </div>

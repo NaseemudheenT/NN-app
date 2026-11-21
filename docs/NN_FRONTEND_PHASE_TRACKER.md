@@ -48,7 +48,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Dedicated experience vs core-record surface is labelled honestly.
 - [x] Remove nonessential launcher copy, status jargon, counts and the unimplemented shortcut hint.
 - [x] Add concise Home/search hierarchy, dimensional icon wells, card sheen and restrained 3D hover motion.
-- [ ] Finish keyboard-first and phone-first launcher polish.
+- [x] Add a swipeable, scroll-snapping feature rail with keyboard tab navigation and selected-screen transitions.\n- [ ] Finish keyboard-first and phone-first launcher polish.
 - [ ] Audit global search, command palette, Settings, Files and REN entry consistency.
 - [ ] Ensure no dead or misleading controls remain.
 
@@ -78,7 +78,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [ ] System: Command Centre, Search, Automation Studio, Security Centre, Control Room, Files and REN surfaces.
 - [x] Domain-specific module maps and structural screen compositions for all 31 records-based applications.
 - [x] Replace long module labels with concise feature names; remove repeated explanatory copy from app previews.
-- [ ] Complete per-app navigation, real empty/loading/error states, detail screens and interaction prototypes.
+- [x] Place the feature rail above the live record workspace so each application opens on its domain-specific interface.\n- [ ] Complete per-app navigation, real empty/loading/error states, detail screens and interaction prototypes.
 - [ ] Never show fabricated finance, attendance, analytics, market, device, security, AI or integration data.
 
 ### Phase G — Verification and Claude handoff

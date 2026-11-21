@@ -126,7 +126,7 @@
 .pathNodes>div strong{font-size:7px;line-height:1.4}
 .masteryBars{height:105px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:10px;padding:8px 5px 0;border-bottom:1px solid rgb(198 224 255 / 18%)}
 .masteryBars>div{height:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;min-width:0}
-.masteryBars>div i{width:100%;max-height:74px;border:1px solid rgb(172 212 255 / 28%);border-bottom:0;border-radius:6px 6px 0 0;background:linear-gradient(180deg,rgb(144 194 255 / 32%),rgb(107 141 229 / 8%))}
+.masteryBars>div i{width:100%;height:44px;max-height:44px;border:1px solid rgb(172 212 255 / 28%);border-bottom:0;border-radius:6px 6px 0 0;background:linear-gradient(180deg,rgb(144 194 255 / 32%),rgb(107 141 229 / 8%))}
 .masteryBars>div strong{min-height:20px;color:var(--text-muted);font-size:7px;font-weight:500;line-height:1.35}
 .educationFootnote{padding-top:8px;border-top:1px solid rgb(194 222 255 / 10%);color:var(--text-muted);font:6px var(--font-mono);letter-spacing:.08em}
 @media(max-width:640px){.educationCanvas{padding:9px}.educationDashboard{grid-template-columns:repeat(2,minmax(0,1fr))}.educationSplit{grid-template-columns:minmax(76px,.7fr) minmax(0,1.7fr);gap:6px}.educationTree,.educationReader,.educationList{padding:8px}.pathNodes{grid-template-columns:repeat(2,minmax(0,1fr))}.timelineRow{grid-template-columns:18px 8px minmax(0,1fr)}.timelineRow small{display:none}}
@@ -157,3 +157,5 @@
 @media(max-width:640px){.module{flex-basis:78%;min-height:60px}.moduleGrid{gap:8px;padding-bottom:8px}}
 @media(prefers-reduced-motion:reduce){.module,.detail{animation:none;transition:none}.module:hover{transform:none}}
 :global(html[data-motion="reduced"]) .detail{animation:none}
+
+.module[role="tab"]:focus-visible{outline:2px solid var(--focus-ring);outline-offset:3px}

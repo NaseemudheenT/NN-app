@@ -395,6 +395,8 @@ export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
         </div>
       </WaveCard>
 
+      <NNDomainBlueprint app={app} />
+
       {sections.length > 1 ? (
         <div className={styles.tabs} role="tablist" aria-label={`${app.name} sections`}>
           {sections.map((entry, index) => (
@@ -435,7 +437,6 @@ export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
             subscription rather than painting one section's records into
             another's list while the new query resolves. */}
         <SectionPanel key={section.collection} section={section} />
-        <NNDomainBlueprint app={app} />
       </div>
     </div>
   );

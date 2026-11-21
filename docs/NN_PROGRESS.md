@@ -1,3 +1,12 @@
+## 2026-11-21 · Feature rail hierarchy and navigation refinement
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Change:** Moved each records-app feature rail to the top of its application page, ahead of the live records workspace. Renamed the rail to **Spaces**, made it an accessible horizontal tablist with Arrow/Home/End navigation, focus management and selected-panel association, and reset selection when navigating between apps. Feature previews now choose a domain-appropriate layout grammar rather than defaulting every module to the same dashboard. Removed duplicate PREVIEW/NO SAMPLE DATA labels and equalised mastery placeholder bars so they cannot imply measured performance.
+
+**Verification:** The preceding appearance-control revision passed typecheck, lint and unit tests; its production build was still running when this interface refinement was prepared. This commit triggers a fresh full CI run.
+
+---
+
 ## 2026-11-21 · Liquid appearance control and CI repair
 
 **Branch:** `gt/nn-liquid-glass-unified`  
