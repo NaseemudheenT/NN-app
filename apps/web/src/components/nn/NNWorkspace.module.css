@@ -239,9 +239,10 @@
   to   { opacity: 1; transform: none; filter: blur(0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reveal { animation-duration: 1ms; animation-delay: 0ms; }
+  .reveal, .view { animation-duration: 1ms; animation-delay: 0ms; }
 }
-:global(html[data-motion="reduced"]) .reveal { animation-duration: 1ms; animation-delay: 0ms; }
+:global(html[data-motion="reduced"]) .reveal,
+:global(html[data-motion="reduced"]) .view { animation-duration: 1ms; animation-delay: 0ms; }
 
 .overviewGrid {
   display: grid;
@@ -251,6 +252,8 @@
 }
 .lowerGrid { display: grid; grid-template-columns: 1.3fr 1fr; gap: var(--space-6); }
 .reportsGrid { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--space-6); }
+.view { animation: nn-view-enter 360ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes nn-view-enter { from { opacity: 0; transform: translateY(7px); filter: blur(2px); } to { opacity: 1; transform: none; filter: blur(0); } }
 .view > * + * { margin-top: var(--space-6); }
 
 
@@ -710,10 +713,12 @@
   font-size: var(--text-caption-size);
   cursor: pointer;
   transition: background-color var(--dur-base) var(--ease-standard),
-              color var(--dur-base) var(--ease-standard);
+              color var(--dur-base) var(--ease-standard),
+              transform var(--dur-base) var(--ease-spring);
 }
 .dock button svg { width: 15px; height: 15px; }
-.dock button:not([aria-current]):hover { background: var(--glass-hover); color: var(--text-primary); }
+.dock button:not([aria-current]):hover { background: var(--glass-hover); color: var(--text-primary); transform: translateY(-2px) scale(1.025); }
+.dock button:active { transform: scale(0.96); }
 .dock button[aria-current] {
   background: var(--glass-active);
   color: var(--nn-icy);
