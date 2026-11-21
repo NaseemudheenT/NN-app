@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { needsConfirmation, type RenPlan } from "./capabilities";
 import { planFromToolCall } from "./tools";
 import { useRenOperator } from "./operator";
-import { specialistForRoute } from "./specialists";
+import { specialistForApp, specialistForRoute, type WorkspaceSpecialist } from "./specialists";
+import { getApplication } from "@/lib/apps/registry";
 
 /**
  * One conversation with REN.
@@ -80,13 +81,19 @@ export interface RenConversation {
   clear: () => void;
   choose: (id: string) => void;
   chosen: string | null;
+  specialist: WorkspaceSpecialist | null;
 }
 
 let counter = 0;
 const nextId = () => `t${Date.now().toString(36)}-${(counter += 1).toString(36)}`;
 
-export function useRenConversation(firstName?: string): RenConversation {
+export function useRenConversation(firstName?: string, workspaceId?: string): RenConversation {
   const pathname = usePathname();
+  const requestedSpecialist = workspaceId ? specialistForApp(workspaceId) : specialistForRoute(pathname ?? "/");
+  const specialist = requestedSpecialist?.status === "active" ? requestedSpecialist : null;
+  const specialistRoute = specialist
+    ? (getApplication(specialist.appId)?.href ?? pathname ?? "/")
+    : (pathname ?? "/");
   const operator = useRenOperator();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [providers, setProviders] = useState<ProviderChoice[]>([]);
@@ -148,7 +155,7 @@ export function useRenConversation(firstName?: string): RenConversation {
           signal: controller.signal,
           body: JSON.stringify({
             provider: chosen ?? undefined,
-            route: pathname ?? "/",
+            route: specialistRoute,
             firstName,
             localTime: new Date().toLocaleString(),
             messages: history.map((turn) => ({
@@ -203,7 +210,7 @@ export function useRenConversation(firstName?: string): RenConversation {
               const made = planFromToolCall(
                 String(chunk["name"] ?? ""),
                 (chunk["args"] ?? {}) as Record<string, unknown>,
-                specialistForRoute(pathname ?? "/")?.appId,
+                specialist?.appId,
               );
               const run: ToolRun = made.ok
                 ? {
@@ -246,7 +253,7 @@ export function useRenConversation(firstName?: string): RenConversation {
       const automatic = asked.filter((run) => run.status === "running");
       if (automatic.length > 0) await runToolsRef.current(renId, automatic);
     },
-    [chosen, firstName, pathname, patch],
+    [chosen, firstName, specialist, specialistRoute, patch],
   );
 
   /**
@@ -358,7 +365,7 @@ export function useRenConversation(firstName?: string): RenConversation {
   return {
     turns, providers, answeredBy, checked, busy,
     send, stop, approve, decline, clear,
-    choose: setChosen, chosen,
+    choose: setChosen, chosen, specialist,
   };
 }
 
