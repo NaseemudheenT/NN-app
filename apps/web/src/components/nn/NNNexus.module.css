@@ -11,7 +11,9 @@
   font-variant-numeric: tabular-nums;
   transition: opacity 220ms ease, visibility 220ms ease;
 }
-.root[data-ren-open="true"] { opacity: 0; visibility: hidden; }
+.root[data-ren-open="true"] .islandWrap,
+.root[data-ren-open="true"] .panel { opacity: 0; visibility: hidden; pointer-events: none; }
+.root[data-ren-open="true"] .sideRail { opacity: 1; visibility: visible; pointer-events: auto; }
 .islandWrap { display: flex; justify-content: center; }
 .island {
   pointer-events: auto;
