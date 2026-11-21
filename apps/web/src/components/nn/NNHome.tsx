@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { RequireOwner } from "@/components/auth/RequireOwner";
@@ -98,7 +98,7 @@ function LauncherSurface() {
                     className={styles.app}
                     onClick={() => openApp(app)}
                     data-available={app.availability === "available"}
-                    style={{ "--app-order": index } as React.CSSProperties}
+                    style={{ "--app-order": index } as CSSProperties}
                     aria-label={`Open ${app.name}`}
                   >
                     <span className={styles.appMark} data-app={app.id}>
