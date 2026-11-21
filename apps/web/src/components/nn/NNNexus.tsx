@@ -13,7 +13,7 @@ const SYSTEM_LINKS = [
   { href: "/", label: "Home", icon: "calendar" as const },
   { href: "/workspace", label: "Workspace", icon: "grid" as const },
   { href: "/design", label: "Design", icon: "sparkle" as const },
-];
+] as const;
 
 const QUICK_LINKS = [
   { href: "/workspace", label: "Workspace", detail: "Your personal environment", icon: "grid" as const, tone: "blue" },
