@@ -450,3 +450,16 @@
 @media (hover:none) { .app:hover { transform:none; } .app:hover .appMark { transform:none; } }
 @media (prefers-reduced-motion:reduce) { .waveOne,.waveTwo,.waveThree,.app { animation:none!important; transition:none!important; } .app:hover,.app:active,.app:hover .appMark { transform:none; } }
 :global(html[data-motion="reduced"]) .waveOne,:global(html[data-motion="reduced"]) .waveTwo,:global(html[data-motion="reduced"]) .waveThree { animation:none!important; }
+
+
+/* Each app keeps a recognisable identity, expressed as a restrained system tint. */
+.appMark[data-app="life"]{background:linear-gradient(145deg,#48a9a0,#237c75)}
+.appMark[data-app="college"],.appMark[data-app="academy"]{background:linear-gradient(145deg,#6f9ce8,#456dc0)}
+.appMark[data-app="finance"]{background:linear-gradient(145deg,#4cae7d,#267b50)}
+.appMark[data-app="projects"],.appMark[data-app="business"]{background:linear-gradient(145deg,#8b8bd8,#5d5eb0)}
+.appMark[data-app="career"],.appMark[data-app="freelance"]{background:linear-gradient(145deg,#b18b65,#886443)}
+.appMark[data-app="learning-vault"],.appMark[data-app="files"]{background:linear-gradient(145deg,#8a9baa,#5c6c7c)}
+.appMark[data-app="formula-engine"],.appMark[data-app="logic-lab"]{background:linear-gradient(145deg,#6d9fae,#416d7b)}
+.appMark[data-app="creator-studio"]{background:linear-gradient(145deg,#bf8293,#92576a)}
+.appMark[data-app="ren"]{background:linear-gradient(145deg,#8a8d96,#5b5e68)}
+.appMark[data-app="search"]{background:linear-gradient(145deg,#7d9bc3,#4c6d98)}
