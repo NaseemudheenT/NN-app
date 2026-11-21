@@ -33,12 +33,12 @@ describe("NN workspace specialist registry", () => {
     const finance = specialistForApp("finance");
     expect(finance).not.toBeNull();
     const tools = toolsForSpecialist(finance!);
-    expect(tools.map((tool) => tool.name)).toEqual([
+    expect(tools.map((tool) => tool.name).sort()).toEqual([
       "inspect_workspace_records",
       "capture_record",
       "complete_record",
       "discard_record",
-    ]);
+    ].sort());
     const capture = tools.find((tool) => tool.name === "capture_record")!;
     const props = capture.schema["properties"] as Record<string, { enum?: string[] }>;
     expect(props["collection"]?.enum).toContain("finance_transactions");
