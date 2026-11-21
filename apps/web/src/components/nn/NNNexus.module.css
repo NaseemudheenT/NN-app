@@ -98,6 +98,128 @@
 .panelFooter { justify-content: space-between; margin-top: 14px; padding: 0 2px; color: #70839e; font-size: 8px; letter-spacing: .04em; }
 .panelFooter > span:first-child { display: flex; align-items: center; gap: 6px; }
 .panelFooter i { width: 6px; height: 6px; border-radius: 50%; background: #62d69d; box-shadow: 0 0 9px rgb(98 214 157 / 70%); }
+
+/* Persistent spatial navigation: the system rail stays reachable while the
+   user moves between workspaces. It expands only on intent. */
+.sideRail {
+  position: fixed;
+  top: 50%;
+  left: max(14px, env(safe-area-inset-left));
+  z-index: 82;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  width: 48px;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+.railToggle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 17px;
+  color: #eff6ff;
+  background: linear-gradient(155deg, rgb(44 59 82 / 96%), rgb(9 15 26 / 97%));
+  box-shadow: 0 12px 34px rgb(0 0 0 / 30%), inset 0 1px 0 rgb(255 255 255 / 15%);
+  backdrop-filter: blur(26px) saturate(170%);
+  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  cursor: pointer;
+  transition: transform 240ms cubic-bezier(.2,.85,.2,1), border-color 240ms ease;
+}
+.railToggle:hover { transform: scale(1.045); border-color: rgb(178 210 255 / 40%); }
+.railPulse {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #7ce5b0;
+  box-shadow: 0 0 9px rgb(124 229 176 / 75%);
+}
+.railLinks {
+  display: grid;
+  gap: 5px;
+  width: 46px;
+  padding: 5px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 11%);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgb(25 36 53 / 95%), rgb(7 13 23 / 97%));
+  box-shadow: 0 18px 46px rgb(0 0 0 / 35%), inset 0 1px 0 rgb(255 255 255 / 10%);
+  backdrop-filter: blur(28px) saturate(165%);
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+  transition: width 320ms cubic-bezier(.2,.85,.2,1), border-radius 260ms ease;
+}
+.railLinks[data-open="true"] { width: 158px; }
+.railLink, .railAssistant {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 12px;
+  color: #aabbd2;
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+.railLink > svg, .railAssistant > svg { flex: 0 0 18px; }
+.railLink > span, .railAssistant > span {
+  overflow: hidden;
+  opacity: 0;
+  width: 0;
+  color: #e8f1ff;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 180ms ease, width 260ms ease;
+}
+.railLinks[data-open="true"] .railLink > span,
+.railLinks[data-open="true"] .railAssistant > span { opacity: 1; width: 90px; }
+.railLink:hover, .railAssistant:hover { color: #fff; background: rgb(255 255 255 / 8%); transform: translateX(1px); }
+.railLink[data-active="true"] {
+  color: #d8eaff;
+  background: linear-gradient(100deg, rgb(91 139 199 / 30%), rgb(255 255 255 / 5%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%);
+}
+.railAssistant { color: #cbbaff; border-top: 1px solid rgb(255 255 255 / 8%); border-radius: 10px; }
+@media (max-width: 767px) {
+  .sideRail {
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: 50%;
+    flex-direction: row;
+    width: auto;
+    transform: translateX(-50%);
+  }
+  .railLinks {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    max-width: calc(100vw - 86px);
+    padding: 4px;
+    border-radius: 17px;
+  }
+  .railLinks[data-open="true"] { width: auto; }
+  .railToggle { width: 42px; height: 42px; flex: none; border-radius: 15px; }
+  .railLink, .railAssistant { justify-content: center; width: 38px; height: 38px; padding: 0; }
+  .railLink > span, .railAssistant > span { display: none; }
+  .railLinks[data-open="true"] .railLink > span,
+  .railLinks[data-open="true"] .railAssistant > span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .railToggle, .railLinks, .railLink, .railAssistant, .railLink > span, .railAssistant > span { transition: none; }
+}
+
 @keyframes nexus-arrive { from { opacity: 0; transform: translateY(-18px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes nexus-expand { from { opacity: 0; transform: translateY(-8px) scale(.94); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
 @keyframes nexus-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .58; transform: scale(.82); } }
