@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { RequireOwner } from "@/components/auth/RequireOwner";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { AppLogo } from "@/components/ui/AppLogo";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Dialog } from "@/components/ui/Dialog";
 import { useAuth } from "@/lib/auth";
@@ -626,7 +627,7 @@ function LifeSurface() {
         <div className={styles.heroMeta}><span>01 <i>/</i> DAILY OVERVIEW</span><span>{offline ? "OFFLINE / CACHED" : "PERSONAL DATA SPACE"}</span></div>
       </section>
       <nav className={styles.tabs} aria-label="Life sections">
-        {TABS.map((item) => <button key={item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}><Icon name={item.icon} size={16}/><span>{item.label}</span>{item.id === "tasks" && todayTasks.length > 0 ? <small>{todayTasks.length}</small> : null}</button>)}
+        {TABS.map((item) => <button key={item.id} className={tab === item.id ? styles.tabActive : styles.tab} onClick={() => setTab(item.id)} aria-current={tab === item.id ? "page" : undefined}><AppLogo id={`life-${item.id}`} name={item.label} size={24} tone={item.id === "calendar" ? "blue" : item.id === "notes" ? "violet" : item.id === "goals" ? "amber" : item.id === "habits" ? "green" : "cyan"} /><span>{item.label}</span>{item.id === "tasks" && todayTasks.length > 0 ? <small>{todayTasks.length}</small> : null}</button>)}
       </nav>
       {error ? <div className={styles.error} role="alert"><Icon name="shield" size={17}/><span>{error}</span><button onClick={() => void load()}>Retry</button></div> : null}
       {notice ? <div className={styles.notice} role="status"><Icon name="check" size={16}/>{notice}<button onClick={() => setNotice(null)} aria-label="Dismiss"><Icon name="close" size={14}/></button></div> : null}
