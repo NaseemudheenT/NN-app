@@ -168,7 +168,16 @@ export function useRenOperator(): RenOperator {
         if (!agent || agent.status !== "active" || !task) {
           return { ok: false, said: "I could not resolve an active workspace specialist for that task." };
         }
-        const destination = `/ren/chat?workspace=${encodeURIComponent(agent.appId)}&task=${encodeURIComponent(task)}`;
+        const handoffId = `h${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+        try {
+          window.sessionStorage.setItem(
+            `nn:ren:handoff:${handoffId}`,
+            JSON.stringify({ appId: agent.appId, task }),
+          );
+        } catch {
+          return { ok: false, said: "This browser would not let NN securely prepare the specialist handoff." };
+        }
+        const destination = `/ren/chat?workspace=${encodeURIComponent(agent.appId)}&handoff=${encodeURIComponent(handoffId)}`;
         const arrived = await arrive(destination);
         return arrived
           ? { ok: true, said: `Handed the task to the ${agent.name}. The request is open in its workspace chat.` }
