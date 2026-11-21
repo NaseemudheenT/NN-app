@@ -109,7 +109,7 @@ export function NNAppLauncher() {
                     key={app.id}
                     onClick={() => travel.open((app.href ?? app.overviewHref) as Route, app.name)}
                     style={{ animationDelay: `${Math.min(groupIndex * 45 + index * 28, 420)}ms` }}
-                    aria-label={`Open ${app.name} — ${app.experience === "dedicated" ? "dedicated app" : "record workspace"}`}
+                    aria-label={`Open ${app.name}`}
                   >
                     <span className={styles.iconWell}>
                       <Icon name={app.icon} size={24} solid tone="ice" />
