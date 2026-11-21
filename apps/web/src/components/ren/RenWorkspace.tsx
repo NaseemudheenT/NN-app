@@ -5,6 +5,7 @@ import {
   type ChangeEvent, type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
 import { RenOrb, type RenOrbState } from "./RenOrb";
 import { RenMarkdown } from "./RenMarkdown";
@@ -152,7 +153,7 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
     const returnToken = `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
     try {
       window.sessionStorage.setItem(`nn:ren:return:${returnToken}`, JSON.stringify({ report }));
-      router.push(`/ren/chat?return=${returnToken}`);
+      router.push(`/ren/chat?return=${returnToken}` as Route);
     } catch {
       setRefused("NN could not prepare the return to REN. Your specialist conversation is still here.");
     }
