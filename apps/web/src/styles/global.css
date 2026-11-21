@@ -1007,3 +1007,53 @@ body {
   .nn-liquid[data-lit]::before,
   [data-lightfall][data-lit]::before { background-image: none; }
 }
+
+
+/* ========================================================================== 
+   REDUCED TRANSPARENCY — SYSTEM-WIDE MATERIAL FALLBACK
+   Component-level fallbacks remain useful, but these shared primitives are
+   also composed directly across routes. This final layer makes the OS
+   accessibility preference authoritative even for surfaces without a
+   dedicated CSS module.
+   ========================================================================== */
+@media (prefers-reduced-transparency: reduce) {
+  .nn-glass-card,
+  .nn-glass,
+  .nn-glass-primary,
+  .nn-glass-reading,
+  .nn-holo,
+  .nn-glass-icon,
+  .nn-liquid,
+  .nn-surface-glass,
+  .nn-surface-reading,
+  .nn-surface-frosted,
+  .nn-nav-rail,
+  .nn-dialog-scrim {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .nn-glass-card,
+  .nn-glass,
+  .nn-glass-primary,
+  .nn-glass-reading,
+  .nn-holo,
+  .nn-glass-icon,
+  .nn-liquid,
+  .nn-surface-glass,
+  .nn-surface-reading,
+  .nn-surface-frosted,
+  .nn-nav-rail {
+    background-color: var(--surface-raised) !important;
+    background-image: none !important;
+  }
+
+  .nn-liquid::before {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .nn-dialog-scrim {
+    background: rgb(3 7 14 / 88%) !important;
+  }
+}
