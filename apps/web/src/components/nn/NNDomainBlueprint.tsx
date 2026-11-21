@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Icon } from "@/components/ui/Icon";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import type { NNApplication } from "@/lib/apps/registry";
 import styles from "./NNDomainBlueprint.module.css";
 
