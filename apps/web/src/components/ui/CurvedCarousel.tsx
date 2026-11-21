@@ -274,9 +274,29 @@ export function glyphMask(icon: IconName): HTMLCanvasElement | null {
  */
 const GLASS: readonly [number, number, number] = [0.46, 0.74, 1.0];
 
+/** A stable colour signature for each app's own glass identity (linear RGB). */
+const APP_HUES: Readonly<Record<string, readonly [number, number, number]>> = {
+  "life": [1.0, 0.31, 0.25], "soul": [0.76, 0.36, 1.0],
+  "mind": [0.39, 0.43, 1.0], "body": [0.12, 0.82, 0.49],
+  "contacts": [1.0, 0.34, 0.58], "nature & universe": [0.31, 0.78, 0.35],
+  "peace mode": [0.18, 0.78, 0.86], "college": [0.18, 0.43, 1.0],
+  "academy": [0.22, 0.66, 1.0], "formula engine": [0.12, 0.82, 0.94],
+  "logic lab": [0.43, 0.53, 1.0], "learning vault": [0.66, 0.36, 1.0],
+  "finance": [0.12, 0.76, 0.39], "invest": [0.08, 0.83, 0.65],
+  "business": [0.13, 0.55, 1.0], "freelance": [0.62, 0.35, 1.0],
+  "career": [0.38, 0.49, 1.0], "projects": [1.0, 0.48, 0.16],
+  "achievements": [1.0, 0.70, 0.16], "creator studio": [1.0, 0.25, 0.63],
+  "studio": [0.70, 0.31, 1.0], "mail": [0.15, 0.62, 1.0],
+  "english": [0.27, 0.56, 1.0], "files": [0.20, 0.65, 1.0],
+  "memory": [0.62, 0.37, 1.0], "life archive": [0.90, 0.59, 0.24],
+  "analytics": [0.10, 0.76, 0.87], "travel": [0.12, 0.69, 0.72],
+  "simulator": [0.37, 0.49, 1.0], "command centre": [0.26, 0.47, 1.0],
+  "search": [0.12, 0.68, 1.0], "automation studio": [0.12, 0.77, 0.63],
+  "security centre": [0.10, 0.68, 0.44], "control room": [0.35, 0.58, 0.89],
+};
+
 export function hueFor(name: string): readonly [number, number, number] {
-  void name;
-  return GLASS;
+  return APP_HUES[name.trim().toLowerCase()] ?? GLASS;
 }
 
 /* ---------------------------------------------------------------- shader -- */
@@ -345,10 +365,10 @@ export const FRAG =
   "c+=uGround*veil;a+=veil;" +
   // A wash of the card's own colour over the whole face, so the water is
   // everywhere and the ribbons are its crests rather than its only light.
-  "c+=uHue*card*.07;a+=card*.07;" +
+  "c+=uHue*card*.14;a+=card*.14;" +
   // the water, lit from inside the glass
   "float water=clamp(w0*.72+w1*.95+w2*.6,0.,1.)*card;" +
-  "c+=uHue*water*.5;a+=water*.2;" +
+  "c+=uHue*water*.64;a+=water*.24;" +
   "float deep=w2*.34*card;c+=uHue*1.1*deep;a+=deep*.13;" +
   "float crest=w3*.5*uLight*card;c+=vec3(1.)*crest;a+=crest*.6;" +
   // the glass itself: a sheen off the top and a bright cut rim
@@ -377,7 +397,7 @@ export const FRAG =
   // the shadow it drops onto the tile, which is what gives it height
   "float sh=smoothstep(.35,.62,glyph(gt+vec2(0.,-.028)))*inside*(1.-m);" +
   "c*=1.-sh*.45;" +
-  "vec3 face=mix(uHue,vec3(1.),.62);" +
+  "vec3 face=mix(uHue,vec3(1.),.34);" +
   "vec3 lit=face*(.34+.8*lam)+vec3(1.)*spec*1.1;" +
   "c=mix(c,lit,m);a=mix(a,.97,m);" +
   // a hair of chromatic split at the rim, strongest while the stack moves

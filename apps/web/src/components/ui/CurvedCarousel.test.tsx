@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  FRAG, VERT, VISIBLE, motionReduced, visibleFor,
+  FRAG, VERT, VISIBLE, hueFor, motionReduced, visibleFor,
   cardSize, offsetOf, restFor, springStep, stackConfig, stackTransform, wrapIndex,
 } from "./CurvedCarousel";
 
@@ -242,5 +242,19 @@ describe("the shaders", () => {
         expect(uses, `${stage} declares ${name} and never reads it`).toBeGreaterThan(1);
       }
     }
+  });
+});
+
+
+describe("application colour signatures", () => {
+  it("assigns distinct premium hues to different application identities", () => {
+    expect(hueFor("Life")).not.toEqual(hueFor("Finance"));
+    expect(hueFor("College")).not.toEqual(hueFor("Creator Studio"));
+    expect(hueFor("Security Centre")).not.toEqual(hueFor("Nature & Universe"));
+  });
+
+  it("normalises names and preserves a neutral fallback", () => {
+    expect(hueFor("  LIFE ")).toEqual(hueFor("Life"));
+    expect(hueFor("Unregistered App")).toEqual([0.46, 0.74, 1.0]);
   });
 });
