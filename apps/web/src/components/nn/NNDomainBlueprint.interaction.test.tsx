@@ -74,6 +74,18 @@ describe("NN feature spaces", () => {
     ]);
   });
 
+  it("renders purpose-built semester, exam preparation and question bank screens", () => {
+    const { unmount } = render(<NNDomainBlueprint app={college} />);
+    expect(document.querySelector('[data-education-screen="semester"]')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Question Bank" }));
+    expect(document.querySelector('[data-education-screen="question-bank"]')).toBeInTheDocument();
+    expect(screen.getByText("Your question bank is empty")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Exam Prep" }));
+    expect(document.querySelector('[data-education-screen="exam-prep"]')).toBeInTheDocument();
+    expect(screen.getByText("No exams scheduled")).toBeInTheDocument();
+    unmount();
+  });
+
   it("supports horizontal arrow navigation and associates the selected preview", () => {
     render(<NNDomainBlueprint app={college} />);
     const rail = screen.getByRole("tablist", { name: "College spaces" });
