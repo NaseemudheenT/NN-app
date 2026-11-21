@@ -19,6 +19,16 @@ describe("NN application registry", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("distinguishes dedicated products from generic record workspaces", () => {
+    const dedicated = APPLICATIONS.filter((app) => app.experience === "dedicated");
+    const recordWorkspaces = APPLICATIONS.filter((app) => app.experience === "records");
+
+    expect(dedicated.map((app) => app.id).sort()).toEqual(["files", "life", "search"]);
+    expect(recordWorkspaces).toHaveLength(APPLICATIONS.length - dedicated.length);
+    expect(dedicated.every((app) => app.href !== app.overviewHref)).toBe(true);
+    expect(recordWorkspaces.every((app) => app.href === app.overviewHref)).toBe(true);
+  });
+
   it("exposes only application surfaces with an implemented route", () => {
     const available = APPLICATIONS.filter((app) => app.availability === "available");
     // Every application now has somewhere real to work: Life, Files and
