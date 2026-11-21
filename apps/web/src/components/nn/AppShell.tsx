@@ -68,7 +68,13 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
           </span>
         </button>
 
-        <NNIsland title={title} onHome={() => travel.open("/home" as Route, "NN Home")} onSearch={() => travel.open("/search" as Route, "Search")} />
+        <NNIsland
+          title={title}
+          onHome={() => travel.open("/home" as Route, "NN Home")}
+          onSearch={() => travel.open("/search" as Route, "Search")}
+          onSettings={() => travel.open("/settings" as Route, "Settings")}
+          onRen={() => travel.open("/ren/chat" as Route, "REN")}
+        />
         <div className={styles.barRight}>
           {actions}
           {currentApp?.href ? (
