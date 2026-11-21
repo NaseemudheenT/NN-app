@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAppTransition } from "@/components/nn/AppTransition";
 import { Icon } from "@/components/ui/Icon";
-import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
+import { AppLogo } from "@/components/ui/AppLogo";
+import { NNLogo } from "@/components/ui/NNLogo";
 import { RenMark } from "@/components/ui/RenMark";
 
 import { currentDestination, destinations, type Destination } from "@/lib/nn/destinations";
@@ -49,7 +50,7 @@ const QUICK_DESTINATIONS = QUICK_IDS.flatMap((id) => {
   return destination?.route !== undefined ? [destination] : [];
 });
 
-const APP_ICON_TONES: Record<string, GlassIconTone> = {
+const APP_ICON_TONES: Record<string, string> = {
   life: "green", soul: "amber", mind: "violet", body: "red", contacts: "blue", "nature-universe": "aqua", "peace-mode": "slate",
   college: "blue", academy: "violet", "formula-engine": "cyan", "logic-lab": "aqua", "learning-vault": "amber",
   finance: "green", invest: "aqua", business: "amber", freelance: "violet", career: "blue", projects: "cyan", achievements: "amber",
@@ -58,11 +59,13 @@ const APP_ICON_TONES: Record<string, GlassIconTone> = {
   "command-centre": "cyan", search: "blue", "automation-studio": "violet", "security-centre": "red", "control-room": "slate",
 };
 
-function toneFor(destination: Destination): GlassIconTone {
-  if (destination.mark === "ren") return "violet";
-  if (destination.group === "NN") return destination.id === "settings" ? "slate" : "cyan";
+function destinationLogo(destination: Destination, size = 38) {
+  if (destination.mark === "ren") return <RenMark size={size * 0.72} />;
+  if (destination.group === "NN") return <NNLogo size={size * 0.82} glow decorative />;
   const app = getApplication(destination.id.slice(4));
-  return app ? APP_ICON_TONES[app.id] ?? "blue" : "blue";
+  return app
+    ? <AppLogo id={app.id} name={app.name} tone={APP_ICON_TONES[app.id] ?? "blue"} size={size} />
+    : <NNLogo size={size * 0.82} glow decorative />;
 }
 
 export function NNPanel() {
@@ -170,9 +173,7 @@ export function NNPanel() {
         aria-current={here?.id === destination.id ? "page" : undefined}
         onClick={() => go(destination)}
       >
-        {destination.mark === "ren"
-          ? <RenMark size={25} />
-          : <GlassIcon name={destination.icon} tone={toneFor(destination)} size={38} />}
+        {destinationLogo(destination, 38)}
         <span className={s.itemBody}>
           <span className={s.itemName}>{destination.label}</span>
           <span className={s.itemHint}>{destination.hint}</span>
@@ -194,11 +195,7 @@ export function NNPanel() {
         onClick={() => setOpen(true)}
       >
         <span className={s.islandBrand} aria-hidden="true">
-          {here?.mark === "ren"
-            ? <RenMark size={22} />
-            : here
-              ? <GlassIcon name={here.icon} tone={toneFor(here)} size={30} />
-              : <GlassIcon name="grid" tone="blue" size={30} />}
+          {here ? destinationLogo(here, 30) : <NNLogo size={25} glow decorative />}
         </span>
         <span className={s.islandLabel}>{here?.label ?? "NN"}</span>
         <span className={s.islandSignal} aria-hidden="true" />
@@ -216,11 +213,7 @@ export function NNPanel() {
         inert={!open}
       >
         <div className={s.head}>
-          <span className={s.headMark}>{here?.mark === "ren"
-            ? <RenMark size={25} />
-            : here
-              ? <GlassIcon name={here.icon} tone={toneFor(here)} size={34} />
-              : <GlassIcon name="grid" tone="blue" size={34} />}</span>
+          <span className={s.headMark}>{here ? destinationLogo(here, 34) : <NNLogo size={28} glow decorative />}</span>
           <span className={s.headName}>{here?.label ?? "NN"}</span>
           <span className={s.headStatus}>NN SYSTEM</span>
           <button ref={closeRef} type="button" className={s.close} aria-label="Close" onClick={close}>
@@ -262,9 +255,7 @@ export function NNPanel() {
               aria-current={here?.id === destination.id ? "page" : undefined}
               onClick={() => go(destination)}
             >
-              {destination.mark === "ren"
-                ? <RenMark size={27} />
-                : <GlassIcon name={destination.icon} tone={toneFor(destination)} size={38} />}
+              {destinationLogo(destination, 38)}
               <span>{destination.label}</span>
             </button>
           ))}
