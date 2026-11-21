@@ -1,3 +1,16 @@
+## 2026-11-21 · NN interface simplification and motion refinement
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Changes:** Home is now a concise launcher with only the Home heading, app search, grouped app tiles and profile/settings access. Removed the long welcome copy, redundant maturity labels, group descriptions, counts, footer and the unimplemented keyboard-shortcut hint. App cards now use a stronger glass-object treatment with staggered entrance, dimensional hover, icon depth and a controlled sheen; reduced-motion and touch fallbacks remain.
+
+**Application pages:** Removed repeated category/description text and verbose section hints/counters. Feature tabs use shorter names (for example Focus, Dates, Ledger, Delivery, Billing, Cards, Lexicon, Metrics and Docs). The domain module panel is now compact, with concise module names, a single preview state and no repeated region list or lengthy handoff paragraph. Record panels animate on selection and keep real record states separate from design previews.
+
+**Commit before follow-up cleanup:** `d4c7198a76816f9f3c3a0610a35c21dbd06eb6f3`. CI for the preceding UI commit is being checked; this entry is a change log, not a claim of release completion.
+
+**Still open:** route-by-route design completion for every application, complete object/icon asset pass, full navigation and sheet interactions, browser/device visual QA and final Claude handoff.
+
+---
+
 ## 2026-11-21 · Domain screen composition milestone
 
 **Branch:** `gt/nn-liquid-glass-unified`  

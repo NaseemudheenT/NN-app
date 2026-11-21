@@ -13,8 +13,8 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 | Phase | Workstream | Current status | Exit condition |
 |---|---|---|---|
 | A | OS shell and navigation | **Foundation implemented · final reconciliation open** | One coherent shell, route coverage, home return, Dynamic Island, REN entry and keyboard/touch navigation verified |
-| B | Spatial-glass design system | **In progress** | Shared tokens, floating materials, responsive components, motion and reduced-motion behaviour consistent across the app |
-| C | Home and global discovery | **Core implemented · polish open** | Minimal app launcher, all 34 discoverable, search, command/search surfaces and honest availability |
+| B | Spatial-glass design system | **Shared launcher and records surfaces refined · global component QA open** | Shared tokens, floating materials, responsive components, motion and reduced-motion behaviour consistent across the app |
+| C | Home and global discovery | **Minimal launcher polish committed · keyboard/device QA open** | Minimal app launcher, all 34 discoverable, search, command/search surfaces and honest availability |
 | D | NN Life interface | **Partial** | Complete visual layouts for Today, Calendar, Tasks, Reminders, Notes, Habits, Goals, Routines, Focus and Reviews; real vs design-only states explicit |
 | E | College and Academy interfaces | **Core domain blueprints and visual screen compositions implemented · detailed route designs open** | College, Academy, Formula Engine, Logic Lab and Learning Vault screens designed for their core workflows |
 | F | Remaining application interfaces | **31 records-app domain blueprints implemented · detailed per-app screens open** | All registered apps have coherent domain-specific screens, not merely a generic list/form template |
@@ -36,7 +36,8 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Reduced-motion foundations and responsive CSS patterns retained.
 - [x] Shared floating ambient-light treatment added to the app shell.
 - [x] Floating glass treatment added to records-based app banners and sections.
-- [ ] Complete component recipes for cards, icon wells, tabs, inputs, menus, sheets, dialogs, lists, empty/loading/error/permission states.
+- [x] Refine app cards, icon wells, record tabs and panel transitions with reduced-motion fallbacks.
+- [ ] Complete component recipes for menus, sheets, dialogs, lists, empty/loading/error/permission states.
 - [ ] Standardise hover, focus, pressed, selected, disabled, busy, success and failure states.
 - [ ] Check blur, animation and WebGL fallbacks on low-power/mobile layouts.
 
@@ -44,6 +45,8 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Home is the simple application launcher, not an analytics dashboard.
 - [x] 34 registered apps grouped and searchable.
 - [x] Dedicated experience vs core-record surface is labelled honestly.
+- [x] Remove nonessential launcher copy, status jargon, counts and the unimplemented shortcut hint.
+- [x] Add concise Home/search hierarchy, dimensional icon wells, card sheen and restrained 3D hover motion.
 - [ ] Finish keyboard-first and phone-first launcher polish.
 - [ ] Audit global search, command palette, Settings, Files and REN entry consistency.
 - [ ] Ensure no dead or misleading controls remain.
@@ -73,6 +76,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [ ] Knowledge & insight: Memory, Life Archive, Analytics, Travel, Simulator.
 - [ ] System: Command Centre, Search, Automation Studio, Security Centre, Control Room, Files and REN surfaces.
 - [x] Domain-specific module maps and structural screen compositions for all 31 records-based applications.
+- [x] Replace long module labels with concise feature names; remove repeated explanatory copy from app previews.
 - [ ] Complete per-app navigation, real empty/loading/error states, detail screens and interaction prototypes.
 - [ ] Never show fabricated finance, attendance, analytics, market, device, security, AI or integration data.
 
