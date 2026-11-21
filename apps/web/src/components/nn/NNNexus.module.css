@@ -2,9 +2,10 @@
   position: fixed;
   z-index: 80;
   top: max(12px, env(safe-area-inset-top));
-  left: 50%;
+  left: 0;
+  right: 0;
   width: min(440px, calc(100vw - 28px));
-  transform: translateX(-50%);
+  margin-inline: auto;
   pointer-events: none;
   color: #f5f8ff;
   font-variant-numeric: tabular-nums;
