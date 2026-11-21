@@ -183,6 +183,7 @@ function LifeSurface() {
   const [habitCadence, setHabitCadence] = useState("daily");
   const [routineTitle, setRoutineTitle] = useState("");
   const [routineSteps, setRoutineSteps] = useState("");
+  const [routineCadence, setRoutineCadence] = useState("daily");
   const [focusIntention, setFocusIntention] = useState("");
   const [focusMinutes, setFocusMinutes] = useState("25");
   const [reviewWins, setReviewWins] = useState("");
@@ -500,14 +501,26 @@ function LifeSurface() {
     if (!title || !uid) return;
     const steps = parseRoutineSteps(routineSteps);
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "routines"), {
-      ...metadata(), title, steps, status: "active",
-    }), "Routine saved.").then((saved) => { if (saved) { setRoutineTitle(""); setRoutineSteps(""); } });
+      ...metadata(), title, steps, cadence: routineCadence, status: "active",
+    }), "Routine saved.").then((saved) => { if (saved) { setRoutineTitle(""); setRoutineSteps(""); setRoutineCadence("daily"); } });
   };
 
   const runRoutine = (routine: RecordData) => {
-    if (!uid) return;
+    if (!uid || busy) return;
+    const now = new Date();
+    const cadence = typeof routine.cadence === "string" ? routine.cadence : "daily";
+    if (!isHabitDueOn(now, cadence)) { setNotice("This routine is scheduled for weekdays. Run it Monday to Friday."); return; }
+    const periodKey = habitPeriodKey(now, cadence);
+    const alreadyRun = data.routine_runs.some((run) => {
+      if (run.routineId !== routine.id) return false;
+      if (run.periodKey === periodKey) return true;
+      const startedAt = asDate(run.startedAt);
+      return !run.periodKey && startedAt !== null && habitPeriodKey(startedAt, cadence) === periodKey;
+    });
+    if (alreadyRun) { setNotice(cadence === "weekly" ? "This routine is already completed for this week." : "This routine is already completed for today."); return; }
     void save(() => addDoc(collection(getFirebase().db, "users", uid, "routine_runs"), {
-      ...metadata(), routineId: routine.id, title: titleOf(routine), startedAt: Timestamp.now(), status: "completed", completedAt: Timestamp.now(),
+      ...metadata(), routineId: routine.id, title: titleOf(routine), cadence, periodKey,
+      startedAt: Timestamp.fromDate(now), status: "completed", completedAt: Timestamp.fromDate(now),
     }), "Routine completion recorded.");
   };
 
@@ -675,8 +688,8 @@ function LifeSurface() {
         </GlassPanel>
       </section> : null}
       {!loading && tab === "routines" ? <section className={styles.notesLayout}>
-        <GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>REPEATABLE SYSTEMS</p><h2>Build a useful rhythm.</h2><form className={styles.noteForm} onSubmit={createRoutine}><input value={routineTitle} onChange={(e) => setRoutineTitle(e.target.value)} placeholder="Routine name" aria-label="Routine name" required maxLength={120}/><textarea value={routineSteps} onChange={(e) => setRoutineSteps(e.target.value)} placeholder={"One step per line\nPrepare\nExecute\nReview"} aria-label="Routine steps" rows={5}/><button disabled={busy || !routineTitle.trim()}><Icon name="plus" size={16}/> Save routine</button></form></GlassPanel>
-        <div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR ROUTINES</p><h2>Ready when you are.</h2></div><span className={styles.count}>{data.routines.length} SAVED</span></div>{data.routines.map((routine) => {const steps = Array.isArray(routine.steps) ? routine.steps.filter((step): step is string => typeof step === "string") : []; const runs = data.routine_runs.filter((run) => run.routineId === routine.id).length; return <GlassPanel key={routine.id} tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(routine)}</strong><ol className={styles.routineList}>{steps.map((step,index) => <li key={index}>{step}</li>)}</ol><small>{runs} recorded completions</small><button type="button" className={styles.inlineAction} onClick={() => openEdit("routines", routine)}>Edit</button><button type="button" className={styles.inlineAction} disabled={busy} onClick={() => runRoutine(routine)}>Mark complete</button></GlassPanel>;})}{data.routines.length === 0 ? <EmptyState icon="calendar" title="Design your first routine." body="Add a short sequence you can repeat. Completions are recorded only when you mark them."/> : null}</div>
+        <GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>REPEATABLE SYSTEMS</p><h2>Build a useful rhythm.</h2><form className={styles.noteForm} onSubmit={createRoutine}><input value={routineTitle} onChange={(e) => setRoutineTitle(e.target.value)} placeholder="Routine name" aria-label="Routine name" required maxLength={120}/><select value={routineCadence} onChange={(e) => setRoutineCadence(e.target.value)} aria-label="Routine cadence"><option value="daily">Daily</option><option value="weekdays">Weekdays</option><option value="weekly">Weekly</option></select><textarea value={routineSteps} onChange={(e) => setRoutineSteps(e.target.value)} placeholder={"One step per line\nPrepare\nExecute\nReview"} aria-label="Routine steps" rows={5}/><button disabled={busy || !routineTitle.trim()}><Icon name="plus" size={16}/> Save routine</button></form></GlassPanel>
+        <div className={styles.notesList}><div className={styles.panelHead}><div><p className={styles.label}>YOUR ROUTINES</p><h2>Ready when you are.</h2></div><span className={styles.count}>{data.routines.length} SAVED</span></div>{data.routines.map((routine) => {const steps = Array.isArray(routine.steps) ? routine.steps.filter((step): step is string => typeof step === "string") : []; const runs = data.routine_runs.filter((run) => run.routineId === routine.id).length; return <GlassPanel key={routine.id} tier={2} padding="md" className={styles.noteCard}><strong>{titleOf(routine)}</strong><ol className={styles.routineList}>{steps.map((step,index) => <li key={index}>{step}</li>)}</ol><small>{String(routine.cadence ?? "daily")} · {runs} recorded completions</small><button type="button" className={styles.inlineAction} onClick={() => openEdit("routines", routine)}>Edit</button><button type="button" className={styles.inlineAction} disabled={busy} onClick={() => runRoutine(routine)}>Mark complete</button></GlassPanel>;})}{data.routines.length === 0 ? <EmptyState icon="calendar" title="Design your first routine." body="Add a short sequence you can repeat. Completions are recorded only when you mark them."/> : null}</div>
       </section> : null}
       {!loading && tab === "focus" ? <section className={styles.singleColumn}><GlassPanel tier={2} padding="lg" className={styles.panel}><p className={styles.label}>ATTENTION SPACE</p><h2>Protect time for one thing.</h2>
         {activeFocus ? <div className={styles.focusSession} role="status"><span className={styles.focusCountdown}>{String(Math.floor(focusRemaining / 60)).padStart(2,"0")}:{String(focusRemaining % 60).padStart(2,"0")}</span><strong>{String(activeFocus.intention ?? "Focus session")}</strong><small>{focusRemaining === 0 ? "Planned time reached — finish when ready." : "Session in progress"}</small><div className={styles.focusActions}><button type="button" disabled={busy} onClick={() => finishFocusSession(activeFocus,"completed")}>Complete</button><button type="button" className={styles.inlineAction} disabled={busy} onClick={() => finishFocusSession(activeFocus,"cancelled")}>Cancel</button></div></div>
@@ -719,7 +732,7 @@ function LifeSurface() {
       {pendingEdit?.name === "notes" ? <textarea aria-label="Edit note content" rows={7} value={editDraft.body} onChange={(event) => setEditDraft((draft) => ({ ...draft, body: event.target.value }))}/> : null}
       {pendingEdit?.name === "goals" ? <><input type="number" min="0.01" step="any" aria-label="Edit goal target" value={editDraft.target} onChange={(event) => setEditDraft((draft) => ({ ...draft, target: event.target.value }))}/><input aria-label="Edit goal unit" value={editDraft.unit} onChange={(event) => setEditDraft((draft) => ({ ...draft, unit: event.target.value }))}/></> : null}
       {pendingEdit?.name === "habits" ? <select aria-label="Edit habit cadence" value={editDraft.cadence} onChange={(event) => setEditDraft((draft) => ({ ...draft, cadence: event.target.value }))}><option value="daily">Daily</option><option value="weekdays">Weekdays</option><option value="weekly">Weekly</option></select> : null}
-      {pendingEdit?.name === "routines" ? <textarea aria-label="Edit routine steps" rows={5} value={editDraft.steps} onChange={(event) => setEditDraft((draft) => ({ ...draft, steps: event.target.value }))}/> : null}
+      {pendingEdit?.name === "routines" ? <><select aria-label="Edit routine cadence" value={editDraft.cadence} onChange={(event) => setEditDraft((draft) => ({ ...draft, cadence: event.target.value }))}><option value="daily">Daily</option><option value="weekdays">Weekdays</option><option value="weekly">Weekly</option></select><textarea aria-label="Edit routine steps" rows={5} value={editDraft.steps} onChange={(event) => setEditDraft((draft) => ({ ...draft, steps: event.target.value }))}/></> : null}
       {pendingEdit?.name === "reviews" ? <><textarea aria-label="Edit review wins" rows={3} value={editDraft.wins} onChange={(event) => setEditDraft((draft) => ({ ...draft, wins: event.target.value }))}/><textarea aria-label="Edit review lessons" rows={3} value={editDraft.lessons} onChange={(event) => setEditDraft((draft) => ({ ...draft, lessons: event.target.value }))}/><textarea aria-label="Edit review next step" rows={3} value={editDraft.nextStep} onChange={(event) => setEditDraft((draft) => ({ ...draft, nextStep: event.target.value }))}/></> : null}
     </form>
   </Dialog>

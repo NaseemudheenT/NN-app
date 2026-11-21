@@ -93,6 +93,10 @@ export function buildLifeEditPatch(
       patch.cadence = draft.cadence;
       break;
     case "routines":
+      if (!["daily", "weekdays", "weekly"].includes(draft.cadence)) {
+        return { ok: false, error: "Choose a valid routine cadence." };
+      }
+      patch.cadence = draft.cadence;
       patch.steps = parseSteps(draft.steps);
       break;
     case "reviews":

@@ -47,10 +47,11 @@ describe("buildLifeEditPatch", () => {
     if (result.ok) expect(result.patch).toMatchObject({ target: 12, unit: "weeks" });
   });
 
-  it("normalises routine steps and keeps only non-empty lines", () => {
+  it("validates routine cadence and normalises non-empty steps", () => {
     const result = buildLifeEditPatch("routines", draft, "UTC");
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.patch.steps).toEqual(["Prepare", "Execute", "Review"]);
+    if (result.ok) expect(result.patch).toMatchObject({ cadence: "weekdays", steps: ["Prepare", "Execute", "Review"] });
+    expect(buildLifeEditPatch("routines", { ...draft, cadence: "monthly" }, "UTC").ok).toBe(false);
   });
 
   it("does not allow an empty weekly reflection", () => {

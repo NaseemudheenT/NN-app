@@ -1,3 +1,13 @@
+## 2026-11-21 · Phase D — recurring routines
+
+- Routines now support daily, weekdays and weekly cadence, with cadence-aware completion records and duplicate-period protection.
+- Routine cadence is editable and validated alongside ordered steps.
+- The same local-period key logic is shared with habit check-ins, so weekday/week boundaries are consistent.
+
+**Verification:** Included in the current Phase D CI run. No production deployment.
+
+---
+
 ## 2026-11-21 · Phase D — NN Life note history and record editing
 
 **Branch:** `gt/nn-liquid-glass-unified`  

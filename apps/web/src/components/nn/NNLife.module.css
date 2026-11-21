@@ -663,3 +663,5 @@
 .historyEntry>div{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .historyEntry strong{font-size:12px}.historyEntry small{color:var(--text-muted);font-size:9px;white-space:nowrap}
 .historyEntry p{margin:10px 0 0;color:var(--text-secondary);font-size:11px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+
+.noteForm select{min-height:40px;padding:0 12px;border:1px solid var(--nn-spectrum-border);border-radius:12px;background:var(--nn-glass-primary);color:var(--text-primary);font:inherit}

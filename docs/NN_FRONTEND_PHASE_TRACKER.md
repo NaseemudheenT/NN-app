@@ -70,7 +70,7 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Monthly calendar grid, local date keys, event markers, day selection and month navigation.
 - [x] Goal progress controls and task/note/event/reminder/goal create flows.
 - [x] Implement owner-scoped habit creation and dated check-ins with duplicate-per-day protection.
-- [x] Implement routine creation, ordered steps and explicit completion records.
+- [x] Implement recurring daily, weekday and weekly routines with ordered steps, cadence-aware duplicate protection and explicit completion records.
 - [x] Implement persistent focus sessions with planned duration, live countdown, completion and cancellation.
 - [x] Implement weekly reflections with saved wins, lessons and next steps.
 - [x] Add validated edit dialogs for tasks, events, reminders, notes, goals, habits, routines and reviews.
