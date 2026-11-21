@@ -38,6 +38,7 @@ export type Consequence =
 
 export type CapabilityId =
   | "open"
+  | "delegate"
   | "capture"
   | "find"
   | "inspect"
@@ -85,6 +86,10 @@ export const CAPABILITIES: Readonly<Record<CapabilityId, CapabilitySpec>> = {
   open: {
     id: "open", verb: "Open", consequence: "none",
     describes: (a) => `Open ${nameOfApp(a.appId) ?? "NN"}`,
+  },
+  delegate: {
+    id: "delegate", verb: "Delegate", consequence: "none",
+    describes: (a) => `Hand this task to the ${nameOfApp(a.appId) ?? "workspace"} specialist`,
   },
   find: {
     id: "find", verb: "Find", consequence: "none",
