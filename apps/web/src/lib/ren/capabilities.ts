@@ -40,6 +40,7 @@ export type CapabilityId =
   | "open"
   | "capture"
   | "find"
+  | "inspect"
   | "report"
   | "appearance"
   | "complete"
@@ -88,6 +89,10 @@ export const CAPABILITIES: Readonly<Record<CapabilityId, CapabilitySpec>> = {
   find: {
     id: "find", verb: "Find", consequence: "none",
     describes: (a) => `Search your records for "${a.text ?? ""}"`,
+  },
+  inspect: {
+    id: "inspect", verb: "Inspect", consequence: "none",
+    describes: (a) => `Inspect ${sectionName(a.collection) ?? "workspace records"}`,
   },
   report: {
     id: "report", verb: "Report", consequence: "none",
