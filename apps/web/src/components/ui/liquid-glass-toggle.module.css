@@ -55,12 +55,15 @@
   top: 3px;
   bottom: 3px;
   left: 3px;
-  width: calc((var(--toggle-width) - var(--toggle-knob) - 6px) * var(--toggle-progress) + var(--toggle-knob));
+  right: 3px;
+  width: auto;
+  transform: scaleX(var(--toggle-progress));
+  transform-origin: left center;
   border-radius: 999px;
   opacity: .82;
   pointer-events: none;
   background: linear-gradient(180deg, #7EE8FF, #00A2FF);
-  transition: width 420ms cubic-bezier(.22, 1.2, .36, 1);
+  transition: transform 420ms cubic-bezier(.22, 1.2, .36, 1);
 }
 .toggle[data-tone="dark"] .water { background: linear-gradient(180deg, #2EB8FF, #0060CC); }
 .drop {
@@ -73,7 +76,7 @@
   width: var(--toggle-knob);
   height: calc(var(--toggle-size) - 8px);
   border-radius: 999px;
-  transform: translateX(calc((var(--toggle-width) - var(--toggle-knob) - 8px) * var(--toggle-progress)));
+  transform: translateX(var(--toggle-offset));
   background: radial-gradient(120% 140% at 30% 0%, rgb(255 255 255 / 96%), transparent 60%), rgb(240 250 255 / 86%);
   box-shadow: inset 0 1px 1px #fff, inset 0 -2px 6px rgb(0 162 255 / 25%), inset 0 0 0 1px rgb(255 255 255 / 65%), 0 4px 10px -3px rgb(0 60 130 / 45%);
   transition: transform 460ms cubic-bezier(.22, 1.2, .36, 1), border-radius 180ms ease, scale 180ms ease;
