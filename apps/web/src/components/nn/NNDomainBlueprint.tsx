@@ -274,8 +274,34 @@ function EducationCanvas({ app, module }: { app: NNApplication; module: DomainMo
           <div className={styles.educationList}><span>{isCollege ? "QUESTION COLLECTION" : "COURSE LIBRARY"}</span>{regions.map((region,index)=><div className={styles.educationListRow} key={region}><span>{String(index+1).padStart(2,"0")}</span><strong>{region}</strong><i/></div>)}</div>
         </div>
       ) : null}
-      {kind === "planner" ? (
+      {kind === "planner" && module.id === "semester" ? (
+        <div className={styles.semesterPlanner} data-education-screen="semester">
+          <header><div><span>ACADEMIC OVERVIEW</span><strong>Semester workspace</strong></div><small>NO DATES ADDED</small></header>
+          <div className={styles.semesterSubjects}>{regions.map((region,index)=><div key={region}><span>{String(index+1).padStart(2,"0")}</span><strong>{region}</strong><small>SUBJECT SPACE</small></div>)}</div>
+          <div className={styles.semesterWeek}><div className={styles.semesterWeekHead}><strong>Academic calendar</strong><small>EMPTY SCHEDULE</small></div><div className={styles.semesterWeekDays}>{["MON","TUE","WED","THU","FRI","SAT","SUN"].map(day=><div key={day}><span>{day}</span><i/><i/></div>)}</div></div>
+        </div>
+      ) : null}
+      {kind === "planner" && module.id === "exam-prep" ? (
+        <div className={styles.examPrepBoard} data-education-screen="exam-prep">
+          <header><div><span>PREPARATION WORKSPACE</span><strong>Exam readiness</strong></div><small>NO RECORDS</small></header>
+          <div className={styles.examPrepColumns}>{["Assignments","Exams","Attendance","Marks"].map((lane,index)=><section key={lane}><div><strong>{lane}</strong><span>0</span></div><article><i/><small>{index===0?"No assignments":index===1?"No exams scheduled":index===2?"No attendance records":"No marks recorded"}</small></article></section>)}</div>
+          <footer>Academic data appears here after you add verified records</footer>
+        </div>
+      ) : null}
+      {kind === "planner" && module.id !== "semester" && module.id !== "exam-prep" ? (
         <div className={styles.educationPlanner}><span>ACADEMIC TIMELINE</span>{regions.map((region,index)=><div className={styles.timelineRow} key={region}><span>{String(index+1).padStart(2,"0")}</span><i/><strong>{region}</strong><small>PLANNING AREA</small></div>)}</div>
+      ) : null}
+      {kind === "library" && module.id === "question-bank" ? (
+        <div className={styles.questionBank} data-education-screen="question-bank">
+          <aside><span>FILTER QUESTIONS</span>{["Subject","Unit","Marks","Question type","Source"].map(filter=><div key={filter}><strong>{filter}</strong><i/><small>NOT SELECTED</small></div>)}</aside>
+          <section><header><div><span>QUESTION COLLECTION</span><strong>Question reader</strong></div><small>NO QUESTIONS ADDED</small></header><div className={styles.questionBankEmpty}><span>Q</span><strong>Your question bank is empty</strong><small>Add questions with their subject, unit, marks and source to build a searchable collection</small></div><footer><span>ANSWER WORKSPACE</span><i/><i/><i/></footer></section>
+        </div>
+      ) : null}
+      {kind === "library" && module.id !== "question-bank" ? (
+        <div className={styles.educationSplit}>
+          <aside className={styles.educationTree}><span>{isCollege ? "QUESTION FILTERS" : "COURSE FILTERS"}</span>{regions.slice(0,2).map((region,index)=><div key={region} data-active={index===0}><i/>{region}</div>)}</aside>
+          <div className={styles.educationList}><span>{isCollege ? "QUESTION COLLECTION" : "COURSE LIBRARY"}</span>{regions.map((region,index)=><div className={styles.educationListRow} key={region}><span>{String(index+1).padStart(2,"0")}</span><strong>{region}</strong><i/></div>)}</div>
+        </div>
       ) : null}
       {kind === "roadmap" ? (
         <div className={styles.educationRoadmap}><span>LEARNING PATH</span><div className={styles.pathNodes}>{regions.map((region,index)=><div key={region} data-step={index===0?"active":"future"}><i>{String(index+1).padStart(2,"0")}</i><strong>{region}</strong></div>)}</div></div>
