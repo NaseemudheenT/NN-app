@@ -78,7 +78,7 @@ function ThemeToggleRow({ theme, resolvedTheme, onChange }: {
 }) {
   const automatic = theme === "system";
   return (
-    <div className={styles.row} data-static>
+    <div className={styles.row} data-static role="group" aria-label="Theme">
       <Tile icon="sparkle" tone={TONE.violet} />
       <span className={styles.label}>
         Dark appearance
