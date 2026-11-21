@@ -41,12 +41,13 @@ const OPENERS = [
   { icon: "check", text: "Add a task to my day", hint: "REN writes it into NN itself" },
 ] as const;
 
-export function RenWorkspace({ workspaceId, handoffId }: { workspaceId?: string; handoffId?: string }) {
+export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId?: string; handoffId?: string; returnId?: string }) {
   const router = useRouter();
   const { user } = useAuth();
   const firstName = ownerFirstName(user?.displayName);
   const ren = useRenConversation(firstName, workspaceId);
   const delegatedTaskStarted = useRef(false);
+  const returnedReportStarted = useRef(false);
 
   const [draft, setDraft] = useState("");
   const [files, setFiles] = useState<Attachment[]>([]);
@@ -77,6 +78,22 @@ export function RenWorkspace({ workspaceId, handoffId }: { workspaceId?: string;
       window.sessionStorage.removeItem(key);
     }
   }, [handoffId, workspaceId, ready, ren.busy, ren.send, ren.specialist]);
+
+  useEffect(() => {
+    if (!returnId || ren.specialist || !ready || ren.busy || returnedReportStarted.current) return;
+    const key = `nn:ren:return:${returnId}`;
+    try {
+      const raw = window.sessionStorage.getItem(key);
+      if (!raw) return;
+      const result = JSON.parse(raw) as { report?: unknown };
+      window.sessionStorage.removeItem(key);
+      if (typeof result.report !== "string" || !result.report.trim()) return;
+      returnedReportStarted.current = true;
+      ren.send(result.report.slice(0, 9000), []);
+    } catch {
+      try { window.sessionStorage.removeItem(key); } catch { /* storage unavailable */ }
+    }
+  }, [returnId, ready, ren.busy, ren.send, ren.specialist]);
 
   /* Follows the answer as it streams, but only while the founder is already
      at the bottom — yanking the view back while they are reading something
@@ -121,6 +138,25 @@ export function RenWorkspace({ workspaceId, handoffId }: { workspaceId?: string;
         : null,
     );
   }, []);
+
+  const returnToRen = useCallback(() => {
+    if (!ren.specialist || ren.turns.length === 0) return;
+    const transcript = ren.turns.map((turn) => {
+      const speaker = turn.role === "founder" ? "Founder" : ren.specialist!.name;
+      const actions = turn.tools.map((tool) =>
+        `[Tool ${tool.name}: ${tool.status} — ${tool.said}]`,
+      ).join("\\n");
+      return `${speaker}: ${turn.text}${actions ? `\\n${actions}` : ""}`;
+    }).join("\\n\\n").slice(0, 7500);
+    const report = `The ${ren.specialist.workspace} specialist is returning its work to REN. Review this transcript, distinguish completed actions from suggestions, verify any claims that need checking, and decide the next step.\\n\\n${transcript}`;
+    const returnToken = `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+    try {
+      window.sessionStorage.setItem(`nn:ren:return:${returnToken}`, JSON.stringify({ report }));
+      router.push(`/ren/chat?return=${returnToken}`);
+    } catch {
+      setRefused("NN could not prepare the return to REN. Your specialist conversation is still here.");
+    }
+  }, [ren.specialist, ren.turns, router]);
 
   const submit = useCallback(() => {
     if (!ready || ren.busy) return;
