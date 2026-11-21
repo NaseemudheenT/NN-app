@@ -3,7 +3,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
-import { Switch } from "@/components/ui/Switch";
 import { TextField } from "@/components/ui/TextField";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { fetchRecoveryState, setRecoveryPassword, useAuth } from "@/lib/auth";
@@ -13,6 +12,14 @@ import { assessRecoveryPassword } from "@nn/auth/recovery-policy";
 import { useTheme } from "@/lib/theme";
 import styles from "./NNSettings.module.css";
 import { ownerFullName, ownerInitial } from "@/lib/nn/owner";
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
+import { forgetSetup } from "@/lib/nn/setup";
+import { say } from "@/lib/ren/voice";
+import {
+  availablePreferences, readVoicePreference, whenVoicesReady, writeVoicePreference,
+  type RenVoice, type VoicePreference,
+} from "@/lib/ren/voices";
 
 /**
  * NN's settings.
@@ -61,21 +68,6 @@ const TONE = {
 } as const satisfies Record<string, GlassIconTone>;
 
 /** A row that holds a switch. The whole row is the control's label. */
-function SwitchRow({ icon, tone, label, hint, checked, onChange, disabled }: {
-  icon: IconName; tone: GlassIconTone; label: string; hint?: string;
-  checked: boolean; onChange: (next: boolean) => void; disabled?: boolean;
-}) {
-  return (
-    <div className={styles.row} data-static>
-      <Tile icon={icon} tone={tone} />
-      <span className={styles.label}>
-        {label}
-        {hint ? <small>{hint}</small> : null}
-      </span>
-      <Switch checked={checked} onCheckedChange={onChange} label={label} hideLabel disabled={disabled ?? false} />
-    </div>
-  );
-}
 
 /** A row of mutually exclusive choices. */
 function ChoiceRow<T extends string>({ icon, tone, label, value, choices, onChange }: {
@@ -224,6 +216,19 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
   const { theme, setTheme, motion, setMotion } = useTheme();
 
   const [profileOpen, setProfileOpen] = useState(false);
+  const router = useRouter();
+
+  /* What this device can actually speak in. NN cannot install a voice. */
+  const [voices, setVoices] = useState<readonly RenVoice[]>([]);
+  const [voice, setVoice] = useState<VoicePreference>("system");
+  useEffect(() => {
+    setVoice(readVoicePreference());
+    return whenVoicesReady(setVoices);
+  }, []);
+  const voiceChoices = availablePreferences(voices).map((id) => ({
+    id,
+    label: id === "system" ? "Device" : id === "female" ? "Female" : "Male",
+  }));
 
 
   return (
@@ -290,13 +295,46 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
 
       <Group
         title="REN"
-        footer="REN reads, reasons, writes and operates NN with your permission. Voice is the one thing not built yet, and REN says so rather than implying more."
+        footer={
+          voiceChoices.length > 1
+            ? "REN reads, reasons, writes and operates NN with your permission. The voice list is whatever this device has installed — NN cannot add one."
+            : "REN reads, reasons, writes and operates NN with your permission. This device has offered no choice of voices, so REN uses its own."
+        }
       >
-        <SwitchRow
-          icon="mic" tone={TONE.blue} label="Voice"
-          hint="Not built yet" checked={false} onChange={() => {}} disabled
-        />
+        {voiceChoices.length > 1 ? (
+          <ChoiceRow
+            icon="mic" tone={TONE.blue} label="Voice" value={voice}
+            choices={voiceChoices}
+            onChange={(want) => {
+              setVoice(want);
+              writeVoicePreference(want);
+              // Heard rather than described: a voice you cannot hear is not
+              // a choice, it is a label.
+              say("This is how I will sound.", { preference: want });
+            }}
+          />
+        ) : (
+          <FactRow icon="mic" tone={TONE.blue} label="Voice" value="This device's own" />
+        )}
         <FactRow icon="sparkle" tone={TONE.violet} label="Summon" value="⌘K" />
+      </Group>
+
+      <Group
+        title="This device"
+        footer="The first run asks about the screen and speaker in front of you, so it is remembered per device rather than on your account. A new phone will ask again."
+      >
+        <button
+          type="button"
+          className={styles.row}
+          onClick={() => { forgetSetup(); router.push("/setup" as Route); }}
+        >
+          <Tile icon="settings" tone={TONE.slate} />
+          <span className={styles.rowBody}>
+            <span className={styles.rowLabel}>Set up NN again</span>
+            <span className={styles.rowHint}>Appearance, motion and REN&apos;s voice</span>
+          </span>
+          <Icon name="expand" size={16} className={styles.chevron} />
+        </button>
       </Group>
 
       <Group

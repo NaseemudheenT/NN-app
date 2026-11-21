@@ -3,7 +3,9 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { NNLogo } from "@/components/ui";
+import type { Route } from "next";
 import { useAuth } from "@/lib/auth";
+import { needsSetup } from "@/lib/nn/setup";
 import { inPreview, leavePreview } from "@/lib/preview";
 import { PreviewBanner } from "./PreviewBanner";
 
@@ -30,6 +32,18 @@ export function RequireOwner({ children }: { children: ReactNode }) {
       // banner cannot linger over a surface that is genuinely the founder's.
       leavePreview();
       setGuestMode(false);
+
+      /*
+       * The first run, on a device that has not had one.
+       *
+       * Checked here rather than in a layout so it covers every private
+       * surface at once — whichever one the founder lands on first is the
+       * one that sends them to setup. The setup route is excluded, or it
+       * would redirect to itself forever.
+       */
+      if (needsSetup() && !window.location.pathname.startsWith("/setup")) {
+        router.replace("/setup" as Route);
+      }
       return;
     }
 

@@ -66,14 +66,25 @@ describe("Settings", () => {
     expect(screen.queryByRole("button", { name: /^Life/ })).toBeNull();
   });
 
-  it("does not offer a switch for something NN cannot do", () => {
+  it("no longer claims voice is unbuilt, because it is built", () => {
+    /*
+     * This row used to be a disabled switch reading "Not built yet", which
+     * was honest at the time. REN now speaks and the voice can be changed by
+     * asking it to, so the old row became the opposite of honest.
+     *
+     * jsdom installs no speech voices, which is exactly the case worth
+     * pinning: with nothing to choose between, NN states the fact rather
+     * than offering an empty picker.
+     */
     render(<NNSettings />);
-    // Voice is not built. The row says so and the switch is off and disabled,
-    // rather than being absent or, worse, flippable.
-    const voice = screen.getByRole("switch", { name: "Voice" });
-    expect(voice).toBeDisabled();
-    expect(voice).not.toBeChecked();
-    expect(screen.getByText("Not built yet")).toBeInTheDocument();
+    expect(screen.queryByText("Not built yet")).toBeNull();
+    expect(screen.queryByRole("switch", { name: "Voice" })).toBeNull();
+    expect(screen.getByText("This device's own")).toBeInTheDocument();
+  });
+
+  it("offers a way back to the first run, per device", () => {
+    render(<NNSettings />);
+    expect(screen.getByRole("button", { name: /Set up NN again/ })).toBeInTheDocument();
   });
 
   it("says plainly when nobody is signed in, and offers no way out of a session that does not exist", () => {

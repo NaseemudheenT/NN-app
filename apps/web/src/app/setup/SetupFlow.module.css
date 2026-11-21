@@ -1,0 +1,153 @@
+/* The first thing NN ever shows you. See SetupFlow.tsx. */
+
+.page {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: clamp(20px, 5vw, 48px) clamp(16px, 5vw, 40px);
+  padding-bottom: max(clamp(20px, 5vw, 48px), calc(env(safe-area-inset-bottom, 0px) + 24px));
+  padding-top: max(clamp(20px, 5vw, 48px), calc(env(safe-area-inset-top, 0px) + 24px));
+}
+
+.card {
+  composes: nn-live-wave from global;
+  position: relative;
+  width: min(560px, 100%);
+  display: grid;
+  gap: var(--space-7);
+  padding: clamp(26px, 6vw, 44px) clamp(20px, 5vw, 38px);
+  border: var(--card-edge) solid var(--glass-2-border);
+  border-radius: var(--radius-2xl);
+  background: var(--glass-3-bg);
+  -webkit-backdrop-filter: blur(32px) saturate(165%);
+  backdrop-filter: blur(32px) saturate(165%);
+  box-shadow: var(--card-lift);
+}
+
+.progress { display: flex; gap: 6px; align-items: center; }
+
+.tick {
+  flex: 1;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--glass-hover);
+}
+
+.tick[data-at="done"] { background: var(--text-accent); }
+.tick[data-at="now"] { background: var(--text-accent); opacity: 0.55; }
+
+.step { display: grid; gap: var(--space-3); }
+
+.kicker {
+  font-size: var(--text-micro-size);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(24px, 6vw, 32px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.said {
+  margin: 0;
+  font-size: var(--text-body-size);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.choices { display: grid; gap: var(--space-3); }
+
+.choice {
+  composes: nn-liquid from global;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 56px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  text-align: left;
+}
+
+.choiceBody { display: grid; gap: 2px; min-width: 0; }
+
+.choiceName {
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.choiceWhy {
+  font-size: var(--text-caption-size);
+  line-height: 1.4;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* The chosen one holds more of NN's water than the rest, the same way a
+   selected segment does elsewhere. Hierarchy by light, not by colour. */
+.choice[aria-pressed="true"]::before { --liquid-tide: 42%; }
+.choice[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--text-accent) 60%, var(--glass-3-border));
+}
+
+.mark {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-normal);
+  color: var(--text-on-accent);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.choice[aria-pressed="true"] .mark {
+  border-color: var(--text-accent);
+  background: var(--text-accent);
+}
+
+.feet { display: flex; align-items: center; gap: var(--space-4); }
+
+.onward {
+  composes: nn-liquid nn-liquid-primary from global;
+  flex: 1;
+  min-height: 54px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-lg-size);
+  font-weight: var(--weight-medium);
+}
+
+.back {
+  composes: nn-liquid from global;
+  min-width: 54px;
+  min-height: 54px;
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+@media (max-width: 520px) {
+  .card { gap: var(--space-6); }
+  .choice { min-height: 60px; }
+}
