@@ -30,22 +30,23 @@ const TYPE_SCALE = [
 ] as const;
 
 const APPS: ReadonlyArray<{ id: string; name: string; icon: IconName; description: string }> = [
-  { id: "life", name: "NN Life", icon: "calendar", description: "Routine, calendar, habits" },
-  { id: "college", name: "NN College", icon: "book", description: "Subjects, exams, revision" },
-  { id: "projects", name: "NN Projects", icon: "graph", description: "Milestones and tasks" },
-  { id: "finance", name: "NN Finance", icon: "wallet", description: "Income, spending, budgets" },
-  { id: "files", name: "NN Files", icon: "folder", description: "Documents and media" },
-  { id: "security", name: "NN Security", icon: "shield", description: "Devices and sessions" },
-  { id: "logic", name: "NN Logic Lab", icon: "grid", description: "Reasoning and practice" },
-  { id: "settings", name: "Settings", icon: "settings", description: "Every NN preference" },
+  { id: "life", name: "Life", icon: "calendar", description: "Routine, calendar, habits" },
+  { id: "college", name: "Study", icon: "book", description: "Subjects, exams, revision" },
+  { id: "academy", name: "Learn", icon: "graph", description: "Skills and knowledge" },
+  { id: "projects", name: "Build", icon: "grid", description: "Milestones and tasks" },
+  { id: "finance", name: "Money", icon: "wallet", description: "Income, spending, budgets" },
+  { id: "files", name: "Files", icon: "folder", description: "Documents and media" },
+  { id: "memory", name: "Recall", icon: "sparkle", description: "Personal context and notes" },
+  { id: "security", name: "Shield", icon: "shield", description: "Devices and sessions" },
+  { id: "control", name: "System", icon: "settings", description: "NN preferences and control" },
 ];
 
 const DOCK_ITEMS: readonly DockItem[] = [
   { id: "ren", label: "REN", icon: "sparkle" },
-  { id: "life", label: "NN Life", icon: "calendar" },
-  { id: "college", label: "NN College", icon: "book" },
-  { id: "files", label: "NN Files", icon: "folder" },
-  { id: "search", label: "Search", icon: "search" },
+  { id: "life", label: "Life", icon: "calendar" },
+  { id: "college", label: "Study", icon: "book" },
+  { id: "projects", label: "Build", icon: "grid" },
+  { id: "files", label: "Files", icon: "folder" },
 ];
 
 const TABS = [
