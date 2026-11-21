@@ -30,6 +30,22 @@ export type LifeEditResult =
   | { ok: true; patch: Record<string, unknown> }
   | { ok: false; error: string };
 
+export interface NoteRestoreContent {
+  title: string;
+  body: string;
+  format: string;
+}
+
+export function buildNoteRestoreContent(version: Record<string, unknown>): NoteRestoreContent | null {
+  const title = typeof version.title === "string" ? version.title.trim() : "";
+  if (!title) return null;
+  return {
+    title,
+    body: typeof version.body === "string" ? version.body : "",
+    format: typeof version.format === "string" && version.format.trim() ? version.format : "markdown",
+  };
+}
+
 function parseDateTime(value: string): Date | null {
   if (!value.trim()) return null;
   const date = new Date(value);

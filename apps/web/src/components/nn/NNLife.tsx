@@ -16,7 +16,7 @@ import { useClock } from "@/lib/clock";
 import styles from "./NNLife.module.css";
 import { ownerFirstName } from "@/lib/nn/owner";
 import { buildCalendarGrid, calendarDateKey } from "@/lib/nn/calendar-grid";
-import { buildLifeEditPatch, type EditableLifeCollection, type LifeEditDraft } from "@/lib/nn/life-edit";
+import { buildLifeEditPatch, buildNoteRestoreContent, type EditableLifeCollection, type LifeEditDraft } from "@/lib/nn/life-edit";
 import { habitPeriodKey, isHabitDueOn } from "@/lib/nn/life-periods";
 
 type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals" | "habits" | "routines" | "focus" | "reviews";
@@ -442,6 +442,32 @@ function LifeSurface() {
     }
   };
 
+  const restoreNoteVersion = (version: RecordData) => {
+    if (!uid || !historyNote || busy) return;
+    const content = buildNoteRestoreContent(version);
+    if (!content) {
+      setError("This saved version is incomplete and cannot be restored.");
+      return;
+    }
+    const note = historyNote;
+    const restore = () => {
+      const db = getFirebase().db;
+      const batch = writeBatch(db);
+      const noteRef = doc(db, "users", uid, "notes", note.id);
+      const snapshotRef = doc(collection(db, "users", uid, "notes", note.id, "versions"));
+      batch.set(snapshotRef, {
+        ...metadata(),
+        title: titleOf(note),
+        body: typeof note.body === "string" ? note.body : "",
+        format: typeof note.format === "string" ? note.format : "markdown",
+      });
+      batch.update(noteRef, { ...content, updatedAt: serverTimestamp() });
+      return batch.commit();
+    };
+    void save(restore, "Previous version restored. The note you replaced was preserved in history.")
+      .then((saved) => { if (saved) setHistoryNote(null); });
+  };
+
   const deleteRecord = (name: CollectionName, id: string, success: string) => {
     if (!uid) return;
     setPendingDelete({ name, id, success });
@@ -712,7 +738,7 @@ function LifeSurface() {
     title="Note history"
     description="Immutable snapshots are created before each saved edit. The latest version is the note currently open."
   >
-    {historyLoading ? <div className={styles.loading}><span/><p>Loading note history…</p></div> : historyEntries.length ? <div className={styles.historyList}>{historyEntries.map((version) => <article key={version.id} className={styles.historyEntry}><div><strong>{titleOf(version)}</strong><small>{formatDate(version.createdAt)}</small></div><p>{typeof version.body === "string" ? version.body : ""}</p></article>)}</div> : <EmptyState icon="clock" title="No earlier versions." body="An earlier version will appear here after you edit and save this note."/>}
+    {historyLoading ? <div className={styles.loading}><span/><p>Loading note history…</p></div> : historyEntries.length ? <div className={styles.historyList}>{historyEntries.map((version) => <article key={version.id} className={styles.historyEntry}><div><strong>{titleOf(version)}</strong><small>{formatDate(version.createdAt)}</small></div><p>{typeof version.body === "string" ? version.body : ""}</p><button type="button" className={styles.inlineAction} disabled={busy} onClick={() => restoreNoteVersion(version)}>Restore this version</button></article>)}</div> : <EmptyState icon="clock" title="No earlier versions." body="An earlier version will appear here after you edit and save this note."/>}
   </Dialog>
   <Dialog
     open={pendingEdit !== null}

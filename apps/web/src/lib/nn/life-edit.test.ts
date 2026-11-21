@@ -18,6 +18,23 @@ const draft: LifeEditDraft = {
   nextStep: "  Test the flow. ",
 };
 
+describe("buildNoteRestoreContent", () => {
+  it("restores a valid title, body and format from a saved version", () => {
+    expect(buildNoteRestoreContent({ title: " Earlier title ", body: "Earlier body", format: "markdown" }))
+      .toEqual({ title: "Earlier title", body: "Earlier body", format: "markdown" });
+  });
+
+  it("uses safe defaults for missing body and format", () => {
+    expect(buildNoteRestoreContent({ title: "Title" }))
+      .toEqual({ title: "Title", body: "", format: "markdown" });
+  });
+
+  it("rejects a version without a usable title", () => {
+    expect(buildNoteRestoreContent({ title: "  ", body: "Content" })).toBeNull();
+    expect(buildNoteRestoreContent({ body: "Content" })).toBeNull();
+  });
+});
+
 describe("buildLifeEditPatch", () => {
   it("normalises task titles and clears an optional due date", () => {
     const result = buildLifeEditPatch("tasks", draft, "Asia/Kolkata");

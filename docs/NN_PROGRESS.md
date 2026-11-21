@@ -1,3 +1,15 @@
+## 2026-11-21 · Phase D — safe note-version restoration
+
+- Added a Restore action to each saved note-history entry.
+- Restoring a version uses one Firestore batch: it first appends the current note into the append-only history subcollection, then updates the note title/body/format from the selected snapshot.
+- A malformed history item is rejected before any write.
+- The user receives explicit confirmation that the previous current content was preserved in history.
+- Added unit tests for restore-content validation and safe defaults.
+
+**Verification:** CI is triggered for this commit. Production remains on the previously verified release until a separately reviewed deployment is requested.
+
+---
+
 ## 2026-11-21 · Phase D — recurring routines
 
 - Routines now support daily, weekdays and weekly cadence, with cadence-aware completion records and duplicate-period protection.

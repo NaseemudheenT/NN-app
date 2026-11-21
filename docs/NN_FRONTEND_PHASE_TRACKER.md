@@ -74,12 +74,13 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Implement persistent focus sessions with planned duration, live countdown, completion and cancellation.
 - [x] Implement weekly reflections with saved wins, lessons and next steps.
 - [x] Add validated edit dialogs for tasks, events, reminders, notes, goals, habits, routines and reviews.
-- [x] Archive note snapshots atomically before edits and show the latest 20 immutable versions.
+- [x] Archive note snapshots atomically before edits, show the latest 20 immutable versions and safely restore an earlier version while preserving the current note as a new history entry.
 - [x] Enforce daily, weekdays and weekly habit periods; weekly reviews use a stable Monday period key.
 - [x] Add unit tests for edit-patch validation, routine-step parsing, focus countdown and cadence boundaries.
 - [x] Keep notification scheduling distinct from delivery; reminders are stored, not claimed delivered.
 - [x] Add emulator-backed owner-scope CRUD tests for the new Life collections and verify note-version immutability.
 - [ ] Add a full offline write queue; current offline mode is read/cache-aware and blocks unconfirmed writes.
+- [ ] Add safe autosave/conflict handling and richer note detail/editor states.
 - [ ] Complete device QA and review the full edit/detail flows.
 
 ### Phase E — College and Academy interfaces
