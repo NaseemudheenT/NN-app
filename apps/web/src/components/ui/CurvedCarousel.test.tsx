@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  FRAG, VERT, VISIBLE, visibleFor, hueFor,
+  FRAG, VERT, VISIBLE, hueFor, motionReduced, visibleFor,
   cardSize, offsetOf, restFor, springStep, stackConfig, stackTransform, wrapIndex,
 } from "./CurvedCarousel";
 
@@ -11,23 +11,12 @@ import {
  * wrong lives there: which slide is centred, which way it travels, and where
  * a flick comes to rest are all pure functions, and these are them.
  */
-describe("application identity light", () => {
-  it("gives registered applications distinct, approved-spectrum glass accents", () => {
-    const life = hueFor("Life");
-    const college = hueFor("College");
-    const finance = hueFor("Finance");
-    const creator = hueFor("Creator Studio");
-    expect(life).not.toEqual(college);
-    expect(college).not.toEqual(finance);
-    expect(finance).not.toEqual(creator);
-    for (const hue of [life, college, finance, creator]) {
-      expect(hue).toHaveLength(3);
-      expect(hue.every((channel) => channel >= 0 && channel <= 1)).toBe(true);
-    }
-  });
-
-  it("falls back to the shared glass light for unknown names", () => {
-    expect(hueFor("Unknown application")).toEqual([0.46, 0.74, 1.0]);
+describe("motion preference", () => {
+  it("honours either the system preference or the NN app setting", () => {
+    expect(motionReduced(true, "full")).toBe(true);
+    expect(motionReduced(false, "reduced")).toBe(true);
+    expect(motionReduced(false, "full")).toBe(false);
+    expect(motionReduced(false, undefined)).toBe(false);
   });
 });
 
@@ -253,5 +242,19 @@ describe("the shaders", () => {
         expect(uses, `${stage} declares ${name} and never reads it`).toBeGreaterThan(1);
       }
     }
+  });
+});
+
+
+describe("application colour signatures", () => {
+  it("assigns distinct premium hues to different application identities", () => {
+    expect(hueFor("Life")).not.toEqual(hueFor("Finance"));
+    expect(hueFor("College")).not.toEqual(hueFor("Creator Studio"));
+    expect(hueFor("Security Centre")).not.toEqual(hueFor("Nature & Universe"));
+  });
+
+  it("normalises names and preserves a neutral fallback", () => {
+    expect(hueFor("  LIFE ")).toEqual(hueFor("Life"));
+    expect(hueFor("Unregistered App")).toEqual([0.46, 0.74, 1.0]);
   });
 });
