@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AppTile, Button, Dialog, Dock, FloatingWindow, GlassPanel,
-  Icon, NNGlassMark, NNLockup, NNLogo, RenCommand, Switch, TextField,
+  Icon, LiquidToggle, NimbusToggleIcons, NNGlassMark, NNLockup, NNLogo, RenCommand, Switch, TextField,
   type DockItem, type IconName, type RenState,
 } from "@/components/ui";
 import { HoloShowcase } from "@/components/nn/HoloShowcase";
@@ -146,17 +146,17 @@ export function DesignSystem() {
           <Button size="sm" variant="ghost" iconOnly aria-label="Search" onClick={() => record("search opened")}>
             <Icon name="search" size={17} />
           </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => {
-              const next = resolvedTheme === "dark" ? "light" : "dark";
-              setTheme(next);
-              record(`theme → ${next}`);
+          <LiquidToggle
+            size={38}
+            tone={resolvedTheme}
+            checked={resolvedTheme === "dark"}
+            onCheckedChange={(next) => {
+              setTheme(next ? "dark" : "light");
+              record(`theme → ${next ? "dark" : "light"}`);
             }}
-          >
-            {resolvedTheme === "dark" ? "Light" : "Dark"}
-          </Button>
+            icons={{ off: NimbusToggleIcons.sun, on: NimbusToggleIcons.moon }}
+            label={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          />
         </header>
 
         <p className={s.eyebrow}>NN APP · Phase 1 · Design System</p>
@@ -295,6 +295,17 @@ export function DesignSystem() {
             <GlassPanel tier={2} padding="lg">
               <p className={s.eyebrow}>Theme</p>
               <div className={s.row} style={{ marginTop: "var(--space-6)" }}>
+                <LiquidToggle
+                  size={54}
+                  tone={resolvedTheme}
+                  checked={resolvedTheme === "dark"}
+                  onCheckedChange={(next) => {
+                    setTheme(next ? "dark" : "light");
+                    record(`theme → ${next ? "dark" : "light"}`);
+                  }}
+                  icons={{ off: NimbusToggleIcons.sun, on: NimbusToggleIcons.moon }}
+                  label="Toggle dark theme"
+                />
                 {(["dark", "light", "system"] as const).map((t) => (
                   <Button key={t} size="sm" variant={theme === t ? "primary" : "secondary"}
                           aria-pressed={theme === t}
