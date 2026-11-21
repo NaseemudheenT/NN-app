@@ -69,14 +69,14 @@ export function NNNexus() {
     };
   }, []);
 
-  const dateLabel = new Intl.DateTimeFormat("en-IN", {
+  useEffect(() => {\n    if (remaining === 0) setRunning(false);\n  }, [remaining]);\n\n  const dateLabel = new Intl.DateTimeFormat("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "long",
   }).format(now);
 
   const renState = REN_STATUS[machine.state];
-  const isRenActive = machine.state !== "idle" && machine.state !== "dismissed";
+  const isRenActive = machine.state !== "idle";
   const timerDone = remaining === 0;
 
   function startRen() {
