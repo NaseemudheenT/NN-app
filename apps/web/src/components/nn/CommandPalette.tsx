@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { Icon, type IconName } from "@/components/ui/Icon";
-import { APPLICATIONS } from "@/lib/apps/registry";
+import { destinations } from "@/lib/nn/destinations";
 import styles from "./CommandPalette.module.css";
 
 /**
@@ -40,26 +40,24 @@ interface Command {
   keys?: string;
 }
 
-/** The places that are not applications: REN, the dashboard, settings. */
-const PLACES: readonly Command[] = [
-  { id: "p-ren", label: "REN", hint: "Speak to your intelligence", icon: "sparkle", group: "NN", route: "/ren" as Route, keys: "⌘J" },
-  { id: "p-chat", label: "REN Chat", hint: "A conversation with REN", icon: "file", group: "NN", route: "/ren/chat" as Route },
-  { id: "p-home", label: "Today", hint: "What NN has for you", icon: "calendar", group: "NN", route: "/home" as Route, keys: "⌘H" },
-  { id: "p-search", label: "Search", hint: "Everything you have kept", icon: "search", group: "NN", route: "/search" as Route },
-  { id: "p-files", label: "Files", hint: "Documents and media", icon: "folder", group: "NN", route: "/files" as Route },
-  { id: "p-settings", label: "Settings", hint: "Appearance, REN, security", icon: "settings", group: "NN", route: "/settings" as Route, keys: "⌘," },
-];
-
+/**
+ * Everything NN can open.
+ *
+ * Read from `lib/nn/destinations`, which the dynamic panel reads too. This
+ * file used to carry its own copy, and two lists naming the same places is
+ * two places to forget one — the symptom being a screen reachable by
+ * keyboard and not by thumb, or the reverse.
+ */
 function commands(): readonly Command[] {
-  const apps: Command[] = APPLICATIONS.map((app) => ({
-    id: `a-${app.id}`,
-    label: app.name,
-    hint: app.description,
-    icon: app.icon,
-    group: "Applications",
-    ...(app.href !== undefined ? { route: app.href } : {}),
+  return destinations().map((destination) => ({
+    id: destination.id,
+    label: destination.label,
+    hint: destination.hint,
+    icon: destination.icon,
+    group: destination.group,
+    ...(destination.route !== undefined ? { route: destination.route } : {}),
+    ...(destination.keys !== undefined ? { keys: destination.keys } : {}),
   }));
-  return [...PLACES, ...apps];
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { CommandPalette } from "@/components/nn/CommandPalette";
+import { NNPanel } from "@/components/nn/NNPanel";
 import { RenLauncher } from "./RenLauncher";
 
 /**
@@ -38,6 +39,19 @@ export function RenChrome() {
   return (
     <>
       {door ? null : <CommandPalette />}
+      {/*
+       * The palette's twin, for a thumb.
+       *
+       * Mounted here rather than per-surface, which is the whole point: the
+       * dashboard, the workspace and every application surface carried
+       * three *different* navigations, so they could not match however
+       * carefully each was styled. One panel, mounted once, and they match
+       * by construction.
+       *
+       * Hidden behind the same door as the palette: nothing past it is
+       * reachable until the founder is signed in.
+       */}
+      {door ? null : <NNPanel />}
       {carried ? null : <RenLauncher />}
     </>
   );
