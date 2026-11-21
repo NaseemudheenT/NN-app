@@ -176,7 +176,7 @@ export function useRenOperator(): RenOperator {
         if (fault) return { ok: false, said: `I could not read ${collection}. ${fault.message}` };
         const needle = (text ?? "").trim().toLowerCase();
         const matches = needle
-          ? items.filter((record) => JSON.stringify(record).toLowerCase().includes(needle))
+          ? items.filter((record) => (JSON.stringify(record) ?? "").toLowerCase().includes(needle))
           : items;
         const rows = matches.slice(0, 12).map((record) => {
           const safe: Record<string, string | number | boolean> = {};
