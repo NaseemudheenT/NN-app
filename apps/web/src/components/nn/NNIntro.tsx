@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ComponentProps } from "react";
 import type Link from "next/link";
 import { NNLogo } from "@/components/ui/NNLogo";
+import { NNAppIcon } from "@/components/ui/NNAppIcon";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { LiquidButton } from "@/components/ui/LiquidButton";
 import {
@@ -33,21 +34,22 @@ import styles from "./NNIntro.module.css";
  */
 
 interface IntroCard {
+  appId: string;
   icon: IconName;
   title: string;
   hint: string;
 }
 
 const CARDS: readonly IntroCard[] = [
-  { icon: "calendar", title: "Life", hint: "Plans · routines" },
-  { icon: "book", title: "Study", hint: "Classes · revision" },
-  { icon: "graph", title: "Learn", hint: "Skills · knowledge" },
-  { icon: "grid", title: "Build", hint: "Projects · ideas" },
-  { icon: "wallet", title: "Money", hint: "Budget · accounts" },
-  { icon: "folder", title: "Files", hint: "Your documents" },
-  { icon: "sparkle", title: "Recall", hint: "Your saved context" },
-  { icon: "shield", title: "Shield", hint: "Access · protection" },
-  { icon: "settings", title: "System", hint: "Preferences · control" },
+  { appId: "life", icon: "calendar", title: "Life", hint: "Plans · routines" },
+  { appId: "college", icon: "book", title: "Study", hint: "Classes · revision" },
+  { appId: "academy", icon: "graph", title: "Learn", hint: "Skills · knowledge" },
+  { appId: "projects", icon: "grid", title: "Build", hint: "Projects · ideas" },
+  { appId: "finance", icon: "wallet", title: "Money", hint: "Budget · accounts" },
+  { appId: "files", icon: "folder", title: "Files", hint: "Your documents" },
+  { appId: "memory", icon: "sparkle", title: "Recall", hint: "Your saved context" },
+  { appId: "security", icon: "shield", title: "Shield", hint: "Access · protection" },
+  { appId: "control", icon: "settings", title: "System", hint: "Preferences · control" },
 ];
 
 /** Placement is fixed per card, so it is computed once at module load. */
@@ -351,7 +353,7 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
             <div className={styles.cardInner}>
               <span className={styles.cardSheen} />
               <span className={styles.cardIcon}>
-                <Icon name={placement.card.icon} size={26} />
+                <NNAppIcon appId={placement.card.appId} icon={placement.card.icon} size={40} label={placement.card.title} />
               </span>
               <span className={styles.cardTitle}>{placement.card.title}</span>
               <span className={styles.cardHint}>{placement.card.hint}</span>
