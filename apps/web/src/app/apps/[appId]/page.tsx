@@ -8,6 +8,7 @@ import { NNAppSurface } from "@/components/nn/NNAppSurface";
 import { NNCollegeWorkspace } from "@/components/nn/NNCollegeWorkspace";
 import { NNFinanceWorkspace } from "@/components/nn/NNFinanceWorkspace";
 import { NNProjectsWorkspace } from "@/components/nn/NNProjectsWorkspace";
+import { NNAcademyWorkspace } from "@/components/nn/NNAcademyWorkspace";
 
 type PageProps = { params: Promise<{ appId: string }> };
 
@@ -43,8 +44,4 @@ export default async function ApplicationPage({ params }: PageProps) {
   return (
     <RequireOwner>
       <AppShell title={app.name} subtitle={app.description}>
-        {app.id === "college" ? <NNCollegeWorkspace app={app} sections={sections} /> : app.id === "finance" ? <NNFinanceWorkspace app={app} sections={sections} /> : app.id === "projects" ? <NNProjectsWorkspace app={app} sections={sections} /> : <NNAppSurface app={app} sections={sections} />}
-      </AppShell>
-    </RequireOwner>
-  );
-}
+        {app.id === "college" ? <NNCollegeWorkspa...[truncated]
