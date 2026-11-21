@@ -39,12 +39,13 @@ describe("NN feature spaces", () => {
   });
   it("renders the specialist learning tools through their own screen grammars", () => {
     const cases = [
-      { app: formulaEngine, layout: "calculator" },
-      { app: logicLab, layout: "board" },
-      { app: learningVault, layout: "cards" },
+      { app: formulaEngine, layout: "calculator", tab: "Compute" },
+      { app: logicLab, layout: "board", tab: "Challenges" },
+      { app: learningVault, layout: "cards", tab: "Recall" },
     ];
     for (const item of cases) {
       const { unmount } = render(<NNDomainBlueprint app={item.app} />);
+      fireEvent.click(screen.getByRole("tab", { name: item.tab }));
       expect(document.querySelector(`[data-layout="${item.layout}"]`)).toBeInTheDocument();
       unmount();
     }
