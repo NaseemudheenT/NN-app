@@ -116,7 +116,12 @@
   background: var(--glass-2-bg);
   font-size: var(--text-caption-size);
   font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
 }
+.avatar:hover { transform: translateY(-1px); border-color: var(--border-strong); background: var(--glass-hover); }
+.avatar:focus-visible { outline: 2px solid var(--nn-icy); outline-offset: 3px; }
 
 /* ---- stage --------------------------------------------------------------- */
 .stage { display: flex; align-items: flex-start; gap: var(--space-6); }

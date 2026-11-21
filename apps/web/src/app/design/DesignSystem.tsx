@@ -144,9 +144,6 @@ export function DesignSystem() {
           <NNLockup size={22} />
           <span className={s.topbarSpacer} />
           <span className={s.log} aria-live="polite">{log}</span>
-          <Button size="sm" variant="ghost" iconOnly aria-label="Search" onClick={() => record("search opened")}>
-            <Icon name="search" size={17} />
-          </Button>
           <Button
             size="sm"
             variant="secondary"
@@ -399,8 +396,8 @@ export function DesignSystem() {
                 loading={saving}
                 onClick={() => {
                   setSaving(true);
-                  record("saving…");
-                  window.setTimeout(() => { setSaving(false); record("saved"); }, 1100);
+                  record("preview action running…");
+                  window.setTimeout(() => { setSaving(false); record("preview complete — no data was saved"); }, 1100);
                 }}
               >
                 Save

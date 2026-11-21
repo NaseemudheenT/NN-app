@@ -137,6 +137,8 @@ export function NNWorkspace({
   const [localHour, setLocalHour] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountTrigger = useRef<HTMLButtonElement>(null);
   const [periodId, setPeriodId] = useState(initialPeriodId);
   const [filter, setFilter] = useState("");
   const [notice, setNotice] = useState("");
@@ -241,6 +243,7 @@ export function NNWorkspace({
   function changeView(next: View) {
     setView(next);
     setAlertsOpen(false);
+    setAccountOpen(false);
   }
 
   /** The founder's own data, in a format nothing else owns. */
@@ -558,6 +561,7 @@ export function NNWorkspace({
           onClick={() => {
             setSettingsOpen(!settingsOpen);
             setAlertsOpen(false);
+            setAccountOpen(false);
           }}
           aria-expanded={settingsOpen}
           aria-controls={`${id}-material`}
@@ -591,6 +595,8 @@ export function NNWorkspace({
         if (event.key === "Escape") {
           if (settingsOpen) closeSettings();
           setAlertsOpen(false);
+          setAccountOpen(false);
+          accountTrigger.current?.focus();
         }
       }}
     >
@@ -610,14 +616,28 @@ export function NNWorkspace({
               onClick={() => {
                 setAlertsOpen(!alertsOpen);
                 setSettingsOpen(false);
+                setAccountOpen(false);
               }}
             >
               <Icon name="sparkle" size={17} />
               <i />
             </button>
-            <span className={styles.avatar} title={userName}>
+            <button
+              ref={accountTrigger}
+              type="button"
+              className={styles.avatar}
+              title={userName}
+              aria-label="Account menu"
+              aria-haspopup="menu"
+              aria-expanded={accountOpen}
+              onClick={() => {
+                setAccountOpen((open) => !open);
+                setAlertsOpen(false);
+                setSettingsOpen(false);
+              }}
+            >
               {userName.slice(0, 1).toUpperCase()}
-            </span>
+            </button>
           </div>
         </header>
 
@@ -933,20 +953,30 @@ export function NNWorkspace({
               NN will surface what matters here once REN is switched on. Until then this
               panel stays honest and empty.
             </p>
+          </aside>
+        ) : null}
+
+        {accountOpen ? (
+          <aside className={[styles.notifications, styles.glass].join(" ")} aria-label="Account menu" role="menu">
+            <div>
+              <h2>{userName}</h2>
+              <button type="button" aria-label="Close account menu" onClick={() => { setAccountOpen(false); accountTrigger.current?.focus(); }}>
+                <Icon name="close" size={17} />
+              </button>
+            </div>
+            <p>Account and session controls for this NN environment.</p>
             {onSignOut || onSignOutEverywhere ? (
               <div className={styles.sessionActions}>
                 {onSignOut ? (
-                  <LiquidButton size="sm" shape="rounded" onClick={onSignOut}>
-                    Sign out
-                  </LiquidButton>
+                  <LiquidButton size="sm" shape="rounded" onClick={onSignOut}>Sign out</LiquidButton>
                 ) : null}
                 {onSignOutEverywhere ? (
-                  <LiquidButton size="sm" shape="rounded" variant="danger" onClick={onSignOutEverywhere}>
-                    All devices
-                  </LiquidButton>
+                  <LiquidButton size="sm" shape="rounded" variant="danger" onClick={onSignOutEverywhere}>Sign out all devices</LiquidButton>
                 ) : null}
               </div>
-            ) : null}
+            ) : (
+              <p className={styles.materialNote}>Session controls are available in the signed-in workspace.</p>
+            )}
           </aside>
         ) : null}
 
