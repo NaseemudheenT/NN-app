@@ -1,4 +1,6 @@
 export { NNLogo, NNLockup, NN_MARK_PATH } from "./NNLogo";
+export { NNAppIcon } from "./NNAppIcon";
+export type { NNAppIconProps } from "./NNAppIcon";
 export type { NNLogoProps, NNLockupProps } from "./NNLogo";
 
 export { Icon } from "./Icon";
