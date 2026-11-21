@@ -557,3 +557,38 @@
 @keyframes life-preview-arrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:760px){.previewGrid{grid-template-columns:1fr}.previewFeature{min-height:0}.previewFeature h3{margin-top:12px}}
 @media(prefers-reduced-motion:reduce){.previewPage{animation:none}}
+
+
+/* Bespoke Life canvases: empty structure only, never synthetic activity. */
+.previewCanvas{display:grid;gap:16px;padding:clamp(16px,2.2vw,22px);border:1px solid rgb(198 224 255 / 18%);border-radius:19px;background:radial-gradient(ellipse at 88% 0%,rgb(104 163 255 / 10%),transparent 45%),linear-gradient(145deg,rgb(226 242 255 / 5%),transparent 58%),rgb(4 13 31 / 24%);box-shadow:inset 0 1px 0 rgb(255 255 255 / 10%)}
+.canvasHeading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.canvasHeading span,.canvasFoot span,.focusIntent>span{color:var(--text-accent);font:8px var(--font-mono);letter-spacing:.11em}
+.canvasHeading strong{color:var(--text-secondary);font-size:11px;font-weight:560}
+.habitMatrix{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}
+.habitDay{display:grid;justify-items:center;gap:9px;padding:10px 5px;border:1px solid rgb(198 224 255 / 12%);border-radius:11px;background:rgb(218 238 255 / 3%)}
+.habitDay>span{color:var(--text-muted);font:8px var(--font-mono)}
+.habitDay>i{width:clamp(15px,3vw,24px);aspect-ratio:1;border:1px dashed rgb(180 215 255 / 30%);border-radius:50%;background:radial-gradient(circle,rgb(170 210 255 / 7%),transparent 68%)}
+.canvasFoot{display:flex;align-items:center;gap:8px;padding-top:12px;border-top:1px solid rgb(198 224 255 / 10%)}
+.canvasFoot>i{height:5px;flex:1;border-radius:8px;background:rgb(204 226 255 / 10%)}
+.routineSequence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.routineStep{position:relative;display:grid;align-content:start;gap:10px;min-height:105px;padding:13px;border:1px solid rgb(198 224 255 / 14%);border-radius:13px;background:linear-gradient(145deg,rgb(223 241 255 / 7%),transparent 75%)}
+.routineStep:not(:last-child):after{content:"";position:absolute;top:22px;right:-13px;width:13px;height:1px;background:rgb(166 207 255 / 38%)}
+.routineStep>span{color:var(--text-accent);font:8px var(--font-mono)}
+.routineStep>i{width:100%;height:5px;border-radius:8px;background:rgb(204 226 255 / 13%)}
+.routineStep>strong{font-size:10px;font-weight:560}
+.routineStep>small{color:var(--text-muted);font-size:8px}
+.focusWorkspace{display:grid;grid-template-columns:minmax(140px,.9fr) minmax(0,1.1fr);align-items:center;gap:clamp(18px,5vw,48px);max-width:560px;margin:0 auto;padding:8px 0}
+.focusDial{width:min(100%,190px);aspect-ratio:1;display:grid;place-items:center;margin:auto;border:1px solid rgb(176 215 255 / 28%);border-radius:50%;background:radial-gradient(circle,rgb(121 177 255 / 12%) 0 53%,transparent 54%),conic-gradient(from -90deg,rgb(171 212 255 / 42%),rgb(171 212 255 / 5%) 72%,rgb(171 212 255 / 42%));box-shadow:inset 0 0 25px rgb(127 182 255 / 8%),0 0 32px rgb(95 152 255 / 8%)}
+.focusDial>div{width:72%;aspect-ratio:1;display:grid;align-content:center;justify-items:center;gap:6px;border:1px solid rgb(194 222 255 / 14%);border-radius:50%;background:rgb(5 17 39 / 75%)}
+.focusDial strong{font-size:19px;font-weight:570;letter-spacing:.05em}
+.focusDial span{color:var(--text-muted);font:7px var(--font-mono);letter-spacing:.1em}
+.focusIntent{display:grid;gap:12px;padding:16px;border:1px solid rgb(198 224 255 / 13%);border-radius:13px;background:rgb(218 238 255 / 3%)}
+.focusIntent>i,.reviewPrompt>i{height:5px;border-radius:8px;background:rgb(204 226 255 / 13%)}
+.focusIntent>i:nth-of-type(2){width:82%}.focusIntent>i:nth-of-type(3){width:64%}
+.focusIntent>small{margin-top:6px;color:var(--text-muted);font:7px var(--font-mono);letter-spacing:.08em}
+.reviewPrompts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.reviewPrompt{display:grid;gap:11px;min-height:105px;padding:13px;border:1px solid rgb(198 224 255 / 14%);border-radius:13px;background:linear-gradient(145deg,rgb(223 241 255 / 6%),transparent 75%)}
+.reviewPrompt strong{font-size:11px;font-weight:570}
+.reviewPrompt>i:nth-of-type(2){width:84%}.reviewPrompt>i:nth-of-type(3){width:68%}
+@media(max-width:640px){.canvasHeading{align-items:flex-start;flex-direction:column}.routineSequence,.reviewPrompts{grid-template-columns:1fr}.routineStep{min-height:70px}.routineStep:not(:last-child):after{top:auto;right:50%;bottom:-13px;width:1px;height:13px}.focusWorkspace{grid-template-columns:1fr;gap:15px}.focusDial{width:145px}.habitMatrix{gap:5px}.habitDay{padding:8px 2px}}
+@media(prefers-reduced-motion:reduce){.previewCanvas{animation:none}}
