@@ -86,6 +86,20 @@ describe("choosing somewhere", () => {
     }
   });
 
+  it("keeps keyboard focus inside the expanded island", async () => {
+    const user = userEvent.setup();
+    render(<NNPanel />);
+    await user.click(screen.getByRole("button", { name: /Go to/ }));
+    const close = screen.getByRole("button", { name: "Close" });
+    const controls = screen.getAllByRole("button");
+    const last = controls[controls.length - 1]!;
+    close.focus();
+    await user.keyboard("{Shift>}{Tab}{/Shift}");
+    expect(last).toHaveFocus();
+    await user.keyboard("{Tab}");
+    expect(close).toHaveFocus();
+  });
+
   it("closes on Escape, and gives the focus back", async () => {
     await open();
     await userEvent.keyboard("{Escape}");

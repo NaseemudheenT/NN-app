@@ -42,6 +42,7 @@ export function NNPanel() {
   const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   const hostRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const islandRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -71,6 +72,23 @@ export function NNPanel() {
     restoring.current = false;
     islandRef.current?.focus();
   }, [open]);
+
+  const containPanelFocus = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Tab") return;
+    const controls = panelRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    if (!controls?.length) return;
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first?.focus();
+    }
+  }, []);
 
   const go = useCallback((destination: Destination) => {
     if (destination.route === undefined) return;
@@ -134,6 +152,8 @@ export function NNPanel() {
       </button>
 
       <div
+        ref={panelRef}
+        onKeyDown={containPanelFocus}
         className={s.panel}
         data-open={open || undefined}
         role="dialog"
