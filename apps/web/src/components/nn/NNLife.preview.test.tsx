@@ -26,7 +26,7 @@ describe("NN Life design canvases", () => {
   it("does not fabricate completed check-ins, running sessions or review records", () => {
     const { rerender } = render(<LifePreviewCanvas module="habits" />);
     expect(screen.getByText("Check-in matrix")).toBeInTheDocument();
-    expect(document.querySelectorAll('[data-preview="habits"] .habitDay i')).toHaveLength(7);
+    expect(document.querySelectorAll('[data-preview="habits"] [data-habit-day] i')).toHaveLength(7);
 
     rerender(<LifePreviewCanvas module="focus" />);
     expect(screen.getByText("READY")).toBeInTheDocument();
