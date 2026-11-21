@@ -7,6 +7,7 @@ import { useRecords, useRecordWriter, type NNRecord, type RecordFault } from "@/
 import { relativeTime, useClock } from "@/lib/clock";
 import type { NNApplication } from "@/lib/apps/registry";
 import type { AppField, AppSection } from "@/lib/apps/sections";
+import { toDateInputValue, parseRecordField } from "@/lib/apps/record-fields";
 import styles from "./NNAppSurface.module.css";
 
 /**
@@ -96,10 +97,7 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
       const value = record[field.key];
       if (value === undefined || value === null) continue;
       if (field.type === "date") {
-        const date = value && typeof value === "object" && "toDate" in value
-          ? (value as { toDate: () => Date }).toDate()
-          : new Date(value as string | number);
-        if (!Number.isNaN(date.getTime())) next[field.key] = date.toISOString().slice(0, 10);
+        next[field.key] = toDateInputValue(value);
       } else if (typeof value === "string" || typeof value === "number") next[field.key] = String(value);
     }
     setEditingId(record.id);
@@ -114,11 +112,9 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
     for (const field of section.fields) {
       const raw = editDraft[field.key]?.trim();
       if (!raw) continue;
-      if (field.type === "number") {
-        const number = Number(raw);
-        if (!Number.isFinite(number)) { setProblem(`${field.label} must be a number.`); return; }
-        payload[field.key] = number;
-      } else payload[field.key] = raw;
+      const parsed = parseRecordField(field, raw ?? "");
+      if (!parsed.ok) { setProblem(parsed.error); return; }
+      payload[field.key] = parsed.value;
     }
     setBusy(true); setProblem(null);
     try {
@@ -139,14 +135,9 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
     for (const field of section.fields) {
       const raw = draft[field.key]?.trim();
       if (!raw) continue;
-      if (field.type === "number") {
-        const n = Number(raw);
-        // A field the founder typed into must not silently become nothing.
-        if (!Number.isFinite(n)) { setProblem(`${field.label} must be a number.`); setBusy(false); return; }
-        payload[field.key] = n;
-      } else {
-        payload[field.key] = raw;
-      }
+      const parsed = parseRecordField(field, raw ?? "");
+      if (!parsed.ok) { setProblem(parsed.error); setBusy(false); return; }
+      if (parsed.value !== null) payload[field.key] = parsed.value;
     }
 
     try {
