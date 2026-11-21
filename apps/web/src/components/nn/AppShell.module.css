@@ -79,21 +79,18 @@
   left: 50%;
   bottom: max(var(--space-7), env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
-  padding: var(--space-3);
-  border: 1px solid var(--glass-2-border);
-  border-radius: var(--radius-2xl);
-  background: color-mix(in srgb, var(--surface-base) 62%, transparent);
-  backdrop-filter: blur(var(--glass-2-blur));
-  -webkit-backdrop-filter: blur(var(--glass-2-blur));
-  box-shadow: var(--shadow-4);
-  /* 100dvw, not 100vw: on a desktop with a classic scrollbar 100vw includes
-     it, and the dock would sit a scrollbar's width past the right edge. */
+  /* The LiquidNav owns the glass. This wrapper is only a scroll viewport;
+     a second frosted plate here would make the water look double-glazed. */
+  width: max-content;
   max-width: min(calc(100dvw - var(--space-7)), 1180px);
+  padding: 14px;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
 }
 
+.dock::-webkit-scrollbar { display: none; }
 .dock::-webkit-scrollbar { display: none; }
 
 @media (max-width: 700px) {
