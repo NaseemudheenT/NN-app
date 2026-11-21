@@ -57,3 +57,30 @@
 .screenFooter{display:flex;justify-content:space-between;gap:10px;padding:9px 13px;border-top:1px solid rgb(201 226 255 / 11%);color:var(--text-muted);font:6px var(--font-mono);letter-spacing:.09em}
 @media(max-width:640px){.screenBody{grid-template-columns:25px minmax(0,1fr);gap:8px;padding:9px}.screenContext{display:none}.screenWidgets{grid-template-columns:1fr}.screenWidget{min-height:54px}.screenFooter{font-size:5.5px}}
 @media(prefers-reduced-motion:reduce){.screenPreview *{scroll-behavior:auto}}
+
+
+/* Education layouts use distinct visual grammars rather than a shared card grid. */
+.screenWidgets[data-layout="dashboard"] .screenWidget:first-child{grid-column:span 2;min-height:78px}
+.screenWidgets[data-layout="navigator"]{grid-template-columns:minmax(82px,.72fr) minmax(0,1.5fr)}
+.screenWidgets[data-layout="navigator"] .screenWidget:first-child{grid-row:span 2;min-height:100px}
+.screenWidgets[data-layout="library"]{grid-template-columns:1fr}
+.screenWidgets[data-layout="library"] .screenWidget{min-height:46px;grid-template-columns:24px minmax(0,1fr);align-items:center;column-gap:8px}
+.screenWidgets[data-layout="library"] .widgetLines{grid-column:2}
+.screenWidgets[data-layout="planner"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+.screenWidgets[data-layout="planner"] .screenWidget{min-height:92px}
+.screenWidgets[data-layout="roadmap"]{grid-template-columns:repeat(4,minmax(0,1fr));align-items:center}
+.screenWidgets[data-layout="roadmap"] .screenWidget{min-height:74px}
+.screenWidgets[data-layout="reader"]{grid-template-columns:minmax(0,1.7fr) minmax(72px,.7fr)}
+.screenWidgets[data-layout="reader"] .screenWidget:first-child{grid-row:span 3;min-height:150px}
+.screenWidgets[data-layout="analytics"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+.screenWidgets[data-layout="analytics"] .screenWidget{min-height:100px}
+@media(max-width:640px){
+ .screenWidgets[data-layout="navigator"]{grid-template-columns:minmax(68px,.72fr) minmax(0,1.5fr)}
+ .screenWidgets[data-layout="planner"]{grid-template-columns:1fr}
+ .screenWidgets[data-layout="planner"] .screenWidget{min-height:50px}
+ .screenWidgets[data-layout="roadmap"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .screenWidgets[data-layout="reader"]{grid-template-columns:minmax(0,1.5fr) minmax(58px,.7fr)}
+ .screenWidgets[data-layout="reader"] .screenWidget:first-child{min-height:120px}
+ .screenWidgets[data-layout="analytics"]{grid-template-columns:1fr}
+ .screenWidgets[data-layout="analytics"] .screenWidget{min-height:54px}
+}

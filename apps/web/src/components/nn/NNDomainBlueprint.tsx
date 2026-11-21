@@ -5,8 +5,11 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 import type { NNApplication } from "@/lib/apps/registry";
 import styles from "./NNDomainBlueprint.module.css";
 
+export type DomainLayout = "dashboard" | "navigator" | "library" | "planner" | "roadmap" | "reader" | "analytics";
+
 export interface DomainModule {
   id: string;
+  layout?: DomainLayout;
   title: string;
   description: string;
   icon: IconName;
@@ -45,16 +48,16 @@ export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>
     { id: "reflection", title: "Reflection space", description: "Capture a short reflection after a quiet session.", icon: "file", regions: ["Reflection editor", "Session links", "Private history"] },
   ],
   college: [
-    { id: "semester", title: "Semester overview", description: "A clear academic home for subjects, exams and the work ahead.", icon: "calendar", regions: ["Semester selector", "Subject cards", "Upcoming academic dates"] },
-    { id: "syllabus", title: "Subjects and syllabus", description: "Move from a subject into units, topics and source material.", icon: "book", regions: ["Subject overview", "Unit navigator", "Topic notes"] },
-    { id: "question-bank", title: "Question bank", description: "Browse questions by subject, unit, marks and source.", icon: "search", regions: ["Question filters", "Question reader", "Answer workspace"] },
-    { id: "exam-prep", title: "Exam preparation", description: "Organise assignments, timetable, attendance, marks and revision.", icon: "graph", regions: ["Assignment board", "Exam timetable", "Attendance and marks"] },
+    { id: "semester", layout: "dashboard", title: "Semester overview", description: "A clear academic home for subjects, exams and the work ahead.", icon: "calendar", regions: ["Semester selector", "Subject cards", "Upcoming academic dates"] },
+    { id: "syllabus", layout: "navigator", title: "Subjects and syllabus", description: "Move from a subject into units, topics and source material.", icon: "book", regions: ["Subject overview", "Unit navigator", "Topic notes"] },
+    { id: "question-bank", layout: "library", title: "Question bank", description: "Browse questions by subject, unit, marks and source.", icon: "search", regions: ["Question filters", "Question reader", "Answer workspace"] },
+    { id: "exam-prep", layout: "planner", title: "Exam preparation", description: "Organise assignments, timetable, attendance, marks and revision.", icon: "graph", regions: ["Assignment board", "Exam timetable", "Attendance and marks"] },
   ],
   academy: [
-    { id: "paths", title: "Learning paths", description: "Build structured technical and professional learning journeys.", icon: "compass", regions: ["Path overview", "Milestone map", "Prerequisite links"] },
-    { id: "courses", title: "Course library", description: "Keep courses and learning resources organised by skill.", icon: "book", regions: ["Course catalogue", "Course detail", "Resource list"] },
-    { id: "lesson", title: "Lesson workspace", description: "Read, practise and save lesson notes in one focused surface.", icon: "file", regions: ["Lesson reader", "Practice area", "Saved notes"] },
-    { id: "mastery", title: "Mastery review", description: "Review actual practice and identify what needs another pass.", icon: "graph", regions: ["Practice history", "Revision queue", "Skill review"] },
+    { id: "paths", layout: "roadmap", title: "Learning paths", description: "Build structured technical and professional learning journeys.", icon: "compass", regions: ["Path overview", "Milestone map", "Prerequisite links"] },
+    { id: "courses", layout: "library", title: "Course library", description: "Keep courses and learning resources organised by skill.", icon: "book", regions: ["Course catalogue", "Course detail", "Resource list"] },
+    { id: "lesson", layout: "reader", title: "Lesson workspace", description: "Read, practise and save lesson notes in one focused surface.", icon: "file", regions: ["Lesson reader", "Practice area", "Saved notes"] },
+    { id: "mastery", layout: "analytics", title: "Mastery review", description: "Review actual practice and identify what needs another pass.", icon: "graph", regions: ["Practice history", "Revision queue", "Skill review"] },
   ],
   "formula-engine": [
     { id: "library", title: "Formula library", description: "A searchable reference with units, definitions and source notes.", icon: "formula", regions: ["Formula index", "Formula detail", "Source reference"] },
@@ -233,7 +236,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
                 <span className={styles.screenTitle}>{selected.title}</span>
                 <span className={styles.screenSubline}/>
               </div>
-              <div className={styles.screenWidgets}>
+              <div className={styles.screenWidgets} data-layout={selected.layout ?? "dashboard"}>
                 {selected.regions.map((region, index) => (
                   <div className={styles.screenWidget} data-layout={index === 0 ? "primary" : index === 1 ? "secondary" : "tertiary"} key={region}>
                     <span className={styles.widgetIndex}>{String(index + 1).padStart(2, "0")}</span>

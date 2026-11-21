@@ -58,9 +58,9 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [ ] Separate reminder scheduling UI from actual notification delivery capability.
 
 ### Phase E — College and Academy interfaces
-- [x] College blueprint: semester overview, subjects/syllabus, question bank and exam preparation screen structures.
+- [x] College blueprint: semester dashboard, syllabus navigator, question-bank library and exam planner layouts.
 - [ ] Detail College into subject/unit/question/assignment/timetable/attendance/marks route-level screens.
-- [x] Academy blueprint: learning paths, course library, lesson workspace and mastery review screen structures.
+- [x] Academy blueprint: learning-path roadmap, course library, lesson reader and mastery analytics layouts.
 - [ ] Detail Academy into course reader, exercise, progress and revision route-level screens.
 - [ ] Formula Engine, Logic Lab and Learning Vault domain interfaces.
 - [ ] Source/provenance labels for uploaded materials and generated explanations.
