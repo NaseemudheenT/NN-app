@@ -66,8 +66,8 @@ interface WinState {
 
 const INITIAL_WINDOWS: readonly WinState[] = [
   { id: "ren", title: "REN", x: 24, y: 24, w: 310, h: 220, minimized: false, maximized: false, open: true },
-  { id: "life", title: "NN Life", x: 268, y: 118, w: 300, h: 210, minimized: false, maximized: false, open: true },
-  { id: "proj", title: "NN Projects", x: 512, y: 46, w: 300, h: 200, minimized: false, maximized: false, open: true },
+  { id: "life", title: "Life", x: 268, y: 118, w: 300, h: 210, minimized: false, maximized: false, open: true },
+  { id: "proj", title: "Build", x: 512, y: 46, w: 300, h: 200, minimized: false, maximized: false, open: true },
 ];
 
 /* ------------------------------------------------------------- component -- */
