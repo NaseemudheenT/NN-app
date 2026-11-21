@@ -42,8 +42,8 @@ describe("NN Life design canvases", () => {
 
 describe("NN Life workflow helpers", () => {
   it("parses routine steps from real line breaks and caps the list", () => {
-    expect(parseRoutineSteps(" Prepare \\n\\nExecute\\nReview ")).toEqual(["Prepare", "Execute", "Review"]);
-    expect(parseRoutineSteps(Array.from({ length: 25 }, (_, index) => String(index)).join("\\n"))).toHaveLength(20);
+    expect(parseRoutineSteps(" Prepare \n\nExecute\nReview ")).toEqual(["Prepare", "Execute", "Review"]);
+    expect(parseRoutineSteps(Array.from({ length: 25 }, (_, index) => String(index)).join("\n"))).toHaveLength(20);
   });
   it("calculates focus time without returning negative values", () => {
     const end = new Date("2026-11-21T10:25:00.000Z");
