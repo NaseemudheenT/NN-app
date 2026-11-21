@@ -89,18 +89,18 @@ const LIFE_PREVIEWS: Record<LifePreviewTab, {
 
 export function LifePreviewCanvas({ module }: { module: LifePreviewTab }) {
   if (module === "habits") return (
-    <div className={styles.previewCanvas} data-preview="habits" aria-label="Habit check-in layout preview">
+    <div className={styles.previewCanvas} data-preview="habits" role="group" aria-label="Habit check-in layout preview">
       <div className={styles.canvasHeading}><span>WEEKLY RHYTHM</span><strong>Check-in matrix</strong></div>
       <div className={styles.habitMatrix}>
         {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
-          <div className={styles.habitDay} key={index}><span>{day}</span><i aria-hidden="true"/></div>
+          <div className={styles.habitDay} data-habit-day={day + index} key={day + index}><span>{day}</span><i aria-hidden="true"/></div>
         ))}
       </div>
       <div className={styles.canvasFoot}><span>HABIT ROWS</span><i/><i/><i/></div>
     </div>
   );
   if (module === "routines") return (
-    <div className={styles.previewCanvas} data-preview="routines" aria-label="Routine sequence layout preview">
+    <div className={styles.previewCanvas} data-preview="routines" role="group" aria-label="Routine sequence layout preview">
       <div className={styles.canvasHeading}><span>ROUTINE BUILDER</span><strong>Sequence and timing</strong></div>
       <div className={styles.routineSequence}>
         {["01", "02", "03"].map((step) => (
@@ -110,7 +110,7 @@ export function LifePreviewCanvas({ module }: { module: LifePreviewTab }) {
     </div>
   );
   if (module === "focus") return (
-    <div className={styles.previewCanvas} data-preview="focus" aria-label="Focus session layout preview">
+    <div className={styles.previewCanvas} data-preview="focus" role="group" aria-label="Focus session layout preview">
       <div className={styles.canvasHeading}><span>ATTENTION SPACE</span><strong>Session workspace</strong></div>
       <div className={styles.focusWorkspace}>
         <div className={styles.focusDial}><div><strong>READY</strong><span>SESSION TIMER</span></div></div>
@@ -119,7 +119,7 @@ export function LifePreviewCanvas({ module }: { module: LifePreviewTab }) {
     </div>
   );
   return (
-    <div className={styles.previewCanvas} data-preview="reviews" aria-label="Reflection review layout preview">
+    <div className={styles.previewCanvas} data-preview="reviews" role="group" aria-label="Reflection review layout preview">
       <div className={styles.canvasHeading}><span>REVIEW WORKSPACE</span><strong>Reflect and reset</strong></div>
       <div className={styles.reviewPrompts}>
         {["Wins", "Lessons", "Next move"].map((prompt) => (
