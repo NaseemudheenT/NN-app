@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
-import { buildLifeEditPatch, type LifeEditDraft } from "./life-edit";
+import { buildLifeEditPatch, buildNoteRestoreContent, type LifeEditDraft } from "./life-edit";
 
 const draft: LifeEditDraft = {
   title: "  Plan  ",
