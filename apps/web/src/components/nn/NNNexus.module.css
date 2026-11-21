@@ -150,7 +150,11 @@
   gap: 5px;
   width: 46px;
   padding: 5px;
-  overflow: hidden;
+  max-height: min(62svh, 520px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
   border: 1px solid rgb(255 255 255 / 11%);
   border-radius: 18px;
   background: linear-gradient(160deg, rgb(25 36 53 / 95%), rgb(7 13 23 / 97%));
@@ -208,6 +212,9 @@
   .railLinks {
     display: flex;
     flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
     width: auto;
     max-width: calc(100vw - 86px);
     padding: 4px;
