@@ -33,8 +33,8 @@ import s from "./NNPanel.module.css";
  * - It offers **only what exists**. A destination with no route is not
  *   listed; NN does not open a screen that is not there.
  *
- * On a phone it moves to the bottom, because the left edge is precisely
- * where a thumb cannot reach, and opens upward into the same arc.
+ * The island stays at the top on every viewport, with the panel expanding
+ * beneath it. This gives the operating environment one stable navigation anchor.
  */
 
 export function NNPanel() {
@@ -147,7 +147,7 @@ export function NNPanel() {
           <span className={s.headName}>{here?.label ?? "NN"}</span>
           <span className={s.headStatus}>NN SYSTEM</span>
           <button ref={closeRef} type="button" className={s.close} aria-label="Close" onClick={close}>
-            <Icon name="expand" size={15} />
+            <Icon name="close" size={15} />
           </button>
         </div>
         <ul className={s.list}>
@@ -160,7 +160,7 @@ export function NNPanel() {
         <div className={s.panelFoot}>
           <span>PRIVATE ENVIRONMENT</span>
           <span className={s.panelFootDot} />
-          <span>READY</span>
+          <span>NAVIGATION</span>
         </div>
       </div>
     </div>

@@ -71,15 +71,11 @@
   border-radius: 50%;
   background: rgb(var(--nn-spectrum-aqua));
   box-shadow: 0 0 9px rgb(var(--nn-spectrum-aqua) / 72%);
-  animation: nn-island-pulse 2.8s ease-in-out infinite;
+  
 }
 @keyframes nn-island-arrive {
   from { opacity: 0; transform: translateY(5px) scale(.92); filter: blur(4px); }
   to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-}
-@keyframes nn-island-pulse {
-  0%, 100% { opacity: .58; transform: scale(.82); }
-  50% { opacity: 1; transform: scale(1.12); }
 }
 
 /* Expanded glass panel ---------------------------------------------------- */
@@ -275,10 +271,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .panel, .island, .item { transition: none; }
-  .island, .islandSignal { animation: none; }
+  .island { animation: none; }
 }
 :global(html[data-motion="reduced"]) .panel,
 :global(html[data-motion="reduced"]) .island,
 :global(html[data-motion="reduced"]) .item { transition: none; }
-:global(html[data-motion="reduced"]) .island,
-:global(html[data-motion="reduced"]) .islandSignal { animation: none; }
+:global(html[data-motion="reduced"]) .island { animation: none; }
