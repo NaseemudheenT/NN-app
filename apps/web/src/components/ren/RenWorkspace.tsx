@@ -187,9 +187,9 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
    * below, and in the deployment guide, where an operator needs it.
    */
   const badge = useMemo(() => {
-    if (ren.specialist) return `${ren.specialist.workspace} specialist`;
     if (!ren.checked) return null;
     if (!ready) return "Language not connected";
+    if (ren.specialist) return `${ren.specialist.workspace} specialist`;
     if (ren.busy) return last?.role === "ren" && last.text !== "" ? "Answering" : "Thinking";
     return "Ready";
   }, [ren.busy, ren.checked, last, ready, ren.specialist]);
