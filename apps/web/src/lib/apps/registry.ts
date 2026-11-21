@@ -59,7 +59,7 @@ const REGISTERED: readonly NNApplication[] = [
   { id: "college", name: "College", group: "Education", icon: "cap", description: "SMVEC subjects, exams, notes and academic progress", availability: "available", overviewHref: "/apps/college", href: "/apps/college" as Route },
   { id: "academy", name: "Academy", group: "Education", icon: "book", description: "Structured technical and professional learning", availability: "available", overviewHref: "/apps/academy", href: "/apps/academy" as Route },
   { id: "formula-engine", name: "Formula Engine", group: "Education", icon: "formula", description: "Verified formulas, calculations and visualisation", availability: "available", overviewHref: "/apps/formula-engine", href: "/apps/formula-engine" as Route },
-  { id: "logic-lab", name: "Logic Lab", group: "Education", icon: "circuit", description: "Reasoning, aptitude and programming challenges", availability: "planned", overviewHref: "/apps/logic-lab" },
+  { id: "logic-lab", name: "Logic Lab", group: "Education", icon: "circuit", description: "Reasoning, aptitude and programming challenges", availability: "available", overviewHref: "/apps/logic-lab", href: "/apps/logic-lab" as Route },
   { id: "learning-vault", name: "Learning Vault", group: "Education", icon: "vault", description: "Books, research, flashcards and knowledge paths", availability: "available", overviewHref: "/apps/learning-vault", href: "/apps/learning-vault" as Route },
 
   { id: "finance", name: "Finance", group: "Money & work", icon: "wallet", description: "Personal money, budgets, assets and financial goals", availability: "available", overviewHref: "/apps/finance", href: "/apps/finance" as Route },
