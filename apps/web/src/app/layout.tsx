@@ -4,7 +4,8 @@ import { ServiceWorker } from "@/components/ServiceWorker";
 import { Room } from "@/components/nn/Room";
 import { RenProvider } from "@/components/ren/RenProvider";
 import { RenLauncher } from "@/components/ren/RenLauncher";
-import { RenPanel } from "@/components/ren/RenPanel";\nimport { NNNexus } from "@/components/nn/NNNexus";
+import { RenPanel } from "@/components/ren/RenPanel";
+import { NNNexus } from "@/components/nn/NNNexus";
 import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
@@ -61,7 +62,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <RenProvider>
               <div className="nn-shell">{children}</div>
               <RenLauncher />
-              <RenPanel />\n              <NNNexus />
+              <RenPanel />
+              <NNNexus />
             </RenProvider>
           </AuthProvider>
           <ServiceWorker />
