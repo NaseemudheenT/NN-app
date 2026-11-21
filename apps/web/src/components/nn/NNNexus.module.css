@@ -8,7 +8,9 @@
   pointer-events: none;
   color: #f5f8ff;
   font-variant-numeric: tabular-nums;
+  transition: opacity 220ms ease, visibility 220ms ease;
 }
+.root[data-ren-open="true"] { opacity: 0; visibility: hidden; }
 .islandWrap { display: flex; justify-content: center; }
 .island {
   pointer-events: auto;
@@ -105,7 +107,8 @@
   .date { font-size: 12px; }
   .clock { font-size: 21px; }
 }
-@media (prefers-reduced-motion: reduce) {\n  .root { transition: none; }\n  .root { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .root { transition: none; }
   .island, .panel, .liveDot { animation: none; transition: none; }
   .quickCard, .renCard { transition: none; }
 }
