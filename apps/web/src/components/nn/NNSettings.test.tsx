@@ -114,3 +114,35 @@ describe("Settings", () => {
     expect(open).not.toHaveBeenCalled();
   });
 });
+
+describe("knowing which NN this is", () => {
+  /**
+   * A deployed web app is the one kind of software that can be replaced
+   * underneath you without telling you. A tab opened on Monday still runs
+   * Monday's build on Thursday — and the symptom is that something stays
+   * broken after it was fixed, which is the most confusing failure there is.
+   */
+
+  it("says which release and build it is running", async () => {
+    render(<NNSettings />);
+    expect(screen.getByRole("heading", { level: 2, name: "About NN" })).toBeInTheDocument();
+    expect(screen.getByText("Release")).toBeInTheDocument();
+    expect(screen.getByText("Build")).toBeInTheDocument();
+  });
+
+  it("keeps the changes folded away until asked", async () => {
+    render(<NNSettings />);
+    const toggle = screen.getByRole("button", { name: /What's changed/ });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getAllByRole("listitem").length).toBeGreaterThan(3);
+  });
+
+  it("offers no update when there is none", () => {
+    // Nothing fetched in jsdom, so no version is known and nothing may be
+    // claimed. Offering an update that does not exist is worse than silence.
+    render(<NNSettings />);
+    expect(screen.queryByRole("button", { name: /Update NN/ })).toBeNull();
+  });
+});

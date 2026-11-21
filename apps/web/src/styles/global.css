@@ -944,3 +944,66 @@ body {
   .nn-live-wave::after { animation-play-state: paused; }
 }
 :root[data-motion="reduced"] .nn-live-wave::after { animation-play-state: paused; }
+
+/* ==========================================================================
+   LIGHTFALL
+   The specular highlight that follows your hand.
+
+   NN's glass has carried a fixed highlight at the top-left since it was
+   written. That is correct for a still image and is the clearest tell that
+   a surface is drawn rather than lit — real glass moves its highlight when
+   you do. `Lightfall` writes the pointer's position into two custom
+   properties and this paints the light there.
+
+   Deliberately *one* soft, low-opacity pool. A bright spot that tracks the
+   cursor is a gimmick; a faint lift under the thumb is a material. It sits
+   on the existing `::before` layer rather than adding another, so nothing
+   gains a new element or a new stacking context.
+   ========================================================================== */
+.nn-glass-card[data-lit]::before,
+.nn-liquid[data-lit]::before,
+[data-lightfall][data-lit]::before {
+  background-image:
+    radial-gradient(
+      circle 180px at var(--nn-lightfall-x, 50%) var(--nn-lightfall-y, 0%),
+      rgb(255 255 255 / 13%),
+      transparent 70%
+    ),
+    var(--nn-lightfall-under, none);
+}
+
+/* The liquid control keeps its own two layers and gains the pool above them,
+   or the tide and the top-edge highlight would be replaced rather than lit. */
+.nn-liquid[data-lit]::before {
+  background-image:
+    radial-gradient(
+      circle 140px at var(--nn-lightfall-x, 50%) var(--nn-lightfall-y, 50%),
+      rgb(255 255 255 / 15%),
+      transparent 72%
+    ),
+    linear-gradient(
+      168deg,
+      var(--glass-sheen) 0%,
+      transparent 38%,
+      transparent 72%,
+      rgb(var(--nn-spectrum-blue) / 7%) 100%
+    ),
+    linear-gradient(
+      104deg,
+      transparent 0%,
+      rgb(var(--nn-spectrum-cyan) / var(--liquid-tide, 20%)) 16%,
+      rgb(var(--nn-spectrum-blue) / var(--liquid-tide, 20%)) 38%,
+      rgb(var(--nn-spectrum-violet) / var(--liquid-tide, 20%)) 62%,
+      rgb(var(--nn-spectrum-aqua) / var(--liquid-tide, 20%)) 84%,
+      transparent 100%
+    );
+  background-size: 100% 100%, 100% 100%, 220% 100%;
+}
+
+/* A light that chases the hand is exactly the motion someone asking for
+   less of it does not want. */
+@media (prefers-reduced-motion: reduce) {
+  .nn-glass-card[data-lit]::before,
+  .nn-liquid[data-lit]::before,
+  [data-lightfall][data-lit]::before { background-image: none; }
+}

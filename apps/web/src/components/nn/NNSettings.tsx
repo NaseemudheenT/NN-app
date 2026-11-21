@@ -16,6 +16,8 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { forgetSetup } from "@/lib/nn/setup";
 import { say } from "@/lib/ren/voice";
+import { CHANGES, NN_RELEASE } from "@/lib/nn/version";
+import { useUpdate } from "@/lib/nn/useUpdate";
 import {
   availablePreferences, readVoicePreference, whenVoicesReady, writeVoicePreference,
   type RenVoice, type VoicePreference,
@@ -216,6 +218,8 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
   const { theme, setTheme, motion, setMotion } = useTheme();
 
   const [profileOpen, setProfileOpen] = useState(false);
+  const [changesOpen, setChangesOpen] = useState(false);
+  const update = useUpdate();
   const router = useRouter();
 
   /* What this device can actually speak in. NN cannot install a voice. */
@@ -365,6 +369,56 @@ export function NNSettings({ onSignOut, onSignOutEverywhere }: NNSettingsProps) 
           ) : null}
         </Group>
       ) : null}
+
+      <Group
+        title="About NN"
+        footer={
+          update.ready
+            ? "A newer NN is ready. Nothing reloads on its own — an environment that refreshes while you are typing is worse than one that is out of date."
+            : "NN takes its build from the deployment itself, so this is what you are actually running rather than a number somebody remembered to raise."
+        }
+      >
+        <FactRow icon="sparkle" tone={TONE.violet} label="Release" value={NN_RELEASE} />
+        <FactRow
+          icon="grid" tone={TONE.slate} label="Build"
+          value={update.running ?? "checking…"}
+        />
+        {update.ready ? (
+          <button type="button" className={styles.row} onClick={update.apply}>
+            <Tile icon="sparkle" tone={TONE.blue} />
+            <span className={styles.label}>
+              Update NN
+              <small>Version {update.available} is ready</small>
+            </span>
+            <Icon name="expand" size={16} className={styles.chevron} />
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className={styles.row}
+          aria-expanded={changesOpen}
+          onClick={() => setChangesOpen((open) => !open)}
+        >
+          <Tile icon="clock" tone={TONE.cyan} />
+          <span className={styles.label}>What&apos;s changed</span>
+          <Icon
+            name="expand" size={16} className={styles.chevron}
+            data-open={changesOpen || undefined}
+          />
+        </button>
+        {changesOpen ? (
+          <div className={styles.row} data-static data-column>
+            <ul className={styles.changes}>
+              {CHANGES.map((change) => (
+                <li key={`${change.at}-${change.said}`}>
+                  <time dateTime={change.at}>{change.at}</time>
+                  <span>{change.said}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </Group>
 
       <footer className={styles.about}>
         <NNLogo size={26} glow decorative />
