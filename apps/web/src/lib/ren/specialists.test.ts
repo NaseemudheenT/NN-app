@@ -39,7 +39,7 @@ describe("NN workspace specialist registry", () => {
       "complete_record",
       "discard_record",
     ]);
-    const capture = tools[0]!;
+    const capture = tools.find((tool) => tool.name === "capture_record")!;
     const props = capture.schema["properties"] as Record<string, { enum?: string[] }>;
     expect(props["collection"]?.enum).toContain("finance_transactions");
     expect(props["collection"]?.enum).not.toContain("tasks");
