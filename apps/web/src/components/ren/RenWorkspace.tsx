@@ -216,6 +216,16 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
         </div>
 
         <div className={styles.barActions}>
+          {ren.specialist ? (
+            <button
+              type="button"
+              className={styles.ghost}
+              onClick={returnToRen}
+              disabled={ren.busy || ren.turns.length === 0}
+            >
+              Return to REN
+            </button>
+          ) : null}
           <button
             type="button"
             className={styles.ghost}
