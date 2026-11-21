@@ -134,6 +134,24 @@
   color: var(--text-muted);
 }
 
+.panelFoot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px 13px;
+  border-top: 1px solid rgb(220 237 255 / 13%);
+  color: var(--text-muted);
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+.panelFootDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgb(var(--nn-spectrum-aqua));
+  box-shadow: 0 0 8px rgb(var(--nn-spectrum-aqua) / 70%);
+}
+
 /* ---- the list ----------------------------------------------------------- */
 
 .list {
@@ -214,10 +232,13 @@
     left: 0;
     top: auto;
     bottom: 0;
-    transform: none;
-    width: min(300px, calc(100vw - 28px));
-    max-height: min(62vh, 480px);
-    animation-name: nn-panel-open-up;
+    transform: translateY(14px) scale(.82);
+    transform-origin: bottom left;
+    width: min(316px, calc(100vw - 28px));
+    max-height: min(68dvh, 540px);
+  }
+  .panel[data-open] {
+    transform: translateY(0) scale(1);
   }
 
   @keyframes nn-panel-open-up {
@@ -229,9 +250,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .panel { animation: none; }
+  .panel { transition: none; }
   .island { transition: none; animation: none; }
 }
 
-:root[data-motion="reduced"] .panel { animation: none; }
+:root[data-motion="reduced"] .panel { transition: none; }
 :root[data-motion="reduced"] .island { transition: none; animation: none; }
