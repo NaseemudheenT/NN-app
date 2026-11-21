@@ -39,7 +39,7 @@
 .ctl {
   composes: nn-liquid from global;
   display: grid; place-items: center;
-  width: 26px; height: 26px;
+  width: 44px; height: 44px;
   border: none; border-radius: var(--radius-xs);
   background: transparent; color: var(--text-muted);
   cursor: pointer;
@@ -50,6 +50,14 @@
 .ctl.close:hover { background: var(--status-err); color: #11070A; }
 
 .body { flex: 1; padding: var(--space-7); overflow: auto; }
+
+@media (prefers-reduced-motion: reduce) { .win, .ctl { transition: none; } }
+:global(html[data-motion="reduced"]) .win,
+:global(html[data-motion="reduced"]) .ctl { transition: none; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .win { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--surface-raised) 98%, transparent); }
+}
 
 .minimized { height: auto !important; min-height: 0; }
 .minimized .body { display: none; }
