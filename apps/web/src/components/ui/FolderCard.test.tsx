@@ -142,7 +142,7 @@ describe("FolderCard material preferences", () => {
     const { resolve } = await import("node:path");
     const css = readFileSync(resolve(process.cwd(), "src/components/ui/FolderCard.module.css"), "utf8");
     expect(css).toContain("@media (prefers-reduced-transparency: reduce)");
-    expect(css).toMatch(/prefers-reduced-transparency[\\s\\S]*?backdrop-filter:\\s*none/);
-    expect(css).toMatch(/prefers-reduced-transparency[\\s\\S]*?\.front[\\s\\S]*?background:/);
+    expect(css).toMatch(/prefers-reduced-transparency[\s\S]*?backdrop-filter:\s*none/);
+    expect(css).toMatch(/prefers-reduced-transparency[\s\S]*?\.front[\s\S]*?background:/);
   });
 });

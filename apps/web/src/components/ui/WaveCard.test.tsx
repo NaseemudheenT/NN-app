@@ -97,7 +97,7 @@ describe("WaveCard material preferences", () => {
   it("provides an opaque reduced-transparency chip without backdrop blur", () => {
     const css = readFileSync(resolve(process.cwd(), "src/components/ui/WaveCard.module.css"), "utf8");
     expect(css).toContain("@media (prefers-reduced-transparency: reduce)");
-    expect(css).toMatch(/prefers-reduced-transparency[\\s\\S]*?backdrop-filter:\\s*none/);
+    expect(css).toMatch(/prefers-reduced-transparency[\s\S]*?backdrop-filter:\s*none/);
     expect(css).toContain("rgb(18 27 60 / 94%)");
     expect(css).toContain("rgb(255 255 255 / 97%)");
   });
