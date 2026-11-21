@@ -9,6 +9,7 @@ import type { NNApplication } from "@/lib/apps/registry";
 import type { AppField, AppSection } from "@/lib/apps/sections";
 import { toDateInputValue, parseRecordField } from "@/lib/apps/record-fields";
 import styles from "./NNAppSurface.module.css";
+import { NNDomainBlueprint } from "@/components/nn/NNDomainBlueprint";
 
 /**
  * The work surface every NN application gets.
@@ -444,6 +445,7 @@ export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
             subscription rather than painting one section's records into
             another's list while the new query resolves. */}
         <SectionPanel key={section.collection} section={section} appName={app.name} />
+        <NNDomainBlueprint app={app} />
       </div>
     </div>
   );
