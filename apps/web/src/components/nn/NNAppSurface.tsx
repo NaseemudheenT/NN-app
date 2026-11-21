@@ -88,9 +88,6 @@ function SectionPanel({ section }: { section: AppSection }) {
 
   const title = draft.title?.trim() ?? "";
 
-  const open = useMemo(() => records.items.filter((r) => !isDone(r)), [records.items]);
-  const done = useMemo(() => records.items.filter(isDone), [records.items]);
-
   const reset = useCallback(() => { setDraft({}); setAdding(false); }, []);
   const beginEdit = (record: NNRecord) => {
     const next: Record<string, string> = { title: titleOf(record) };

@@ -6,16 +6,14 @@ import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAppTransition } from "@/components/nn/AppTransition";
-import { APPLICATIONS, GROUPS, matchApplications } from "@/lib/apps/registry";
+import { GROUPS, matchApplications } from "@/lib/apps/registry";
 import styles from "./NNAppLauncher.module.css";
 
 /**
  * The front door to NN.
  *
  * Keep Home deliberately quiet: discover and open applications here; do the
- * work inside them. The registry is the single source of truth, and the
- * experience label distinguishes dedicated products from shared record
- * workspaces so a route never implies more functionality than it has.
+ * work inside them. The registry is the single source of truth.
  */
 export function NNAppLauncher() {
   const router = useRouter();
@@ -45,7 +43,7 @@ export function NNAppLauncher() {
           title="Profile and settings"
           onClick={() => router.push("/settings" as Route)}
         >
-          {firstName.slice(0, 1).toUpperCase()}
+          <Icon name="settings" size={17} />
         </button>
       </header>
 
@@ -76,11 +74,7 @@ export function NNAppLauncher() {
           {visibleGroups.map((group, groupIndex) => (
             <section className={styles.group} key={group.slug} aria-labelledby={`group-${group.slug}`}>
               <header className={styles.groupHeader}>
-                <div>
-                  <h2 id={`group-${group.slug}`}>{group.name}</h2>
-                  
-                </div>
-                
+                <h2 id={`group-${group.slug}`}>{group.name}</h2>
               </header>
 
               <div className={styles.grid}>
