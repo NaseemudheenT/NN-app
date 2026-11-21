@@ -10,7 +10,10 @@ vi.mock("@/components/ui/Icon", () => ({
 
 const college = getApplication("college");
 const academy = getApplication("academy");
-if (!college || !academy) throw new Error("Education applications must exist in the registry");
+const formulaEngine = getApplication("formula-engine");
+const logicLab = getApplication("logic-lab");
+const learningVault = getApplication("learning-vault");
+if (!college || !academy || !formulaEngine || !logicLab || !learningVault) throw new Error("Education applications must exist in the registry");
 
 afterEach(cleanup);
 
@@ -34,6 +37,19 @@ describe("NN feature spaces", () => {
       }
     }
   });
+  it("renders the specialist learning tools through their own screen grammars", () => {
+    const cases = [
+      { app: formulaEngine, layout: "calculator" },
+      { app: logicLab, layout: "board" },
+      { app: learningVault, layout: "cards" },
+    ];
+    for (const item of cases) {
+      const { unmount } = render(<NNDomainBlueprint app={item.app} />);
+      expect(document.querySelector(`[data-layout="${item.layout}"]`)).toBeInTheDocument();
+      unmount();
+    }
+  });
+
   it("supports horizontal arrow navigation and associates the selected preview", () => {
     render(<NNDomainBlueprint app={college} />);
     const rail = screen.getByRole("tablist", { name: "College spaces" });

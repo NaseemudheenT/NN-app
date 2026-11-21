@@ -377,7 +377,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
           <div className={styles.screenTop}>
             <span className={styles.screenBrand}><Icon name={app.icon} size={14} solid tone="ice"/>{app.name}</span>
           </div>
-          {app.group === "Education" ? <EducationCanvas app={app} module={selected}/> : (
+          {app.id === "college" || app.id === "academy" ? <EducationCanvas app={app} module={selected}/> : (
         <>
         <div className={styles.screenBody}>
             <aside className={styles.screenRail} aria-hidden="true">
