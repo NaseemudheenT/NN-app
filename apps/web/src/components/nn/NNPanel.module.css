@@ -92,8 +92,10 @@
 
 .close {
   composes: nn-liquid from global;
-  width: 34px;
-  height: 34px;
+  /* Measured at 37px on a phone. Every control in this panel is reached by
+     a thumb, and the one that dismisses it is not an exception. */
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   border-radius: var(--radius-full);
