@@ -19,6 +19,11 @@ describe("NN application registry", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("gives every application its own registered icon identity", () => {
+    const icons = APPLICATIONS.map((app) => app.icon);
+    expect(new Set(icons).size).toBe(APPLICATIONS.length);
+  });
+
   it("distinguishes dedicated products from generic record workspaces", () => {
     const dedicated = APPLICATIONS.filter((app) => app.experience === "dedicated");
     const recordWorkspaces = APPLICATIONS.filter((app) => app.experience === "records");

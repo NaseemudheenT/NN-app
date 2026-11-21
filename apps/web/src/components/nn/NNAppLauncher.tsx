@@ -50,7 +50,7 @@ export function NNAppLauncher() {
           <span>NN</span>
         </div>
         <div className={styles.topbarActions}>
-        <button type="button" className={styles.searchAll} aria-label="Search all NN" title="Search all NN" onClick={() => router.push("/search" as Route)}>
+        <button type="button" className={styles.searchAll} aria-label="Search all NN" title="Search all NN" onClick={() => travel.open("/search" as Route, "Search")}>
           <Icon name="search" size={17} />
         </button>
         <button

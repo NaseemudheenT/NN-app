@@ -75,13 +75,16 @@ describe("NN application launcher", () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
     await user.click(screen.getByRole("button", { name: "Search all NN" }));
-    expect(push).toHaveBeenCalledWith("/search");
+    expect(open).toHaveBeenCalledWith("/search", "Search");
   });
 
-  it("focuses the app search with the slash shortcut", async () => {
+  it("focuses the app search with slash, then lets the field receive typed slashes", async () => {
     render(<NNHomePreview />);
     await userEvent.keyboard("/");
-    expect(screen.getByRole("searchbox", { name: "Search applications" })).toHaveFocus();
+    const search = screen.getByRole("searchbox", { name: "Search applications" });
+    expect(search).toHaveFocus();
+    await userEvent.keyboard("/");
+    expect(search).toHaveValue("/");
   });
 
   it("keeps settings behind the profile entry", async () => {
