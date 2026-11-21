@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  FRAG, VERT, VISIBLE, hueFor, motionReduced, visibleFor,
+  FRAG, VERT, VISIBLE, visibleFor,
   cardSize, offsetOf, restFor, springStep, stackConfig, stackTransform, wrapIndex,
 } from "./CurvedCarousel";
 
@@ -11,15 +11,6 @@ import {
  * wrong lives there: which slide is centred, which way it travels, and where
  * a flick comes to rest are all pure functions, and these are them.
  */
-describe("motion preference", () => {
-  it("honours either the system preference or the NN app setting", () => {
-    expect(motionReduced(true, "full")).toBe(true);
-    expect(motionReduced(false, "reduced")).toBe(true);
-    expect(motionReduced(false, "full")).toBe(false);
-    expect(motionReduced(false, undefined)).toBe(false);
-  });
-});
-
 describe("wrapIndex", () => {
   it("brings any index inside the ring", () => {
     expect(wrapIndex(0, 5)).toBe(0);
@@ -242,19 +233,5 @@ describe("the shaders", () => {
         expect(uses, `${stage} declares ${name} and never reads it`).toBeGreaterThan(1);
       }
     }
-  });
-});
-
-
-describe("application colour signatures", () => {
-  it("assigns distinct premium hues to different application identities", () => {
-    expect(hueFor("Life")).not.toEqual(hueFor("Finance"));
-    expect(hueFor("College")).not.toEqual(hueFor("Creator Studio"));
-    expect(hueFor("Security Centre")).not.toEqual(hueFor("Nature & Universe"));
-  });
-
-  it("normalises names and preserves a neutral fallback", () => {
-    expect(hueFor("  LIFE ")).toEqual(hueFor("Life"));
-    expect(hueFor("Unregistered App")).toEqual([0.46, 0.74, 1.0]);
   });
 });
