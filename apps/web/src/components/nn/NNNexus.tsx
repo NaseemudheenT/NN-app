@@ -36,7 +36,7 @@ export function NNNexus() {
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
-    const id = window.setInterval(() => setNow(new Date()), 30_000);
+    const id = window.setInterval(() => setNow(new Date()), 1_000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -181,7 +181,7 @@ export function NNNexus() {
               <p className={styles.eyebrow}>YOUR SPACE</p>
               <p className={styles.date}>{dateLabel}</p>
             </div>
-            <p className={styles.clock}>{now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</p>
+            <p className={styles.clock}>{now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</p>
           </div>
 
           <button className={styles.renCard} type="button" onClick={startRen}>
