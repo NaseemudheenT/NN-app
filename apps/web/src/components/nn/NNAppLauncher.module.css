@@ -62,7 +62,8 @@
   padding: clamp(26px, 4vw, 48px) clamp(16px, 3vw, 26px) 24px;
 }
 
-.welcome { margin: 0 0 25px; }
+ .welcome { margin: 0 0 22px; }
+.welcome h1 { margin: 0; font-size: clamp(25px, 4vw, 34px); font-weight: 560; letter-spacing: -.045em; }
 .kicker {
   margin: 0;
   color: var(--text-accent);
@@ -157,18 +158,6 @@
   font-weight: 640;
   letter-spacing: -.015em;
 }
-.groupHeader p {
-  margin: 4px 0 0;
-  color: var(--text-muted);
-  font-size: 11px;
-  line-height: 1.4;
-}
-.groupCount {
-  flex: none;
-  color: var(--text-muted);
-  font: 10px/1 var(--font-mono);
-  letter-spacing: .08em;
-}
 
 .grid {
   display: grid;
@@ -180,7 +169,7 @@
   isolation: isolate;
   overflow: hidden;
   min-width: 0;
-  min-height: 128px;
+  min-height: 118px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -206,8 +195,20 @@
     0 10px 24px rgb(0 0 0 / 19%);
   -webkit-backdrop-filter: blur(22px) saturate(155%);
   backdrop-filter: blur(22px) saturate(155%);
-  animation: app-arrive 440ms var(--ease-entrance) both;
+  animation: app-arrive 520ms var(--ease-entrance) both;
+  transform-style: preserve-3d;
+  will-change: transform;
   transition: transform 240ms var(--ease-spring), border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+}
+ .app::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(112deg, transparent 25%, rgb(232 247 255 / 16%) 47%, transparent 67%);
+  transform: translateX(-130%);
+  pointer-events: none;
 }
 .app::after {
   content: "";
@@ -220,11 +221,12 @@
   background: linear-gradient(116deg, transparent 24%, rgb(224 242 255 / 5%) 48%, transparent 70%);
 }
 .app:hover {
-  transform: translateY(-4px) scale(1.012);
+  transform: perspective(900px) translateY(-5px) rotateX(2deg) rotateY(-2deg) scale(1.018);
   border-color: rgb(207 238 255 / 55%);
   filter: brightness(1.07);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 42%), 0 4px 0 rgb(3 10 27 / 48%), 0 18px 34px rgb(0 0 0 / 27%);
 }
+.app:hover::before { animation: app-sheen 850ms ease both; }
 .app:active { transform: translateY(1px) scale(.975); }
 .app:focus-visible, .profile:focus-visible {
   outline: 2px solid var(--focus-ring);
@@ -247,7 +249,8 @@
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 52%), 0 7px 17px rgb(0 0 0 / 22%);
   transition: transform 240ms var(--ease-spring);
 }
-.app:hover .iconWell { transform: translateY(-2px) scale(1.04); }
+ .app:hover .iconWell { transform: translateY(-4px) rotateX(8deg) rotateY(-8deg) scale(1.08); }
+.iconWell svg { filter: drop-shadow(0 2px 3px rgb(0 0 0 / 30%)); }
 .appName {
   position: relative;
   z-index: 1;
@@ -305,6 +308,10 @@
   letter-spacing: .08em;
 }
 
+@keyframes app-sheen {
+  from { transform: translateX(-130%); opacity: .25; }
+  to { transform: translateX(130%); opacity: .9; }
+}
 @keyframes app-arrive {
   from { opacity: 0; transform: translateY(8px) scale(.985); filter: blur(3px); }
   to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
@@ -335,10 +342,12 @@
 }
 @media (hover: none) {
   .app:hover { transform: none; filter: none; }
+  .app:hover::before { animation: none; }
   .app:hover .iconWell { transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .app, .iconWell, .profile { animation: none !important; transition: none !important; }
+  .app::before { display: none; }
   .app:hover, .app:active, .app:hover .iconWell { transform: none; }
 }
 :global(html[data-motion="reduced"]) .app,

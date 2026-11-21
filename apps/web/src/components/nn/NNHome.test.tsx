@@ -24,8 +24,10 @@ beforeEach(() => {
 describe("NN application launcher", () => {
   it("opens on a focused application launcher rather than a metrics dashboard", () => {
     render(<NNHomePreview />);
-    expect(screen.getByRole("heading", { level: 1, name: /Welcome back/ })).toBeInTheDocument();
-    expect(screen.getByRole("searchbox", { name: "Find an application" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Home" })).toBeInTheDocument();
+    expect(screen.getByRole("searchbox", { name: "Search applications" })).toBeInTheDocument();
+    expect(screen.queryByText("YOUR PERSONAL OPERATING ENVIRONMENT")).toBeNull();
+    expect(screen.queryByText("⌘ K")).toBeNull();
     expect(screen.queryByRole("heading", { name: "Today" })).toBeNull();
     expect(screen.queryByText("Open tasks")).toBeNull();
   });
@@ -43,7 +45,7 @@ describe("NN application launcher", () => {
   it("filters application names, groups and descriptions locally", async () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
-    const search = screen.getByRole("searchbox", { name: "Find an application" });
+    const search = screen.getByRole("searchbox", { name: "Search applications" });
 
     await user.type(search, "finance");
     expect(screen.getByRole("button", { name: /Open Finance/ })).toBeInTheDocument();
@@ -54,21 +56,18 @@ describe("NN application launcher", () => {
     expect(screen.getByRole("button", { name: /Open Security Centre/ })).toBeInTheDocument();
   });
 
-  it("shows an honest distinction between dedicated products and core record scaffolds", () => {
+  it("keeps implementation maturity out of the visual launcher", () => {
     render(<NNHomePreview />);
-    const dedicated = APPLICATIONS.filter((app) => app.experience === "dedicated");
-    const records = APPLICATIONS.filter((app) => app.experience === "records");
-
-    expect(dedicated.map((app) => app.id).sort()).toEqual(["files", "life", "search"]);
-    expect(records).toHaveLength(31);
-    expect(screen.getAllByText("DEDICATED")).toHaveLength(3);
-    expect(screen.getAllByText("CORE RECORDS")).toHaveLength(31);
+    expect(APPLICATIONS.filter((app) => app.experience === "dedicated")).toHaveLength(3);
+    expect(APPLICATIONS.filter((app) => app.experience === "records")).toHaveLength(31);
+    expect(screen.queryByText("DEDICATED")).toBeNull();
+    expect(screen.queryByText("CORE RECORDS")).toBeNull();
   });
 
   it("opens the selected app through the shared route transition", async () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
-    await user.click(screen.getByRole("button", { name: "Open Life. Dedicated workspace." }));
+    await user.click(screen.getByRole("button", { name: "Open Life" }));
     expect(open).toHaveBeenCalledWith("/life", "Life");
   });
 
@@ -82,9 +81,9 @@ describe("NN application launcher", () => {
   it("explains when a search has no matches and lets the user clear it", async () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);
-    await user.type(screen.getByRole("searchbox", { name: "Find an application" }), "not-a-real-app");
+    await user.type(screen.getByRole("searchbox", { name: "Search applications" }), "not-a-real-app");
     expect(screen.getByText("No applications found")).toBeInTheDocument();
-    await user.click(within(screen.getByRole("searchbox", { name: "Find an application" }).closest("label")!).getByRole("button", { name: "Clear search" }));
+    await user.click(within(screen.getByRole("searchbox", { name: "Search applications" }).closest("label")!).getByRole("button", { name: "Clear search" }));
     expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(34);
   });
 });

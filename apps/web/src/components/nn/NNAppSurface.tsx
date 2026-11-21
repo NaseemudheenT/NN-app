@@ -73,7 +73,7 @@ function isDone(record: NNRecord): boolean {
   return ["done", "finished", "paid", "published", "final", "delivered", "closed", "reached", "answered", "solved", "passed"].includes(status);
 }
 
-function SectionPanel({ section, appName }: { section: AppSection; appName: string }) {
+function SectionPanel({ section }: { section: AppSection }) {
   const records = useRecords(section.collection, { limit: 120 });
   const writer = useRecordWriter();
   const now = useClock();
@@ -192,15 +192,7 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
   return (
     <div className={styles.section}>
       <header className={styles.sectionTop}>
-        <div>
-          <h2>{section.name}</h2>
-          <p>{section.hint}</p>
-        </div>
-        <p className={styles.tally}>
-          {records.fault || records.loading
-            ? "—"
-            : `${open.length} open${done.length ? ` · ${done.length} done` : ""}`}
-        </p>
+        <h2>{section.name}</h2>
       </header>
 
       {problem ? (
@@ -324,8 +316,8 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
       ) : rows.length === 0 ? (
         <p className={styles.empty}>
           {search.trim()
-            ? `No ${section.name.toLocaleLowerCase()} match “${search.trim()}”. Try another search.`
-            : `Nothing here yet. ${appName} will hold ${section.noun} once you add one.`}
+            ? `No match for “${search.trim()}”.`
+            : `No ${section.name.toLocaleLowerCase()} yet.`}
         </p>
       ) : (
         <ul className={styles.rows}>
@@ -395,9 +387,7 @@ export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
       <WaveCard tone="tide" className={styles.banner}>
         <div className={styles.bannerInner}>
           <div>
-            <p className={styles.group}>{app.group}</p>
             <h1>{app.name}</h1>
-            <p className={styles.description}>{app.description}</p>
           </div>
           <WaveChip className={styles.bannerChip}>
             <Icon name={app.icon} size={22} />
@@ -444,7 +434,7 @@ export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
         {/* Keyed on the collection so switching tabs mounts a fresh
             subscription rather than painting one section's records into
             another's list while the new query resolves. */}
-        <SectionPanel key={section.collection} section={section} appName={app.name} />
+        <SectionPanel key={section.collection} section={section} />
         <NNDomainBlueprint app={app} />
       </div>
     </div>

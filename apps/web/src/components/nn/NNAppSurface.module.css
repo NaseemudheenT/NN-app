@@ -6,41 +6,27 @@
   padding: clamp(16px, 3vw, 36px) clamp(14px, 3vw, 28px) calc(clamp(60px, 8vw, 110px) + env(safe-area-inset-bottom, 0px));
 }
 
-.banner { margin-bottom: clamp(18px, 3vw, 28px); min-height: 160px; }
+ .banner { margin-bottom: clamp(14px, 2vw, 22px); min-height: 94px; }
 
 .bannerInner {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
   height: 100%;
-  padding: clamp(18px, 2.6vw, 28px);
+  padding: 18px clamp(18px, 2.6vw, 28px);
   box-sizing: border-box;
 }
 
-.group {
-  margin: 0 0 8px;
-  font-size: var(--text-micro-size);
-  letter-spacing: var(--text-micro-ls);
-  text-transform: uppercase;
-  color: var(--text-accent);
-}
 
-.bannerInner h1 {
+ .bannerInner h1 {
   margin: 0;
-  font-size: clamp(26px, 3.4vw, 40px);
+  font-size: clamp(24px, 3vw, 34px);
   font-weight: var(--weight-medium);
   letter-spacing: -0.03em;
   line-height: 1.08;
 }
 
-.description {
-  margin: 10px 0 0;
-  max-width: 48ch;
-  font-size: var(--text-label-size);
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
 
 .bannerChip {
   flex: none;
@@ -105,10 +91,9 @@
 
 .sectionTop {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 16px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .sectionTop h2 {
@@ -118,22 +103,6 @@
   letter-spacing: -0.015em;
 }
 
-.sectionTop p {
-  margin: 6px 0 0;
-  max-width: 54ch;
-  font-size: var(--text-caption-size);
-  line-height: 1.55;
-  color: var(--text-muted);
-}
-
-.tally {
-  flex: none;
-  margin: 0;
-  font-size: var(--text-caption-size);
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
 
 /* ------------------------------------------------------------- local search -- */
 
