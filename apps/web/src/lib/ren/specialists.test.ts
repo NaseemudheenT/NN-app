@@ -45,6 +45,23 @@ describe("NN workspace specialist registry", () => {
     expect(props["collection"]?.enum).not.toContain("tasks");
   });
 
+  it("lets REN delegate a focused task to an active workspace specialist", () => {
+    const delegated = planFromToolCall("delegate_to_specialist", {
+      appId: "finance",
+      text: "Review my recent spending and identify unusual categories.",
+    });
+    expect(delegated.ok).toBe(true);
+    expect(delegated.ok && delegated.plan).toMatchObject({
+      capability: "delegate",
+      args: { appId: "finance" },
+    });
+
+    expect(planFromToolCall("delegate_to_specialist", {
+      appId: "soul",
+      text: "Review my records",
+    }).ok).toBe(false);
+  });
+
   it("lets a specialist inspect only its own workspace records", () => {
     expect(planFromToolCall("inspect_workspace_records", {
       collection: "finance_transactions",
