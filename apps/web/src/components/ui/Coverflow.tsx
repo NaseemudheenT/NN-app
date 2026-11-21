@@ -88,6 +88,8 @@ export function Coverflow({
   const widthRef = React.useRef(0);
   const rafRef = React.useRef<number | null>(null);
   const lastFrameRef = React.useRef<number | null>(null);
+  /** Card-space velocity, in cards per second, carried through each spring. */
+  const velocityRef = React.useRef(0);
   const dragRef = React.useRef<{
     id: number;
     x: number;
@@ -151,6 +153,7 @@ export function Coverflow({
       setSelected(indexAt(target));
 
       if (prefersReducedMotion()) {
+        velocityRef.current = 0;
         posRef.current = target;
         paint();
         rafRef.current = null;
@@ -161,19 +164,27 @@ export function Coverflow({
       const step = (now: number) => {
         const previous = lastFrameRef.current;
         lastFrameRef.current = now;
-        const dt = previous === null ? 1 / 60 : Math.min((now - previous) / 1000, 0.1);
-
+        // Clamp a suspended-tab frame; the spring must not jump across the
+        // carousel when the browser resumes after backgrounding.
+        const dt = previous === null ? 1 / 60 : Math.min((now - previous) / 1000, 0.032);
         const remaining = target - posRef.current;
-        if (Math.abs(remaining) < 0.0004) {
+
+        // A damped spring in card-space. Acceleration pulls toward the target;
+        // damping dissipates velocity. This produces a small, controlled
+        // overshoot when the incoming flick has enough momentum, then settles.
+        const stiffness = 190;
+        const damping = 25;
+        const acceleration = remaining * stiffness - velocityRef.current * damping;
+        velocityRef.current += acceleration * dt;
+        posRef.current += velocityRef.current * dt;
+
+        if (Math.abs(remaining) < 0.0008 && Math.abs(velocityRef.current) < 0.008) {
           posRef.current = target;
+          velocityRef.current = 0;
           paint();
           rafRef.current = null;
           return;
         }
-        // Exponential ease-out, not a spring — this arrives without overshoot.
-        // Corrected for the frame length so a 120 Hz display settles at the
-        // same speed as a 60 Hz one instead of twice as fast.
-        posRef.current += remaining * (1 - Math.pow(1 - 0.16, dt * 60));
         paint();
         rafRef.current = requestAnimationFrame(step);
       };
@@ -229,6 +240,7 @@ export function Coverflow({
     const now = performance.now();
     const previous = posRef.current;
     posRef.current = clampPos(drag.pos - (event.clientX - drag.x) / pitch);
+    velocityRef.current = 0;
     // Cards per second, for the throw.
     drag.v = ((posRef.current - previous) / Math.max(now - drag.t, 1)) * 1000;
     drag.t = now;
@@ -244,6 +256,9 @@ export function Coverflow({
     dragRef.current = null;
     // Let a flick carry, but never more than two cards.
     const carried = Math.max(-2, Math.min(2, drag.v * 0.18));
+    // Preserve a portion of the measured release velocity so the spring has
+    // genuine inertia rather than merely animating toward a new index.
+    velocityRef.current = Math.max(-8, Math.min(8, drag.v));
     settle(clampPos(Math.round(posRef.current + carried)));
   };
 
