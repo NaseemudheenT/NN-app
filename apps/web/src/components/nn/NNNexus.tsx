@@ -18,7 +18,7 @@ const SYSTEM_LINKS = [
 const QUICK_LINKS = [
   { href: "/workspace", label: "Workspace", detail: "Your personal environment", icon: "grid" as const, tone: "blue" },
   { href: "/design", label: "Design system", detail: "NN interface library", icon: "sparkle" as const, tone: "violet" },
-];
+] as const;
 
 function formatTime(seconds: number) {
   const safe = Math.max(0, seconds);
