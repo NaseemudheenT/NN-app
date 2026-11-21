@@ -163,6 +163,12 @@
     gap: 3px;
     height: 52px;
     padding: 0 6px;
+    /* 52px tall and 37 wide, measured on production at 375px. The height
+       was right and the width was never constrained, so a four-item bar
+       divided the space and left each target narrower than a thumb. There
+       is room: four 44s and the padding fit a 375px screen with margin. */
+    min-width: 44px;
+    flex: 1 1 0;
   }
   .labelled .label { font-size: var(--text-micro-size); letter-spacing: 0; }
   .nav:not(.vertical):not(.labelled) .label {
