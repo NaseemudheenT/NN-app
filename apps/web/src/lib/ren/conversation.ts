@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { needsConfirmation, type RenPlan } from "./capabilities";
 import { planFromToolCall } from "./tools";
 import { useRenOperator } from "./operator";
+import { specialistForRoute } from "./specialists";
 
 /**
  * One conversation with REN.
@@ -202,6 +203,7 @@ export function useRenConversation(firstName?: string): RenConversation {
               const made = planFromToolCall(
                 String(chunk["name"] ?? ""),
                 (chunk["args"] ?? {}) as Record<string, unknown>,
+                specialistForRoute(pathname ?? "/")?.appId,
               );
               const run: ToolRun = made.ok
                 ? {
