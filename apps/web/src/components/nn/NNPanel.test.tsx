@@ -70,6 +70,12 @@ describe("choosing somewhere", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
+  it("returns focus to the island after choosing a destination", async () => {
+    await open();
+    await userEvent.click(screen.getByRole("button", { name: /Settings/ }));
+    expect(screen.getByRole("button", { name: /Go to/ })).toHaveFocus();
+  });
+
   it("marks where you already are", async () => {
     await open();
     const today = screen.getByRole("button", { name: /Today/ });

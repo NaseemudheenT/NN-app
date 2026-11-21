@@ -92,9 +92,9 @@ export function NNPanel() {
 
   const go = useCallback((destination: Destination) => {
     if (destination.route === undefined) return;
-    setOpen(false);
+    close();
     router.push(destination.route);
-  }, [router]);
+  }, [close, router]);
 
   /* Escape, and a press anywhere else, both close it. */
   useEffect(() => {
