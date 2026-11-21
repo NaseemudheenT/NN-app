@@ -2,11 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { REN_STATUS } from "@/lib/ren/state";
 import { useRen } from "@/components/ren/RenProvider";
 import styles from "./NNNexus.module.css";
+
+const SYSTEM_LINKS = [
+  { href: "/", label: "Home", icon: "home" as const },
+  { href: "/workspace", label: "Workspace", icon: "grid" as const },
+  { href: "/design", label: "Design", icon: "sparkle" as const },
+];
 
 const QUICK_LINKS = [
   { href: "/workspace", label: "Workspace", detail: "Your personal environment", icon: "grid" as const, tone: "blue" },
@@ -28,9 +35,11 @@ function formatTime(seconds: number) {
  */
 export function NNNexus() {
   const { machine, open: renOpen, summon } = useRen();
+  const pathname = usePathname();
   const rootRef = useRef<HTMLDivElement>(null);
   const deadlineRef = useRef<number | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [railExpanded, setRailExpanded] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [remaining, setRemaining] = useState(25 * 60);
   const [running, setRunning] = useState(false);
@@ -117,6 +126,38 @@ export function NNNexus() {
 
   return (
     <div className={styles.root} ref={rootRef} data-ren-open={renOpen}>
+      <aside className={styles.sideRail} aria-label="NN system navigation">
+        <button
+          type="button"
+          className={styles.railToggle}
+          aria-expanded={railExpanded}
+          aria-label={railExpanded ? "Collapse system navigation" : "Expand system navigation"}
+          onClick={() => setRailExpanded((value) => !value)}
+        >
+          <NNLogo size={18} decorative />
+          <span className={styles.railPulse} />
+        </button>
+        <nav className={styles.railLinks} data-open={railExpanded} aria-label="NN spaces">
+          {SYSTEM_LINKS.map((item) => (
+            <Link
+              href={item.href}
+              key={item.href}
+              className={styles.railLink}
+              data-active={pathname === item.href}
+              title={item.label}
+              aria-label={item.label}
+              onClick={() => setRailExpanded(false)}
+            >
+              <Icon name={item.icon} size={17} />
+              <span>{item.label}</span>
+            </Link>
+          ))}
+          <button type="button" className={styles.railAssistant} onClick={startRen} aria-label="Open REN assistant" title="REN">
+            <Icon name="sparkles" size={17} />
+            <span>REN</span>
+          </button>
+        </nav>
+      </aside>
       <div className={styles.islandWrap}>
         <button
           type="button"
