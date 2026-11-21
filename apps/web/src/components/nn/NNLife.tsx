@@ -383,7 +383,7 @@ function LifeSurface() {
       target: String(item.target ?? "1"),
       unit: typeof item.unit === "string" ? item.unit : "",
       cadence: typeof item.cadence === "string" ? item.cadence : "daily",
-      steps: Array.isArray(item.steps) ? item.steps.filter((step): step is string => typeof step === "string").join("\\n") : "",
+      steps: Array.isArray(item.steps) ? item.steps.filter((step): step is string => typeof step === "string").join("\n") : "",
       wins: typeof item.wins === "string" ? item.wins : "",
       lessons: typeof item.lessons === "string" ? item.lessons : "",
       nextStep: typeof item.nextStep === "string" ? item.nextStep : "",
