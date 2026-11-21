@@ -60,6 +60,10 @@ export interface CurvedCarouselProps {
 /* ---------------------------------------------------------------- motion -- */
 
 /** Wraps any index into 0..n-1, including negatives. */
+export function motionReduced(systemPreference: boolean, appPreference?: string): boolean {
+  return systemPreference || appPreference === "reduced";
+}
+
 export function wrapIndex(i: number, n: number): number {
   return n > 0 ? ((i % n) + n) % n : 0;
 }
@@ -253,53 +257,46 @@ export function glyphMask(icon: IconName): HTMLCanvasElement | null {
 }
 
 /**
- * Application identity light.
+ * The light inside the glass.
  *
- * Every application keeps the same physical glass material, but its emblem
- * receives a restrained identity hue from NN's approved cyan/blue/indigo/
- * violet spectrum. The hue is a semantic accent, not a flat painted tile:
- * the shader still supplies the moving water, bevel, reflection and rim.
+ * One tone for every application, not five.
+ *
+ * Each card used to take a hue from its own name — cyan, aqua, blue, indigo,
+ * violet — so a row of them was a row of different colours, and the founder
+ * read that as paint rather than material. Thirty-four applications are one
+ * set, and a set is held together by being made of the same thing. The
+ * colour now comes from the room the cards are in; the cards themselves are
+ * glass with a cool light moving in them.
+ *
+ * The signature still takes a name, so that if a card ever earns its own
+ * colour — a status, a warning, something true about that application rather
+ * than its spelling — this is the one place it would come from.
  */
 const GLASS: readonly [number, number, number] = [0.46, 0.74, 1.0];
+
+/** A stable colour signature for each app's own glass identity (linear RGB). */
 const APP_HUES: Readonly<Record<string, readonly [number, number, number]>> = {
-  "Life": [0.26, 0.88, 0.94],
-  "Soul": [0.70, 0.54, 1.00],
-  "Mind": [0.48, 0.60, 1.00],
-  "Body": [0.24, 0.88, 0.78],
-  "Contacts": [0.42, 0.72, 1.00],
-  "Nature & Universe": [0.32, 0.82, 0.92],
-  "Peace Mode": [0.56, 0.66, 1.00],
-  "College": [0.30, 0.62, 1.00],
-  "Academy": [0.48, 0.58, 1.00],
-  "Formula Engine": [0.34, 0.78, 1.00],
-  "Logic Lab": [0.42, 0.68, 0.98],
-  "Learning Vault": [0.58, 0.58, 0.98],
-  "Finance": [0.26, 0.82, 0.80],
-  "Invest": [0.30, 0.88, 0.70],
-  "Business": [0.36, 0.72, 0.96],
-  "Freelance": [0.48, 0.68, 1.00],
-  "Career": [0.34, 0.74, 0.94],
-  "Projects": [0.46, 0.62, 1.00],
-  "Achievements": [0.62, 0.58, 0.98],
-  "Creator Studio": [0.64, 0.54, 1.00],
-  "Studio": [0.52, 0.60, 1.00],
-  "Mail": [0.34, 0.72, 1.00],
-  "English": [0.34, 0.84, 0.92],
-  "Files": [0.40, 0.68, 0.98],
-  "Memory": [0.58, 0.60, 0.98],
-  "Life Archive": [0.48, 0.66, 1.00],
-  "Analytics": [0.30, 0.84, 0.82],
-  "Travel": [0.34, 0.76, 1.00],
-  "Simulator": [0.56, 0.58, 1.00],
-  "Command Centre": [0.30, 0.82, 0.96],
-  "Search": [0.42, 0.72, 1.00],
-  "Automation Studio": [0.50, 0.60, 1.00],
-  "Security Centre": [0.34, 0.76, 0.88],
-  "Control Room": [0.52, 0.62, 0.98],
+  "life": [1.0, 0.31, 0.25], "soul": [0.76, 0.36, 1.0],
+  "mind": [0.39, 0.43, 1.0], "body": [0.12, 0.82, 0.49],
+  "contacts": [1.0, 0.34, 0.58], "nature & universe": [0.31, 0.78, 0.35],
+  "peace mode": [0.18, 0.78, 0.86], "college": [0.18, 0.43, 1.0],
+  "academy": [0.22, 0.66, 1.0], "formula engine": [0.12, 0.82, 0.94],
+  "logic lab": [0.43, 0.53, 1.0], "learning vault": [0.66, 0.36, 1.0],
+  "finance": [0.12, 0.76, 0.39], "invest": [0.08, 0.83, 0.65],
+  "business": [0.13, 0.55, 1.0], "freelance": [0.62, 0.35, 1.0],
+  "career": [0.38, 0.49, 1.0], "projects": [1.0, 0.48, 0.16],
+  "achievements": [1.0, 0.70, 0.16], "creator studio": [1.0, 0.25, 0.63],
+  "studio": [0.70, 0.31, 1.0], "mail": [0.15, 0.62, 1.0],
+  "english": [0.27, 0.56, 1.0], "files": [0.20, 0.65, 1.0],
+  "memory": [0.62, 0.37, 1.0], "life archive": [0.90, 0.59, 0.24],
+  "analytics": [0.10, 0.76, 0.87], "travel": [0.12, 0.69, 0.72],
+  "simulator": [0.37, 0.49, 1.0], "command centre": [0.26, 0.47, 1.0],
+  "search": [0.12, 0.68, 1.0], "automation studio": [0.12, 0.77, 0.63],
+  "security centre": [0.10, 0.68, 0.44], "control room": [0.35, 0.58, 0.89],
 };
 
 export function hueFor(name: string): readonly [number, number, number] {
-  return APP_HUES[name] ?? GLASS;
+  return APP_HUES[name.trim().toLowerCase()] ?? GLASS;
 }
 
 /* ---------------------------------------------------------------- shader -- */
@@ -368,10 +365,10 @@ export const FRAG =
   "c+=uGround*veil;a+=veil;" +
   // A wash of the card's own colour over the whole face, so the water is
   // everywhere and the ribbons are its crests rather than its only light.
-  "c+=uHue*card*.07;a+=card*.07;" +
+  "c+=uHue*card*.14;a+=card*.14;" +
   // the water, lit from inside the glass
   "float water=clamp(w0*.72+w1*.95+w2*.6,0.,1.)*card;" +
-  "c+=uHue*water*.5;a+=water*.2;" +
+  "c+=uHue*water*.64;a+=water*.24;" +
   "float deep=w2*.34*card;c+=uHue*1.1*deep;a+=deep*.13;" +
   "float crest=w3*.5*uLight*card;c+=vec3(1.)*crest;a+=crest*.6;" +
   // the glass itself: a sheen off the top and a bright cut rim
@@ -400,7 +397,7 @@ export const FRAG =
   // the shadow it drops onto the tile, which is what gives it height
   "float sh=smoothstep(.35,.62,glyph(gt+vec2(0.,-.028)))*inside*(1.-m);" +
   "c*=1.-sh*.45;" +
-  "vec3 face=mix(uHue,vec3(1.),.62);" +
+  "vec3 face=mix(uHue,vec3(1.),.34);" +
   "vec3 lit=face*(.34+.8*lam)+vec3(1.)*spec*1.1;" +
   "c=mix(c,lit,m);a=mix(a,.97,m);" +
   // a hair of chromatic split at the rim, strongest while the stack moves
@@ -486,6 +483,7 @@ export function CurvedCarousel({
     if (!gl) { setHasGL(false); return; }
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const isReduced = () => motionReduced(reduced.matches, document.documentElement.dataset.motion);
 
     /* The water's own clock. Accumulated from frame deltas rather than read
        off the wall, so a stack that was scrolled away does not come back to
@@ -592,7 +590,7 @@ export function CurvedCarousel({
     let position = 0;
     let velocity = 0;
     let target = 0;
-    let intro = reduced.matches ? 1 : 0;
+    let intro = isReduced() ? 1 : 0;
     let introStart = -1;
     let dragging = false;
     let travelled = 0;
@@ -628,7 +626,7 @@ export function CurvedCarousel({
       gl.uniform2f(u.uRes!, stageW, stageH);
       gl.uniform2f(u.uSize!, cardW, cardH);
       gl.uniform1f(u.uBend!, bend);
-      gl.uniform1f(u.uVel!, reduced.matches ? 0 : Math.max(-1, Math.min(1, velocity * 0.12)));
+      gl.uniform1f(u.uVel!, isReduced() ? 0 : Math.max(-1, Math.min(1, velocity * 0.12)));
       gl.uniform1f(u.uTime!, clock);
       gl.uniform3f(u.uGround!, ground[0], ground[1], ground[2]);
       gl.uniform1f(u.uLight!, light);
@@ -670,7 +668,7 @@ export function CurvedCarousel({
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
       last = now;
 
-      clock += reduced.matches ? 0 : dt;
+      clock += isReduced() ? 0 : dt;
       if (intro < 1) {
         if (introStart < 0) introStart = now;
         intro = Math.min(1.5, (now - introStart) / 1100);
@@ -678,7 +676,7 @@ export function CurvedCarousel({
       }
 
       if (!dragging) {
-        if (reduced.matches) { position = target; velocity = 0; }
+        if (isReduced()) { position = target; velocity = 0; }
         else [position, velocity] = springStep(position, velocity, target, dt);
       }
 
@@ -702,7 +700,7 @@ export function CurvedCarousel({
         Math.abs(target - position) < 0.0005 &&
         Math.abs(velocity) < 0.001 &&
         intro >= 1;
-      const settled = still && reduced.matches;
+      const settled = still && isReduced();
 
       if (settled) { position = target; draw(); last = 0; }
       else if (visible) raf = requestAnimationFrame(frame);
@@ -773,8 +771,20 @@ export function CurvedCarousel({
     canvas.addEventListener("pointermove", onMove);
     canvas.addEventListener("pointerup", onUp);
     canvas.addEventListener("pointercancel", onUp);
-    const onMotion = () => kick();
+    const onMotion = () => {
+      if (isReduced()) {
+        position = target;
+        velocity = 0;
+        intro = 1;
+        introStart = -1;
+        dragging = false;
+        last = 0;
+      }
+      kick();
+    };
     reduced.addEventListener("change", onMotion);
+    const motionWatch = new MutationObserver(onMotion);
+    motionWatch.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
 
     const ro = new ResizeObserver((entries) => {
       const box = entries[0]?.contentRect;
@@ -793,6 +803,7 @@ export function CurvedCarousel({
       cancelAnimationFrame(raf);
       ro.disconnect();
       themeWatch.disconnect();
+      motionWatch.disconnect();
       io.disconnect();
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointermove", onMove);
