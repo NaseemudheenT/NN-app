@@ -9,7 +9,7 @@ describe("NN domain interface blueprints", () => {
   it("covers the core College and Academy workflows with dedicated modules", () => {
     expect(DOMAIN_BLUEPRINTS.college?.map((blueprint) => blueprint.id)).toEqual(["semester", "syllabus", "question-bank", "exam-prep"]);
     expect(DOMAIN_BLUEPRINTS.academy?.map((blueprint) => blueprint.id)).toEqual(["paths", "courses", "lesson", "mastery"]);
-    expect(DOMAIN_BLUEPRINTS.college?.map((blueprint) => blueprint.layout)).toEqual(["dashboard", "navigator", "library", "planner"]);
+    expect(DOMAIN_BLUEPRINTS.college?.map((blueprint) => blueprint.layout)).toEqual(["planner", "navigator", "library", "planner"]);
     expect(DOMAIN_BLUEPRINTS.academy?.map((blueprint) => blueprint.layout)).toEqual(["roadmap", "library", "reader", "analytics"]);
   });
 

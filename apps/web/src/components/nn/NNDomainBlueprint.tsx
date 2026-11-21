@@ -33,7 +33,7 @@ const APP_LAYOUTS: Readonly<Record<string, Readonly<Record<string, DomainLayout>
   career: { skills: "roadmap", portfolio: "library", interviews: "timeline" },
   projects: { boards: "board", timeline: "timeline", retrospective: "editor" },
   achievements: { milestones: "roadmap", certificates: "library", evidence: "library" },
-  "creator-studio": { calendar: "timeline", media: "media", production: "board" },
+  "creator-studio": { calendar: "timeline", media: "media", production: "media" },
   studio: { documents: "editor", templates: "library", publishing: "media" },
   mail: { inbox: "inbox", compose: "editor", followups: "timeline" },
   english: { plan: "roadmap", listening: "media", speaking: "timeline", writing: "editor" },
@@ -44,7 +44,7 @@ const APP_LAYOUTS: Readonly<Record<string, Readonly<Record<string, DomainLayout>
   simulator: { scenarios: "roadmap", model: "calculator", results: "analytics" },
   "command-centre": { overview: "settings", activity: "timeline", integrations: "flow" },
   "automation-studio": { workflows: "flow", approvals: "security", runs: "timeline" },
-  "security-centre": { access: "security", sessions: "security", audit: "timeline" },
+  "security-centre": { access: "security", sessions: "security", audit: "security" },
   "control-room": { environment: "settings", preferences: "settings", data: "security" },
 };
 
@@ -135,7 +135,7 @@ export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>
     { id: "reflection", title: "Reflect", description: "Capture a short reflection after a quiet session.", icon: "file", regions: ["Reflection editor", "Session links", "Private history"] },
   ],
   college: [
-    { id: "semester", layout: "dashboard", title: "Semester", description: "A clear academic home for subjects, exams and the work ahead.", icon: "calendar", regions: ["Semester selector", "Subject cards", "Upcoming academic dates"] },
+    { id: "semester", layout: "planner", title: "Semester", description: "A clear academic home for subjects, exams and the work ahead.", icon: "calendar", regions: ["Semester selector", "Subject cards", "Upcoming academic dates"] },
     { id: "syllabus", layout: "navigator", title: "Syllabus", description: "Move from a subject into units, topics and source material.", icon: "book", regions: ["Subject overview", "Unit navigator", "Topic notes"] },
     { id: "question-bank", layout: "library", title: "Question Bank", description: "Browse questions by subject, unit, marks and source.", icon: "search", regions: ["Question filters", "Question reader", "Answer workspace"] },
     { id: "exam-prep", layout: "planner", title: "Exam Prep", description: "Organise assignments, timetable, attendance, marks and revision.", icon: "graph", regions: ["Assignment board", "Exam timetable", "Attendance and marks"] },
