@@ -530,3 +530,36 @@
   .banner,
   .section { scroll-behavior: auto; }
 }
+
+
+/* Category-tuned light makes the shared interface feel native to each domain. */
+.root[data-domain="Life & wellbeing"]::before {
+  background:
+    radial-gradient(ellipse at 18% 18%, rgb(84 211 207 / 13%), transparent 45%),
+    radial-gradient(ellipse at 84% 28%, rgb(102 154 255 / 9%), transparent 42%);
+}
+.root[data-domain="Education"]::before {
+  background:
+    radial-gradient(ellipse at 18% 18%, rgb(74 169 255 / 14%), transparent 45%),
+    radial-gradient(ellipse at 84% 28%, rgb(86 216 235 / 9%), transparent 42%);
+}
+.root[data-domain="Money & work"]::before {
+  background:
+    radial-gradient(ellipse at 18% 18%, rgb(93 144 255 / 14%), transparent 45%),
+    radial-gradient(ellipse at 84% 28%, rgb(154 125 255 / 10%), transparent 42%);
+}
+.root[data-domain="Creation & communication"]::before {
+  background:
+    radial-gradient(ellipse at 18% 18%, rgb(165 133 255 / 13%), transparent 45%),
+    radial-gradient(ellipse at 84% 28%, rgb(104 177 255 / 9%), transparent 42%);
+}
+.root[data-domain="Knowledge & insight"]::before {
+  background:
+    radial-gradient(ellipse at 18% 18%, rgb(83 193 226 / 13%), transparent 45%),
+    radial-gradient(ellipse at 84% 28%, rgb(128 142 255 / 10%), transparent 42%);
+}
+.root[data-domain="System"]::before {
+  background:
+    radial-gradient(ellipse at 18% 18%, rgb(163 197 231 / 12%), transparent 45%),
+    radial-gradient(ellipse at 84% 28%, rgb(117 139 196 / 9%), transparent 42%);
+}

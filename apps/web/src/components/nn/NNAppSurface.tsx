@@ -390,7 +390,7 @@ export function NNAppSurface({ app, sections }: NNAppSurfaceProps) {
   if (!section) return null;
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-domain={app.group} data-app={app.id}>
       <WaveCard tone="tide" className={styles.banner}>
         <div className={styles.bannerInner}>
           <div>
