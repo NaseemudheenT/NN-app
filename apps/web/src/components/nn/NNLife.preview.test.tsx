@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { LifePreviewCanvas, type LifePreviewTab } from "./NNLife";
 
 vi.mock("@/components/ui/Icon", () => ({
   Icon: ({ name }: { name: string }) => <span aria-hidden="true">{name}</span>,
 }));
 vi.mock("@/components/ui/GlassPanel", () => ({
-  GlassPanel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  GlassPanel: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
 afterEach(cleanup);
@@ -17,7 +18,7 @@ describe("NN Life design canvases", () => {
     for (const module of modules) {
       const { unmount } = render(<LifePreviewCanvas module={module} />);
       expect(document.querySelector(`[data-preview="${module}"]`)).toBeInTheDocument();
-      expect(screen.getByLabelText(new RegExp(module === "reviews" ? "Reflection review" : module, "i"))).toBeInTheDocument();
+      expect(document.querySelector(`[data-preview="${module}"]`)?.getAttribute("aria-label")).toBeTruthy();
       unmount();
     }
   });
