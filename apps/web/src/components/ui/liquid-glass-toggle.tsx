@@ -152,6 +152,7 @@ export function LiquidToggle({
     "--toggle-width": `${trackWidth}px`,
     "--toggle-knob": `${knobSize}px`,
     "--toggle-progress": progress,
+    "--toggle-offset": `${(trackWidth - knobSize - 8) * progress}px`,
     ...style,
   } as React.CSSProperties;
 
