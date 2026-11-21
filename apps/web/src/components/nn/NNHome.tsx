@@ -1,41 +1,25 @@
 "use client";
 
 import { RequireOwner } from "@/components/auth/RequireOwner";
-import { NNDashboard } from "@/components/nn/NNDashboard";
+import { NNAppLauncher } from "@/components/nn/NNAppLauncher";
 import { useAuth } from "@/lib/auth";
 import { ownerFirstName } from "@/lib/nn/owner";
 
-/**
- * Home is NN's dashboard.
- *
- * It used to be a wall of folders. The founder's direction is that folders
- * belong to documents — they are how Files works — and the environment's own
- * front door is the adjustable-glass dashboard: today's state, every
- * application through the lens, the record of what has happened, and the
- * system itself. That is what this now opens on.
- */
+/** The private front door to NN: application discovery, not an analytics dashboard. */
 function HomeSurface() {
   const { user } = useAuth();
   const firstName = ownerFirstName(user?.displayName);
 
-  // Signing out lives in Settings, with everything else about this session.
   return (
     <RequireOwner>
-      <NNDashboard firstName={firstName} />
+      <NNAppLauncher firstName={firstName} />
     </RequireOwner>
   );
 }
 
-/**
- * A visual-only surface for the design route.
- *
- * It renders the same dashboard with no session, which is exactly what an
- * unauthenticated visitor would see inside it: every live panel reporting
- * that it cannot read, rather than sample numbers pretending to be the
- * founder's.
- */
+/** The design route sees the same honest launcher without a real owner session. */
 export function NNHomePreview() {
-  return <NNDashboard firstName={ownerFirstName(null)} />;
+  return <NNAppLauncher firstName={ownerFirstName(null)} />;
 }
 
 export default function NNHome() {
