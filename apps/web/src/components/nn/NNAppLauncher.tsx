@@ -15,7 +15,15 @@ import styles from "./NNAppLauncher.module.css";
  * Keep Home deliberately quiet: discover and open applications here; do the
  * work inside them. The registry is the single source of truth.
  */
-const APP_TONES: Record<string, string> = { life: "green", college: "blue", study: "blue", finance: "green", invest: "green", business: "amber", work: "cyan", career: "blue", create: "violet", design: "violet", media: "violet", knowledge: "ice", search: "cyan", security: "slate", settings: "slate", ren: "violet" };
+const APP_TONES: Record<string, string> = {
+  life: "green", soul: "amber", mind: "violet", body: "red", contacts: "blue", "nature-universe": "aqua", "peace-mode": "ice",
+  college: "blue", academy: "violet", "formula-engine": "cyan", "logic-lab": "aqua", "learning-vault": "amber",
+  finance: "green", invest: "aqua", business: "amber", freelance: "violet", career: "blue", projects: "cyan", achievements: "amber",
+  "creator-studio": "violet", studio: "red", mail: "blue", english: "aqua",
+  files: "cyan", memory: "violet", "life-archive": "amber", analytics: "green", travel: "blue", simulator: "aqua",
+  "command-centre": "cyan", search: "blue", "automation-studio": "violet", "security-centre": "red", "control-room": "slate",
+  study: "blue", work: "cyan", create: "violet", design: "violet", media: "violet", knowledge: "ice", security: "slate", settings: "slate", ren: "violet",
+};
 
 export function NNAppLauncher() {
   const travel = useAppTransition();
