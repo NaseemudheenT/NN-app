@@ -95,7 +95,7 @@ export function NNNexus() {
   }
 
   return (
-    <div className={styles.root} ref={rootRef}>
+    <div className={styles.root} ref={rootRef} data-ren-open={renOpen}>
       <div className={styles.islandWrap}>
         <button
           type="button"
