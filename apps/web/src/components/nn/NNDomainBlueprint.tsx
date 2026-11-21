@@ -180,6 +180,52 @@ export const DOMAIN_BLUEPRINTS: Readonly<Record<string, readonly DomainModule[]>
   ],
 };
 
+function EducationCanvas({ app, module }: { app: NNApplication; module: DomainModule }) {
+  const regions = module.regions;
+  const isCollege = app.id === "college";
+  const kind = module.layout ?? "dashboard";
+  return (
+    <div className={styles.educationCanvas} data-layout={kind} aria-label="Education interface wireframe. No real academic records are shown.">
+      {kind === "dashboard" ? (
+        <>
+          <div className={styles.educationWelcome}><span>{app.name.toUpperCase()} / OVERVIEW</span><strong>{module.title}</strong><small>Semester context and academic workspace</small></div>
+          <div className={styles.educationDashboard}>
+            {regions.map((region, index) => <div className={styles.educationTile} key={region}><span>{String(index + 1).padStart(2, "0")}</span><strong>{region}</strong><i/><i/></div>)}
+          </div>
+        </>
+      ) : null}
+      {kind === "navigator" ? (
+        <div className={styles.educationSplit}>
+          <aside className={styles.educationTree}><span>SUBJECT STRUCTURE</span>{regions.map((region,index)=><div key={region} data-active={index===0}><i/>{region}</div>)}</aside>
+          <div className={styles.educationReader}><span>SELECTED TOPIC</span><strong>{regions[2] ?? module.title}</strong><div className={styles.wireParagraph}><i/><i/><i/><i/></div><div className={styles.wireCallout}/><span className={styles.wireButton}>OPEN STUDY NOTES</span></div>
+        </div>
+      ) : null}
+      {kind === "library" ? (
+        <div className={styles.educationSplit}>
+          <aside className={styles.educationTree}><span>{isCollege ? "QUESTION FILTERS" : "COURSE FILTERS"}</span>{regions.slice(0,2).map((region,index)=><div key={region} data-active={index===0}><i/>{region}</div>)}</aside>
+          <div className={styles.educationList}><span>{isCollege ? "QUESTION COLLECTION" : "COURSE LIBRARY"}</span>{regions.map((region,index)=><div className={styles.educationListRow} key={region}><span>{String(index+1).padStart(2,"0")}</span><strong>{region}</strong><i/></div>)}</div>
+        </div>
+      ) : null}
+      {kind === "planner" ? (
+        <div className={styles.educationPlanner}><span>ACADEMIC TIMELINE</span>{regions.map((region,index)=><div className={styles.timelineRow} key={region}><span>{String(index+1).padStart(2,"0")}</span><i/><strong>{region}</strong><small>PLANNING AREA</small></div>)}</div>
+      ) : null}
+      {kind === "roadmap" ? (
+        <div className={styles.educationRoadmap}><span>LEARNING PATH</span><div className={styles.pathNodes}>{regions.map((region,index)=><div key={region} data-step={index===0?"active":"future"}><i>{String(index+1).padStart(2,"0")}</i><strong>{region}</strong></div>)}</div></div>
+      ) : null}
+      {kind === "reader" ? (
+        <div className={styles.educationSplit}>
+          <div className={styles.educationReader}><span>LESSON CONTENT</span><strong>{module.title}</strong><div className={styles.wireParagraph}><i/><i/><i/><i/><i/></div><div className={styles.wireCallout}/><div className={styles.wireParagraph}><i/><i/><i/></div></div>
+          <aside className={styles.educationTree}><span>STUDY PANEL</span>{regions.slice(1).map((region,index)=><div key={region}><i/>{region}</div>)}</aside>
+        </div>
+      ) : null}
+      {kind === "analytics" ? (
+        <div className={styles.educationAnalytics}><span>MASTERY REVIEW · VISUAL STRUCTURE ONLY</span><div className={styles.masteryBars}>{regions.map((region,index)=><div key={region}><i style={{height:`${30 + index * 15}%`}}/><strong>{region}</strong></div>)}</div></div>
+      ) : null}
+      <div className={styles.educationFootnote}>DESIGN PREVIEW · CONNECT TO VERIFIED ACADEMIC RECORDS IN CLAUDE PHASE</div>
+    </div>
+  );
+}
+
 export function NNDomainBlueprint({ app }: { app: NNApplication }) {
   const modules = DOMAIN_BLUEPRINTS[app.id];
   const [selectedId, setSelectedId] = useState(modules?.[0]?.id ?? "");
@@ -223,7 +269,8 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
             <span className={styles.screenBrand}><Icon name={app.icon} size={13}/>{app.name}</span>
             <span className={styles.screenMode}>CONCEPT LAYOUT</span>
           </div>
-          <div className={styles.screenBody}>
+          {app.group === "Education" ? <EducationCanvas app={app} module={selected}/> : (
+        <div className={styles.screenBody}>
             <aside className={styles.screenRail} aria-hidden="true">
               <span className={styles.railMark}/>
               <span className={styles.railMark}/>
@@ -254,6 +301,7 @@ export function NNDomainBlueprint({ app }: { app: NNApplication }) {
             </aside>
           </div>
           <div className={styles.screenFooter}><span>STRUCTURE ONLY · NO SAMPLE RECORDS</span><span>RESPONSIVE LAYOUT</span></div>
+        )}
         </div>
         <div className={styles.regions}>
           {selected.regions.map((region, index) => (
