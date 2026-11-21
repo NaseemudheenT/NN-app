@@ -1,42 +1,12 @@
 /* NN's dashboard: one sheet of adjustable glass over the room. */
 
- .root {
+.root {
   position: relative;
   isolation: isolate;
-  overflow: clip;
   min-height: 100dvh;
   padding: clamp(12px, 2.4vw, 34px) clamp(10px, 2vw, 28px) clamp(24px, 3vw, 32px);
   box-sizing: border-box;
   color: var(--text-primary);
-}
-
-.root::before,
-.root::after {
-  content: "";
-  position: fixed;
-  z-index: -1;
-  width: min(58vw, 780px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  pointer-events: none;
-  filter: blur(clamp(78px, 11vw, 160px));
-  opacity: .42;
-  animation: nn-dashboard-atmosphere 30s ease-in-out infinite alternate;
-}
-.root::before {
-  top: -32vw;
-  left: -26vw;
-  background: radial-gradient(circle, rgb(35 124 255 / 26%), transparent 68%);
-}
-.root::after {
-  right: -30vw;
-  bottom: -36vw;
-  background: radial-gradient(circle, rgb(148 76 255 / 22%), transparent 70%);
-  animation-delay: -15s;
-}
-@keyframes nn-dashboard-atmosphere {
-  from { transform: translate3d(0, 0, 0) scale(.94); }
-  to { transform: translate3d(3vw, 2vw, 0) scale(1.08); }
 }
 
 /* Every sheet in the dashboard reads the founder's five values. */
@@ -70,13 +40,7 @@
   padding: 0 clamp(12px, 2vw, 20px);
   margin: 0 auto 16px;
   max-width: 1320px;
-  border: 1px solid rgb(195 222 255 / 20%);
-  border-top-color: rgb(255 255 255 / 36%);
-  border-radius: 22px;
-  background:
-    radial-gradient(120% 180% at 0% 0%, rgb(77 156 255 / 15%), transparent 58%),
-    linear-gradient(145deg, rgb(235 246 255 / 9%), rgb(39 70 132 / 8%) 48%, rgb(5 13 34 / 42%)),
-    color-mix(in srgb, var(--surface-raised) 72%, transparent);
+  border-radius: var(--radius-xl);
 }
 
 .brand {
@@ -88,16 +52,9 @@
 
 
 .brand strong {
-  display: block;
-  font-size: 15px;
-  font-weight: var(--weight-bold, 700);
-  letter-spacing: .2em;
-}
-.brandWord { display: grid; gap: 2px; }
-.brandWord small {
-  color: var(--text-muted);
-  font: 600 8px/1 var(--font-mono);
-  letter-spacing: .18em;
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.14em;
 }
 
 
@@ -124,19 +81,13 @@
 
 .iconButton {
   composes: nn-liquid from global;
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
-  border: 1px solid rgb(208 231 255 / 24%);
   border-radius: var(--radius-full);
-  background: radial-gradient(circle at 28% 18%, rgb(255 255 255 / 30%), transparent 48%), linear-gradient(145deg, rgb(68 151 255 / 22%), rgb(125 89 235 / 16%));
-  color: var(--text-primary);
-  transition: transform 220ms var(--ease-spring), box-shadow 220ms ease, border-color 220ms ease;
+  color: var(--text-secondary);
 }
-.iconButton:hover { transform: translateY(-2px); border-color: rgb(170 221 255 / 54%); box-shadow: 0 8px 24px rgb(34 120 255 / 18%); }
-.iconButton:active { transform: scale(.94); }
-.iconButton:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 
 .avatar {
   composes: nn-liquid from global;
@@ -144,10 +95,7 @@
   height: 32px;
   display: grid;
   place-items: center;
-  border: 1px solid rgb(214 232 255 / 38%);
   border-radius: var(--radius-full);
-  background: radial-gradient(circle at 28% 18%, rgb(255 255 255 / 44%), transparent 42%), linear-gradient(145deg, rgb(69 156 255 / 78%), rgb(113 86 226 / 76%) 58%, rgb(35 54 112 / 92%));
-  color: #fff;
   font: inherit;
   font-size: var(--text-caption-size);
   font-weight: var(--weight-semibold);
@@ -179,13 +127,8 @@
   composes: sheet;
   flex: 1;
   min-width: 0;
-  border: 1px solid rgb(199 225 255 / 17%);
-  border-radius: 30px;
+  border-radius: var(--radius-2xl);
   padding: clamp(18px, 2.6vw, 30px) clamp(16px, 2.4vw, 30px) 104px;
-  background:
-    radial-gradient(90% 50% at 4% 0%, rgb(58 135 255 / 11%), transparent 68%),
-    radial-gradient(65% 55% at 100% 100%, rgb(129 75 226 / 9%), transparent 72%),
-    color-mix(in srgb, var(--surface-raised) calc(var(--nn-glass-opacity, .34) * 100%), transparent);
 }
 
 .heading { margin-bottom: 22px; }
@@ -337,7 +280,7 @@
 
 .pair {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1.25fr 1fr;
   gap: 12px;
 }
 
@@ -349,14 +292,8 @@
   background: var(--glass-2-bg);
   backdrop-filter: blur(var(--glass-2-blur)) saturate(1.25);
   -webkit-backdrop-filter: blur(var(--glass-2-blur)) saturate(1.25);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 15%), var(--card-lift);
+  box-shadow: var(--card-lift);
   min-width: 0;
-  transition: transform 220ms var(--ease-spring), border-color 220ms ease, box-shadow 220ms ease;
-}
-.panel:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--focus-ring) 38%, var(--glass-2-border));
-  box-shadow: 0 18px 44px rgb(0 0 0 / 18%), inset 0 1px 0 rgb(255 255 255 / 22%);
 }
 
 .panelTop {
@@ -802,10 +739,7 @@
   /* Room at the bottom for the fixed bar, plus the home indicator. */
   .root { padding: 8px 10px calc(78px + env(safe-area-inset-bottom)); }
 
-  .topbar { height: 54px; border-radius: var(--radius-lg); margin-bottom: 10px; }
-  .brandWord small { display: none; }
-  .toolbar { gap: 6px; }
-  .iconButton { width: 40px; height: 40px; }
+  .topbar { height: 50px; border-radius: var(--radius-lg); margin-bottom: 10px; }
   .brandLine, .divider { display: none; }
   .adjust span { display: none; }
   .adjust { padding: 9px; }
@@ -860,7 +794,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .root::before, .root::after { animation: none; }
   .skeleton span { animation: none; }
   .family:hover { transform: none; }
   .track i { transition-duration: 1ms; }
