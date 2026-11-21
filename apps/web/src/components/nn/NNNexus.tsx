@@ -62,7 +62,11 @@ export function NNNexus() {
     };
   }, []);
 
-  useEffect(() => {\n    if (remaining === 0) setRunning(false);\n  }, [remaining]);\n\n  const dateLabel = new Intl.DateTimeFormat("en-IN", {
+  useEffect(() => {
+    if (remaining === 0) setRunning(false);
+  }, [remaining]);
+
+  const dateLabel = new Intl.DateTimeFormat("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "long",
