@@ -32,7 +32,7 @@ describe("NN Home launcher", () => {
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("main", { name: "NN application launcher" })).toBeInTheDocument();
     expect(screen.getByRole("searchbox", { name: "Find an application" })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /^Open / })).toHaveLength(APPLICATIONS.length);
+    expect(screen.getAllByRole("button", { name: /^Open (?!NN control panel)/ })).toHaveLength(APPLICATIONS.length);
   });
 
   it("shows all 34 registered applications grouped by their canonical family", () => {
