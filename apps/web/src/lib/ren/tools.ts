@@ -77,6 +77,19 @@ export const REN_TOOLS: readonly RenTool[] = [
     ),
   },
   {
+    name: "inspect_workspace_records",
+    description:
+      "Read records from one specific workspace collection and return a concise, factual summary. " +
+      "This is read-only. Never use another workspace's collection.",
+    schema: object(
+      {
+        collection: { type: "string", enum: COLLECTIONS, description: "The workspace-owned collection to inspect." },
+        text: { type: "string", description: "Optional phrase to filter records." },
+      },
+      ["collection"],
+    ),
+  },
+  {
     name: "search_records",
     description:
       "Search everything the founder has stored in NN for a phrase, and show them the results.",
@@ -155,6 +168,7 @@ const CAPABILITY_OF: Readonly<Record<string, CapabilityId>> = {
   open_application: "open",
   capture_record: "capture",
   search_records: "find",
+  inspect_workspace_records: "inspect",
   complete_record: "complete",
   discard_record: "discard",
   report_state: "report",
@@ -200,6 +214,14 @@ export function planFromToolCall(
       return { ok: false, why: `NN has no application with the id "${appId ?? ""}".` };
     }
     resolved.appId = appId;
+  }
+
+  if (capability === "inspect") {
+    if (!collection || !COLLECTIONS.includes(collection)) {
+      return { ok: false, why: `Nothing in NN stores "${collection ?? ""}".` };
+    }
+    resolved.collection = collection;
+    if (text) resolved.text = text;
   }
 
   if (capability === "complete" || capability === "discard") {
@@ -250,7 +272,7 @@ export function toolsForSpecialist(agent: WorkspaceSpecialist): readonly RenTool
   if (agent.status !== "active" || agent.collections.length === 0) return [];
   const allowed = new Set(agent.collections);
   return REN_TOOLS.filter((tool) =>
-    ["capture_record", "complete_record", "discard_record"].includes(tool.name),
+    ["inspect_workspace_records", "capture_record", "complete_record", "discard_record"].includes(tool.name),
   ).flatMap((tool) => {
     const properties = tool.schema["properties"];
     if (!properties || typeof properties !== "object") return [];
