@@ -489,3 +489,50 @@
  .modulePanel .rowBody strong{font-size:11px}.modulePanel .rowBody p{font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){.heroOrb{animation:none}.sectionTab,.tabArrow,.modulePanel .rows li{transition:none}}
+
+
+/* Refined phone ergonomics for every NN workspace. */
+@media (max-width: 640px) {
+  .root { padding-inline: max(10px, env(safe-area-inset-left)); padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+  .hero { min-height: 248px; }
+  .heroMeta { flex-wrap: wrap; }
+  .heroIdentity { align-items: flex-start; }
+  .appSeal { flex: 0 0 58px; width: 58px; }
+  .heroTitles { padding-top: 2px; }
+  .workspace { min-width: 0; }
+  .rail { min-width: 0; }
+  .sectionNav { scroll-snap-type: x proximity; overscroll-behavior-x: contain; }
+  .sectionTab { scroll-snap-align: start; min-height: 44px; }
+  .workArea { min-width: 0; }
+  .moduleHeader { align-items: flex-start; }
+  .liveStatus { white-space: nowrap; }
+  .modulePanel .add { min-height: 44px; padding-inline: 15px; }
+  .modulePanel .form { padding: 13px; gap: 13px; }
+  .modulePanel .field input, .modulePanel .field select { min-height: 44px; font-size: 16px; }
+  .modulePanel .field textarea { min-height: 96px; font-size: 16px; }
+  .modulePanel .formActions { flex-wrap: wrap; }
+  .modulePanel .formActions button { min-height: 44px; }
+  .modulePanel .rows li { min-height: 52px; }
+  .modulePanel .tick { width: 28px; height: 28px; border-radius: 9px; }
+  .modulePanel .remove { width: 32px; height: 32px; }
+}
+
+@media (max-width: 380px) {
+  .hero { min-height: 232px; }
+  .heroContent { padding: 17px; }
+  .heroIdentity { gap: 12px; }
+  .appSeal { flex-basis: 52px; width: 52px; }
+  .heroTitles h1 { font-size: clamp(28px, 9vw, 36px); }
+  .moduleHeader { flex-direction: column; gap: 9px; }
+  .liveStatus { margin-top: 0; }
+}
+
+@media (hover: none) {
+  .sectionTab:hover { transform: none; }
+  .modulePanel .rows li:hover { background: transparent; }
+  .modulePanel .remove { opacity: .8; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroOrb, .sectionTab, .tabArrow, .modulePanel .rows li { animation: none; transition: none; }
+}
