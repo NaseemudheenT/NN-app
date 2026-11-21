@@ -24,6 +24,16 @@ describe("NN domain interface blueprints", () => {
       }
     }
   });
+  it("keeps every feature label concise and unique within its application", () => {
+    for (const [appId, modules] of Object.entries(DOMAIN_BLUEPRINTS)) {
+      const titles = modules.map((module) => module.title);
+      expect(new Set(titles).size, appId).toBe(titles.length);
+      for (const title of titles) {
+        expect(title.length, `${appId}/${title} should stay concise`).toBeLessThanOrEqual(14);
+      }
+    }
+  });
+
   it("selects specialised layouts for distinct application domains", () => {
     const resolve = (appId: string, id: string, title: string) =>
       inferDomainLayout(appId, { id, title, description: "", icon: "file", regions: ["One", "Two", "Three"] });
