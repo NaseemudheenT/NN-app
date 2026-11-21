@@ -19,7 +19,7 @@ function specialistIndex(): string {
   return WORKSPACE_SPECIALISTS
     .filter((agent) => agent.status === "active")
     .map((agent) => `- ${agent.appId}: ${agent.name} — ${agent.mission}`)
-    .join("\\n");
+    .join("\n");
 }
 
 function applicationIndex(): string {
