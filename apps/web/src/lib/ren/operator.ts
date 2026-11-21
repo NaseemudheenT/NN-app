@@ -8,6 +8,7 @@ import { passkeysSupported, signInWithPasskey, useAuth } from "@/lib/auth";
 import { useTheme } from "@/lib/theme";
 import { routeFor, sectionName, needsReauthentication, type RenPlan } from "./capabilities";
 import { listVoices, pickVoice, writeVoicePreference } from "./voices";
+import { specialistForApp } from "./specialists";
 
 /**
  * REN's hands.
@@ -65,7 +66,8 @@ export function useRenOperator(): RenOperator {
     while (Date.now() < deadline) {
       await new Promise((resolve) => window.setTimeout(resolve, 90));
       if (journey.current !== trip) return false;   // superseded
-      if (window.location.pathname === to) return true;
+      const target = new URL(to, window.location.origin);
+      if (window.location.pathname === target.pathname && window.location.search === target.search) return true;
     }
     return false;
   }, [router]);
@@ -157,6 +159,20 @@ export function useRenOperator(): RenOperator {
         return arrived
           ? { ok: true, said: `Opened ${plan.args.appId ? labelOf(plan) : "it"}.` }
           : { ok: false, said: `I asked NN to open ${to} and it did not arrive. You are still here.` };
+      }
+
+      case "delegate": {
+        const appId = plan.args.appId;
+        const task = plan.args.text?.trim();
+        const agent = appId ? specialistForApp(appId) : null;
+        if (!agent || agent.status !== "active" || !task) {
+          return { ok: false, said: "I could not resolve an active workspace specialist for that task." };
+        }
+        const destination = `/ren/chat?workspace=${encodeURIComponent(agent.appId)}&task=${encodeURIComponent(task)}`;
+        const arrived = await arrive(destination);
+        return arrived
+          ? { ok: true, said: `Handed the task to the ${agent.name}. The request is open in its workspace chat.` }
+          : { ok: false, said: `I could not open the ${agent.name}; no task was handed off.` };
       }
 
       case "find": {
