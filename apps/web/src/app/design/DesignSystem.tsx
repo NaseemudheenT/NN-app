@@ -184,17 +184,17 @@ export function DesignSystem() {
 
         {tab === "ren" ? (
         <section className={s.section} id="ren">
-          <div className={s.sectionHead}><span className={s.num}>00</span><h2 className={s.h2}>REN command surface</h2></div>
+          <div className={s.sectionHead}><span className={s.num}>00</span><h2 className={s.h2}>REN interface preview</h2></div>
           <div className={s.renWrap}>
             <RenCommand
               state={renState}
               value={renValue}
               onValueChange={setRenValue}
               onSubmit={(v) => {
-                record(`sent to REN: "${v}"`);
+                // This is an isolated component preview, not the live REN
+                // assistant. Never imply that a prompt reached an AI provider.
+                record(`preview input captured locally (${v.length} characters) — REN is not connected`);
                 setRenValue("");
-                setRenState("thinking");
-                window.setTimeout(() => setRenState("idle"), 1800);
               }}
               onMicToggle={() => {
                 const next = renState === "listening" ? "idle" : "listening";
