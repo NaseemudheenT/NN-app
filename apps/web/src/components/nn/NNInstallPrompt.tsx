@@ -24,6 +24,6 @@ export function NNInstallPrompt(){
    {mode==="prompt"?<button type="button" onClick={()=>void install()} disabled={busy}>{busy?"Opening…":"Install NN"}</button>:<button type="button" onClick={()=>setOpen(v=>!v)} aria-expanded={open}>{open?"Close":"How to install"}</button>}
    <button className={styles.dismiss} type="button" aria-label="Dismiss install guide" onClick={()=>setMode("hidden")}><Icon name="close" size={15}/></button>
   </div>
-  {open&&<div className={styles.guide}><b>{mode==="ios"?"On iPhone or iPad":"Add NN to your home screen"}</b><ol><li>Open this page in <strong>Safari</strong>.</li><li>Tap the <strong>Share</strong> button.</li><li>Choose <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong>. Open NN from its new home-screen icon.</li></ol><small>On iOS, use Safari's Share menu. Installation is not available from every in-app browser.</small></div>}
+  {open&&<div className={styles.guide}><b>{mode==="ios"?"On iPhone or iPad":"Add NN to your home screen"}</b>{mode==="ios"?<ol><li>Open this page in <strong>Safari</strong>.</li><li>Tap the <strong>Share</strong> button.</li><li>Choose <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong>. Open NN from its new home-screen icon.</li></ol>:<ol><li>Open your browser menu.</li><li>Choose <strong>Install app</strong> or <strong>Add to Home Screen</strong>.</li><li>Confirm, then launch NN from your device.</li></ol>}<small>Installation options depend on your browser and device.</small></div>}
  </section>;
 }
