@@ -86,6 +86,19 @@ describe("NN feature spaces", () => {
     unmount();
   });
 
+  it("renders dedicated Academy course, lesson and mastery workspaces", () => {
+    const { unmount } = render(<NNDomainBlueprint app={academy} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Courses" }));
+    expect(document.querySelector('[data-education-screen="academy-courses"]')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Lesson" }));
+    expect(document.querySelector('[data-education-screen="academy-lesson"]')).toBeInTheDocument();
+    expect(screen.getByText("Choose a lesson to begin")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Mastery" }));
+    expect(document.querySelector('[data-education-screen="academy-mastery"]')).toBeInTheDocument();
+    expect(screen.getByText("NO PRACTICE DATA")).toBeInTheDocument();
+    unmount();
+  });
+
   it("supports horizontal arrow navigation and associates the selected preview", () => {
     render(<NNDomainBlueprint app={college} />);
     const rail = screen.getByRole("tablist", { name: "College spaces" });
