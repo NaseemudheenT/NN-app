@@ -145,10 +145,10 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
       const speaker = turn.role === "founder" ? "Founder" : ren.specialist!.name;
       const actions = turn.tools.map((tool) =>
         `[Tool ${tool.name}: ${tool.status} — ${tool.said}]`,
-      ).join("\\n");
-      return `${speaker}: ${turn.text}${actions ? `\\n${actions}` : ""}`;
-    }).join("\\n\\n").slice(0, 7500);
-    const report = `The ${ren.specialist.workspace} specialist is returning its work to REN. Review this transcript, distinguish completed actions from suggestions, verify any claims that need checking, and decide the next step.\\n\\n${transcript}`;
+      ).join("\n");
+      return `${speaker}: ${turn.text}${actions ? `\n${actions}` : ""}`;
+    }).join("\n\n").slice(0, 7500);
+    const report = `The ${ren.specialist.workspace} specialist is returning its work to REN. Review this transcript, distinguish completed actions from suggestions, verify any claims that need checking, and decide the next step.\n\n${transcript}`;
     const returnToken = `r${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
     try {
       window.sessionStorage.setItem(`nn:ren:return:${returnToken}`, JSON.stringify({ report }));
