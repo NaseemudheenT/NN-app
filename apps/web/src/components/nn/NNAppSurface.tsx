@@ -374,7 +374,7 @@ function SectionPanel({ section, appName }: { section: AppSection; appName: stri
                   })()}
                 </span>
 
-                <button type="button" className={styles.edit} aria-label={`Edit ${titleOf(record)}`} onClick={() => beginEdit(record)} disabled={!writer.ready || busy}><Icon name="edit" size={14} /></button>
+                <button type="button" className={styles.edit} aria-label={`Edit ${titleOf(record)}`} onClick={() => beginEdit(record)} disabled={!writer.ready || busy}><Icon name="pen" size={14} /></button>
 
                 <button
                   type="button"
