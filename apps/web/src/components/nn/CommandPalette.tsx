@@ -108,6 +108,7 @@ export function CommandPalette() {
   const [at, setAt] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
   const all = useMemo(() => commands(), []);
   const shown = useMemo(() => rank(all, query), [all, query]);
@@ -150,7 +151,14 @@ export function CommandPalette() {
   }, [router]);
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
+    if (!open) return;
+    returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    inputRef.current?.focus();
+    return () => {
+      const previous = returnFocusRef.current;
+      if (previous?.isConnected) previous.focus();
+      returnFocusRef.current = null;
+    };
   }, [open]);
 
   useEffect(() => { setAt(0); }, [query]);
@@ -170,6 +178,11 @@ export function CommandPalette() {
   if (!open) return null;
 
   const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      inputRef.current?.focus();
+      return;
+    }
     if (event.key === "Escape") { event.preventDefault(); close(); return; }
     if (event.key === "ArrowDown") {
       event.preventDefault();

@@ -67,10 +67,21 @@ describe("the palette", () => {
     expect(screen.getByRole("dialog", { name: "Go to" })).toBeInTheDocument();
   });
 
-  it("closes on Escape", async () => {
-    await open();
+  it("keeps Tab inside the modal search surface", async () => {
+    const field = await open();
+    await userEvent.keyboard("{Tab}");
+    expect(field).toHaveFocus();
+  });
+
+  it("returns focus to the control that opened it", async () => {
+    render(<><button type="button">Launcher control</button><CommandPalette /></>);
+    const trigger = screen.getByRole("button", { name: "Launcher control" });
+    trigger.focus();
+    await userEvent.keyboard("{Meta>}k{/Meta}");
+    expect(await screen.findByRole("combobox")).toHaveFocus();
     await userEvent.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).toBeNull();
+    expect(trigger).toHaveFocus();
   });
 
   it("narrows as you type and opens the first hit on Enter", async () => {
