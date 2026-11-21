@@ -29,10 +29,10 @@ const TABS: readonly { id: LifeTab; label: string; icon: IconName }[] = [
   { id: "reminders", label: "Reminders", icon: "clock" },
   { id: "notes", label: "Notes", icon: "file" },
   { id: "goals", label: "Goals", icon: "graph" },
-  { id: "habits", label: "Habits", icon: "check" },
-  { id: "routines", label: "Routines", icon: "calendar" },
-  { id: "focus", label: "Focus", icon: "clock" },
-  { id: "reviews", label: "Reviews", icon: "graph" },
+  { id: "habits", label: "Habits", icon: "pulse" },
+  { id: "routines", label: "Routines", icon: "flow" },
+  { id: "focus", label: "Focus", icon: "bolt" },
+  { id: "reviews", label: "Reviews", icon: "book" },
 ];
 const LIFE_PREVIEWS: Record<LifePreviewTab, {
   eyebrow: string;
@@ -45,7 +45,7 @@ const LIFE_PREVIEWS: Record<LifePreviewTab, {
     eyebrow: "DAILY PRACTICE",
     title: "Make consistency feel natural.",
     description: "A calm space for the practices you choose to repeat. Habit records and check-in logic are not connected yet.",
-    icon: "check",
+    icon: "pulse",
     features: [
       { icon: "calendar", title: "Flexible cadence", description: "Daily, selected weekdays or a schedule that fits the habit." },
       { icon: "check", title: "Simple check-ins", description: "A clear completion interaction with room for missed days." },
@@ -56,7 +56,7 @@ const LIFE_PREVIEWS: Record<LifePreviewTab, {
     eyebrow: "REPEATABLE SYSTEMS",
     title: "Give your day a considered rhythm.",
     description: "Design repeatable sequences for the parts of life you want to make easier. Routine storage and scheduling are not connected yet.",
-    icon: "calendar",
+    icon: "flow",
     features: [
       { icon: "check", title: "Ordered steps", description: "A sequence you can follow and adjust without rebuilding it." },
       { icon: "clock", title: "Time windows", description: "Optional timing that respects your actual calendar." },
@@ -67,7 +67,7 @@ const LIFE_PREVIEWS: Record<LifePreviewTab, {
     eyebrow: "ATTENTION SPACE",
     title: "Protect a little time for deep work.",
     description: "A focused session environment with a timer, intention and session history. Timer persistence and session records are not connected yet.",
-    icon: "clock",
+    icon: "bolt",
     features: [
       { icon: "clock", title: "Session timer", description: "A distraction-light timer with clear pause and finish states." },
       { icon: "compass", title: "Session intention", description: "Keep one task or outcome in view while you work." },
@@ -78,7 +78,7 @@ const LIFE_PREVIEWS: Record<LifePreviewTab, {
     eyebrow: "REFLECTION",
     title: "Notice what is moving forward.",
     description: "A structured space for daily, weekly and monthly reflection. Review templates and saved entries are not connected yet.",
-    icon: "file",
+    icon: "book",
     features: [
       { icon: "calendar", title: "Review rhythm", description: "Choose a cadence that supports reflection without noise." },
       { icon: "file", title: "Wins and lessons", description: "Capture what worked, what did not and what you learned." },
@@ -137,14 +137,14 @@ function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
       <GlassPanel tier={2} padding="lg" className={styles.previewHero}>
         <div className={styles.previewHeroTop}>
           <span className={styles.previewIcon}><Icon name={preview.icon} size={22}/></span>
-          <span className={styles.previewBadge}>INTERFACE PREVIEW</span>
+          <span className={styles.previewBadge}>DESIGN PREVIEW</span>
         </div>
         <p className={styles.label}>{preview.eyebrow}</p>
         <h2 id={`life-preview-${module}`}>{preview.title}</h2>
         <p className={styles.previewDescription}>{preview.description}</p>
         <div className={styles.previewNotice} role="status">
           <Icon name="shield" size={16}/>
-          <span><strong>Design complete in progress.</strong> This screen is a visual handoff for Claude. No records, schedules or activity are being simulated.</span>
+          <span><strong>Preview only.</strong> This visual blueprint does not save or display personal records yet.</span>
         </div>
       </GlassPanel>
       <LifePreviewCanvas module={module}/>
@@ -154,7 +154,6 @@ function LifeDesignPreview({ module }: { module: LifePreviewTab }) {
             <span className={styles.previewFeatureIcon}><Icon name={feature.icon} size={18}/></span>
             <h3>{feature.title}</h3>
             <p>{feature.description}</p>
-            <span className={styles.previewFeatureState}>BACKEND CONNECTION PENDING</span>
           </GlassPanel>
         ))}
       </div>

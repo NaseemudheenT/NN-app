@@ -592,3 +592,38 @@
 .reviewPrompt>i:nth-of-type(2){width:84%}.reviewPrompt>i:nth-of-type(3){width:68%}
 @media(max-width:640px){.canvasHeading{align-items:flex-start;flex-direction:column}.routineSequence,.reviewPrompts{grid-template-columns:1fr}.routineStep{min-height:70px}.routineStep:not(:last-child):after{top:auto;right:50%;bottom:-13px;width:1px;height:13px}.focusWorkspace{grid-template-columns:1fr;gap:15px}.focusDial{width:145px}.habitMatrix{gap:5px}.habitDay{padding:8px 2px}}
 @media(prefers-reduced-motion:reduce){.previewCanvas{animation:none}}
+
+
+/* Phase D — each Life workspace has its own glyph and tactile response. */
+.tab svg { transition: transform 220ms var(--ease-spring), filter 220ms ease; }
+.tab:hover svg, .tabActive svg { transform: translateY(-1px) scale(1.08); filter: drop-shadow(0 2px 5px rgb(140 199 255 / 42%)); }
+.previewIcon img, .previewFeatureIcon img, .previewIcon svg, .previewFeatureIcon svg {
+  transition: transform 240ms var(--ease-spring), filter 240ms ease;
+}
+.previewHero:hover .previewIcon img, .previewHero:hover .previewIcon svg,
+.previewFeature:hover .previewFeatureIcon img, .previewFeature:hover .previewFeatureIcon svg {
+  transform: translateY(-1px) scale(1.1) rotate(-4deg);
+  filter: drop-shadow(0 3px 7px rgb(142 200 255 / 46%));
+}
+.previewFeature { transition: transform 240ms var(--ease-spring), border-color 240ms ease, box-shadow 240ms ease; }
+.previewFeature:hover {
+  transform: translateY(-3px);
+  border-color: rgb(190 222 255 / 34%);
+  box-shadow: var(--nn-glass-shadow), 0 14px 30px rgb(0 0 0 / 14%);
+}
+.previewCanvas { transition: border-color 220ms ease, box-shadow 220ms ease; }
+.previewCanvas:hover {
+  border-color: rgb(190 222 255 / 30%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 12px 30px rgb(0 0 0 / 12%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab svg, .previewIcon img, .previewFeatureIcon img, .previewIcon svg,
+  .previewFeatureIcon svg, .previewFeature, .previewCanvas { transition: none !important; }
+  .tab:hover svg, .tabActive svg, .previewHero:hover .previewIcon img,
+  .previewHero:hover .previewIcon svg, .previewFeature:hover .previewFeatureIcon img,
+  .previewFeature:hover .previewFeatureIcon svg, .previewFeature:hover { transform: none; }
+}
+:global(html[data-motion="reduced"]) .tab svg,
+:global(html[data-motion="reduced"]) .previewIcon img,
+:global(html[data-motion="reduced"]) .previewFeatureIcon img,
+:global(html[data-motion="reduced"]) .previewFeature { transition: none !important; }
