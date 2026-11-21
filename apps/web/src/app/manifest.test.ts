@@ -27,9 +27,9 @@ describe("the PWA manifest", () => {
     expect(purposes).toContain("any");
   });
 
-  it("uses the midnight ground for the splash, so launch does not flash white", () => {
-    expect(m.background_color).toBe("#07111F");
-    expect(m.theme_color).toBe("#07111F");
+  it("uses the NN midnight system ground for the splash, so launch does not flash white", () => {
+    expect(m.background_color).toBe("#000000");
+    expect(m.theme_color).toBe("#000000");
   });
 
   it("only offers shortcuts to routes that actually exist", () => {
