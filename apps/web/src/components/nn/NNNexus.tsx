@@ -10,7 +10,7 @@ import { useRen } from "@/components/ren/RenProvider";
 import styles from "./NNNexus.module.css";
 
 const SYSTEM_LINKS = [
-  { href: "/", label: "Home", icon: "home" as const },
+  { href: "/", label: "Home", icon: "grid" as const },
   { href: "/workspace", label: "Workspace", icon: "grid" as const },
   { href: "/design", label: "Design", icon: "sparkle" as const },
 ];
@@ -153,7 +153,7 @@ export function NNNexus() {
             </Link>
           ))}
           <button type="button" className={styles.railAssistant} onClick={startRen} aria-label="Open REN assistant" title="REN">
-            <Icon name="sparkles" size={17} />
+            <Icon name="sparkle" size={17} />
             <span>REN</span>
           </button>
         </nav>
