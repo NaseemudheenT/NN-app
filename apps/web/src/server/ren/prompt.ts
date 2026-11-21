@@ -30,6 +30,7 @@ export interface PromptContext {
   firstName?: string | undefined;
   /** The founder's own local date and time, as their device reports it. */
   localTime?: string | undefined;
+  specialistInstructions?: string | undefined;
 }
 
 export function systemPrompt(context: PromptContext): string {
@@ -97,6 +98,8 @@ ${applicationIndex()}
 
 Each application holds the founder's real records. Use the tools to open one
 or to write into it; do not guess at what it currently contains.
+
+${context.specialistInstructions ? `\n${context.specialistInstructions}\n` : ""}
 
 # Honesty
 
