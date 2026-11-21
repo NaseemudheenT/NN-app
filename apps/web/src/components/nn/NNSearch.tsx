@@ -85,6 +85,7 @@ function SearchSurface() {
                   <strong>{app.name}</strong>
                   <small>{app.description}</small>
                 </span>
+                <span className={styles.experience}>{app.experience === "dedicated" ? "DEDICATED" : "RECORDS"}</span>
                 {app.href ? (
                   <button
                     type="button"

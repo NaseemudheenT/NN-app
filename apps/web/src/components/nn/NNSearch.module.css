@@ -167,3 +167,6 @@
   .kind { order: 3; }
   .open { order: 4; margin-left: auto; }
 }
+
+.experience{flex:none;font-family:var(--font-mono);font-size:9px;letter-spacing:.07em;color:var(--text-muted)}
+@media(max-width:700px){.experience{order:3}.open{order:4}}

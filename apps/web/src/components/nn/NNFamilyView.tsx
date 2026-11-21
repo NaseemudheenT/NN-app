@@ -25,12 +25,12 @@ export function NNFamilyView({
   applications: readonly NNApplication[];
 }) {
   const travel = useAppTransition();
-  const ready = applications.filter((app) => app.href !== undefined);
+  const dedicated = applications.filter((app) => app.experience === "dedicated").length;
 
   return (
     <AppShell title={family.name} subtitle={family.detail}>
       <p className={styles.count}>
-        {applications.length} applications · {ready.length} with a working surface
+        {applications.length} applications · {dedicated} dedicated · {applications.length - dedicated} record workspaces
       </p>
 
       <ul className={styles.list}>
@@ -41,14 +41,14 @@ export function NNFamilyView({
               <button
                 type="button"
                 className={styles.row}
-                data-ready={open || undefined}
+                data-experience={app.experience}
                 onClick={() =>
                   travel.open((app.href ?? app.overviewHref) as Route, app.name)
                 }
                 aria-label={
                   open
-                    ? `Open ${app.name}`
-                    : `${app.name} — open its overview; not built yet`
+                    ? `Open ${app.name} — ${app.experience === "dedicated" ? "dedicated application" : "record workspace"}`
+                    : `${app.name} — planned, overview only`
                 }
               >
                 <span className={styles.glyph}>
@@ -60,7 +60,7 @@ export function NNFamilyView({
                 </span>
                 <span className={styles.state}>
                   <i />
-                  {open ? "READY" : "IN DEVELOPMENT"}
+                  {!open ? "PLANNED" : app.experience === "dedicated" ? "DEDICATED" : "RECORDS"}
                 </span>
               </button>
             </li>
