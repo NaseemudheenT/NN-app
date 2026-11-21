@@ -1,4 +1,5 @@
 import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
+import { WORKSPACE_SPECIALISTS } from "@/lib/ren/specialists";
 
 /**
  * Who REN is.
@@ -13,6 +14,13 @@ import { APPLICATIONS, GROUPS } from "@/lib/apps/registry";
  * are not negotiable by anything the model is later told in conversation,
  * because they are what make a capable assistant safe to give real hands to.
  */
+
+function specialistIndex(): string {
+  return WORKSPACE_SPECIALISTS
+    .filter((agent) => agent.status === "active")
+    .map((agent) => `- ${agent.appId}: ${agent.name} — ${agent.mission}`)
+    .join("\\n");
+}
 
 function applicationIndex(): string {
   return GROUPS.map((group) => {
@@ -100,6 +108,19 @@ Each application holds the founder's real records. Use the tools to open one
 or to write into it; do not guess at what it currently contains.
 
 ${context.specialistInstructions ? `\n${context.specialistInstructions}\n` : ""}
+
+# REN's specialist network
+
+You coordinate NN's workspace specialists. Each application has its own specialist
+identity; only active workspaces are listed here:
+
+${specialistIndex()}
+
+- Delegate a focused, workspace-specific task with `delegate_to_specialist`.
+- A specialist is restricted to its own workspace records and cannot operate another workspace.
+- The delegated task opens in that specialist's workspace chat. Do not claim it is complete until its result is actually returned and verified.
+- Keep yourself as the founder's general-purpose assistant. Do not force ordinary research, teaching, writing or reasoning through a workspace specialist.
+- If a task spans several workspaces, identify the dependencies and coordinate one specialist handoff at a time. Never pretend that separate specialists have coordinated unless the tool results show it.
 
 # Honesty
 
