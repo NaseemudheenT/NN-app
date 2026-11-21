@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { RenMark } from "@/components/ui/RenMark";
@@ -38,6 +38,10 @@ import s from "./NNPanel.module.css";
  * beneath it. This gives the operating environment one stable navigation anchor.
  */
 
+const ALL_DESTINATIONS = destinations();
+const NN_PLACES = ALL_DESTINATIONS.filter((destination) => destination.route !== undefined && destination.group === "NN");
+const APP_DESTINATIONS = ALL_DESTINATIONS.filter((destination) => destination.route !== undefined && destination.group === "Applications");
+
 export function NNPanel() {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -50,8 +54,8 @@ export function NNPanel() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   const here = currentDestination(pathname);
-  const places = destinations().filter((d) => d.route !== undefined && d.group === "NN");
-  const apps = destinations().filter((d) => d.route !== undefined && d.group === "Applications");
+  const places = NN_PLACES;
+  const apps = APP_DESTINATIONS;
   const needle = query.trim().toLowerCase();
   const visiblePlaces = useMemo(
     () => places.filter((destination) => !needle || (destination.label + " " + destination.hint).toLowerCase().includes(needle)),
@@ -213,7 +217,7 @@ export function NNPanel() {
           ) : null}
         </label>
         <p className={s.resultCount} role="status">
-          {visiblePlaces.length + visibleGroups.reduce((total, group) => total + group.destinations.length, 0)} destinations
+          {resultCount} {resultCount === 1 ? "destination" : "destinations"}
         </p>
         <ul className={s.list}>
           {visiblePlaces.map(row)}

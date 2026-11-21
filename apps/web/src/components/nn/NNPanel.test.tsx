@@ -102,7 +102,7 @@ describe("choosing somewhere", () => {
     await userEvent.type(search, "finance");
     expect(screen.getByRole("button", { name: /Finance/ })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /College/ })).toBeNull();
-    expect(screen.getByText("1 destinations")).toBeInTheDocument();
+    expect(screen.getByText("1 destination")).toBeInTheDocument();
     await userEvent.clear(search);
     expect(screen.getByRole("button", { name: /College/ })).toBeInTheDocument();
   });
