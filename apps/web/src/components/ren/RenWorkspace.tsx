@@ -41,7 +41,7 @@ const OPENERS = [
   { icon: "check", text: "Add a task to my day", hint: "REN writes it into NN itself" },
 ] as const;
 
-export function RenWorkspace({ workspaceId, initialTask }: { workspaceId?: string; initialTask?: string }) {
+export function RenWorkspace({ workspaceId, handoffId }: { workspaceId?: string; handoffId?: string }) {
   const router = useRouter();
   const { user } = useAuth();
   const firstName = ownerFirstName(user?.displayName);
@@ -63,10 +63,20 @@ export function RenWorkspace({ workspaceId, initialTask }: { workspaceId?: strin
   const ready = ren.providers.length > 0;
 
   useEffect(() => {
-    if (!initialTask || !ren.specialist || !ready || ren.busy || delegatedTaskStarted.current) return;
-    delegatedTaskStarted.current = true;
-    ren.send(initialTask, []);
-  }, [initialTask, ready, ren.busy, ren.send, ren.specialist]);
+    if (!handoffId || !workspaceId || !ren.specialist || !ready || ren.busy || delegatedTaskStarted.current) return;
+    const key = `nn:ren:handoff:${handoffId}`;
+    try {
+      const raw = window.sessionStorage.getItem(key);
+      if (!raw) return;
+      const handoff = JSON.parse(raw) as { appId?: unknown; task?: unknown };
+      window.sessionStorage.removeItem(key);
+      if (handoff.appId !== workspaceId || typeof handoff.task !== "string" || !handoff.task.trim()) return;
+      delegatedTaskStarted.current = true;
+      ren.send(handoff.task.slice(0, 4000), []);
+    } catch {
+      window.sessionStorage.removeItem(key);
+    }
+  }, [handoffId, workspaceId, ready, ren.busy, ren.send, ren.specialist]);
 
   /* Follows the answer as it streams, but only while the founder is already
      at the bottom — yanking the view back while they are reading something
