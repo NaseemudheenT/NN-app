@@ -250,8 +250,13 @@
 
 .choice {
   composes: nn-liquid from global;
+  /* Measured at 42x44 on a phone: two pixels under the floor, because the
+     width came from the word inside it. "Full" is a short word and a thumb
+     is not. */
+  min-width: 44px;
+  min-height: 44px;
   padding: 6px 11px;
-  border-radius: 7px;
+  border-radius: 9px;
   color: var(--text-muted);
   font: inherit;
   font-size: var(--text-caption-size);
