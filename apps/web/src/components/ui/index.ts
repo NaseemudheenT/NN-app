@@ -67,3 +67,6 @@ export type { LogoRevealProps } from "./LogoReveal";
 
 export { FeedbackState } from "./FeedbackState";
 export type { FeedbackStateProps, FeedbackStateKind } from "./FeedbackState";
+
+export { Sheet } from "./Sheet";
+export type { SheetProps } from "./Sheet";

@@ -11,6 +11,8 @@ export interface DialogProps {
   description?: string;
   children?: ReactNode;
   footer?: ReactNode;
+  /** Centered modal by default; bottom placement is the mobile sheet recipe. */
+  placement?: "center" | "bottom";
 }
 
 const FOCUSABLE =
@@ -21,7 +23,7 @@ const FOCUSABLE =
  * element that opened it. Escape and backdrop click both close. Background
  * scrolling is locked. Rendered in a portal so no ancestor can clip it.
  */
-export function Dialog({ open, onClose, title, description, children, footer }: DialogProps) {
+export function Dialog({ open, onClose, title, description, children, footer, placement = "center" }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreTo = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
@@ -96,6 +98,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
   return createPortal(
     <div
       className={styles.backdrop}
+      data-placement={placement}
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) onCloseRef.current();
       }}

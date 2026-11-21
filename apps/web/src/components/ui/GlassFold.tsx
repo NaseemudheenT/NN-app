@@ -178,7 +178,8 @@ export function GlassFold({
 
     const gl = canvas.getContext("webgl", {
       antialias: false,
-      alpha: false,
+      // Keep the CSS-painted room visible if shader compilation or context setup fails.
+      alpha: true,
       // Keeps a MacBook on its integrated GPU: NN is a window the founder
       // leaves open, and the room is not worth waking a discrete card for.
       powerPreference: "low-power",
@@ -192,6 +193,9 @@ export function GlassFold({
     const fragment = compile(gl, gl.FRAGMENT_SHADER, FRAGMENT);
     const program = gl.createProgram();
     if (!vertex || !fragment || !program) {
+      if (vertex) gl.deleteShader(vertex);
+      if (fragment) gl.deleteShader(fragment);
+      if (program) gl.deleteProgram(program);
       canvas.dataset["fallback"] = "true";
       return;
     }
@@ -201,12 +205,22 @@ export function GlassFold({
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       console.error("NN GlassFold program failed to link:", gl.getProgramInfoLog(program));
+      gl.deleteProgram(program);
+      gl.deleteShader(vertex);
+      gl.deleteShader(fragment);
       canvas.dataset["fallback"] = "true";
       return;
     }
     gl.useProgram(program);
 
     const buffer = gl.createBuffer();
+    if (!buffer) {
+      gl.deleteProgram(program);
+      gl.deleteShader(vertex);
+      gl.deleteShader(fragment);
+      canvas.dataset["fallback"] = "true";
+      return;
+    }
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
