@@ -108,8 +108,8 @@ describe("choosing somewhere", () => {
 
   it("marks where you already are", async () => {
     await open();
-    const today = screen.getByRole("button", { name: /Today/ });
-    expect(today).toHaveAttribute("aria-current", "page");
+    const today = screen.getAllByRole("button", { name: /Today/ });
+    expect(today.some((button) => button.getAttribute("aria-current") === "page")).toBe(true);
   });
 
   it("filters the phone navigation across all application families", async () => {

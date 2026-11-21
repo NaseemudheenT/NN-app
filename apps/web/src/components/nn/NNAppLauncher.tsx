@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
+import type { IconName } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { useAppTransition } from "@/components/nn/AppTransition";
 import { GROUPS, matchApplications } from "@/lib/apps/registry";
@@ -14,6 +15,8 @@ import styles from "./NNAppLauncher.module.css";
  * Keep Home deliberately quiet: discover and open applications here; do the
  * work inside them. The registry is the single source of truth.
  */
+const APP_TONES: Record<string, string> = { life: "green", college: "blue", study: "blue", finance: "green", invest: "green", business: "amber", work: "cyan", career: "blue", create: "violet", design: "violet", media: "violet", knowledge: "ice", search: "cyan", security: "slate", settings: "slate", ren: "violet" };
+
 export function NNAppLauncher() {
   const travel = useAppTransition();
   const [query, setQuery] = useState("");
@@ -112,7 +115,7 @@ export function NNAppLauncher() {
                     aria-label={`Open ${app.name}`}
                   >
                     <span className={styles.iconWell}>
-                      <Icon name={app.icon} size={24} solid tone="ice" />
+                      <Icon name={app.icon as IconName} size={24} solid tone={(APP_TONES[app.id] ?? (APP_TONES[app.group.toLowerCase().split(" ")[0] ?? ""]) ?? "ice") as "blue" | "cyan" | "aqua" | "violet" | "slate" | "green" | "amber" | "red" | "ice"} />
                     </span>
                     <span className={styles.appName}>{app.name}</span>
                   </button>

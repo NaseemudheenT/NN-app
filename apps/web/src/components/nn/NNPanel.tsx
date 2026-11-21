@@ -91,6 +91,10 @@ export function NNPanel() {
     }),
   })).filter((group) => group.destinations.length > 0), [apps, needle]);
   const resultCount = visiblePlaces.length + visibleGroups.reduce((total, group) => total + group.destinations.length, 0);
+  const visibleQuickDestinations = useMemo(
+    () => QUICK_DESTINATIONS.filter((destination) => !needle || (destination.label + " " + destination.hint).toLowerCase().includes(needle)),
+    [needle],
+  );
 
   /*
    * The island and its expanded panel stay mounted as two visual states of
@@ -247,7 +251,7 @@ export function NNPanel() {
           ) : null}
         </label>
         <div className={s.quickAccess} role="group" aria-label="Quick access">
-          {QUICK_DESTINATIONS.map((destination) => (
+          {visibleQuickDestinations.map((destination) => (
             <button
               type="button"
               key={destination.id}

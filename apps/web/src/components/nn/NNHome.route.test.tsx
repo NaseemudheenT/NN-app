@@ -5,6 +5,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 vi.mock("@/components/auth/RequireOwner", () => ({
   RequireOwner: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
+vi.mock("@/lib/auth", () => ({ useAuth: () => ({ user: null }) }));
 vi.mock("@/components/nn/NNDashboard", () => ({
   NNDashboard: () => <main><h1>NN Command Dashboard</h1><p>Today at a glance</p></main>,
 }));
