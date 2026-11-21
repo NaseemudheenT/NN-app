@@ -142,3 +142,14 @@
   .head { flex-direction: column; gap: 10px; }
   .grid { grid-template-columns: 1fr; }
 }
+
+
+/* Files: a real document library, not a decorative folder gallery. */
+.root{padding-top:clamp(22px,4vw,42px)}
+.head h1{font-size:clamp(32px,4.5vw,46px);font-weight:680;letter-spacing:-.055em}
+.kicker{color:var(--text-muted);letter-spacing:.12em}
+.grid{align-items:stretch;justify-items:stretch;gap:14px}
+.blank{border:1px solid var(--border-subtle);border-radius:20px;background:var(--surface-raised);box-shadow:var(--shadow-1)}
+.blank button{border:0;border-radius:12px;background:#0a84ff;color:white}
+.fault,.problem{border-radius:14px}
+@media(max-width:719px){.grid{grid-template-columns:1fr}}
