@@ -615,3 +615,17 @@
   .hero { border-radius: 23px; }
   .rail, .workArea { border-radius: 19px; }
 }
+
+
+/* Standard application surface — native grouped controls and neutral cards. */
+.root{padding-top:clamp(20px,4vw,42px)}
+.banner{border:1px solid var(--border-subtle);border-radius:22px;background:var(--surface-raised);box-shadow:var(--shadow-1)}
+.bannerInner h1{font-size:clamp(30px,4vw,42px);font-weight:680;letter-spacing:-.055em}
+.group{color:var(--text-muted);letter-spacing:.1em}
+.tabs{border-radius:15px;background:var(--surface-deep)}
+.tabs button{min-height:40px;border-radius:11px}
+.tabs button[aria-selected=true]{background:var(--glass-active);color:var(--text-accent)}
+.section{border:1px solid var(--border-subtle);border-radius:20px;background:var(--surface-raised)}
+.form{border-color:var(--border-subtle);border-radius:16px;background:var(--surface-deep)}
+.field input,.field select,.field textarea{border-color:var(--border-subtle);border-radius:11px;background:var(--surface-elevated);font-size:16px}
+.formActions button{border:0;border-radius:12px;background:#0a84ff;color:white}
