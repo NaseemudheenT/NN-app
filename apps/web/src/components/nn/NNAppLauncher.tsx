@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
@@ -19,6 +19,19 @@ export function NNAppLauncher() {
   const router = useRouter();
   const travel = useAppTransition();
   const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const onShortcut = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
+    document.addEventListener("keydown", onShortcut);
+    return () => document.removeEventListener("keydown", onShortcut);
+  }, []);
 
   const matching = useMemo(() => matchApplications(query), [query]);
   const visibleGroups = useMemo(
@@ -36,6 +49,10 @@ export function NNAppLauncher() {
           <NNLogo size={25} glow decorative />
           <span>NN</span>
         </div>
+        <div className={styles.topbarActions}>
+        <button type="button" className={styles.searchAll} aria-label="Search all NN" title="Search all NN" onClick={() => router.push("/search" as Route)}>
+          <Icon name="search" size={17} />
+        </button>
         <button
           type="button"
           className={styles.profile}
@@ -45,6 +62,7 @@ export function NNAppLauncher() {
         >
           <Icon name="settings" size={17} />
         </button>
+        </div>
       </header>
 
       <div className={styles.content}>
@@ -55,14 +73,19 @@ export function NNAppLauncher() {
         <label className={styles.search}>
           <Icon name="search" size={18} />
           <input
+            ref={searchRef}
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search apps"
             aria-label="Search applications"
+            aria-keyshortcuts="/"
+            aria-controls="nn-launcher-results"
+            onKeyDown={(event) => { if (event.key === "Escape" && query) { event.preventDefault(); setQuery(""); } }}
             autoComplete="off"
             spellCheck={false}
           />
+          {!query ? <kbd className={styles.shortcut}>/</kbd> : null}
           {query ? (
             <button type="button" onClick={() => setQuery("")} aria-label="Clear search">
               <Icon name="close" size={16} />
@@ -70,7 +93,7 @@ export function NNAppLauncher() {
           ) : null}
         </label>
 
-        <div className={styles.groups} aria-live="polite">
+        <div id="nn-launcher-results" className={styles.groups} aria-live="polite" aria-label="Applications">
           {visibleGroups.map((group, groupIndex) => (
             <section className={styles.group} key={group.slug} aria-labelledby={`group-${group.slug}`}>
               <header className={styles.groupHeader}>

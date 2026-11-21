@@ -71,6 +71,19 @@ describe("NN application launcher", () => {
     expect(open).toHaveBeenCalledWith("/life", "Life");
   });
 
+  it("opens full-record search from the dedicated global search control", async () => {
+    const user = userEvent.setup();
+    render(<NNHomePreview />);
+    await user.click(screen.getByRole("button", { name: "Search all NN" }));
+    expect(push).toHaveBeenCalledWith("/search");
+  });
+
+  it("focuses the app search with the slash shortcut", async () => {
+    render(<NNHomePreview />);
+    await userEvent.keyboard("/");
+    expect(screen.getByRole("searchbox", { name: "Search applications" })).toHaveFocus();
+  });
+
   it("keeps settings behind the profile entry", async () => {
     const user = userEvent.setup();
     render(<NNHomePreview />);

@@ -218,3 +218,11 @@ Derived output and backups moved outside `users/`.
 Concept A logo locked (revised to a 6-unit gap at the founder's direction),
 design tokens with WCAG AA enforced by test, 13 components, 3D holographic
 layer, light and dark themes.
+
+
+## 2026-11-21 · Phase C discovery entry refinement
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Change:** Added a distinct global Search control to Home so application filtering is not confused with searching the founder's records. Added the slash keyboard shortcut to focus the launcher filter, guarded against typing fields and open modal surfaces, plus Escape-to-clear. Refined app icon object feedback with a restrained moving specular highlight and hover lift, retaining the reduced-motion fallback.
+
+**Verification:** Focused launcher tests added for global Search routing and slash-to-focus. Full CI is required before this milestone is considered verified. Phase C remains open for complete navigation/search audit and device QA.

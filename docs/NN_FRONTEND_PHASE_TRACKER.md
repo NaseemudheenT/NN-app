@@ -55,7 +55,10 @@ This tracker is the source of truth for the seven delivery phases. A phase is co
 - [x] Dedicated experience vs core-record surface is labelled honestly.
 - [x] Remove nonessential launcher copy, status jargon, counts and the unimplemented shortcut hint.
 - [x] Add concise Home/search hierarchy, dimensional icon wells, card sheen and restrained 3D hover motion.
-- [ ] Finish keyboard-first and phone-first launcher polish.
+- [x] Add a dedicated global Search entry beside Settings, keeping app filtering separate from record search.
+- [x] Add slash-to-focus for launcher search, guarded against editable fields and open modal surfaces, plus Escape-to-clear.
+- [x] Refine icon-object hover response with a moving specular sweep and reduced-motion fallback.
+- [ ] Finish keyboard-first and phone-first launcher polish through route/device QA.
 - [ ] Audit global search, command palette, Settings, Files and REN entry consistency.
 - [ ] Ensure no dead or misleading controls remain.
 
