@@ -1,3 +1,18 @@
+## 2026-11-21 · Phase D — NN Life note history and record editing
+
+**Branch:** `gt/nn-liquid-glass-unified`  
+**Code commit:** `e4b6873710ea78e26b9c9e2e44e2999c5219825a`
+
+- Note edits now atomically append the previous title/body/format into the note's append-only `versions` subcollection and update the current note in one Firestore batch.
+- Added a history reader for the 20 most recent immutable snapshots; notes expose Edit and History actions.
+- Added emulator coverage for owner-scoped CRUD across habits, check-ins, routines, routine runs, focus sessions and reviews; note history remains owner-readable and immutable.
+- Phase D now includes create/edit/delete flows for the core Life record types, task completion, goal progress, habit check-ins, routine completions, focus lifecycle, weekly reflections and note history.
+- Offline writes remain intentionally blocked until confirmed connectivity; there is no durable offline mutation queue. Reminder delivery still requires its separate notification service.
+
+**Verification:** CI is running on this change. No production deployment or data migration.
+
+---
+
 ## 2026-11-21 · Phase D — NN Life workflows and record editing
 
 **Branch:** `gt/nn-liquid-glass-unified`  
