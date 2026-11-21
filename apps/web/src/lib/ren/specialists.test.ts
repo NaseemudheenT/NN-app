@@ -34,6 +34,7 @@ describe("NN workspace specialist registry", () => {
     expect(finance).not.toBeNull();
     const tools = toolsForSpecialist(finance!);
     expect(tools.map((tool) => tool.name)).toEqual([
+      "inspect_workspace_records",
       "capture_record",
       "complete_record",
       "discard_record",
@@ -42,6 +43,16 @@ describe("NN workspace specialist registry", () => {
     const props = capture.schema["properties"] as Record<string, { enum?: string[] }>;
     expect(props["collection"]?.enum).toContain("finance_transactions");
     expect(props["collection"]?.enum).not.toContain("tasks");
+  });
+
+  it("lets a specialist inspect only its own workspace records", () => {
+    expect(planFromToolCall("inspect_workspace_records", {
+      collection: "finance_transactions",
+      text: "subscription",
+    }, "finance").ok).toBe(true);
+    expect(planFromToolCall("inspect_workspace_records", {
+      collection: "college_exams",
+    }, "finance").ok).toBe(false);
   });
 
   it("refuses cross-workspace actions again at the client execution boundary", () => {
