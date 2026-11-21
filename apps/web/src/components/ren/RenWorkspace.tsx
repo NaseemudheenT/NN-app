@@ -49,6 +49,9 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
   const ren = useRenConversation(firstName, workspaceId);
   const delegatedTaskStarted = useRef(false);
   const returnedReportStarted = useRef(false);
+  const renSend = ren.send;
+  const renSpecialist = ren.specialist;
+  const renBusy = ren.busy;
 
   const [draft, setDraft] = useState("");
   const [files, setFiles] = useState<Attachment[]>([]);
@@ -65,7 +68,7 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
   const ready = ren.providers.length > 0;
 
   useEffect(() => {
-    if (!handoffId || !workspaceId || !ren.specialist || !ready || ren.busy || delegatedTaskStarted.current) return;
+    if (!handoffId || !workspaceId || !renSpecialist || !ready || renBusy || delegatedTaskStarted.current) return;
     const key = `nn:ren:handoff:${handoffId}`;
     try {
       const raw = window.sessionStorage.getItem(key);
@@ -74,14 +77,14 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
       window.sessionStorage.removeItem(key);
       if (handoff.appId !== workspaceId || typeof handoff.task !== "string" || !handoff.task.trim()) return;
       delegatedTaskStarted.current = true;
-      ren.send(handoff.task.slice(0, 4000), []);
+      renSend(handoff.task.slice(0, 4000), []);
     } catch {
       try { window.sessionStorage.removeItem(key); } catch { /* storage unavailable */ }
     }
-  }, [handoffId, workspaceId, ready, ren.busy, ren.send, ren.specialist]);
+  }, [handoffId, workspaceId, ready, renBusy, renSend, renSpecialist]);
 
   useEffect(() => {
-    if (!returnId || ren.specialist || !ready || ren.busy || returnedReportStarted.current) return;
+    if (!returnId || renSpecialist || !ready || renBusy || returnedReportStarted.current) return;
     const key = `nn:ren:return:${returnId}`;
     try {
       const raw = window.sessionStorage.getItem(key);
@@ -90,11 +93,11 @@ export function RenWorkspace({ workspaceId, handoffId, returnId }: { workspaceId
       window.sessionStorage.removeItem(key);
       if (typeof result.report !== "string" || !result.report.trim()) return;
       returnedReportStarted.current = true;
-      ren.send(result.report.slice(0, 9000), []);
+      renSend(result.report.slice(0, 9000), []);
     } catch {
       try { window.sessionStorage.removeItem(key); } catch { /* storage unavailable */ }
     }
-  }, [returnId, ready, ren.busy, ren.send, ren.specialist]);
+  }, [returnId, ready, renBusy, renSend, renSpecialist]);
 
   /* Follows the answer as it streams, but only while the founder is already
      at the bottom — yanking the view back while they are reading something
