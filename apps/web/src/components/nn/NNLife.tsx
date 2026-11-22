@@ -15,6 +15,7 @@ import { firebaseAvailable, getFirebase } from "@/lib/firebase";
 import { useClock } from "@/lib/clock";
 import styles from "./NNLife.module.css";
 import { ownerFirstName } from "@/lib/nn/owner";
+import { NNIsland } from "@/components/nn/NNIsland";
 
 type LifeTab = "today" | "calendar" | "tasks" | "reminders" | "notes" | "goals";
 type RecordData = Record<string, unknown> & { id: string };
@@ -263,7 +264,14 @@ function LifeSurface() {
   return <>
   <main className={styles.root}>
     <header className={styles.topbar}>
-      <button className={styles.brand} onClick={() => router.push("/home")}><Icon name="grid" size={18}/><span>NN <i>/</i> LIFE</span></button>
+      <button className={styles.brand} onClick={() => router.push("/home")} aria-label="Open NN Home"><Icon name="grid" size={18}/><span>NN <i>/</i> LIFE</span></button>
+      <NNIsland
+        title="LIFE"
+        onHome={() => router.push("/home")}
+        onSearch={() => router.push("/search")}
+        onSettings={() => router.push("/settings")}
+        onRen={() => router.push("/ren/chat")}
+      />
       <div className={styles.topRight}><span className={styles.private}><i/> PRIVATE SPACE</span><button className={styles.refresh} onClick={() => void load()} aria-label="Refresh Life data" title="Refresh"><Icon name="clock" size={16}/></button><span className={styles.avatar}>{firstName.slice(0,1).toUpperCase()}</span></div>
     </header>
     <div className={styles.layout} onPointerDown={beginTabSwipe} onPointerUp={endTabSwipe} onPointerCancel={() => { swipeStart.current = null; }}>
