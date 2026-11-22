@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
-import type { Route } from "next";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { LiquidButton } from "@/components/ui/LiquidButton";
@@ -21,10 +20,14 @@ import {
 import styles from "./NNWorkspace.module.css";
 import { ownerFirstName as _of, ownerInitial } from "@/lib/nn/owner";
 import { FlipCard, FlipLift } from "@/components/ui/FlipCard";
-import { useAppTransition } from "@/components/nn/AppTransition";
 import { NNIsland } from "@/components/nn/NNIsland";
 const OWNER_FIRST = _of(null);
 const OWNER_INITIAL = ownerInitial(null);
+
+/** The legacy workspace remains usable in isolated preview/test renders. */
+function openWorkspaceDestination(path: string): void {
+  if (typeof window !== "undefined") window.location.assign(path);
+}
 
 /**
  * The NN workspace.
@@ -134,7 +137,6 @@ export function NNWorkspace({
   onSignOut,
   onSignOutEverywhere,
 }: NNWorkspaceProps) {
-  const travel = useAppTransition();
   const root = useRef<HTMLDivElement>(null);
   const settingsTrigger = useRef<HTMLButtonElement>(null);
   const id = useId().replace(/:/g, "");
@@ -602,10 +604,10 @@ export function NNWorkspace({
           </div>
           <NNIsland
             title="PRIVATE WORKSPACE"
-            onHome={() => travel.open("/home" as Route, "NN Home")}
-            onSearch={() => travel.open("/search" as Route, "Search")}
-            onSettings={() => travel.open("/settings" as Route, "Settings")}
-            onRen={() => travel.open("/ren/chat" as Route, "REN")}
+            onHome={() => openWorkspaceDestination("/home")}
+            onSearch={() => openWorkspaceDestination("/search")}
+            onSettings={() => openWorkspaceDestination("/settings")}
+            onRen={() => openWorkspaceDestination("/ren/chat")}
           />
           <div className={styles.toolbar}>
             <button
