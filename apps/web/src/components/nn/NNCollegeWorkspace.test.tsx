@@ -1,0 +1,11 @@
+import {afterEach,beforeEach,describe,expect,it,vi} from "vitest";
+import {cleanup,render,screen} from "@testing-library/react";
+const {useRecords}=vi.hoisted(()=>({useRecords:vi.fn()}));
+vi.mock("@/lib/nn/records",()=>({useRecords}));
+vi.mock("@/components/nn/NNAppSurface",()=>({NNAppSurface:()=> <div>Editable academic records</div>}));
+const {NNCollegeWorkspace}=await import("./NNCollegeWorkspace");
+const app={id:"college",name:"College",group:"Education",description:"Academic workspace"} as never,sections=[] as never;
+const state=(items:object[])=>({items,loading:false,empty:!items.length,stale:false,fault:null});
+afterEach(()=>{cleanup();vi.useRealTimers()});
+beforeEach(()=>{vi.useFakeTimers();vi.setSystemTime(new Date("2026-11-21T10:00:00"));useRecords.mockImplementation((c:string)=>c==="college_subjects"?state([]):c==="college_exams"?state([]):state([]))});
+describe("NN College workspace",()=>{it("shows its dedicated academic overview and real empty states",()=>{render(<NNCollegeWorkspace app={app} sections={sections}/>);expect(screen.getByRole("heading",{name:"College ."})).toBeInTheDocument();expect(screen.getByText(/No exams on your timeline/)).toBeInTheDocument();expect(screen.getByText("Editable academic records")).toBeInTheDocument()});it("summarises records and the next exam countdown",()=>{useRecords.mockImplementation((c:string)=>c==="college_subjects"?state([{id:"s",title:"Engineering Mathematics",code:"EM-I"}]):c==="college_exams"?state([{id:"e",title:"Mathematics CAT-II",at:new Date("2026-11-25T12:00:00"),status:"upcoming"}]):state([{id:"n1"},{id:"n2"}]));render(<NNCollegeWorkspace app={app} sections={sections}/>);expect(screen.getByText("Engineering Mathematics")).toBeInTheDocument();expect(screen.getAllByText("Mathematics CAT-II").length).toBeGreaterThan(0);expect(screen.getByText("4 DAYS")).toBeInTheDocument();expect(screen.getByText("Saved to your account").parentElement?.querySelector("strong")?.textContent).toBe("2")})});

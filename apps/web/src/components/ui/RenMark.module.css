@@ -1,0 +1,59 @@
+/* REN at icon size. See RenMark.tsx. */
+
+.mark {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  line-height: 0;
+}
+
+.mark svg {
+  display: block;
+  overflow: visible;
+}
+
+/* The breath. REN is idle almost all of the time, and idle in REN's own
+   vocabulary is "almost still" — a sphere that pumps is a loading spinner. */
+.body {
+  transform-origin: 50% 50%;
+  animation: nn-ren-breathe 6.5s ease-in-out infinite;
+}
+
+.bloom {
+  opacity: 0.5;
+  transform-origin: 50% 50%;
+  animation: nn-ren-bloom 6.5s ease-in-out infinite;
+}
+
+.rings {
+  transform-origin: 50% 50%;
+  animation: nn-ren-turn 22s linear infinite;
+}
+
+.active .bloom { opacity: 0.78; }
+.active .rings { animation-duration: 13s; }
+
+@keyframes nn-ren-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+
+@keyframes nn-ren-bloom {
+  0%, 100% { opacity: 0.44; transform: scale(0.98); }
+  50% { opacity: 0.62; transform: scale(1.08); }
+}
+
+@keyframes nn-ren-turn {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Reduced motion means reduced motion: the orb holds a still frame rather
+   than vanishing, because the mark is the only thing that says this is REN. */
+@media (prefers-reduced-motion: reduce) {
+  .body,
+  .bloom,
+  .rings {
+    animation: none;
+  }
+}

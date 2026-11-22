@@ -1,0 +1,352 @@
+/* REN, full screen. See RenConsole.tsx. */
+
+.room {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 2.2vh, 24px);
+  padding: max(14px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
+  overflow: hidden;
+}
+
+/* The room REN is in. One slow field of NN's own light, and nothing else —
+   this screen has a single subject and the background must not compete. */
+.sky {
+  position: absolute;
+  inset: -25%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 44% 30% at 28% 24%, rgb(var(--nn-spectrum-cyan) / 22%), transparent 72%),
+    radial-gradient(ellipse 50% 34% at 74% 34%, rgb(var(--nn-spectrum-violet) / 20%), transparent 74%),
+    radial-gradient(ellipse 60% 36% at 50% 88%, rgb(var(--nn-spectrum-blue) / 18%), transparent 76%);
+  filter: blur(48px);
+  animation: nn-ren-sky 34s ease-in-out infinite alternate;
+}
+
+@keyframes nn-ren-sky {
+  from { transform: translate3d(-2%, -1%, 0) scale(1.02); }
+  to { transform: translate3d(3%, 2%, 0) scale(1.06); }
+}
+
+/* ------------------------------------------------------------------- bar -- */
+
+.bar {
+  position: relative;
+  z-index: 1;
+  width: min(900px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.barRight { display: flex; align-items: center; gap: 8px; }
+
+.quiet {
+  composes: nn-liquid from global;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font: inherit;
+  font-size: var(--text-caption-size);
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+}
+
+/* ----------------------------------------------------------------- stage -- */
+
+.stage {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 1.8vh, 18px);
+  width: min(620px, 100%);
+  text-align: center;
+}
+
+.status {
+  margin: 0;
+  font-size: clamp(19px, 2.4vw, 26px);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.status[data-fault] { color: var(--status-err); font-size: var(--text-body-size); }
+
+/* What REN is hearing, as it hears it. */
+.heard {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--text-body-size);
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.honest {
+  margin: 0;
+  max-width: 44ch;
+  font-size: var(--text-caption-size);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* ----------------------------------------------------------------- turns -- */
+
+.turns {
+  position: relative;
+  z-index: 1;
+  width: min(620px, 100%);
+  max-height: 22vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.turns li {
+  padding: 9px 13px;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-caption-size);
+  line-height: 1.45;
+}
+
+.turns li[data-from="founder"] {
+  justify-self: end;
+  max-width: 82%;
+  background: var(--glass-hover);
+  color: var(--text-primary);
+}
+
+.turns li[data-from="ren"] {
+  justify-self: start;
+  max-width: 88%;
+  border: 1px solid var(--glass-2-border);
+  background: var(--glass-2-bg);
+  color: var(--text-secondary);
+}
+
+/* ------------------------------------------------------------------ task -- */
+
+.task {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: var(--text-caption-size);
+  color: var(--text-secondary);
+}
+
+.taskDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+/* Only the states that are genuinely in flight pulse. A finished task that
+   kept pulsing would be the fake progress the brief forbids. */
+.taskDot[data-state="executing"],
+.taskDot[data-state="verifying"] {
+  background: rgb(var(--nn-spectrum-cyan));
+  animation: nn-ren-pulse 1.4s ease-in-out infinite;
+}
+
+.taskDot[data-state="failed"] { background: var(--status-err); }
+
+@keyframes nn-ren-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* -------------------------------------------------------------- approval -- */
+
+.approval {
+  composes: nn-live-wave from global;
+  position: relative;
+  z-index: 1;
+  width: min(460px, 100%);
+  padding: var(--card-pad);
+  border: var(--card-edge) solid var(--glass-2-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-3-bg);
+  box-shadow: var(--card-lift);
+  text-align: left;
+}
+
+.approval h2 {
+  margin: 0 0 6px;
+  font-size: var(--text-lg-size);
+  font-weight: var(--weight-semibold);
+}
+
+.approval p {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-caption-size);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.approvalRow { display: flex; gap: 10px; }
+
+.approve {
+  composes: nn-liquid nn-liquid-primary from global;
+  flex: 1;
+  min-height: 44px;
+  border-radius: var(--radius-full);
+  font: inherit;
+  font-weight: var(--weight-semibold);
+}
+
+.decline {
+  composes: nn-liquid from global;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-full);
+  font: inherit;
+  color: var(--text-secondary);
+}
+
+/* -------------------------------------------------------------- controls -- */
+
+.controls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mic {
+  composes: nn-liquid from global;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  /* 56 so the whole control clears the 44pt touch minimum with room spare,
+     which is what makes this usable one-handed on a phone. */
+  min-height: 56px;
+  padding: 0 24px;
+  border-radius: var(--radius-full);
+  font: inherit;
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-medium);
+}
+
+/* Live means live: the ring is on only while the microphone is actually
+   open, so it is a status rather than a decoration. */
+.mic[data-live] {
+  border-color: rgb(var(--nn-spectrum-cyan) / 60%);
+  box-shadow:
+    var(--liquid-edge-shadow),
+    0 0 0 2px rgb(var(--nn-spectrum-cyan) / 34%),
+    0 0 26px -4px rgb(var(--nn-spectrum-cyan) / 46%);
+  animation: nn-ren-live 1.9s ease-in-out infinite;
+}
+
+@keyframes nn-ren-live {
+  0%, 100% { box-shadow: var(--liquid-edge-shadow), 0 0 0 2px rgb(var(--nn-spectrum-cyan) / 28%), 0 0 22px -6px rgb(var(--nn-spectrum-cyan) / 36%); }
+  50% { box-shadow: var(--liquid-edge-shadow), 0 0 0 3px rgb(var(--nn-spectrum-cyan) / 46%), 0 0 32px -2px rgb(var(--nn-spectrum-cyan) / 58%); }
+}
+
+.micLabel { white-space: nowrap; }
+
+.stop {
+  composes: nn-liquid from global;
+  min-height: 56px;
+  padding: 0 22px;
+  border-radius: var(--radius-full);
+  font: inherit;
+  font-size: var(--text-label-size);
+  color: var(--text-secondary);
+}
+
+.note {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  max-width: 44ch;
+  text-align: center;
+  font-size: var(--text-micro-size);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------- typing -- */
+
+.typing {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 8px;
+  width: min(620px, 100%);
+}
+
+/* Its own class, not `.typing input`: `composes` is only legal on a single
+   local class selector, and a descendant selector breaks the build. */
+.typeField {
+  composes: nn-liquid from global;
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: var(--radius-full);
+  font: inherit;
+  /* 16px or iOS zooms the whole page when the field takes focus. */
+  font-size: max(16px, var(--text-label-size));
+  color: var(--text-primary);
+  cursor: text;
+}
+
+.typeField::placeholder { color: var(--text-muted); }
+
+.typeSend {
+  composes: nn-liquid from global;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* ------------------------------------------------------------ responsive -- */
+
+@media (max-width: 719px) {
+  .room { gap: 12px; }
+  .status { font-size: 19px; }
+  .honest { display: none; }   /* said on the larger screens; the phone needs the room */
+  .turns { max-height: 18vh; }
+  .controls { width: 100%; }
+  .mic { flex: 1; justify-content: center; padding: 0 16px; }
+  .micLabel { font-size: var(--text-caption-size); }
+}
+
+/* A short laptop or a phone in landscape: the orb gives way before the
+   controls do, because the controls are what the screen is for. */
+@media (max-height: 620px) {
+  .honest, .turns { display: none; }
+  .stage { gap: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky, .mic[data-live], .taskDot { animation: none; }
+}
+
+:root[data-motion="reduced"] .sky,
+:root[data-motion="reduced"] .mic[data-live],
+:root[data-motion="reduced"] .taskDot {
+  animation: none;
+}

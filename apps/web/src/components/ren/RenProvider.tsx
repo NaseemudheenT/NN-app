@@ -110,12 +110,17 @@ export function RenProvider({ children }: { children: ReactNode }) {
     if (machine.state !== "listening" && level !== 0) setLevel(0);
   }, [machine.state, level]);
 
+  useEffect(() => {
+    if (pathname === "/" || pathname === "/sign-in") setOpen(false);
+  }, [pathname]);
+
   /* Summoning REN from the keyboard, and dismissing with Escape. Bound once,
      at the document, because REN belongs to the whole application. */
   const openRef = useRef(open);
   openRef.current = open;
 
   useEffect(() => {
+    if (pathname === "/" || pathname === "/sign-in") return;
     const onKeyDown = (event: KeyboardEvent) => {
       const mod = event.metaKey || event.ctrlKey;
       if (mod && event.key.toLowerCase() === "k") {
@@ -130,7 +135,7 @@ export function RenProvider({ children }: { children: ReactNode }) {
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [summon, dismiss]);
+  }, [summon, dismiss, pathname]);
 
   const value = useMemo<RenContextValue>(
     () => ({

@@ -1,0 +1,61 @@
+/* One sweep of light, and the new surface is there. */
+
+.sweep {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-toast);
+  pointer-events: none;
+  overflow: hidden;
+  /* A breath of the room's own light, so the screen does not simply cut. */
+  background: radial-gradient(
+    120% 70% at 50% 50%,
+    rgb(var(--nn-spectrum-cyan) / 7%),
+    transparent 70%
+  );
+  animation: veil 320ms var(--ease-standard) both;
+}
+
+/* The light itself: a thin spectrum band crossing the screen once. */
+.line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -30%;
+  width: 30%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgb(var(--nn-spectrum-cyan) / 34%) 32%,
+    rgb(255 255 255 / 44%) 50%,
+    rgb(var(--nn-spectrum-violet) / 30%) 68%,
+    transparent
+  );
+  filter: blur(14px);
+  animation: cross 420ms var(--ease-entrance) both;
+}
+
+@keyframes veil {
+  0%   { opacity: 0; }
+  35%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes cross {
+  from { transform: translateX(0) skewX(-8deg); }
+  to   { transform: translateX(440%) skewX(-8deg); }
+}
+
+.announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Reduced motion never reaches this — `open` navigates plainly — but a
+   stylesheet should not depend on a caller remembering that. */
+@media (prefers-reduced-motion: reduce) {
+  .sweep, .line { animation-duration: 1ms; }
+}

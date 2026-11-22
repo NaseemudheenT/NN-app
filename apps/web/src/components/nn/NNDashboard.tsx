@@ -1,0 +1,611 @@
+"use client";
+
+import {
+  useCallback, useMemo, useState,
+  type ReactNode,
+} from "react";
+import { useRouter } from "next/navigation";
+import type { Route } from "next";
+import { Icon, type IconName } from "@/components/ui/Icon";
+import { GlassIcon, type GlassIconTone } from "@/components/ui/GlassIcon";
+import { LiquidNav, type LiquidNavItem } from "@/components/ui/LiquidNav";
+import { CurvedCarousel, type CarouselSlide } from "@/components/ui/CurvedCarousel";
+import { WaveCard, WaveChip } from "@/components/ui/WaveCard";
+import { useAppTransition } from "@/components/nn/AppTransition";
+import { APPLICATIONS } from "@/lib/apps/registry";
+import { useRecords, type RecordFault, type RecordState } from "@/lib/nn/records";
+import { relativeTime, useClock } from "@/lib/clock";
+import styles from "./NNDashboard.module.css";
+import { ownerFirstName as _of, ownerInitial } from "@/lib/nn/owner";
+const OWNER_FIRST = _of(null);
+const OWNER_INITIAL = ownerInitial(null);
+
+/**
+ * NN's dashboard.
+ *
+ * One sheet of adjustable glass over the room, holding four views: what today
+ * asks of the founder, every application, everything that has happened, and
+ * the state of the environment itself. The material is the founder's to set —
+ * blur, opacity, saturation, edge light and tint are live custom properties,
+ * kept per device because how much glass is right depends on the room.
+ *
+ * What is on it is real. Every count, every line of activity and every goal
+ * is a live subscription to the founder's own Firestore collections, and when
+ * a read cannot be served the panel says which of the five things went wrong
+ * rather than showing a zero. A zero and "NN cannot reach your data" look the
+ * same on a dashboard and mean opposite things, so NN never conflates them.
+ *
+ * Built to the founder's supplied adjustable-glass reference: the topbar and
+ * rail, the floating dock and the view switch are all
+ * from it, rewritten for NN's palette, data, routes and accessibility rules.
+ */
+
+/* ------------------------------------------------------------- view model -- */
+
+const VIEWS = [
+  { id: "today", label: "Today", icon: "calendar", hint: "What NN has for you" },
+  { id: "apps", label: "Applications", icon: "grid", hint: "All thirty-four" },
+  { id: "ren", label: "REN", icon: "sparkle", hint: "Your intelligence", mark: "ren" },
+  { id: "activity", label: "Activity", icon: "clock", hint: "Everything recorded" },
+] as const satisfies readonly (LiquidNavItem & { id: string })[];
+
+/*
+ * There is one way into settings, and it is the founder's own face.
+ *
+ * There were three: a gear beside the profile, the profile itself, and a
+ * "System" item in both navigation panels — and the System item did not even
+ * lead to the same place, it opened a fourth surface that said some of what
+ * Settings says and some of what Settings did not. The gear is gone, the
+ * System view is gone, and everything it reported is a row in Settings now.
+ */
+
+/**
+ * REN sits in the dock with the views, but it is not one.
+ *
+ * It is the only item that leaves the dashboard, because REN is a place
+ * rather than a panel — and it belongs in the dock because the founder
+ * reaches for it as often as for Today. Selecting it navigates and the
+ * dashboard keeps whichever view it was on, so coming back lands where you
+ * left rather than resetting to Today.
+ */
+const NAV_ROUTES: Partial<Record<string, string>> = { ren: "/ren" };
+
+type ViewId = Exclude<(typeof VIEWS)[number]["id"], "ren">;
+
+const VIEW_TITLE: Record<ViewId, string> = {
+  today: "Today",
+  apps: "Applications",
+  activity: "Activity",
+};
+
+/* ------------------------------------------------------- record accessors -- */
+
+/**
+ * Records come back as `{ id, [field]: unknown }`, because the collection is
+ * the founder's and NN does not get to assume a shape. These read a field the
+ * way a careful person would: take it if it is the right type, otherwise act
+ * as if it were not there.
+ */
+function text(record: Record<string, unknown>, ...fields: string[]): string | null {
+  for (const field of fields) {
+    const value = record[field];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+function flag(record: Record<string, unknown>, field: string): boolean {
+  return record[field] === true;
+}
+
+function count(record: Record<string, unknown>, field: string): number | null {
+  const value = record[field];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+/**
+ * A Firestore timestamp, an ISO string or a number, as a Date.
+ *
+ * Firestore hands back a Timestamp object in the browser and a plain string
+ * once a document has been through an export, so both have to work or the
+ * same record sorts differently depending on where it came from.
+ */
+function when(record: Record<string, unknown>, ...fields: string[]): Date | null {
+  for (const field of fields) {
+    const value = record[field];
+    if (value && typeof value === "object" && "toDate" in value) {
+      const date = (value as { toDate: () => Date }).toDate();
+      if (!Number.isNaN(date.getTime())) return date;
+    }
+    if (typeof value === "string" || typeof value === "number") {
+      const date = new Date(value);
+      if (!Number.isNaN(date.getTime())) return date;
+    }
+  }
+  return null;
+}
+
+/* ------------------------------------------------------------ fault panel -- */
+
+/**
+ * What to show instead of data.
+ *
+ * Each fault gets its own sentence because the founder's next move differs:
+ * sign in, add a credential, check the connection, or tell someone. "Could
+ * not load" would be true for all of them and useful for none.
+ */
+function Fault({ fault }: { fault: RecordFault }) {
+  const action: Record<RecordFault["kind"], string> = {
+    unconfigured: "This deployment has no Firebase configuration, so there is nothing to read from.",
+    "signed-out": "Sign in to see your own records.",
+    denied: "These records are not yours to read.",
+    unavailable: "NN will show them as soon as it can reach your data.",
+    failed: "This is a fault in NN, not in your data.",
+  };
+  return (
+    <p className={styles.fault} role="status">
+      <Icon name="shield" size={15} />
+      <span>
+        <strong>{fault.message}</strong>
+        <span>{action[fault.kind]}</span>
+      </span>
+    </p>
+  );
+}
+
+/**
+ * A count, or an em dash when NN did not get to count.
+ *
+ * `items.length` is zero both when a collection is empty and when the read
+ * was refused, and those mean opposite things. Everything that shows a number
+ * on this dashboard goes through here, so the distinction cannot be lost by
+ * one panel forgetting to make it.
+ */
+function Count({ state, one, many }: { state: RecordState; one?: string; many?: string }) {
+  if (state.fault || state.loading) {
+    return <span title={state.fault?.message ?? "Reading"}>{"\u2014"}</span>;
+  }
+  const n = state.items.length;
+  const noun = many === undefined ? "" : ` ${n === 1 ? (one ?? many) : many}`;
+  return <>{n}{noun}</>;
+}
+
+/** One panel's state, rendered the same way everywhere. */
+function Stateful<T extends { id: string }>({
+  state, empty, children,
+}: {
+  state: RecordState<T>;
+  empty: string;
+  children: (items: readonly T[]) => ReactNode;
+}) {
+  if (state.fault) return <Fault fault={state.fault} />;
+  if (state.loading) {
+    return (
+      <div className={styles.skeleton} aria-hidden="true">
+        <span /><span /><span />
+      </div>
+    );
+  }
+  if (state.empty) return <p className={styles.empty}>{empty}</p>;
+  return <>{children(state.items)}</>;
+}
+
+/* -------------------------------------------------------------- the views -- */
+
+function TodayView({ firstName }: { firstName: string }) {
+  // Null until mounted, so the server and the browser's first render agree.
+  // Everything below that formats a date is gated on it.
+  const now = useClock();
+
+  const tasks = useRecords("tasks", { limit: 60 });
+  const events = useRecords("calendar_events", { orderBy: "startsAt", direction: "asc", limit: 12 });
+  const notes = useRecords("notes", { limit: 20 });
+  const goals = useRecords("goals", { limit: 8 });
+
+  const openTasks = useMemo(
+    () => tasks.items.filter((task) => !flag(task, "done") && !flag(task, "completed")),
+    [tasks.items],
+  );
+
+  const upcoming = useMemo(() => {
+    if (now === null) return [];
+    return events.items
+      .map((event) => ({ event, at: when(event, "startsAt", "start", "at") }))
+      .filter((entry): entry is { event: typeof entry.event; at: Date } => entry.at !== null)
+      .filter((entry) => entry.at.getTime() >= now - 60 * 60 * 1000)
+      .sort((a, b) => a.at.getTime() - b.at.getTime());
+  }, [events.items, now]);
+
+  const next = upcoming[0];
+
+  const counters: ReadonlyArray<{
+    label: string; state: RecordState; value: number; icon: IconName; tone: GlassIconTone;
+  }> = [
+    { label: "Open tasks", state: tasks, value: openTasks.length, icon: "check", tone: "green" },
+    { label: "Scheduled", state: events, value: upcoming.length, icon: "calendar", tone: "cyan" },
+    { label: "Notes", state: notes, value: notes.items.length, icon: "file", tone: "blue" },
+    { label: "Goals", state: goals, value: goals.items.length, icon: "graph", tone: "violet" },
+  ];
+
+  const today = now === null ? null : new Date(now);
+
+  return (
+    <>
+      <WaveCard tone="aurora" className={styles.hero} interactive={false}>
+        <div className={styles.heroInner}>
+          <div>
+            <p className={styles.heroKicker}>
+              {today
+                ? today.toLocaleDateString(undefined, {
+                    weekday: "long", day: "numeric", month: "long",
+                  })
+                : "\u00a0"}
+            </p>
+            <h2 className={styles.heroTitle}>
+              {events.fault
+                ? `Hello, ${firstName}.`
+                : next
+                  ? text(next.event, "title", "name", "summary") ?? "Something is scheduled"
+                  : `Nothing is scheduled, ${firstName}.`}
+            </h2>
+            <p className={styles.heroLine}>
+              {events.fault
+                ? "NN has not read your calendar, so it cannot say what today holds."
+                : next && now !== null
+                  ? `${relativeTime(next.at, now)} \u00b7 ${next.at.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`
+                  : "A clear day. NN is holding everything else."}
+            </p>
+          </div>
+
+          <WaveChip className={styles.heroChip}>
+            <span className={styles.heroChipValue}>
+              {tasks.fault || tasks.loading ? "\u2014" : openTasks.length}
+            </span>
+            <span className={styles.heroChipLabel}>
+              {tasks.fault
+                ? "not readable"
+                : openTasks.length === 1 ? "task open" : "tasks open"}
+            </span>
+          </WaveChip>
+        </div>
+      </WaveCard>
+
+      {/* A list, not a row of divs: four related statistics are a list, and
+          saying so is what lets a screen reader announce "4 items" and move
+          between them instead of reading one run-on paragraph. */}
+      <ul className={styles.counters} aria-label="Today at a glance">
+        {counters.map((counter) => (
+          <li className={styles.counter} key={counter.label}>
+            <p className={styles.counterTop}>
+              <span>{counter.label}</span>
+              <GlassIcon name={counter.icon} tone={counter.tone} size={28} />
+            </p>
+            {counter.state.fault ? (
+              <strong className={styles.counterUnknown} title={counter.state.fault.message}>
+                —
+              </strong>
+            ) : counter.state.loading ? (
+              <strong className={styles.counterUnknown}>·</strong>
+            ) : (
+              <strong>{counter.value}</strong>
+            )}
+            <span className={styles.counterHint}>
+              {counter.state.fault
+                ? "Not readable"
+                : counter.state.stale
+                  ? "From this device"
+                  : counter.state.loading
+                    ? "Reading"
+                    : "Live"}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className={styles.pair}>
+        <section className={styles.panel}>
+          <header className={styles.panelTop}>
+            <h3>Next</h3>
+            <span className={styles.small}>
+              <Count state={events} /> scheduled
+            </span>
+          </header>
+          <Stateful state={events} empty="Nothing on the calendar yet.">
+            {() =>
+              upcoming.length === 0 ? (
+                <p className={styles.empty}>Nothing ahead.</p>
+              ) : (
+                <ul className={styles.rows}>
+                  {upcoming.slice(0, 5).map(({ event, at }) => (
+                    <li key={event.id}>
+                      <span className={styles.rowIcon}><Icon name="calendar" size={16} /></span>
+                      <span className={styles.rowBody}>
+                        <strong>{text(event, "title", "name", "summary") ?? "Untitled"}</strong>
+                        <span>{at.toLocaleString(undefined, {
+                          weekday: "short", hour: "numeric", minute: "2-digit",
+                        })}</span>
+                      </span>
+                      <span className={styles.rowMeta}>
+                        {now === null ? "" : relativeTime(at, now)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+          </Stateful>
+        </section>
+
+        <section className={styles.panel}>
+          <header className={styles.panelTop}>
+            <h3>Goals</h3>
+            <span className={styles.small}>
+              <Count state={goals} /> tracked
+            </span>
+          </header>
+          <Stateful state={goals} empty="No goals set. NN will track them when you add one.">
+            {(items) => (
+              <ul className={styles.goals}>
+                {items.slice(0, 4).map((goal) => {
+                  const done = count(goal, "done") ?? count(goal, "progress") ?? 0;
+                  const target = count(goal, "target") ?? 0;
+                  const percent = target > 0
+                    ? Math.max(0, Math.min(100, (done / target) * 100))
+                    : 0;
+                  const name = text(goal, "title", "name") ?? "Untitled goal";
+                  return (
+                    <li key={goal.id}>
+                      <p>
+                        <strong>{name}</strong>
+                        {target > 0 ? <span>{Math.round(percent)}%</span> : <span>No target</span>}
+                      </p>
+                      <span
+                        className={styles.track}
+                        role="progressbar"
+                        aria-label={name}
+                        aria-valuenow={Math.round(percent)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      >
+                        <i style={{ transform: `scaleX(${percent / 100})` }} />
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Stateful>
+        </section>
+      </div>
+    </>
+  );
+}
+
+function ApplicationsView() {
+  const travel = useAppTransition();
+
+  const slides: CarouselSlide[] = useMemo(
+    () =>
+      APPLICATIONS.map((app) => ({
+        id: app.id,
+        title: app.name,
+        kicker: app.group,
+        caption: app.description,
+        icon: app.icon,
+        ready: app.href !== undefined,
+      })),
+    [],
+  );
+
+  const open = useCallback(
+    (slide: CarouselSlide) => {
+      const app = APPLICATIONS.find((entry) => entry.id === slide.id);
+      if (!app) return;
+      // A real destination either way: the application when it exists, its
+      // honest overview when it does not.
+      travel.open((app.href ?? app.overviewHref) as Route, app.name);
+    },
+    [travel],
+  );
+
+  return (
+    <>
+      <CurvedCarousel
+        slides={slides}
+        label="NN applications"
+        onOpen={open}
+        className={styles.carousel}
+      />
+
+    </>
+  );
+}
+
+function ActivityView() {
+  const now = useClock();
+  const [filter, setFilter] = useState("");
+
+  const tasks = useRecords("tasks", { limit: 40 });
+  const notes = useRecords("notes", { limit: 40 });
+  const events = useRecords("calendar_events", { limit: 40 });
+
+  const stream = useMemo(() => {
+    const rows = [
+      ...tasks.items.map((r) => ({ record: r, kind: "Task", icon: "check" as IconName })),
+      ...notes.items.map((r) => ({ record: r, kind: "Note", icon: "file" as IconName })),
+      ...events.items.map((r) => ({ record: r, kind: "Event", icon: "calendar" as IconName })),
+    ].map((row) => ({
+      ...row,
+      title: text(row.record, "title", "name", "summary") ?? "Untitled",
+      at: when(row.record, "updatedAt", "createdAt", "startsAt"),
+    }));
+    const needle = filter.trim().toLowerCase();
+    return rows
+      .filter((row) => !needle || `${row.title} ${row.kind}`.toLowerCase().includes(needle))
+      .sort((a, b) => (b.at?.getTime() ?? 0) - (a.at?.getTime() ?? 0));
+  }, [tasks.items, notes.items, events.items, filter]);
+
+  const faults = [tasks.fault, notes.fault, events.fault].filter(Boolean) as RecordFault[];
+  const loading = tasks.loading || notes.loading || events.loading;
+
+  return (
+    <section className={styles.panel}>
+      <header className={styles.panelTop}>
+        <h3>
+          Everything recorded
+          <span className={styles.count}>{stream.length}</span>
+        </h3>
+        <label className={styles.search}>
+          <Icon name="search" size={15} />
+          <input
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+            placeholder="Filter"
+            aria-label="Filter activity"
+          />
+          {filter ? (
+            <button type="button" aria-label="Clear filter" onClick={() => setFilter("")}>
+              <Icon name="close" size={14} />
+            </button>
+          ) : null}
+        </label>
+      </header>
+
+      {faults.length > 0 ? <Fault fault={faults[0]!} /> : null}
+
+      {loading && stream.length === 0 ? (
+        <div className={styles.skeleton} aria-hidden="true"><span /><span /><span /></div>
+      ) : stream.length === 0 ? (
+        <p className={styles.empty}>
+          {filter ? "Nothing matches that." : "Nothing recorded yet."}
+        </p>
+      ) : (
+        <ul className={styles.rows}>
+          {stream.slice(0, 40).map((row) => (
+            <li key={`${row.kind}-${row.record.id}`}>
+              <span className={styles.rowIcon}><Icon name={row.icon} size={16} /></span>
+              <span className={styles.rowBody}>
+                <strong>{row.title}</strong>
+                <span>{row.kind}</span>
+              </span>
+              <span className={styles.rowMeta}>
+                {row.at && now !== null ? relativeTime(row.at, now) : ""}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/* --------------------------------------------------------------- the shell -- */
+
+export interface NNDashboardProps {
+  firstName?: string;
+  /** Opens on this view. The design route uses it to show a specific surface. */
+  initialView?: ViewId;
+}
+
+export function NNDashboard({
+  firstName = OWNER_FIRST,
+  initialView = "today",
+}: NNDashboardProps) {
+  // Settings is not somewhere you travel to — it is the panel behind the
+  // screen you are already on — so it opens plainly, with no corridor.
+  // Applications are a different matter and still fly; that is the one place
+  // the movement means something.
+  const router = useRouter();
+  const [view, setView] = useState<ViewId>(initialView);
+
+  const choose = useCallback((item: LiquidNavItem) => {
+    const route = NAV_ROUTES[item.id];
+    if (route) { router.push(route as Route); return; }
+    setView(item.id as ViewId);
+  }, [router]);
+  return (
+    <div className={styles.root}>
+      <header className={styles.topbar}>
+        <div className={styles.brand}>
+          {/* The wordmark alone. The mark is on the tab, the home screen and
+              the door — repeating it here, beside the word it spells, was the
+              same name said twice. The tagline went with it: the founder does
+              not need to be told what NN is on the screen they are using. */}
+          <strong>NN</strong>
+        </div>
+
+        <div className={styles.toolbar}>
+          <button
+            type="button"
+            className={styles.avatar}
+            aria-label={`${firstName} — profile and settings`}
+            title={`${firstName} — profile and settings`}
+            onClick={() => router.push("/settings" as Route)}
+          >
+            {OWNER_INITIAL}
+          </button>
+        </div>
+      </header>
+
+      <div className={styles.stage}>
+        <div className={styles.rail}>
+          <LiquidNav
+            items={VIEWS}
+            activeId={view}
+            onSelect={choose}
+            orientation="vertical"
+            compact
+            aria-label="Dashboard views"
+          />
+        </div>
+
+        <main className={styles.main}>
+          <div className={styles.heading}>
+            <div>
+              <p className={styles.greeting}>
+                {view === "today"
+                  ? `Welcome back, ${firstName}.`
+                  : "Your personal operating environment"}
+              </p>
+              <h1>{VIEW_TITLE[view]}</h1>
+            </div>
+          </div>
+
+          {/* Keyed on the view so each one mounts fresh: a stale subscription
+              from the previous view would keep painting into this one. */}
+          <div className={styles.view} key={view}>
+            {view === "today" ? <TodayView firstName={firstName} /> : null}
+            {view === "apps" ? <ApplicationsView /> : null}
+            {view === "activity" ? <ActivityView /> : null}
+          </div>
+
+          <div className={styles.dock}>
+            <LiquidNav
+              items={VIEWS}
+              activeId={view}
+              onSelect={choose}
+              aria-label="Dashboard views"
+            />
+          </div>
+        </main>
+      </div>
+
+      {/* The phone's navigation lives here, outside the glass panel, and the
+          reason is subtle enough to be worth writing down: `.main` carries a
+          `backdrop-filter`, and a filtered element becomes the containing
+          block for any `position: fixed` descendant. Nested inside it, the
+          bar was pinned to the bottom of the panel rather than the bottom of
+          the screen — which looked fine on a short page and disappeared off
+          the end of a long one. */}
+      <div className={styles.mobileNav}>
+        <LiquidNav
+          items={VIEWS}
+          activeId={view}
+          onSelect={choose}
+          labels="always"
+          aria-label="Dashboard views"
+        />
+      </div>
+    </div>
+  );
+}

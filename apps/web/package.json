@@ -11,7 +11,8 @@
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "../../firebase/scripts/with-java.sh firebase emulators:exec --only auth,firestore --project nn-os-dev \"./node_modules/.bin/playwright test\""
+    "test:e2e": "../../firebase/scripts/with-java.sh firebase emulators:exec --only auth,firestore --project nn-os-dev \"./node_modules/.bin/playwright test\"",
+    "evaluate": "node scripts/evaluate-ren.mjs"
   },
   "dependencies": {
     "next": "^15.1.6",

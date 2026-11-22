@@ -1,0 +1,184 @@
+/* Everything in NN, one keystroke away. See CommandPalette.tsx. */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  /* Not centred: a palette belongs in the upper third, where the eye already
+     is and where the list has room to grow downward. */
+  align-content: start;
+  justify-items: center;
+  padding: clamp(60px, 14vh, 140px) 14px 14px;
+  background: rgb(4 9 24 / 46%);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: nn-palette-in 160ms ease both;
+}
+
+@keyframes nn-palette-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.panel {
+  width: min(620px, 100%);
+  max-height: min(62vh, 560px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--card-edge) solid var(--glass-2-border);
+  border-radius: var(--radius-xl);
+  background: var(--glass-3-bg);
+  -webkit-backdrop-filter: blur(34px) saturate(170%);
+  backdrop-filter: blur(34px) saturate(170%);
+  box-shadow: var(--card-lift);
+  animation: nn-palette-rise 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes nn-palette-rise {
+  from { opacity: 0; transform: translateY(-8px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ----------------------------------------------------------------- field -- */
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.field input {
+  flex: 1;
+  min-width: 0;
+  height: 54px;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  /* 16px or iOS zooms the page when the field takes focus. */
+  font-size: max(16px, var(--text-body-size));
+  letter-spacing: -0.01em;
+  outline: none;
+}
+
+.field input::placeholder { color: var(--text-muted); }
+
+.esc { flex: none; }
+
+/* ------------------------------------------------------------------ list -- */
+
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  /* 44 so it is a real touch target: the palette is on the phone too. */
+  min-height: 44px;
+  padding: 7px 10px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* One highlight, driven by the keyboard. Hover sets the same index rather
+   than painting a second one, so the eye never has two places to look. */
+.list li[data-at] {
+  background: var(--glass-hover);
+  color: var(--text-primary);
+}
+
+.list li[data-planned] { cursor: not-allowed; opacity: 0.55; }
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+  font-size: var(--text-label-size);
+  font-weight: var(--weight-medium);
+}
+
+.label small {
+  overflow: hidden;
+  font-size: var(--text-micro-size);
+  font-weight: var(--weight-regular);
+  line-height: 1.35;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planned {
+  flex: none;
+  font-size: var(--text-micro-size);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.empty {
+  margin: 0;
+  padding: 26px 16px;
+  text-align: center;
+  font-size: var(--text-caption-size);
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------- footer -- */
+
+.footer {
+  display: flex;
+  gap: 16px;
+  padding: 9px 14px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-micro-size);
+  color: var(--text-muted);
+}
+
+.footer span { display: inline-flex; align-items: center; gap: 5px; }
+
+/* A class, not a bare `kbd`: CSS Modules refuses an element selector with no
+   local class in it, and rightly — it would leak out of this file. */
+.key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  background: var(--glass-hover);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+}
+
+@media (max-width: 719px) {
+  .scrim { padding-top: 56px; }
+  .panel { max-height: 72vh; }
+  .footer { display: none; }   /* no keyboard to hint at */
+  .label small { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrim, .panel { animation: none; }
+}
+
+:root[data-motion="reduced"] .scrim,
+:root[data-motion="reduced"] .panel { animation: none; }

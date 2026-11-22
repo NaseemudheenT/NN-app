@@ -16,15 +16,7 @@
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: conic-gradient(
-    from 212deg,
-    rgb(156 200 255 / 0%)   0deg,
-    rgb(195 232 255 / 72%)  56deg,
-    rgb(200 170 255 / 46%) 130deg,
-    rgb(156 200 255 / 6%)  196deg,
-    rgb(130 220 255 / 58%) 292deg,
-    rgb(156 200 255 / 0%)  360deg
-  );
+  background: var(--nn-spectrum-rim);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -51,15 +43,7 @@
 }
 
 html[data-theme="light"] .nn-holo::before {
-  background: conic-gradient(
-    from 212deg,
-    rgb(47 111 189 / 0%)   0deg,
-    rgb(47 111 189 / 42%)  56deg,
-    rgb(140 110 220 / 28%) 130deg,
-    rgb(47 111 189 / 5%)  196deg,
-    rgb(60 170 220 / 36%) 292deg,
-    rgb(47 111 189 / 0%)  360deg
-  );
+  background: var(--nn-spectrum-rim);
 }
 html[data-theme="light"] .nn-holo::after {
   background: linear-gradient(90deg, transparent, rgb(47 111 189 / 40%), transparent);

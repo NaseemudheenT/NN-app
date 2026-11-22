@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "gt/**"
+      - "design/**"
   pull_request:
     branches:
       - main

@@ -1,11 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { enforceRateLimit } from "@/server/auth/ratelimit";
+import { requireServerCredentials } from "@/server/auth/credentials";
 import {
   buildRegistrationOptions, evaluateRegistration, makeRecord, readRelyingParty,
 } from "@nn/auth";
 import { callerUid } from "@/server/auth/session";
 import { FirestoreChallengeStore, listCredentials, readOwner } from "@/server/auth/store";
+import { OWNER_NAME } from "@/lib/nn/owner";
 
 // firebase-admin needs the Node runtime; it cannot run on the edge.
 export const runtime = "nodejs";
@@ -18,6 +20,11 @@ export const dynamic = "force-dynamic";
  * caller learns nothing — not even whether NN has an owner.
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Asked before the rate limiter, which needs Firestore itself and would
+  // otherwise be the thing that throws.
+  const unconfigured = requireServerCredentials();
+  if (unconfigured !== null) return unconfigured;
+
   const limited = await enforceRateLimit(request, "register-options");
   if (limited !== null) return limited;
 
@@ -42,7 +49,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const options = await buildRegistrationOptions(
     rp,
-    { id: targetUid, name: "founder", displayName: "Founder" },
+    { id: targetUid, name: "owner", displayName: OWNER_NAME },
     existing,
   );
 

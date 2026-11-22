@@ -92,6 +92,7 @@
 
 /* ---- navigation ---------------------------------------------------------- */
 .nav {
+  composes: nn-liquid from global;
   position: absolute;
   top: 50%;
   z-index: 200;
@@ -100,17 +101,25 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  border: 1px solid var(--glass-2-border);
+
   border-radius: var(--radius-full);
-  background: var(--glass-3-bg);
-  backdrop-filter: blur(var(--glass-3-blur));
-  -webkit-backdrop-filter: blur(var(--glass-3-blur));
+
+
+
   color: var(--text-primary);
   cursor: pointer;
-  box-shadow: var(--shadow-2), inset 0 1px 0 var(--glass-sheen);
+
   transition: border-color var(--dur-fast) var(--ease-standard),
               transform var(--dur-fast) var(--ease-standard);
 }
+
+/* The liquid material lifts a control on hover and presses it on click, both
+   by replacing `transform`. This arrow also *centres* itself with one, and a
+   bare `translateY(-1px)` from the shared rule would drop it half its own
+   height down the rail. So the lift is re-expressed here with the centring
+   folded in — the same motion, around the right origin. */
+.nav:hover:not(:disabled) { transform: translateY(-50%) translateY(-1px); }
+.nav:active:not(:disabled) { transform: translateY(-50%) scale(0.94); }
 .nav:hover { border-color: var(--border-strong); }
 .nav:active { transform: translateY(-50%) scale(0.94); }
 .navPrev { left: var(--space-5); }
@@ -189,3 +198,8 @@
 }
 .dots { position: relative; }
 .dot { position: relative; }
+
+
+/* Coverflow cards: laminated glass with a measurable lower edge. */
+.card { border-color:rgb(215 235 255 / 44%);background:radial-gradient(ellipse 80% 38% at 12% 0%,rgb(255 255 255 / 19%),transparent 72%),linear-gradient(145deg,rgb(255 255 255 / 13%),rgb(var(--nn-spectrum-cyan) / 7%) 36%,rgb(var(--nn-spectrum-blue) / 8%) 70%),rgb(9 20 42 / 64%);box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 52%),inset 1px 0 0 rgb(255 255 255 / 12%),inset 0 -2px 0 rgb(0 0 0 / 25%),0 1px 0 rgb(188 220 255 / 32%),0 3px 0 rgb(3 10 27 / 70%),0 7px 0 rgb(2 8 22 / 48%),0 18px 30px rgb(0 0 0 / 28%),0 32px 58px rgb(0 0 0 / 30%);-webkit-backdrop-filter:blur(28px) saturate(155%);backdrop-filter:blur(28px) saturate(155%); }
+.cardIcon { border-color:rgb(220 238 255 / 44%);background:linear-gradient(145deg,rgb(255 255 255 / 26%),rgb(var(--nn-spectrum-blue) / 12%));box-shadow:inset 0 1.5px 0 rgb(255 255 255 / 48%),inset 0 -2px 2px rgb(0 0 0 / 20%),0 2px 0 rgb(3 10 27 / 60%),0 7px 14px rgb(0 0 0 / 20%); }

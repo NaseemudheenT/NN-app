@@ -89,6 +89,7 @@ export function FloatingWindow({
   }, []);
 
   const cls = [
+    "nn-glass-card",
     styles.win,
     focused ? styles.focused : styles.unfocused,
     minimized ? styles.minimized : "",

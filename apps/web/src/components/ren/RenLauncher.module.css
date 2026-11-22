@@ -52,7 +52,9 @@
 @media (max-width: 767px) {
   .launcher {
     right: var(--space-5);
-    bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    /* Above the dashboard's bottom bar, not under it. 78px is the bar plus
+       its own margin; without this the launcher sits on top of a tab. */
+    bottom: calc(78px + env(safe-area-inset-bottom, 0px));
     padding: var(--space-2);
   }
   .hint { display: none; }
@@ -63,3 +65,35 @@
 }
 :global(html[data-motion="reduced"]) .launcher:hover,
 :global(html[data-motion="reduced"]) .launcher:active { transform: none; }
+
+
+/* The tactile pass.
+ *
+ * Two later rules used to re-state the whole material in fixed midnight blue,
+ * which meant the launcher stayed a dark pebble on a white page — one of the
+ * places the founder saw the light theme not following. Only the parts that
+ * are genuinely theme-independent are kept: the bevel geometry. The colours
+ * come from the base rule, which is all tokens. */
+.launcher {
+  box-shadow:
+    inset 0 1.5px 0 var(--glass-sheen),
+    inset 0 -2px 0 rgb(0 0 0 / 14%),
+    var(--shadow-3);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  backdrop-filter: blur(30px) saturate(160%);
+  transform-style: preserve-3d;
+}
+
+/* REN's own mark was 34px wide on a phone. It is the one control that is
+   always on screen, and it floats over content — a near-miss there taps
+   whatever is underneath, which is worse than nothing happening. */
+@media (max-width: 719px) {
+  .launcher {
+    min-width: 48px;
+    min-height: 48px;
+    justify-content: center;
+    padding: var(--space-2);
+    /* Clear of the home indicator on a modern iPhone. */
+    bottom: max(var(--space-7), calc(env(safe-area-inset-bottom, 0px) + var(--space-5)));
+  }
+}

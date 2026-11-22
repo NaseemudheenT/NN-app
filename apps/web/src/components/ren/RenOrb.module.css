@@ -1,0 +1,56 @@
+/* REN: a sphere of moving light. */
+
+.orb {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  isolation: isolate;
+  /* The ambient glow the orb casts into the room around it. */
+  filter: drop-shadow(0 0 18px rgb(var(--nn-spectrum-blue) / 34%));
+  transition: filter var(--dur-slower) var(--ease-standard);
+}
+
+.orb[data-state="listening"] { filter: drop-shadow(0 0 26px rgb(var(--nn-spectrum-cyan) / 52%)); }
+.orb[data-state="thinking"]  { filter: drop-shadow(0 0 24px rgb(var(--nn-spectrum-violet) / 48%)); }
+.orb[data-state="speaking"]  { filter: drop-shadow(0 0 30px rgb(var(--nn-spectrum-aqua) / 54%)); }
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* No WebGL: the same spectrum, as a slowly turning conic gradient. It is the
+   orb with less depth, rather than a different thing in its place. */
+.flat {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, rgb(255 255 255 / 44%), transparent 46%),
+    conic-gradient(
+      from 210deg,
+      rgb(var(--nn-spectrum-cyan)),
+      rgb(var(--nn-spectrum-blue)),
+      rgb(var(--nn-spectrum-indigo)),
+      rgb(var(--nn-spectrum-violet)),
+      rgb(var(--nn-spectrum-cyan))
+    );
+  animation: turn 14s linear infinite, breathe 5s ease-in-out infinite;
+}
+
+@keyframes turn {
+  to { rotate: 360deg; }
+}
+
+@keyframes breathe {
+  0%, 100% { scale: 1; }
+  50%      { scale: 1.04; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flat { animation: none; }
+  .orb { transition-duration: 1ms; }
+}

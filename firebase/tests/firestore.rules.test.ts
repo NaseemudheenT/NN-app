@@ -42,8 +42,9 @@ beforeAll(async () => {
 afterAll(async () => { await env.cleanup(); });
 beforeEach(async () => { await env.clearFirestore(); });
 
-const asOwner = () => env.authenticatedContext(OWNER).firestore();
-const asIntruder = () => env.authenticatedContext(INTRUDER).firestore();
+const asOwner = () => env.authenticatedContext(OWNER, { nnOwner: true }).firestore();
+const asIntruder = () => env.authenticatedContext(INTRUDER, { nnOwner: true }).firestore();
+const asNonPasskey = () => env.authenticatedContext(OWNER).firestore();
 const asStranger = () => env.unauthenticatedContext().firestore();
 
 /* ─────────────────────────── the boundary ────────────────────────────── */
@@ -68,6 +69,11 @@ describe("ownership boundary", () => {
 
   it("DENIES another signed-in user listing the founder's collections", async () => {
     await assertFails(getDocs(collection(asIntruder(), `users/${OWNER}/notes`)));
+  });
+
+  it("DENIES a Firebase-authenticated user without the verified passkey owner claim", async () => {
+    await assertFails(getDoc(doc(asNonPasskey(), `users/${OWNER}/notes/private`)));
+    await assertFails(setDoc(doc(asNonPasskey(), `users/${OWNER}/notes/private`), validDoc()));
   });
 
   it("DENIES an unauthenticated request entirely", async () => {
@@ -241,6 +247,44 @@ describe("the owner record", () => {
 
   it("cannot be created by anyone else", async () => {
     await assertFails(setDoc(doc(asIntruder(), `users/${OWNER}`), validDoc()));
+  });
+});
+
+/* ─────────────────────────── the system space ─────────────────────────── */
+
+describe("the system space", () => {
+  /**
+   * `system/` holds the two credentials that outlive everything else: which
+   * uid owns NN, and the scrypt hash of the recovery password. Both are
+   * written only by the Admin SDK inside a route handler. No client — not an
+   * intruder, not the founder's own signed-in browser — may read or write
+   * either, because a stolen session must not be able to carry off the
+   * credential that would survive revoking it.
+   */
+  it("hides the owner record from every client, including the owner", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "system/owner"), { uid: OWNER, credentialCount: 1 });
+    });
+    await assertFails(getDoc(doc(asOwner(), "system/owner")));
+    await assertFails(getDoc(doc(asIntruder(), "system/owner")));
+  });
+
+  it("hides the recovery password hash from every client", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "system/recovery"), {
+        algorithm: "scrypt", salt: "x", hash: "y", failures: 0,
+      });
+    });
+    await assertFails(getDoc(doc(asOwner(), "system/recovery")));
+    await assertFails(getDoc(doc(asIntruder(), "system/recovery")));
+  });
+
+  it("lets nobody write the recovery record — not even to reset the lockout", async () => {
+    // The lockout lives in this document. A client that could clear it could
+    // brute-force the recovery password at whatever rate it liked.
+    await assertFails(setDoc(doc(asOwner(), "system/recovery"), { failures: 0 }));
+    await assertFails(setDoc(doc(asIntruder(), "system/recovery"), { failures: 0 }));
+    await assertFails(setDoc(doc(asOwner(), "system/owner"), { uid: INTRUDER }));
   });
 });
 

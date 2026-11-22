@@ -159,3 +159,30 @@ untested rather than merely unverified.
 A fabricated credential object was tried first and **rejected** — the Firestore
 client only accepts a recognised certificate or compute credential. Recorded
 here so the same dead end is not tried again.
+
+
+## 8. Passkey-only authorisation hardening
+
+NN accepts a Firebase session for application access only when the verified ID
+token carries the server-issued `nnOwner: true` custom claim. The claim is
+minted only by `/api/auth/signin/verify` after the WebAuthn assertion has
+passed signature, challenge, origin, RP ID and user-verification checks.
+
+This is enforced at three independent layers:
+
+- The browser AuthProvider signs out Firebase users whose ID token lacks
+  `nnOwner: true`.
+- Server API authentication (`callerUid`) rejects ID tokens without the claim.
+- Firestore and Storage rules require `request.auth.token.nnOwner == true`
+  before any owner-scoped read or write.
+
+A Firebase account signed in through another provider is therefore not an NN
+owner session and cannot access NN data. Do not weaken this claim check or add
+password, email-link, OAuth or anonymous fallback sign-in.
+
+The one-time `NN_BOOTSTRAP_SECRET` is only the first-owner enrollment gate. It
+is not a sign-in method and cannot open NN after the owner has been claimed.
+The owner enters using a registered passkey thereafter.
+
+Rule tests include authenticated users without the custom claim and must keep
+proving that they are denied.

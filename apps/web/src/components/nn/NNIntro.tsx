@@ -4,6 +4,7 @@ import { useEffect, useRef, type ComponentProps } from "react";
 import type Link from "next/link";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { RenMark } from "@/components/ui/RenMark";
 import { LiquidButton } from "@/components/ui/LiquidButton";
 import {
   clamp,
@@ -36,18 +37,27 @@ interface IntroCard {
   icon: IconName;
   title: string;
   hint: string;
+  /** REN is a presence, not a glyph: its own mark goes in the tile. */
+  mark?: "ren";
 }
 
+/**
+ * What is actually in NN.
+ *
+ * These are six of the thirty-four applications, named as they are named in
+ * the registry and described by what they really hold. The corridor used to
+ * fly five cards carrying a verb and nothing else — "Life", "Learn",
+ * "Create" — with the title hidden by a later stylesheet on top of that, so
+ * the first thing NN ever showed anyone was five empty panes of glass. The
+ * door to a personal operating environment should say what is behind it.
+ */
 const CARDS: readonly IntroCard[] = [
-  { icon: "calendar", title: "NN Life", hint: "Days, plans, routine" },
-  { icon: "book", title: "NN College", hint: "Timetable, marks, revision" },
-  { icon: "graph", title: "NN Academy", hint: "What you are learning" },
-  { icon: "grid", title: "NN Projects", hint: "What you are building" },
-  { icon: "wallet", title: "NN Finance", hint: "Where it goes" },
-  { icon: "folder", title: "NN Files", hint: "Everything kept" },
-  { icon: "sparkle", title: "NN Memory", hint: "What NN remembers" },
-  { icon: "shield", title: "NN Security", hint: "Who gets in" },
-  { icon: "settings", title: "NN Control", hint: "How NN behaves" },
+  { icon: "calendar", title: "Life", hint: "Your calendar, tasks, notes and reminders, in one day." },
+  { icon: "cap", title: "College", hint: "SMVEC — semesters, attendance, marks and material." },
+  { icon: "wallet", title: "Finance", hint: "Accounts, spending, what is owed and what is coming." },
+  { icon: "pen", title: "Creator Studio", hint: "Write, design, record and publish your own work." },
+  { icon: "vault", title: "Memory", hint: "Everything you have kept, searchable for a lifetime." },
+  { icon: "sparkle", title: "REN", hint: "Your intelligence, running through all of it.", mark: "ren" },
 ];
 
 /** Placement is fixed per card, so it is computed once at module load. */
@@ -66,6 +76,7 @@ const PLACEMENTS = CARDS.map((card, i) => {
 
 const STAGGER_SPAN = 0.55;
 
+
 export interface NNIntroProps {
   /** Where the "enter" control leads once the corridor has been travelled. */
   enterHref?: ComponentProps<typeof Link>["href"];
@@ -76,15 +87,24 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const titleRef = useRef<HTMLDivElement>(null);
-  const promptRef = useRef<HTMLDivElement>(null);
-  const railRef = useRef<HTMLDivElement>(null);
   const enterRef = useRef<HTMLDivElement>(null);
+  const welcomeRef = useRef<HTMLDivElement>(null);
+  const welcomeContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
+    // The welcome reveal is independent of font loading. Scroll progress drives
+    // its exit transform, so it physically moves with the corridor rather than
+    // behaving like a static overlay.
+    welcomeRef.current?.classList.add(styles.welcomeActive!);
+
     let still = prefersReducedMotion();
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
 
     // Progress along the corridor, 0 at the far end and 1 past the viewer.
     const progress = createSpring(0, { stiffness: 80, damping: 30, rest: 0.00008 });
@@ -95,6 +115,18 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
 
     let stage = { width: 1440, height: 900, isMobile: false };
     let dirty = true;
+    let welcomeDismissed = false;
+    const dismissWelcome = () => {
+      if (welcomeDismissed) return;
+      welcomeDismissed = true;
+      welcomeRef.current?.classList.add(styles.welcomeGone!);
+      const layer = welcomeRef.current;
+      if (layer) {
+        layer.style.opacity = "0";
+        layer.style.transform = "translate3d(0, -160px, 0) scale(1.035)";
+        layer.style.visibility = "hidden";
+      }
+    };
 
     const drive = (next: number) => {
       const clamped = clamp(next, 0, 1);
@@ -189,12 +221,30 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     /* ---- paint ------------------------------------------------------------ */
     const paint = () => {
       const p = progress.value;
+      // The welcome travels with the camera for the opening section: it lifts,
+      // subtly enlarges, and fades as the corridor advances. Once it has left,
+      // it stays dismissed for this mounted visit, even if the viewer reverses.
+      const welcomeLayer = welcomeRef.current;
+      if (!welcomeDismissed && welcomeLayer) {
+        if (p >= 0.28) {
+          dismissWelcome();
+        } else {
+          const travel = rampAcross(p, [0, 0.28], [0, 1]);
+          // Animate the complete full-screen welcome layer, including its
+          // radial backdrop. Animating only the text left the overlay behind.
+          welcomeLayer.style.opacity = (1 - travel).toFixed(3);
+          welcomeLayer.style.transform =
+            `translate3d(0, ${(-travel * 160).toFixed(1)}px, 0) scale(${(1 + travel * 0.035).toFixed(3)})`;
+        }
+      }
       const farZ = stage.isMobile ? -1200 : -1700;
       const nearZ = stage.isMobile ? 350 : 500;
       const panStrength = stage.isMobile ? 20 : 45;
+      // Bigger than they were. A card now carries a name and a sentence as
+      // well as its mark, and at the old 230 the sentence set to four lines.
       const cardWidth = stage.isMobile
-        ? Math.max(130, Math.min(180, stage.width * 0.38))
-        : Math.max(180, Math.min(270, stage.width * 0.18));
+        ? Math.max(176, Math.min(258, stage.width * 0.58))
+        : Math.max(268, Math.min(384, stage.width * 0.27));
       const px = panX.value;
       const py = panY.value;
 
@@ -221,21 +271,16 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
 
       if (titleRef.current) {
         titleRef.current.style.transform = `scale(${rampAcross(p, [0, 0.5, 1], [0.7, 1, 1.35]).toFixed(3)})`;
-        titleRef.current.style.opacity = rampAcross(p, [0, 0.12, 0.85, 1], [0.25, 1, 1, 0]).toFixed(3);
-      }
-      if (promptRef.current) {
-        promptRef.current.style.opacity = rampAcross(p, [0, 0.12], [1, 0]).toFixed(3);
-      }
-      if (railRef.current) {
-        railRef.current.style.setProperty("--travelled", p.toFixed(4));
+        titleRef.current.style.opacity = rampAcross(p, [0, 0.12, 0.85, 1], [0, 1, 1, 0]).toFixed(3);
       }
       if (enterRef.current) {
         // The way out appears only once the corridor has actually been crossed.
-        const shown = rampAcross(p, [0.72, 0.92], [0, 1]);
+        const shown = rampAcross(p, [0.94, 1], [0, 1]);
         enterRef.current.style.opacity = shown.toFixed(3);
-        enterRef.current.style.transform = `translateY(${((1 - shown) * 14).toFixed(1)}px)`;
+        enterRef.current.style.transform = `translate(-50%, ${((1 - shown) * 14).toFixed(1)}px)`;
         enterRef.current.style.pointerEvents = shown > 0.6 ? "auto" : "none";
         enterRef.current.setAttribute("aria-hidden", shown > 0.6 ? "false" : "true");
+        enterRef.current.toggleAttribute("inert", shown <= 0.6);
       }
     };
 
@@ -251,24 +296,6 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       paint();
     });
 
-    /* The corridor arrives rather than sitting empty. At rest every card is
-       still beyond the fade-in, so a founder opening NN would see a bare
-       title and no sign that there is anything to travel through. A short
-       drift forward puts the first cards on screen; any input takes over. */
-    const ARRIVAL = 0.1;
-    let arrivalTimer: number | null = null;
-    if (still) {
-      progress.reset(ARRIVAL);
-      dirty = true;
-    } else {
-      arrivalTimer = window.setTimeout(() => {
-        if (progress.target === 0) {
-          progress.set(ARRIVAL);
-          dirty = true;
-        }
-      }, 400);
-    }
-
     const stopMotionWatcher = onMotionPreferenceChange(() => {
       still = prefersReducedMotion();
       if (still) {
@@ -280,7 +307,8 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
     });
 
     return () => {
-      if (arrivalTimer !== null) window.clearTimeout(arrivalTimer);
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
       stopLoop();
       stopMotionWatcher();
       resizeObserver.disconnect();
@@ -300,43 +328,26 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
       className={styles.stage}
       tabIndex={0}
       role="group"
-      aria-label="NN introduction. Scroll, swipe or use the arrow keys to travel through NN's applications."
+      aria-label="NN. Scroll, swipe or use the arrow keys to reveal the experience."
     >
-      {/* The depth grid and the two rings that give the corridor a floor. */}
-      <div className={styles.grid} aria-hidden="true" />
-      <div className={styles.glow} aria-hidden="true" />
-      <div className={styles.ringInner} aria-hidden="true" />
-      <div className={styles.ringOuter} aria-hidden="true" />
-
-      <div ref={titleRef} className={styles.title}>
-        <p className={styles.eyebrow}>A private operating environment</p>
-        <NNLogo size={72} className={styles.mark} />
-        <h1 className={styles.heading}>
-          Everything you are,
-          <br />
-          in one place.
-        </h1>
-        <p className={styles.lede}>
-          One environment for your days, your studies, your work, your money and your
-          memory — owned by you alone, for as long as you want it.
-        </p>
+      <div className={styles.atmosphere} aria-hidden="true" />
+      <div ref={welcomeRef} className={styles.welcome} aria-hidden="true">
+        <div ref={welcomeContentRef} className={styles.welcomeContent}>
+          <span className={styles.welcomeEyebrow}>NN · PERSONAL SPACE</span>
+          <h1 className={styles.welcomeHeading}>Welcome.</h1>
+          <p className={styles.welcomeSubtitle}>A clearer space for everything ahead.</p>
+        </div>
+      </div>
+      <div ref={titleRef} className={styles.title} aria-hidden="true">
+        <NNLogo size={82} glow className={styles.mark} />
       </div>
 
-      <div ref={promptRef} className={styles.prompt}>
-        <span>Scroll to travel</span>
-        <span className={styles.promptLine} aria-hidden="true" />
-      </div>
-
-      <div ref={enterRef} className={styles.enter} aria-hidden="true">
+      <div ref={enterRef} className={styles.enter} aria-hidden="true" inert>
         <LiquidButton href={enterHref} size="xl" variant="accent">
           {enterLabel}
-          <Icon name="check" size={18} />
         </LiquidButton>
       </div>
 
-      <div ref={railRef} className={styles.rail} aria-hidden="true">
-        <span className={styles.railFill} />
-      </div>
 
       {/* The corridor itself. */}
       <div className={styles.corridor} aria-hidden="true">
@@ -348,10 +359,13 @@ export function NNIntro({ enterHref = "/sign-in", enterLabel = "Enter NN" }: NNI
             }}
             className={styles.card}
           >
-            <div className={styles.cardInner}>
+            <div className={`${styles.cardInner} nn-glass-card`}>
               <span className={styles.cardSheen} />
+              <span className={styles.cardWave} aria-hidden="true" />
               <span className={styles.cardIcon}>
-                <Icon name={placement.card.icon} size={26} />
+                {placement.card.mark === "ren"
+                  ? <RenMark size={32} active />
+                  : <Icon name={placement.card.icon} size={27} tone="cyan" />}
               </span>
               <span className={styles.cardTitle}>{placement.card.title}</span>
               <span className={styles.cardHint}>{placement.card.hint}</span>

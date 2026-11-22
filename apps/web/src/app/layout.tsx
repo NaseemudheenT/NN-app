@@ -1,20 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import { ServiceWorker } from "@/components/ServiceWorker";
-import { Room } from "@/components/nn/Room";
+import { AppTransitionProvider } from "@/components/nn/AppTransition";
 import { RenProvider } from "@/components/ren/RenProvider";
-import { RenLauncher } from "@/components/ren/RenLauncher";
-import { RenPanel } from "@/components/ren/RenPanel";
+import { RenChrome } from "@/components/ren/RenChrome";
 import { LiquidGlassDefs } from "@/components/ui/LiquidButton";
+import { IconDefs } from "@/components/ui/IconDefs";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider, themeBootstrapScript } from "@/lib/theme";
 import "@/styles/global.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
 
 export const metadata: Metadata = {
   title: { default: "NN", template: "%s · NN" },
@@ -34,8 +27,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#07111F" },
-    { media: "(prefers-color-scheme: light)", color: "#F7F9FC" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#F2F2F7" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -49,19 +42,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Applies the stored theme before first paint so there is no flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
-      <body className={inter.variable}>
+      <body>
         <ThemeProvider>
-          {/* The room, behind everything, for the life of the session. */}
-          <Room />
           {/* One displacement map, shared by every liquid surface in NN. */}
           <LiquidGlassDefs />
+          {/* One light, shared by every icon. Mounted once rather than per
+              glyph: NN draws several hundred of them on some screens. */}
+          <IconDefs />
           {/* REN is a property of NN, not a page you navigate to: one
               instance, mounted once, present on every screen. */}
           <AuthProvider>
             <RenProvider>
-              <div className="nn-shell">{children}</div>
-              <RenLauncher />
-              <RenPanel />
+              {/* Opening a tool is a movement through the environment, so
+                  every route change that goes through NN's own controls
+                  travels the corridor rather than cutting. */}
+              <AppTransitionProvider>
+                <div className="nn-shell nn-page-arrive">{children}</div>
+                <RenChrome />
+              </AppTransitionProvider>
             </RenProvider>
           </AuthProvider>
           <ServiceWorker />

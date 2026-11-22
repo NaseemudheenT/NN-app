@@ -50,7 +50,7 @@ export function HoloPanel({
   };
 
   return (
-    <div className={[styles.panel, className ?? ""].filter(Boolean).join(" ")} style={style}>
+    <div className={["nn-glass-card", styles.panel, className ?? ""].filter(Boolean).join(" ")} style={style}>
       <div className={styles.body}>{children}</div>
     </div>
   );

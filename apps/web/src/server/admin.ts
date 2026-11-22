@@ -38,6 +38,38 @@ export function usingEmulators(): boolean {
   );
 }
 
+/**
+ * Whether this deployment has what the server needs to reach Firebase.
+ *
+ * A boolean rather than a throw, so a route can decide how to answer an
+ * unconfigured deployment instead of crashing into a 500. It deliberately
+ * repeats getAdmin's conditions rather than calling it: asking the question
+ * must never have the side effect of initialising the SDK.
+ */
+export function adminConfigured(): boolean {
+  if (services !== null || getApps().length > 0) return true;
+
+  const projectId =
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? process.env.GCLOUD_PROJECT;
+  if (projectId === undefined || projectId.length === 0) return false;
+  if (usingEmulators()) return true;
+
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (raw === undefined || raw.trim().length === 0) return false;
+  try {
+    const parsed = JSON.parse(raw) as {
+      project_id?: string; client_email?: string; private_key?: string;
+    };
+    return (
+      parsed.project_id !== undefined &&
+      parsed.client_email !== undefined &&
+      parsed.private_key !== undefined
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function getAdmin(): AdminServices {
   if (services !== null) return services;
 

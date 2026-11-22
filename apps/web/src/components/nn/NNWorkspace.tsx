@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { LiquidButton } from "@/components/ui/LiquidButton";
@@ -18,6 +18,16 @@ import {
   type WorkspacePeriod,
 } from "./workspaceContent";
 import styles from "./NNWorkspace.module.css";
+import { ownerFirstName as _of, ownerInitial } from "@/lib/nn/owner";
+import { FlipCard, FlipLift } from "@/components/ui/FlipCard";
+import { NNIsland } from "@/components/nn/NNIsland";
+const OWNER_FIRST = _of(null);
+const OWNER_INITIAL = ownerInitial(null);
+
+/** The legacy workspace remains usable in isolated preview/test renders. */
+function openWorkspaceDestination(path: string): void {
+  if (typeof window !== "undefined") window.location.assign(path);
+}
 
 /**
  * The NN workspace.
@@ -115,7 +125,7 @@ export interface NNWorkspaceProps {
 }
 
 export function NNWorkspace({
-  userName = "Founder",
+  userName = OWNER_FIRST,
   ownerUid,
   periodLabel = "November 2026",
   initialPeriodId = "month",
@@ -140,6 +150,8 @@ export function NNWorkspace({
   const [notice, setNotice] = useState("");
   const [renDraft, setRenDraft] = useState("");
   const narrow = useNarrow();
+  const swipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
+  const viewIndex = VIEWS.findIndex((item) => item.id === view);
 
   // Focus the first control in the panel when it opens; return focus to the
   // trigger when it closes. A popover that steals focus and loses it is worse
@@ -206,6 +218,30 @@ export function NNWorkspace({
   function changeView(next: View) {
     setView(next);
     setAlertsOpen(false);
+  }
+
+  function moveView(direction: -1 | 1) {
+    const next = VIEWS[Math.max(0, Math.min(VIEWS.length - 1, viewIndex + direction))];
+    if (next) changeView(next.id);
+  }
+
+  function beginViewSwipe(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== "touch") return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.closest("button, a, input, textarea, select, [contenteditable=\"true\"], [aria-roledescription=\"carousel\"]")) return;
+    swipeStart.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function endViewSwipe(event: ReactPointerEvent<HTMLDivElement>) {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < 52 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    moveView(dx < 0 ? 1 : -1);
   }
 
   /** The founder's own data, in a format nothing else owns. */
@@ -469,7 +505,7 @@ export function NNWorkspace({
    */
   const ren = (
     <section
-      className={[styles.panel, styles.ren, styles.reveal].join(" ")}
+      className={[styles.panel, "nn-glass-card", styles.ren, styles.reveal].join(" ")}
       style={{ "--i": 2 } as CSSProperties}
       aria-labelledby={`${id}-ren-heading`}
     >
@@ -562,10 +598,17 @@ export function NNWorkspace({
       <div className={styles.workspace}>
         <header className={[styles.topbar, styles.glass].join(" ")}>
           <div className={styles.brand}>
-            <NNLogo size={20} />
+            <NNLogo size={20} glow />
             <span className={styles.brandDivider} />
             <span className={styles.personal}>Private workspace</span>
           </div>
+          <NNIsland
+            title="PRIVATE WORKSPACE"
+            onHome={() => openWorkspaceDestination("/home")}
+            onSearch={() => openWorkspaceDestination("/search")}
+            onSettings={() => openWorkspaceDestination("/settings")}
+            onRen={() => openWorkspaceDestination("/ren/chat")}
+          />
           <div className={styles.toolbar}>
             <button
               type="button"
@@ -581,14 +624,12 @@ export function NNWorkspace({
               <i />
             </button>
             <span className={styles.avatar} title={userName}>
-              {userName.slice(0, 1).toUpperCase()}
+              {OWNER_INITIAL}
             </span>
           </div>
         </header>
 
         <div className={styles.stage}>
-          {nav(true)}
-
           <main className={[styles.main, styles.glass].join(" ")}>
             <div className={styles.viewHeading}>
               <div>
@@ -606,17 +647,28 @@ export function NNWorkspace({
                 ) : (
                   <span className={styles.date}>{periodLabel}</span>
                 )}
+                <div className={styles.viewControls} aria-label="Workspace view navigation">
+                  <button type="button" className={styles.viewArrow} onClick={() => moveView(-1)} disabled={viewIndex <= 0} aria-label="Previous workspace view">←</button>
+                  <span>{String(viewIndex + 1).padStart(2, "0")} / {String(VIEWS.length).padStart(2, "0")}</span>
+                  <button type="button" className={styles.viewArrow} onClick={() => moveView(1)} disabled={viewIndex >= VIEWS.length - 1} aria-label="Next workspace view">→</button>
+                </div>
               </div>
             </div>
 
             <div className={styles.mobileNav}>{nav(false)}</div>
 
-            <div key={view} className={styles.view}>
+            <div
+              key={view}
+              className={styles.view}
+              onPointerDown={beginViewSwipe}
+              onPointerUp={endViewSwipe}
+              onPointerCancel={() => { swipeStart.current = null; }}
+            >
               {view === "today" ? (
                 <>
                   <div className={styles.overviewGrid}>
                     <section
-                      className={[styles.panel, styles.focus, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.focus, styles.reveal].join(" ")}
                       style={{ "--i": 0 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -649,7 +701,7 @@ export function NNWorkspace({
                     </section>
 
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 1 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -679,12 +731,12 @@ export function NNWorkspace({
                   {ren}
 
                   <section
-                    className={[styles.panel, styles.launcher, styles.reveal].join(" ")}
+                    className={[styles.panel, "nn-glass-card", styles.launcher, styles.reveal].join(" ")}
                     style={{ "--i": 3 } as CSSProperties}
                   >
                     <div className={styles.panelTitle}>
                       <h2>Applications</h2>
-                      <span className={styles.smallLabel}>Drag, swipe or use the arrow keys</span>
+                      <span className={styles.smallLabel}>Swipe or use the arrows</span>
                     </div>
                     <Coverflow
                       cards={LAUNCHER.map((app) => ({
@@ -703,7 +755,7 @@ export function NNWorkspace({
 
                   <div className={styles.lowerGrid}>
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 4 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -720,7 +772,7 @@ export function NNWorkspace({
                       {entryList(4)}
                     </section>
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 5 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -735,7 +787,7 @@ export function NNWorkspace({
 
               {view === "timeline" ? (
                 <section
-                  className={[styles.panel, styles.reveal].join(" ")}
+                  className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                   style={{ "--i": 0 } as CSSProperties}
                 >
                   <div className={styles.panelTitle}>
@@ -778,7 +830,7 @@ export function NNWorkspace({
                     </span>
                   </div>
                   <section
-                    className={[styles.panel, styles.reveal].join(" ")}
+                    className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                     style={{ "--i": 1 } as CSSProperties}
                   >
                     <div className={styles.panelTitle}>
@@ -795,25 +847,69 @@ export function NNWorkspace({
                 <>
                   <div className={[styles.stats, styles.reveal].join(" ")} style={{ "--i": 0 } as CSSProperties}>
                     {[
-                      { label: "Spent", value: studied, icon: "clock" as const },
-                      { label: "Planned", value: planned, icon: "calendar" as const },
-                      { label: "Difference", value: Math.abs(studied - planned), icon: "graph" as const },
+                      {
+                        label: "Spent", value: studied, icon: "clock" as const,
+                        detail: planned === 0
+                          ? "Nothing was planned for this period, so there is nothing to measure this against."
+                          : `${Math.round((studied / planned) * 100)}% of the ${formatMinutes(planned)} you planned.`,
+                      },
+                      {
+                        label: "Planned", value: planned, icon: "calendar" as const,
+                        detail: planned === 0
+                          ? "No plan has been set for this period yet."
+                          : `${formatMinutes(studied)} of it is spent. ${formatMinutes(Math.max(0, planned - studied))} remains.`,
+                      },
+                      {
+                        label: "Difference", value: Math.abs(studied - planned), icon: "graph" as const,
+                        detail: studied === planned
+                          ? "Exactly on plan."
+                          : studied > planned
+                            ? `${formatMinutes(studied - planned)} more than planned.`
+                            : `${formatMinutes(planned - studied)} short of the plan.`,
+                      },
                     ].map((stat) => (
-                      <section className={styles.panel} key={stat.label}>
-                        <div className={styles.panelTitle}>
-                          <span>{stat.label}</span>
-                          <Icon name={stat.icon} size={17} />
-                        </div>
-                        <strong>{formatMinutes(stat.value)}</strong>
-                        <span className={styles.statPeriod}>
-                          {selectedPeriod?.label ?? "No period data"}
-                        </span>
-                      </section>
+                      /* A card with a back, not a card with a hover effect.
+                         The front is the number; the back is what the number
+                         means — derived from the same two figures, never
+                         invented, so turning it over can only ever show
+                         something true. */
+                      <FlipCard
+                        key={stat.label}
+                        label={stat.label}
+                        hint="What it means"
+                        className={styles.statFlip}
+                        front={
+                          <div className={[styles.panel, "nn-glass-card", styles.statFace].join(" ")}>
+                            <div className={styles.panelTitle}>
+                              <span>{stat.label}</span>
+                              <FlipLift depth={2}><Icon name={stat.icon} size={17} /></FlipLift>
+                            </div>
+                            <FlipLift depth={3}><strong>{formatMinutes(stat.value)}</strong></FlipLift>
+                            <span className={styles.statPeriod}>
+                              {selectedPeriod?.label ?? "No period data"}
+                            </span>
+                          </div>
+                        }
+                        back={
+                          <div className={[styles.panel, "nn-glass-card", styles.statFace].join(" ")}>
+                            <div className={styles.panelTitle}>
+                              <span>{stat.label}</span>
+                              <FlipLift depth={2}><Icon name={stat.icon} size={17} /></FlipLift>
+                            </div>
+                            <FlipLift depth={2}>
+                              <span className={styles.statDetail}>{stat.detail}</span>
+                            </FlipLift>
+                            <span className={styles.statPeriod}>
+                              {selectedPeriod?.label ?? "No period data"}
+                            </span>
+                          </div>
+                        }
+                      />
                     ))}
                   </div>
                   <div className={styles.reportsGrid}>
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 1 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -836,7 +932,7 @@ export function NNWorkspace({
                       ) : null}
                     </section>
                     <section
-                      className={[styles.panel, styles.reveal].join(" ")}
+                      className={[styles.panel, "nn-glass-card", styles.reveal].join(" ")}
                       style={{ "--i": 2 } as CSSProperties}
                     >
                       <div className={styles.panelTitle}>
@@ -886,7 +982,7 @@ export function NNWorkspace({
         </div>
 
         {alertsOpen ? (
-          <aside className={[styles.notifications, styles.glass].join(" ")} aria-label="Notifications">
+          <aside className={[styles.notifications, styles.glass, "nn-glass-card"].join(" ")} aria-label="Notifications">
             <div>
               <h2>Nothing needs you.</h2>
               <button type="button" aria-label="Close notifications" onClick={() => setAlertsOpen(false)}>
@@ -916,7 +1012,7 @@ export function NNWorkspace({
 
         {settingsOpen ? (
           <aside
-            className={[styles.material, styles.glass].join(" ")}
+            className={[styles.material, styles.glass, "nn-glass-card"].join(" ")}
             id={`${id}-material`}
             aria-label="Glass appearance"
           >

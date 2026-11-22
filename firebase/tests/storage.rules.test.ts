@@ -30,8 +30,9 @@ beforeAll(async () => {
 afterAll(async () => { await env.cleanup(); });
 beforeEach(async () => { await env.clearStorage(); });
 
-const asOwner = () => env.authenticatedContext(OWNER).storage();
-const asIntruder = () => env.authenticatedContext(INTRUDER).storage();
+const asOwner = () => env.authenticatedContext(OWNER, { nnOwner: true }).storage();
+const asIntruder = () => env.authenticatedContext(INTRUDER, { nnOwner: true }).storage();
+const asNonPasskey = () => env.authenticatedContext(OWNER).storage();
 const asStranger = () => env.unauthenticatedContext().storage();
 
 describe("ownership", () => {
@@ -56,6 +57,11 @@ describe("ownership", () => {
 
   it("DENIES another signed-in user writing into the founder's space", async () => {
     await assertFails(uploadBytes(ref(asIntruder(), `users/${OWNER}/documents/evil.pdf`), bytes(16), pdf));
+  });
+
+  it("DENIES a Firebase-authenticated user without the verified passkey owner claim", async () => {
+    await assertFails(uploadBytes(ref(asNonPasskey(), `users/${OWNER}/files/no-passkey.pdf`), bytes(16), pdf));
+    await assertFails(getDownloadURL(ref(asNonPasskey(), `users/${OWNER}/files/private.pdf`)));
   });
 
   it("DENIES an anonymous request completely", async () => {

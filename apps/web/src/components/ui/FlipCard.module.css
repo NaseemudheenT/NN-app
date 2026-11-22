@@ -1,0 +1,120 @@
+/* A card with a back. See FlipCard.tsx. */
+
+.scene {
+  /* The depth of the room the card turns in. Shallower than the reference's
+     2000px: NN's cards sit in a grid rather than alone on a page, and a deep
+     perspective makes the ones at the edges shear badly because each gets its
+     own vanishing point. 1400 keeps the turn convincing and the row coherent. */
+  perspective: 1400px;
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: none;
+  text-align: inherit;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scene:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+  border-radius: var(--radius-lg);
+}
+
+.pane {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  transform-style: preserve-3d;
+  transition: transform 720ms cubic-bezier(0.22, 1, 0.3, 1);
+}
+
+.scene[data-flipped="true"] .pane { transform: rotateY(180deg); }
+
+/* Hover flips too, but only where there is a real pointer. On a phone the
+   browser synthesises a hover on tap and the card would turn twice — once
+   from the hover, once from the press — landing back where it started. */
+@media (hover: hover) and (pointer: fine) {
+  /* Hover previews the back; a press locks it there. Carrying the turn on to
+     360deg so it "keeps going the same way" sounds right and is wrong: a
+     locked card that is also hovered then lands on its *front* while
+     `aria-pressed` says it is showing the detail, so what a sighted founder
+     sees and what a screen reader is told disagree. Both states resolve to
+     the same half-turn instead, which makes the press a lock on what hover
+     was already showing. */
+  .scene:hover .pane,
+  .scene[data-flipped="true"]:hover .pane { transform: rotateY(180deg); }
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  transform-style: preserve-3d;
+  /* Without this both faces paint at once and the back shows through the
+     front as mirror writing. */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.back { transform: rotateY(180deg); }
+
+/* The front face holds the card in the layout; the absolute faces cannot.
+   A card sized by its own content needs something in flow to size it. */
+.sizer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ---- depth ------------------------------------------------------------------
+   What makes the reference read as an object rather than a turning picture:
+   the contents stand off the face at different heights, so they part company
+   as the card turns. These are the three NN uses — anything deeper starts to
+   clip against the neighbouring card in a grid. */
+.lift1 { transform: translateZ(18px); transform-style: preserve-3d; }
+.lift2 { transform: translateZ(34px); transform-style: preserve-3d; }
+.lift3 { transform: translateZ(52px); transform-style: preserve-3d; }
+
+/* ---- the hint ---------------------------------------------------------------
+   A card with a back is useless if nothing says so. */
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+  font-size: var(--text-micro-size);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transform: translateZ(14px);
+  transition: color var(--dur-base) var(--ease-standard);
+}
+
+.scene:hover .hint, .scene:focus-visible .hint { color: var(--text-accent); }
+
+/* ---- reduced motion ---------------------------------------------------------
+   A 3D spin is exactly the motion that causes trouble, so there is no spin:
+   the faces cross-fade in place. The card still has two sides and the control
+   still works; it simply does not pivot. */
+@media (prefers-reduced-motion: reduce) {
+  .pane, .scene[data-flipped="true"] .pane,
+  .scene:hover .pane, .scene[data-flipped="true"]:hover .pane { transform: none; }
+  .face { backface-visibility: visible; -webkit-backface-visibility: visible; }
+  .back { transform: none; opacity: 0; transition: opacity 1ms linear; }
+  .scene[data-flipped="true"] .front { opacity: 0; }
+  .scene[data-flipped="true"] .back { opacity: 1; }
+  .lift1, .lift2, .lift3 { transform: none; }
+}
+
+:root[data-motion="reduced"] .pane,
+:root[data-motion="reduced"] .scene[data-flipped="true"] .pane { transform: none; }
+:root[data-motion="reduced"] .face { backface-visibility: visible; -webkit-backface-visibility: visible; }
+:root[data-motion="reduced"] .back { transform: none; opacity: 0; }
+:root[data-motion="reduced"] .scene[data-flipped="true"] .front { opacity: 0; }
+:root[data-motion="reduced"] .scene[data-flipped="true"] .back { opacity: 1; }

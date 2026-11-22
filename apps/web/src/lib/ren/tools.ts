@@ -1,0 +1,324 @@
+import { APPLICATIONS } from "@/lib/apps/registry";
+import { APP_SECTIONS } from "@/lib/apps/sections";
+import { plan, type CapabilityArgs, type CapabilityId, type RenPlan } from "./capabilities";
+import { specialistAllows, specialistForApp, WORKSPACE_SPECIALISTS, type WorkspaceSpecialist } from "./specialists";
+
+/**
+ * REN's hands, described so a model can reach for them.
+ *
+ * This is the same list as {@link CAPABILITIES} — deliberately, because two
+ * lists would drift and the drift would be a model confidently calling a
+ * tool NN does not have. What is added here is the shape of the arguments
+ * and the enumerations: the model is given the actual application ids and
+ * the actual collection names, so it cannot invent a destination that does
+ * not exist and discover it halfway through a write.
+ *
+ * The tools run **in the browser, as the founder**. Nothing here executes on
+ * the server with elevated rights. That is what keeps the Firestore rules the
+ * real authorisation boundary: REN can read and write exactly what the
+ * founder could, and nothing more, whichever model is driving.
+ */
+
+const APP_IDS = APPLICATIONS.map((app) => app.id);
+const ACTIVE_SPECIALIST_IDS = WORKSPACE_SPECIALISTS.filter((agent) => agent.status === "active").map((agent) => agent.appId);
+
+/**
+ * Every collection NN can write to, from both places one is declared.
+ *
+ * `APP_SECTIONS` describes the sectioned applications. Life and Files are
+ * not sectioned — they own their collections on the registry entry itself —
+ * and those six are the ones the founder reaches for first: tasks, calendar
+ * events, reminders, notes, goals and documents. Deriving this list from
+ * sections alone silently left REN unable to add a task, which is the most
+ * ordinary thing it will ever be asked to do. The union is the whole of what
+ * exists; anything outside it is refused at the edge.
+ */
+const COLLECTIONS = [
+  ...new Set([
+    ...Object.values(APP_SECTIONS).flatMap((sections) => sections.map((s) => s.collection)),
+    ...APPLICATIONS.flatMap((app) => app.collections ?? []),
+  ]),
+].sort();
+
+export interface RenTool {
+  name: string;
+  description: string;
+  schema: Record<string, unknown>;
+}
+
+const object = (
+  properties: Record<string, unknown>,
+  required: string[] = [],
+): Record<string, unknown> => ({ type: "object", properties, required, additionalProperties: false });
+
+export const REN_TOOLS: readonly RenTool[] = [
+  {
+    name: "open_application",
+    description:
+      "Move the founder to one of NN's applications. Use this whenever they ask to go somewhere, " +
+      "see something, or work on something that has its own application. Reports back only after " +
+      "the screen has actually changed.",
+    schema: object(
+      { appId: { type: "string", enum: APP_IDS, description: "The application to open." } },
+      ["appId"],
+    ),
+  },
+  {
+    name: "delegate_to_specialist",
+    description:
+      "Hand a workspace-specific NN task to that workspace's dedicated specialist. " +
+      "Use this when the request belongs to a particular NN application. The task is carried " +
+      "into that specialist's workspace chat; the specialist cannot operate outside its own domain.",
+    schema: object(
+      {
+        appId: { type: "string", enum: ACTIVE_SPECIALIST_IDS, description: "The specialist's workspace." },
+        text: { type: "string", description: "The complete task to hand to the specialist." },
+      },
+      ["appId", "text"],
+    ),
+  },
+  {
+    name: "capture_record",
+    description:
+      "Write a new record into one of the founder's collections — a task, a note, an event, an " +
+      "expense, and so on. NN asks the founder to confirm before this is written.",
+    schema: object(
+      {
+        collection: { type: "string", enum: COLLECTIONS, description: "Where it belongs." },
+        title: { type: "string", description: "The record's title, in the founder's own words." },
+        text: { type: "string", description: "Any detail that belongs with it. Optional." },
+      },
+      ["collection", "title"],
+    ),
+  },
+  {
+    name: "inspect_workspace_records",
+    description:
+      "Read records from one specific workspace collection and return a concise, factual summary. " +
+      "This is read-only. Never use another workspace's collection.",
+    schema: object(
+      {
+        collection: { type: "string", enum: COLLECTIONS, description: "The workspace-owned collection to inspect." },
+        text: { type: "string", description: "Optional phrase to filter records." },
+      },
+      ["collection"],
+    ),
+  },
+  {
+    name: "search_records",
+    description:
+      "Search everything the founder has stored in NN for a phrase, and show them the results.",
+    schema: object({ text: { type: "string", description: "What to search for." } }, ["text"]),
+  },
+  {
+    name: "report_state",
+    description:
+      "Report what NN is currently holding — how much is open, scheduled, recorded. Use this " +
+      "instead of guessing at counts.",
+    schema: object({}),
+  },
+  {
+    name: "complete_record",
+    description:
+      "Mark one of the founder's records as done — a task, a reminder, a goal. Identify it by " +
+      "the words the founder used; NN resolves those to a record and refuses if more than one " +
+      "matches. NN asks the founder to confirm before this is written.",
+    schema: object(
+      {
+        collection: { type: "string", enum: COLLECTIONS, description: "Where the record lives." },
+        title: { type: "string", description: "The record, in the founder's own words." },
+      },
+      ["collection", "title"],
+    ),
+  },
+  {
+    name: "discard_record",
+    description:
+      "Move one of the founder's records to the trash, where it can be restored. Identify it by " +
+      "the words the founder used. This is a sensitive action: NN asks the device to prove the " +
+      "founder is present before it runs.",
+    schema: object(
+      {
+        collection: { type: "string", enum: COLLECTIONS, description: "Where the record lives." },
+        title: { type: "string", description: "The record, in the founder's own words." },
+      },
+      ["collection", "title"],
+    ),
+  },
+  {
+    name: "set_voice",
+    description:
+      "Change the voice REN speaks in. Use this when the founder asks for a male or female "
+      + "voice, or for the device's own. NN refuses if the device has no such voice installed, "
+      + "and says so rather than changing nothing silently.",
+    schema: object(
+      {
+        voice: {
+          type: "string",
+          enum: ["system", "female", "male"],
+          description: "The voice to speak in.",
+        },
+      },
+      ["voice"],
+    ),
+  },
+  {
+    name: "set_appearance",
+    description: "Change how NN looks: dark, light, or follow the founder's device.",
+    schema: object(
+      {
+        appearance: {
+          type: "string",
+          enum: ["dark", "light", "system"],
+          description: "The appearance to apply.",
+        },
+      },
+      ["appearance"],
+    ),
+  },
+] as const;
+
+/** The name a model uses → the capability NN runs. */
+const CAPABILITY_OF: Readonly<Record<string, CapabilityId>> = {
+  open_application: "open",
+  delegate_to_specialist: "delegate",
+  capture_record: "capture",
+  search_records: "find",
+  inspect_workspace_records: "inspect",
+  complete_record: "complete",
+  discard_record: "discard",
+  report_state: "report",
+  set_appearance: "appearance",
+  set_voice: "voice",
+};
+
+/**
+ * Turns a model's tool call into a plan NN can run, or refuses it.
+ *
+ * Every argument is checked against what exists — an application id that is
+ * not in the registry, a collection no application owns — because a model
+ * being confidently wrong about a destination is the ordinary case, not the
+ * exceptional one. A refusal here is a sentence REN can read back; it is
+ * never an exception, because a thrown error mid-answer looks to the founder
+ * like REN stopped talking.
+ */
+export function planFromToolCall(
+  name: string,
+  args: Record<string, unknown>,
+  workspaceId?: string,
+): { ok: true; plan: RenPlan } | { ok: false; why: string } {
+  const capability = CAPABILITY_OF[name];
+  if (!capability) return { ok: false, why: `NN has no tool called "${name}".` };
+
+  const text = typeof args["text"] === "string" ? args["text"].trim() : undefined;
+  const title = typeof args["title"] === "string" ? args["title"].trim() : undefined;
+  const appId = typeof args["appId"] === "string" ? args["appId"] : undefined;
+  const collection = typeof args["collection"] === "string" ? args["collection"] : undefined;
+  const appearance = typeof args["appearance"] === "string" ? args["appearance"] : undefined;
+
+  if (workspaceId && !specialistAllows(workspaceId, capability, collection)) {
+    return {
+      ok: false,
+      why: `The ${workspaceId} specialist is not authorised to use ${name} outside its own workspace records.`,
+    };
+  }
+
+  const resolved: CapabilityArgs = {};
+
+  if (capability === "delegate") {
+    const agent = appId ? specialistForApp(appId) : null;
+    if (!agent || agent.status !== "active") {
+      return { ok: false, why: `There is no active specialist for "${appId ?? ""}".` };
+    }
+    if (!text) return { ok: false, why: "I need a task to hand to the specialist." };
+    resolved.appId = agent.appId;
+    resolved.text = text;
+  }
+
+  if (capability === "open") {
+    if (!appId || !APP_IDS.includes(appId)) {
+      return { ok: false, why: `NN has no application with the id "${appId ?? ""}".` };
+    }
+    resolved.appId = appId;
+  }
+
+  if (capability === "inspect") {
+    if (!collection || !COLLECTIONS.includes(collection)) {
+      return { ok: false, why: `Nothing in NN stores "${collection ?? ""}".` };
+    }
+    resolved.collection = collection;
+    if (text) resolved.text = text;
+  }
+
+  if (capability === "complete" || capability === "discard") {
+    if (!collection || !COLLECTIONS.includes(collection)) {
+      return { ok: false, why: `Nothing in NN stores "${collection ?? ""}".` };
+    }
+    if (!title) return { ok: false, why: "NN needs to know which record you mean." };
+    resolved.collection = collection;
+    resolved.title = title;
+  }
+
+  if (capability === "capture") {
+    if (!collection || !COLLECTIONS.includes(collection)) {
+      return { ok: false, why: `Nothing in NN stores "${collection ?? ""}".` };
+    }
+    if (!title) return { ok: false, why: "A record needs a title before NN can store it." };
+    resolved.collection = collection;
+    resolved.title = title;
+    if (text) resolved.text = text;
+  }
+
+  if (capability === "find") {
+    if (!text) return { ok: false, why: "There is nothing to search for." };
+    resolved.text = text;
+  }
+
+  if (capability === "voice") {
+    const allowed = ["system", "female", "male"] as const;
+    const voice = typeof args["voice"] === "string" ? args["voice"] : undefined;
+    const match = allowed.find((value) => value === voice);
+    if (!match) return { ok: false, why: `REN has no "${voice ?? ""}" voice.` };
+    resolved.voice = match;
+  }
+
+  if (capability === "appearance") {
+    const allowed = ["dark", "light", "system"] as const;
+    const match = allowed.find((value) => value === appearance);
+    if (!match) return { ok: false, why: `NN has no appearance called "${appearance ?? ""}".` };
+    resolved.appearance = match;
+  }
+
+  return { ok: true, plan: plan(capability, resolved) };
+}
+
+
+/** Narrow REN's workspace tools to the collections owned by one specialist. */
+export function toolsForSpecialist(agent: WorkspaceSpecialist): readonly RenTool[] {
+  if (agent.status !== "active" || agent.collections.length === 0) return [];
+  const allowed = new Set(agent.collections);
+  return REN_TOOLS.filter((tool) =>
+    ["inspect_workspace_records", "capture_record", "complete_record", "discard_record"].includes(tool.name),
+  ).flatMap((tool) => {
+    const properties = tool.schema["properties"];
+    if (!properties || typeof properties !== "object") return [];
+    const collection = (properties as Record<string, unknown>)["collection"];
+    if (!collection || typeof collection !== "object") return [];
+    const choices = (collection as Record<string, unknown>)["enum"];
+    if (!Array.isArray(choices)) return [];
+    const scoped = choices.filter((value): value is string =>
+      typeof value === "string" && allowed.has(value),
+    );
+    if (scoped.length === 0) return [];
+    return [{
+      ...tool,
+      schema: {
+        ...tool.schema,
+        properties: {
+          ...(properties as Record<string, unknown>),
+          collection: { ...(collection as Record<string, unknown>), enum: scoped },
+        },
+      },
+    }];
+  });
+}

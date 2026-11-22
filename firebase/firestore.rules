@@ -17,7 +17,7 @@ service cloud.firestore {
     // ---------------------------------------------------------------- helpers
 
     function signedIn() {
-      return request.auth != null;
+      return request.auth != null && request.auth.token.nnOwner == true;
     }
 
     function isOwner(uid) {
