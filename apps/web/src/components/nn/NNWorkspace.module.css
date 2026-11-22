@@ -1193,3 +1193,10 @@
   color: var(--text-secondary);
   text-wrap: pretty;
 }
+
+
+/* Keep the global island above the workspace canvas and its floating panels. */
+.topbar { position: relative; z-index: 30; }
+@media (max-width: 767px) {
+  .topbar { position: relative; z-index: 30; }
+}
