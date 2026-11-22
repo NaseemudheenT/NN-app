@@ -8,6 +8,7 @@ import { Dock } from "@/components/ui/Dock";
 import { Icon } from "@/components/ui/Icon";
 import { NNLogo } from "@/components/ui/NNLogo";
 import { APPLICATIONS } from "@/lib/apps/registry";
+import { matchesPathname } from "@/lib/apps/route-matching";
 import { NNIsland } from "@/components/nn/NNIsland";
 import styles from "./AppShell.module.css";
 
@@ -49,8 +50,10 @@ export function AppShell({ title, subtitle, actions, children }: AppShellProps) 
     ];
   }, []);
 
-  const activeId = dockItems.find((item) => item.id === pathname)?.id ?? "/home";
-  const currentApp = APPLICATIONS.find((app) => app.href === pathname || app.overviewHref === pathname);
+  const activeId = dockItems.find((item) => matchesPathname(pathname, item.id))?.id ?? "/home";
+  const currentApp = APPLICATIONS.find(
+    (app) => matchesPathname(pathname, app.href) || matchesPathname(pathname, app.overviewHref),
+  );
 
 
   return (
