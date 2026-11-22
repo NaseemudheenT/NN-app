@@ -20,6 +20,8 @@ import {
 import styles from "./NNWorkspace.module.css";
 import { ownerFirstName as _of, ownerInitial } from "@/lib/nn/owner";
 import { FlipCard, FlipLift } from "@/components/ui/FlipCard";
+import { useAppTransition } from "@/components/nn/AppTransition";
+import { NNIsland } from "@/components/nn/NNIsland";
 const OWNER_FIRST = _of(null);
 const OWNER_INITIAL = ownerInitial(null);
 
@@ -131,6 +133,7 @@ export function NNWorkspace({
   onSignOut,
   onSignOutEverywhere,
 }: NNWorkspaceProps) {
+  const travel = useAppTransition();
   const root = useRef<HTMLDivElement>(null);
   const settingsTrigger = useRef<HTMLButtonElement>(null);
   const id = useId().replace(/:/g, "");
@@ -596,6 +599,13 @@ export function NNWorkspace({
             <span className={styles.brandDivider} />
             <span className={styles.personal}>Private workspace</span>
           </div>
+          <NNIsland
+            title="PRIVATE WORKSPACE"
+            onHome={() => travel.open("/home" as Route, "NN Home")}
+            onSearch={() => travel.open("/search" as Route, "Search")}
+            onSettings={() => travel.open("/settings" as Route, "Settings")}
+            onRen={() => travel.open("/ren/chat" as Route, "REN")}
+          />
           <div className={styles.toolbar}>
             <button
               type="button"
