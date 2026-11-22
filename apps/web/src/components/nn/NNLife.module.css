@@ -515,3 +515,14 @@
 .tab,.tabActive{min-height:42px;border-radius:11px}
 .tabActive{background:var(--glass-active);color:var(--text-accent);border-color:var(--border-subtle)}
 @media(max-width:700px){.layout{padding:22px 14px}.hero{min-height:200px;padding:30px 22px 42px}.heroMeta{left:22px;right:22px}.tabs{margin-top:16px}}
+
+
+/* NN Dynamic Island — consistent global controls on the standalone Life route. */
+.topbar { position: sticky; }
+.topRight { position: relative; z-index: 1; }
+@media (max-width: 620px) {
+  .topbar { gap: 8px; padding-inline: 12px; }
+  .brand { gap: 7px; font-size: 10px; }
+  .topRight { gap: 8px; }
+  .refresh, .avatar { width: 36px; height: 36px; }
+}
